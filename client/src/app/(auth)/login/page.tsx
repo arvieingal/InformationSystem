@@ -133,7 +133,7 @@ const Login = () => {
         <div className="w-[80%] md:w-[90%] 2xl:w-[150%]">
           <Image
             className="h-screen w-full object-cover rounded-l-[5px]"
-            src="/register.png"
+            src="/img/register.png"
             width={1000}
             height={800}
             alt="Login Image"
@@ -142,7 +142,7 @@ const Login = () => {
 
         <div className="w-[35%] flex flex-col items-center justify-center mb-[8%]">
           <div className="flex items-center justify-center">
-            <Image src="/logo.svg" width={92} height={91} alt="Logo" />
+            <Image src="/svg/logo.svg" width={92} height={91} alt="Logo" />
           </div>
 
           <div className="flex items-center justify-center flex-col mb-8">
@@ -195,7 +195,7 @@ const Login = () => {
                 >
                   <Image
                     className="md:w-[8] pt-4"
-                    src={passwordVisible ? "/visible.svg" : "/visible.svg"}
+                    src={passwordVisible ? "/svg/visible.svg" : "/svg/visible.svg"}
                     width={18}
                     height={18}
                     alt={passwordVisible ? "Hide" : "Show"}
@@ -229,7 +229,7 @@ const Login = () => {
                       className="bg-white w-[533px] h-[471px] p-4 rounded-[10px] shadow-lg"
                     >
                       <div className="flex items-end justify-center">
-                        <Image src="./logo.svg" width={92} height={61} alt="" />
+                        <Image src="/svg/logo.svg" width={92} height={61} alt="" />
                       </div>
                       <div className="flex items-center justify-center flex-col pt-[1rem]">
                         <h2 className="text-[30px] font-medium">
@@ -257,7 +257,7 @@ const Login = () => {
                       </div>
                       <div className="flex items-center justify-center mt-[2rem]">
                         <Image
-                          src="/arrow.svg"
+                          src="/svg/arrow.svg"
                           width={20}
                           height={20}
                           alt="Back Icon"
@@ -284,7 +284,7 @@ const Login = () => {
                       className="bg-white w-[533px] h-[471px] p-4 rounded-[10px] shadow-lg"
                     >
                       <div className="flex items-end justify-center">
-                        <Image src="./logo.svg" width={92} height={61} alt="" />
+                        <Image src="/svg/logo.svg" width={92} height={61} alt="" />
                       </div>
                       <div className="flex items-center justify-center flex-col pt-[1rem]">
                         <h2 className="text-[30px] font-medium">
@@ -326,7 +326,7 @@ const Login = () => {
                         </p>
                         <div className="flex items-center justify-center mt-[2rem]">
                           <Image
-                            src="/arrow.svg"
+                            src="/svg/arrow.svg"
                             width={20}
                             height={20}
                             alt="Back Icon"
@@ -354,7 +354,7 @@ const Login = () => {
                       className="bg-white w-[533px] h-[471px] p-4 rounded-[10px] shadow-lg"
                     >
                       <div className="flex items-end justify-center">
-                        <Image src="./logo.svg" width={92} height={61} alt="" />
+                        <Image src="/svg./logo.svg" width={92} height={61} alt="" />
                       </div>
                       <div className="flex items-center justify-center flex-col pt-[1rem]">
                         <h2 className="text-[30px] font-medium">
@@ -389,7 +389,7 @@ const Login = () => {
                         </button>
                         <div className="flex items-center justify-center mt-[2rem]">
                           <Image
-                            src="/arrow.svg"
+                            src="/svg/arrow.svg"
                             width={20}
                             height={20}
                             alt="Back Icon"
@@ -417,7 +417,7 @@ const Login = () => {
                       className="bg-white w-[533px] h-[471px] p-4 rounded-[10px] shadow-lg"
                     >
                       <div className="flex items-end justify-center">
-                        <Image src="./logo.svg" width={92} height={61} alt="" />
+                        <Image src="/svg./logo.svg" width={92} height={61} alt="" />
                       </div>
                       <div className="flex items-center justify-center flex-col pt-[2rem] gap-4">
                         <h2 className="text-[30px] font-medium">All Done!</h2>

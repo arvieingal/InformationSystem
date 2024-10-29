@@ -1,0 +1,27 @@
+const express = require("express");
+const app = express();
+const cors = require("cors");
+const db = require("./models");
+const userRoutes = require('./routes/user'); // Import user routes
+const PORT = 3001;
+
+app.use(express.json());
+app.use(cors());
+app.use('/api', userRoutes); // Use user routes with /api prefix
+
+const initApp = async () => {
+  console.log("Testing the database connection...");
+
+  try {
+    await db.sequelize.authenticate();
+    console.log("Connection has been established successfully.");
+
+    app.listen(PORT, () => {
+      console.log(`Running at port: ${PORT}`);
+    });
+  } catch (error) {
+    console.log("Unable to connect to the database:", error);
+  }
+};
+
+initApp();
