@@ -23,7 +23,7 @@ const AdminSidebar = () => {
   return (
     <div className="w-[10%] flex h-screen flex-col">
       <Image
-        src="/logo.svg"
+        src="/svg/logo.svg"
         width={500}
         height={500}
         alt="Logo"
@@ -32,7 +32,7 @@ const AdminSidebar = () => {
       <div className="flex flex-col w-full h-full">
         <div className="flex flex-col gap-[30px] items-center justify-center h-full">
           <Image
-            src="/people.svg"
+            src="/svg/people.svg"
             width={50}
             height={50}
             alt="People"
@@ -41,7 +41,7 @@ const AdminSidebar = () => {
           />
 
           <Image
-            src="/people2.svg"
+            src="/svg/people2.svg"
             width={50}
             height={50}
             alt="People2"
@@ -50,17 +50,17 @@ const AdminSidebar = () => {
           />
 
           <Image
-            src="/location.svg"
+            src={clickedImage === "health" ? "/svg/health1.svg" : "/svg/health.svg"} // Change image based on active state
             width={50}
             height={50}
-            alt="Location"
-            className={clickedImage === "location" ? "filter-green" : ""}
-            onClick={() => handleImageClick("location", "/location")} 
+            alt="health"
+            className={clickedImage === "health" ? "filter-green" : ""}
+            onClick={() => handleImageClick("health", "/health")} 
           />
         </div>
         <div className="flex items-center justify-center">
           <Image
-            src="/logout.svg"
+            src="/svg/logout.svg"
             width={50}
             height={50}
             alt="Logout"

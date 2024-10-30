@@ -28,7 +28,7 @@ const AdminHeader = () => {
   return (
     <div className="w-full relative px-4 py-8">
       <Image
-        src="/header.svg"
+        src="/svg/header.svg"
         width={500}
         height={200}
         alt="Picture of the author"
@@ -40,7 +40,7 @@ const AdminHeader = () => {
         </p>
         <div>
           <Image
-            src="/profile.svg"
+            src="/svg/profile.svg"
             width={50}
             height={20}
             alt="Profile picture"

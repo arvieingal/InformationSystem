@@ -133,7 +133,7 @@ const Login = () => {
         <div className="w-[80%] md:w-[90%] 2xl:w-[150%]">
           <Image
             className="h-screen w-full object-cover rounded-l-[5px]"
-            src="/register.png"
+            src="/img/register.png"
             width={1000}
             height={800}
             alt="Login Image"
@@ -142,7 +142,7 @@ const Login = () => {
 
         <div className="w-[35%] flex flex-col items-center justify-center mb-[8%]">
           <div className="flex items-center justify-center">
-            <Image src="/logo.svg" width={92} height={91} alt="Logo" />
+            <Image src="/svg/logo.svg" width={92} height={91} alt="Logo" />
           </div>
 
           <div className="flex items-center justify-center flex-col mb-8">
@@ -195,7 +195,7 @@ const Login = () => {
                 >
                   <Image
                     className="md:w-[8] pt-4"
-                    src={passwordVisible ? "/visible.svg" : "/visible.svg"}
+                    src={passwordVisible ? "/svg/visible.svg" : "/svg/visible.svg"}
                     width={18}
                     height={18}
                     alt={passwordVisible ? "Hide" : "Show"}

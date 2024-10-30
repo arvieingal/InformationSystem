@@ -76,7 +76,7 @@ const [fieldError, setFieldError] = useState<{
       <div className="w-[80%]  md:w-[90%] 2xl:w-[250%]">
         <Image
           className="h-screen w-full  object-cover rounded-l-[5px]"
-          src="/register.png"
+          src="/img/register.png"
           width={1000}
           height={800}
           alt="Login Image"
@@ -85,7 +85,7 @@ const [fieldError, setFieldError] = useState<{
       <div className=" w-[35%] mb-[2%] ">
          <div className='flex items-center justify-center '>
          <Image
-         src="/logo.svg"
+         src="/svg/logo.svg"
          width={92}
          height={91}
          alt="Logo"
@@ -144,7 +144,7 @@ const [fieldError, setFieldError] = useState<{
                 >
                   <Image
                     className="md:w-[8] pt-4 "
-                    src={passwordVisible ? "/visible.svg" : "/visible.svg"}
+                    src={passwordVisible ? "/svg/visible.svg" : "/svg/visible.svg"}
                     width={18}
                     height={18}
                     alt={passwordVisible ? "Hide" : "Show"}
@@ -166,7 +166,7 @@ const [fieldError, setFieldError] = useState<{
                 >
                   <Image
                     className="md:w-[8] pt-4 "
-                    src={passwordVisible ? "/visible.svg" : "/visible.svg"}
+                    src={passwordVisible ? "/svg/visible.svg" : "/svg/visible.svg"}
                     width={18}
                     height={18}
                     alt={passwordVisible ? "Hide" : "Show"}
