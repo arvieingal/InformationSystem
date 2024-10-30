@@ -1,16 +1,25 @@
 "use client";
 import React, { useState } from "react";
 import Image from "next/image";
-import Swal from "sweetalert2";
-import withReactContent from "sweetalert2-react-content";
 import { useRouter } from "next/navigation";
 import SweetAlert from "./SweetAlert";
+import { signOut, useSession } from "next-auth/react";
 
-const MySwal = withReactContent(Swal);
 
 const AdminHeader = () => {
   const [showDropdown, setShowDropdown] = useState(false);
   const router = useRouter();
+  const { data: session, status } = useSession({
+    required: true,
+    onUnauthenticated() {
+      router.push('/login');
+    },
+  });
+  console.log("session",session);
+
+  if (status === "loading") {
+    return <div>Loading...</div>;
+  }
 
   const toggleDropdown = () => {
     setShowDropdown(!showDropdown);
@@ -19,38 +28,24 @@ const AdminHeader = () => {
   const handleSignOut = async () => {
     const confirmed = await SweetAlert.showConfirm("Are you sure you want to sign out?");
     if (confirmed) {
-      console.log("User signed out");
+      await signOut();
       await SweetAlert.showSuccess("You have successfully signed out.");
       router.push("/login");
     }
   };
 
   return (
-    <div className="w-full relative px-4 py-8">
-      <Image
-        src="/header.svg"
-        width={500}
-        height={200}
-        alt="Picture of the author"
-        className="w-full"
-      />
-      <div className="absolute inset-0 flex items-center justify-between px-[4rem]">
-        <p className="text-inter font-semibold text-[35px] text-black">
+    <div className="relative h-[90px] md:h-[120px] w-full">
+      <div className="absolute inset-0 flex items-center justify-between px-6 md:px-[4rem] background-image rounded-xl md:rounded-3xl mx-4 md:mx-12 mt-8">
+        <p className="md:ml-32 ml-0 text-inter font-semibold text-[14px] md:text-[30px] text-black">
           Our Community
         </p>
         <div>
-          <Image
-            src="/profile.svg"
-            width={50}
-            height={20}
-            alt="Profile picture"
-            className="cursor-pointer"
-            onClick={toggleDropdown}
-          />
+          <p className="text-black font-semibold text-[12px] md:text-[20px] cursor-pointer mr-0 md:mr-12" onClick={toggleDropdown}>{session?.user?.firstname}</p>
           {showDropdown && (
             <div className="absolute top-[10rem] right-0 bg-white rounded-lg shadow-lg p-4 px-4">
               <p className="font-semibold flex items-center justify-center">
-                Hi, Niknik!
+                Hi, {session?.user?.firstname}!
               </p>
               <p className="text-sm flex items-center justify-center">
                 niknik123@gmail.com
