@@ -12,3 +12,8 @@
   font-family: Poppins;
  
 }
+.background-image {
+  background-image: url('/svg/header.svg');
+  background-size: cover;
+  background-position: center;
+}

@@ -50,7 +50,7 @@ const AdminSidebar = () => {
           />
 
           <Image
-            src={clickedImage === "health" ? "/svg/health1.svg" : "/svg/health.svg"} // Change image based on active state
+            src="/svg/location.svg"
             width={50}
             height={50}
             alt="health"

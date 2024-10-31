@@ -4,8 +4,17 @@ import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import router from "next/router";
+import api from "@/lib/axios";
+import { signIn } from "next-auth/react";
+
+interface User {
+  username: string;
+  password: string;
+}
 
 const Login = () => {
+  const router = useRouter();
+
   const [username, setusername] = useState<string>("");
   const [password, setPassword] = useState<string>("");
   const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
@@ -90,10 +99,27 @@ const Login = () => {
     e.preventDefault();
     setSubmitted(true);
     setFieldError({ username: !username, password: !password });
-
+  
     if (!username || !password) {
       setError("Please fill out all fields.");
       return;
+    }
+  
+    try {
+      const result = await signIn("credentials", {
+        username,
+        password,
+        redirect: false,
+      });
+  
+      if (result?.error) {
+        setError('Invalid username or password.');
+      } else {
+        router.push('/dashboard');
+      }
+    } catch (error) {
+      setError('An error occurred. Please try again.');
+      console.error('Login error:', error);
     }
   };
 
@@ -162,9 +188,8 @@ const Login = () => {
               </div>
 
               <div
-                className={`relative text-[#000000] h-[50px] ${
-                  submitted && fieldError.username ? "border-red-500" : ""
-                }`}
+                className={`relative text-[#000000] h-[50px] ${submitted && fieldError.username ? "border-red-500" : ""
+                  }`}
               >
                 <input
                   type="text"
