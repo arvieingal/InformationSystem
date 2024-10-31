@@ -11,7 +11,7 @@ export default function AdminLayout({
       <body>
         <div className="w-full h-screen flex">
             <AdminSidebar />
-            <div className="w-[90%] bg-[#E7EEF4]">
+            <div className="w-[94%] bg-[#E7EEF4]">
                 <AdminHeader/>
                 <div>{children}</div>
             </div>

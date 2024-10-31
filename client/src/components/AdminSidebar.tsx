@@ -3,6 +3,7 @@ import React, { useState } from "react";
 import Image from "next/image";
 import { useRouter } from "next/navigation"; 
 import SweetAlert from "./SweetAlert";
+import { signOut } from "next-auth/react";
 
 const AdminSidebar = () => {
   const [clickedImage, setClickedImage] = useState<string | null>(null);
@@ -15,29 +16,39 @@ const AdminSidebar = () => {
   const handleSignOut = async () => {
     const confirmed = await SweetAlert.showConfirm("Are you sure you want to sign out?");
     if (confirmed) {
-      console.log("User signed out");
-      await SweetAlert.showSuccess("You have successfully signed out.");
-      router.push("/login");
+      await signOut();
+      router.push("/");
     }
   };
   return (
-    <div className="w-[10%] flex h-screen flex-col">
-      <Image
-        src="/svg/logo.svg"
-        width={500}
-        height={500}
-        alt="Logo"
-        className="w-full"
+    <div className="w-[6%] flex h-screen flex-col py-[2rem]">
+      <div className="w-full flex items-center justify-center">
+        <Image
+          src="/svg/logo.svg"
+          width={100}
+          height={100}
+          alt="Logo"
+          className="w-[80px] h-[80px]"
       />
+      </div>
       <div className="flex flex-col w-full h-full">
         <div className="flex flex-col gap-[30px] items-center justify-center h-full">
+        <Image
+            src="/svg/home.svg"
+            width={50}
+            height={50}
+            alt="Location"
+            className={`w-[30px] h-[30px] cursor-pointer ${clickedImage === "location" ? "filter-green" : ""}`}
+            onClick={() => handleImageClick("location", "/landing")} 
+          />
+
           <Image
             src="/svg/people.svg"
             width={50}
             height={50}
             alt="People"
-            className={clickedImage === "people" ? "filter-green" : ""}
-            onClick={() => handleImageClick("people", "/dashboard")} // Redirect to /people page
+            className={`w-[30px] h-[30px] cursor-pointer ${clickedImage === "people" ? "filter-green" : ""}`}
+            onClick={() => handleImageClick("people", "/dashboard")}
           />
 
           <Image
@@ -45,17 +56,8 @@ const AdminSidebar = () => {
             width={50}
             height={50}
             alt="People2"
-            className={clickedImage === "people2" ? "filter-green" : ""}
-            onClick={() => handleImageClick("people2", "/AddResidents")}
-          />
-
-          <Image
-            src="/svg/location.svg"
-            width={50}
-            height={50}
-            alt="Location"
-            className={clickedImage === "location" ? "filter-green" : ""}
-            onClick={() => handleImageClick("location", "/location")} 
+            className={`w-[30px] h-[30px] cursor-pointer ${clickedImage === "people2" ? "filter-green" : ""}`}
+            onClick={() => handleImageClick("people2", "/add-resident")}
           />
         </div>
         <div className="flex items-center justify-center">
@@ -64,7 +66,7 @@ const AdminSidebar = () => {
             width={50}
             height={50}
             alt="Logout"
-            className={clickedImage === "logout" ? "filter-green" : ""}
+            className={`w-[30px] h-[30px] cursor-pointer ${clickedImage === "logout" ? "filter-green" : ""}`}
             onClick={handleSignOut}
           />
         </div>

@@ -19,7 +19,7 @@ export default function page() {
   return (
     <div className='bg-[#E7EEF4] w-full sm:h-full lg:h-screen'>
       <AdminHeader />
-      <div className='w-full mt-20 mb-20'>
+      <div className='w-full mt-20 mb-20 md:mt-28 md:mb-28'>
         <p className='text-[#06C46C] text-[24px] md:text-[36px] font-semibold text-center'>Barangay Information Management System</p>
       </div>
       <div className='flex items-center justify-center w-full gap-20 pb-16 mt-16 flex-col md:flex-row'>

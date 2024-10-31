@@ -73,7 +73,7 @@ const [fieldError, setFieldError] = useState<{
   return (
     <div className="w-full h-screen flex overflow-auto scrollbar-hidden items-center justify-center bg-[#FCFCFC] ">
     <div className="w-full flex flex-row sm:flex-col items-center justify-center h-screen  border-[#CCCCCC]  ">
-      <div className="w-[80%]  md:w-[90%] 2xl:w-[250%]">
+      <div className="w-[80%]  md:w-[94%] 2xl:w-[250%]">
         <Image
           className="h-screen w-full  object-cover rounded-l-[5px]"
           src="/register.png"

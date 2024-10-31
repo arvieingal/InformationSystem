@@ -1,36 +1,78 @@
 'use client'
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import Card from '@/components/Card'
+import { usePathname } from 'next/navigation';
+import CardGrid from '@/components/CardGrid';
+import { dashboardCards } from '@/constants/cardData';
 
-const Population = () => {
-  const [selectedCard, setSelectedCard] = useState<number | null>(null);
+interface GenderData {
+  male: number;
+  female: number;
+}
 
-  const cards = [
-    { src: '/population.svg', alt: 'Card Image 1', description: 'POPULATION', value: '+50% as of 2024', width: 100, height: 100, link: '/population' },
-    { src: '/households.svg', alt: 'Card Image 2', description: 'HOUSEHOLDS', value: '+50% as of 2024', width: 200, height: 80, link: '/households' },
-    { src: '/renters.svg', alt: 'Card Image 3', description: 'RENTERS', value: '+50% as of 2024', width: 90, height: 110, link: '/renters' },
-    { src: '/sector.svg', alt: 'Card Image 4', description: 'SECTOR', value: '+50% as of 2024', width: 150, height: 130, link: '/sector' },
-    { src: '/purok.svg', alt: 'Card Image 5', description: 'PUROK', value: '+50% as of 2024', width: 140, height: 140, link: '/purok' },
-  ];
+interface VoterData {
+  registered: number;
+  nonRegistered: number;
+}
+
+export default function page() {
+  const genderDistribution: GenderData = {
+    male: 28130,
+    female: 11870
+  };
+
+  const voterDistribution: VoterData = {
+    registered: 32000,
+    nonRegistered: 8000
+  };
+
+  const total = genderDistribution.male + genderDistribution.female;
+  const malePercentage = (genderDistribution.male / total * 100).toFixed(0);
+  const femalePercentage = (genderDistribution.female / total * 100).toFixed(0);
+
+  const voterTotal = voterDistribution.registered + voterDistribution.nonRegistered;
+  const registeredPercentage = (voterDistribution.registered / voterTotal * 100).toFixed(0);
+  const nonRegisteredPercentage = (voterDistribution.nonRegistered / voterTotal * 100).toFixed(0);
 
   return (
-    <div className='flex flex-wrap justify-center mt-[1rem]'>
-      {cards.map((card, index) => (
-        <Card
-          key={index}
-          src={card.src}
-          alt={card.alt}
-          description={card.description}
-          value={card.value}
-          width={card.width}
-          height={card.height}
-          link={card.link}
-          onClick={() => setSelectedCard(index)}
-          selected={selectedCard === index}
-        />
-      ))}
-    </div>
-  );
-};
+    <div>
+      <CardGrid cards={dashboardCards} />
 
-export default Population;
+      <div className='flex flex-col justify-center w-[40rem] bg-white rounded-xl px-16 py-3 mt-[2rem] mx-[4rem]'>
+        <div>GENDER</div>
+        <div className="flex mt-4 mb-3 h-5 w-full rounded-full bg-green-200 overflow-hidden">
+          <div className="bg-[#007F73] h-full" style={{ width: `${malePercentage}%` }}></div>
+          <div className="bg-[#B1E5BA] h-full" style={{ width: `${femalePercentage}%` }}></div>
+        </div>
+        <div className='flex items-center justify-between'>
+          <div className='flex items-center gap-2'>
+            <div className='w-3 h-3 rounded-full bg-[#007F73]'></div>
+            <div className='flex items-center gap-1'><p className='text-[12px]'>Male</p><p className='font-semibold'>{genderDistribution.male.toLocaleString()}</p></div>
+          </div>
+          <div className='flex items-center gap-2'>
+            <div className='w-3 h-3 rounded-full bg-[#B1E5BA]'></div>
+            <div className='flex items-center gap-1'><p className='text-[12px]'>Female</p><p className='font-semibold'>{genderDistribution.female.toLocaleString()}</p></div>
+          </div>
+        </div>
+      </div>
+
+      <div className='flex flex-col justify-center w-[40rem] bg-white rounded-xl px-16 py-3 mt-[1rem] mx-[4rem]'>
+        <div>NUMBER OF REGISTERED VOTERS BY 2024</div>
+        <div className="flex mt-4 mb-3 h-5 w-full rounded-full bg-green-200 overflow-hidden">
+          <div className="bg-[#B1E5BA] h-full" style={{ width: `${registeredPercentage}%` }}></div>
+          <div className="bg-[#007F73] h-full" style={{ width: `${nonRegisteredPercentage}%` }}></div>
+        </div>
+        <div className='flex items-center justify-between'>
+          <div className='flex items-center gap-2'>
+            <div className='w-3 h-3 rounded-full bg-[#B1E5BA]'></div>
+            <div className='flex items-center gap-1'><p className='text-[12px]'>Registered Voters</p><p className='font-semibold'>{voterDistribution.registered.toLocaleString()}</p></div>
+          </div>
+          <div className='flex items-center gap-2'>
+            <div className='w-3 h-3 rounded-full bg-[#007F73]'></div>
+            <div className='flex items-center gap-1'><p className='text-[12px]'>Non Voters</p><p className='font-semibold'>{voterDistribution.nonRegistered.toLocaleString()}</p></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  )
+};
