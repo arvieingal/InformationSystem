@@ -19,7 +19,7 @@ const Card: React.FC<CardProps> = ({ src, alt, description, value, width, height
   return (
     <Link href={link}>
       <div
-        className={`relative p-2 rounded-lg shadow-md cursor-pointer my-2 mx-6 transition-all duration-300 ${selected ? 'bg-[#007F73] text-white' : 'bg-white'
+        className={`relative p-2 rounded-lg shadow-md cursor-pointer my-2 mx-5 transition-all duration-300 ${selected ? 'bg-[#007F73] text-white' : 'bg-white'
           }`}
         onClick={onClick}
       >
@@ -29,12 +29,12 @@ const Card: React.FC<CardProps> = ({ src, alt, description, value, width, height
             width={100}
             height={100}
             alt={alt}
-            className="w-[200px] h-[60px] object-contain"
+            className="w-[160px] h-[50px] object-contain"
           />
         </div>
         <div className='flex flex-col items-center justify-end'>
-          <p className='text-center mt-2 text-medium'>{description}</p>
-          <p className='text-center text-[11px] text-[#06C46C]'>{value}</p>
+          <p className='text-center text-[14px] text-medium'>{description}</p>
+          <p className='text-center text-[9px] text-[#06C46C]'>{value}</p>
         </div>
       </div>
     </Link>

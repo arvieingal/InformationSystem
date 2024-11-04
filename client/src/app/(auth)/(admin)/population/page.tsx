@@ -35,42 +35,49 @@ export default function page() {
   const nonRegisteredPercentage = (voterDistribution.nonRegistered / voterTotal * 100).toFixed(0);
 
   return (
-    <div>
+    <div className='w-full h-full'>
       <CardGrid cards={dashboardCards} />
 
-      <div className='flex flex-col justify-center w-[40rem] bg-white rounded-xl px-16 py-3 mt-[2rem] mx-[4rem]'>
-        <div>GENDER</div>
-        <div className="flex mt-4 mb-3 h-5 w-full rounded-full bg-green-200 overflow-hidden">
-          <div className="bg-[#007F73] h-full" style={{ width: `${malePercentage}%` }}></div>
-          <div className="bg-[#B1E5BA] h-full" style={{ width: `${femalePercentage}%` }}></div>
-        </div>
-        <div className='flex items-center justify-between'>
-          <div className='flex items-center gap-2'>
-            <div className='w-3 h-3 rounded-full bg-[#007F73]'></div>
-            <div className='flex items-center gap-1'><p className='text-[12px]'>Male</p><p className='font-semibold'>{genderDistribution.male.toLocaleString()}</p></div>
+      <div className='w-full h-full flex mt-[2rem]'>
+        <div className='w-[40%]'>
+          <div className='flex flex-col justify-center w-full bg-white rounded-xl px-16 py-3 mx-[3rem]'>
+            <div>GENDER</div>
+            <div className="flex mt-4 mb-3 h-5 w-full rounded-full bg-green-200 overflow-hidden">
+              <div className="bg-[#007F73] h-full" style={{ width: `${malePercentage}%` }}></div>
+              <div className="bg-[#B1E5BA] h-full" style={{ width: `${femalePercentage}%` }}></div>
+            </div>
+            <div className='flex items-center justify-between'>
+              <div className='flex items-center gap-2'>
+                <div className='w-3 h-3 rounded-full bg-[#007F73]'></div>
+                <div className='flex items-center gap-1'><p className='text-[12px]'>Male</p><p className='font-semibold'>{genderDistribution.male.toLocaleString()}</p></div>
+              </div>
+              <div className='flex items-center gap-2'>
+                <div className='w-3 h-3 rounded-full bg-[#B1E5BA]'></div>
+                <div className='flex items-center gap-1'><p className='text-[12px]'>Female</p><p className='font-semibold'>{genderDistribution.female.toLocaleString()}</p></div>
+              </div>
+            </div>
           </div>
-          <div className='flex items-center gap-2'>
-            <div className='w-3 h-3 rounded-full bg-[#B1E5BA]'></div>
-            <div className='flex items-center gap-1'><p className='text-[12px]'>Female</p><p className='font-semibold'>{genderDistribution.female.toLocaleString()}</p></div>
-          </div>
-        </div>
-      </div>
 
-      <div className='flex flex-col justify-center w-[40rem] bg-white rounded-xl px-16 py-3 mt-[1rem] mx-[4rem]'>
-        <div>NUMBER OF REGISTERED VOTERS BY 2024</div>
-        <div className="flex mt-4 mb-3 h-5 w-full rounded-full bg-green-200 overflow-hidden">
-          <div className="bg-[#B1E5BA] h-full" style={{ width: `${registeredPercentage}%` }}></div>
-          <div className="bg-[#007F73] h-full" style={{ width: `${nonRegisteredPercentage}%` }}></div>
+          <div className='flex flex-col justify-center w-full bg-white rounded-xl px-16 py-3 mt-[1rem] mx-[3rem]'>
+            <div>NUMBER OF REGISTERED VOTERS BY 2024</div>
+            <div className="flex mt-4 mb-3 h-5 w-full rounded-full bg-green-200 overflow-hidden">
+              <div className="bg-[#B1E5BA] h-full" style={{ width: `${registeredPercentage}%` }}></div>
+              <div className="bg-[#007F73] h-full" style={{ width: `${nonRegisteredPercentage}%` }}></div>
+            </div>
+            <div className='flex items-center justify-between'>
+              <div className='flex items-center gap-2'>
+                <div className='w-3 h-3 rounded-full bg-[#B1E5BA]'></div>
+                <div className='flex items-center gap-1'><p className='text-[12px]'>Registered Voters</p><p className='font-semibold'>{voterDistribution.registered.toLocaleString()}</p></div>
+              </div>
+              <div className='flex items-center gap-2'>
+                <div className='w-3 h-3 rounded-full bg-[#007F73]'></div>
+                <div className='flex items-center gap-1'><p className='text-[12px]'>Non Voters</p><p className='font-semibold'>{voterDistribution.nonRegistered.toLocaleString()}</p></div>
+              </div>
+            </div>
+          </div>
         </div>
-        <div className='flex items-center justify-between'>
-          <div className='flex items-center gap-2'>
-            <div className='w-3 h-3 rounded-full bg-[#B1E5BA]'></div>
-            <div className='flex items-center gap-1'><p className='text-[12px]'>Registered Voters</p><p className='font-semibold'>{voterDistribution.registered.toLocaleString()}</p></div>
-          </div>
-          <div className='flex items-center gap-2'>
-            <div className='w-3 h-3 rounded-full bg-[#007F73]'></div>
-            <div className='flex items-center gap-1'><p className='text-[12px]'>Non Voters</p><p className='font-semibold'>{voterDistribution.nonRegistered.toLocaleString()}</p></div>
-          </div>
+        <div className='w-[60%]'>
+          <div className='w-full h-full bg-white'>pie chart</div>
         </div>
       </div>
     </div>
