@@ -11,7 +11,7 @@ const Dashboard = () => {
     <div>
       {selectedCard === null && (
         <>
-          <div className='w-full h-auto flex items-center justify-center mt-[5rem]'>
+          <div className='w-full h-full flex items-center justify-center mt-[5rem]'>
             <Image
               src="/svg/dashboard.svg"
               width={100}

@@ -21,7 +21,7 @@ const AdminSidebar = () => {
     }
   };
   return (
-    <div className="w-[6%] flex h-screen flex-col py-[2rem]">
+    <div className="flex flex-col py-[2rem] h-full">
       <div className="w-full flex items-center justify-center">
         <Image
           src="/svg/logo.svg"

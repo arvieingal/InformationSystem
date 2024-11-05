@@ -22,7 +22,7 @@ const CardGrid: React.FC<CardGridProps> = ({ cards }) => {
   const pathname = usePathname();
 
   return (
-    <div className='flex flex-wrap justify-center mt-[1rem]'>
+    <div className='flex flex-wrap justify-center pt-[1rem] h-[22%]'>
       {cards.map((card, index) => (
         <Card
           key={index}

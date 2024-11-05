@@ -30,13 +30,15 @@ const AdminHeader = () => {
   };
 
   return (
-    <div className="relative h-[90px] md:h-[90px] w-full">
-      <div className="absolute inset-0 flex items-center justify-between px-6 md:px-[3rem] background-image rounded-xl md:rounded-3xl mx-4 md:mx-4 mt-4">
-        <p className="text-inter font-semibold text-[14px] md:text-[30px] text-black">
-          Our Community
-        </p>
+    <div className="h-full w-full pt-4">
+      <div className="flex items-center justify-between px-6 md:px-[3rem] background-image rounded-xl md:rounded-3xl mx-4 md:mx-4 h-full">
         <div>
-          <div className="text-[12px] md:text-[16px] cursor-pointer mr-0 flex items-center justify-center py-1 px-3 rounded-md bg-[#007F73] text-white" onClick={toggleDropdown}>
+          <p className="text-inter font-semibold text-[14px] md:text-[30px] text-black">
+            Our Community
+          </p>
+        </div>
+        <div>
+          <div className="text-[12px] md:text-[16px] cursor-pointer flex items-center justify-center py-1 px-3 rounded-md bg-[#007F73] text-white" onClick={toggleDropdown}>
             <p>{session?.user?.firstname}</p>
             <Image src="/svg/down-arrow.svg" width={20} height={20} alt="down-arrow" className="w-3 ml-2 text-white" />
           </div>
@@ -50,7 +52,7 @@ const AdminHeader = () => {
               </p>
               <div className="flex gap-[1px] mt-4 text-white text-[9px]">
                 <button className="bg-[#007F73] px-4 py-2 rounded-l-xl">
-                  Manage Account 
+                  Manage Account
                 </button>
                 <button
                   className="bg-[#007F73] px-4 py-2 rounded-r-xl flex items-center"

@@ -9,12 +9,14 @@ export default function AdminLayout({
   return (
     <html lang="en">
       <body>
-        <div className="w-full h-screen flex">
+        <div className="w-screen flex h-screen">
+          <div className="w-[6%]">
             <AdminSidebar />
-            <div className="w-[94%] bg-[#E7EEF4]">
-                <AdminHeader/>
-                <div>{children}</div>
-            </div>
+          </div>
+          <div className="w-[94%] bg-[#E7EEF4]">
+            <div className="h-[11%]"><AdminHeader /></div>
+            <div className="h-[89%]">{children}</div>
+          </div>
         </div>
       </body>
     </html>
