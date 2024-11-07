@@ -92,14 +92,14 @@ const [fieldError, setFieldError] = useState<{
     />
          </div>
          <div className='flex items-center justify-center flex-col'>
-           <p className='font-semibold text-[40px]'>Welcome!</p>
+           <p className='font-semibold text-[40px] '>Welcome!</p>
            <p>Please enter your details</p>
          </div>
           <div className="justify-center items-center flex flex-col w-full  sm:px-[0px] md:px-[50px]  lg:px-[60px] xl:px-[50px] 2xl:px-[70px] ">
             <form onSubmit={handleEmailLogin} className="space-y-8 w-full xl:space-y-8 mt-[3rem]">
               <div className="mb-[-30px] mt-[20px]">
               {submitted && error && (
-                <span className="text-[#FC1616] text-[14px] ">
+                <span className="text-[#FC1616] text-[16px] ">
                   {error}
                 </span>
               )}

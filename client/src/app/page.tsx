@@ -86,13 +86,13 @@ const Login = () => {
         </div>
 
         <div className="w-[30%] flex flex-col items-center">
-          <div className="mt-8">
+          <div className="mt-[4rem]">
             <Image src="/svg/logo.svg" width={92} height={91} alt="Logo" />
           </div>
 
           <div className="flex items-center justify-center flex-col mb-6">
-            <p className="font-semibold text-[34px]">Welcome!</p>
-            <p className="text-[13px]">Please enter your details</p>
+            <p className="font-semibold text-[34px] 2xl:text-[40px]">Welcome!</p>
+            <p className="text-[13px] 2xl:text-[16px]">Please enter your details</p>
           </div>
 
           <div className="flex items-center justify-center w-full sm:px-[0px] md:px-[50px] lg:px-[60px] xl:px-[50px] 2xl:px-[70px]">
@@ -113,7 +113,7 @@ const Login = () => {
                   }
                   onFocus={() => setEmailPlaceholderVisible(false)}
                   onBlur={() => setEmailPlaceholderVisible(username === "")}
-                  className="w-full border-b border-[#000000] focus:outline-none text placeholder:text-[#696969] text-[16px] md:text-[14px] py-4 text-[#000000]"
+                  className="w-full border-b border-[#000000] focus:outline-none text placeholder:text-[#696969]  2xl:text-[16px] text-[16px] md:text-[14px] py-4 text-[#000000]"
                   placeholder={emailPlaceholderVisible ? "Username" : ""}
                 />
               </div>
@@ -125,7 +125,7 @@ const Login = () => {
                   onChange={(e) => setPassword(e.target.value)}
                   onFocus={() => setPasswordPlaceholderVisible(false)}
                   onBlur={() => setPasswordPlaceholderVisible(password === "")}
-                  className="w-full border-b border-[#000000] focus:outline-none placeholder:text-[#696969] text-[16px] md:text-[14px] py-4 bg-[#FCFCFC] mt-8"
+                  className="w-full border-b border-[#000000] focus:outline-none placeholder:text-[#696969] 2xl:text-[16px] text-[16px] md:text-[14px] py-4 bg-[#FCFCFC] mt-8"
                   placeholder={passwordPlaceholderVisible ? "Password" : ""}
                 />
                 <span
@@ -154,12 +154,12 @@ const Login = () => {
                     checked={isCheckboxChecked}
                     onChange={(e) => setIsCheckboxChecked(e.target.checked)}
                   />
-                  <label className="ml-2">
+                  <label className="ml-2 2xl:text-[14px] text-[12px]">
                     Remember your password?
                   </label>
                 </div>
                 <div
-                  className="cursor-pointer text-[#6C6C6C]"
+                  className="cursor-pointer text-[#6C6C6C] 2xl:text-[14px] text-[12px]"
                   onClick={handleForgotPasswordClick}
                 >
                   Forgot Password?
