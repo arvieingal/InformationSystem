@@ -113,7 +113,8 @@ module.exports = (sequelize, DataTypes) => {
     {
       sequelize,
       modelName: "Child",
-      timestamps: true,
+      tableName: "children",
+      timestamps: false,
     }
   );
 

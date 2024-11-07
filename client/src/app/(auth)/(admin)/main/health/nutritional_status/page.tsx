@@ -2,27 +2,51 @@
 import React, { useState, useEffect, useRef } from "react";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
-import Link from "next/link";
 import Modal from "@/components/PersonModal";
 import SweetAlert from "@/components/SweetAlert";
+import SearchBar from "@/components/SearchBar";
+import ChildTable from "@/components/ChildTable";
+import Pagination from "@/components/Pagination";
+
+interface Child {
+  id: number;
+  name: string;
+  age: number;
+  sex: string;
+  birthdate: string;
+  heightCm: number;
+  weightKg: number;
+  nutritionalStatus: string;
+  address?: string;
+  email?: string;
+  purok?: string;
+  phoneNumber?: string;
+}
 
 const NutritionalStatus: React.FC = () => {
   const router = useRouter();
-  const [isModalOpen, setIsModalOpen] = useState(false);
-  const [selectedChild, setSelectedChild] = useState(null);
+  const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
+  const [selectedChild, setSelectedChild] = useState<Child | null>(null);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [isFilterDropdownOpen, setIsFilterDropdownOpen] = useState(false);
   const modalRef = useRef<HTMLDivElement>(null);
-  const [sortConfig, setSortConfig] = useState<{ key: string; direction: string } | null>(null);
-  const [children, setChildren] = useState([]);
+  const [sortConfig, setSortConfig] = useState<{ key: keyof Child; direction: string } | null>(null);
+  const [children, setChildren] = useState<Child[]>([]);
+  const [currentPage, setCurrentPage] = useState<number>(1);
+  const itemsPerPage = 12;
 
   useEffect(() => {
     const fetchChildren = async () => {
       try {
-        const response = await fetch('/api/children');
-        const data = await response.json();
-        setChildren(data);
+        const response = await fetch('http://localhost:3001/api/children');
+        if (response.ok) {
+          const data: Child[] = await response.json();
+          console.log("Fetched children data:", data);
+          setChildren(data);
+        } else {
+          console.error("Failed to fetch children data.");
+        }
       } catch (error) {
         console.error("Error fetching children data:", error);
       }
@@ -31,17 +55,31 @@ const NutritionalStatus: React.FC = () => {
     fetchChildren();
   }, []);
 
-  function handleRowClick(child: any): void {
-    setSelectedChild(child);
-    setIsModalOpen(true);
+  const fetchChildById = async (id: number) => {
+    try {
+      const response = await fetch(`/api/children/${id}`);
+      if (response.ok) {
+        const data: Child = await response.json();
+        setSelectedChild(data);
+        setIsModalOpen(true);
+      } else {
+        console.error("Child not found.");
+      }
+    } catch (error) {
+      console.error("Error fetching child by ID:", error);
+    }
+  };
+
+  function handleRowClick(child: Child): void {
+    fetchChildById(child.id);
   }
 
-  function handleEditClick(child: any): void {
+  function handleEditClick(child: Child): void {
     setSelectedChild(child);
     setIsEditModalOpen(true);
   }
 
-  async function handleArchiveClick(child: any): Promise<void> {
+  async function handleArchiveClick(child: Child): Promise<void> {
     const confirmArchive = await SweetAlert.showConfirm(`Are you sure you want to archive this child with ID: ${child.id}?`);
     if (confirmArchive) {
       console.log(`Child with ID: ${child.id} archived.`);
@@ -66,7 +104,7 @@ const NutritionalStatus: React.FC = () => {
     };
   }, [isModalOpen]);
 
-  function handleSort(key: string) {
+  function handleSort(key: keyof Child) {
     let direction = 'ascending';
     if (sortConfig && sortConfig.key === key && sortConfig.direction === 'ascending') {
       direction = 'descending';
@@ -75,12 +113,20 @@ const NutritionalStatus: React.FC = () => {
   }
 
   const sortedChildren = React.useMemo(() => {
-    if (sortConfig !== null) {
+    if (sortConfig && sortConfig.key) {
       return [...children].sort((a, b) => {
-        if (a[sortConfig.key] < b[sortConfig.key]) {
+        const key = sortConfig.key;
+        const aValue = a[key];
+        const bValue = b[key];
+
+        if (aValue === undefined || bValue === undefined) {
+          return 0; // Handle undefined values by treating them as equal
+        }
+
+        if (aValue < bValue) {
           return sortConfig.direction === 'ascending' ? -1 : 1;
         }
-        if (a[sortConfig.key] > b[sortConfig.key]) {
+        if (aValue > bValue) {
           return sortConfig.direction === 'ascending' ? 1 : -1;
         }
         return 0;
@@ -88,6 +134,20 @@ const NutritionalStatus: React.FC = () => {
     }
     return children;
   }, [children, sortConfig]);
+
+  const paginatedChildren = React.useMemo(() => {
+    const startIndex = (currentPage - 1) * itemsPerPage;
+    const endIndex = startIndex + itemsPerPage;
+    return sortedChildren.slice(startIndex, endIndex);
+  }, [sortedChildren, currentPage]);
+
+  const handleSearch = (query: string) => {
+    // Implement search logic here
+  };
+
+  const handlePageChange = (page: number) => {
+    setCurrentPage(page);
+  };
 
   return (
     <>
@@ -97,27 +157,24 @@ const NutritionalStatus: React.FC = () => {
             className="mt-[2rem]"
             src="/svg/immunization_records.svg"
             alt="Nutritional Status"
-            width={250}
+            width={200}
             height={50}
           />
         </div>
         <div onClick={() => router.push("/main/health/immunization_record")}>
-        <Image
-          src="/svg/health_image.svg"
-          alt="Nutritional Status"
-          width={250}
-          height={50}
-        />
-      </div>
-      </div>
-      <div className="w-full">
-        <div className="flex items-center justify-center gap-[1rem] px-[2rem] mt-[2rem] relative">
-          <input
-            type="text"
-            placeholder="Search ......."
-            className="w-full px-4 border border-[#CCCCCC] rounded-md focus:outline-none py-2"
+          <Image
+            src="/svg/health_image.svg"
+            alt="Nutritional Status"
+            width={200}
+            height={50}
           />
-          <button className="flex items-center space-x-2 text-blue-500 hover:underline">
+        </div>
+      </div>
+      <div className="w-full flex flex-row pr-[3rem]  items-center justify-between gap-4 ">
+        <div className="w-full pl-2">
+        <SearchBar onSearch={handleSearch} />
+        </div>
+        <button className="flex items-center space-x-2 text-blue-500 hover:underline">
             <Image
               src="/svg/filter.svg"
               alt="Nutritional Status"
@@ -134,7 +191,7 @@ const NutritionalStatus: React.FC = () => {
             />
           </button>
           {isFilterDropdownOpen && (
-            <div className="absolute top-full right-0 mt-2 bg-white border border-gray-300 rounded-md shadow-lg z-10">
+            <div className="absolute right-[1rem] mt-[40%] bg-white border border-gray-300 rounded-md shadow-lg z-10">
               <ul className="py-1">
                 <li className="px-4 py-2 hover:bg-gray-100 cursor-pointer">Filter by Age</li>
                 <li className="px-4 py-2 hover:bg-gray-100 cursor-pointer">Filter by Sex</li>
@@ -146,81 +203,29 @@ const NutritionalStatus: React.FC = () => {
               </ul>
             </div>
           )}
-        </div>
+
       </div>
-      <div className="w-full">
-        <div className="flex items-center justify-center gap-[1rem] px-[2rem] mt-[2rem]">
-          <div className="w-full border bg-white h-[400px] rounded-lg">
-            <div className="w-full">
-              <div className="flex justify-center mt-4  px-[2rem]">
-                <table className="min-w-full border-collapse border border-[#CCCCCC] text-sm">
-                  <thead>
-                    <tr>
-                      {['id', 'name', 'age', 'sex', 'birthdate', 'heightCm', 'weightKg', 'nutritionalStatus'].map((key) => (
-                        <th
-                          key={key}
-                          className="border border-gray-600 bg-gray-300 py-2"
-                          onClick={() => handleSort(key)}
-                        >
-                          {key.charAt(0).toUpperCase() + key.slice(1).replace(/([A-Z])/g, ' $1')}
-                          {sortConfig?.key === key && (
-                            <span>
-                              {sortConfig.direction === 'ascending' ? ' ▲' : ' ▼'}
-                            </span>
-                          )}
-                        </th>
-                      ))}
-                      <th className="border border-gray-600 bg-gray-300 py-2">Option</th>
-                    </tr>
-                  </thead>
-                  <tbody className="text-center">
-                    {sortedChildren.map((child, index) => (
-                      <tr key={index}>
-                        <td className="border border-[#CCCCCC] px-4 py-2">{index + 1}</td>
-                        <td className="border border-[#CCCCCC] px-4 py-2">{child.name.split(" ")[0]}</td>
-                        <td className="border border-[#CCCCCC] px-4 py-2">{child.age}</td>
-                        <td className="border border-[#CCCCCC] px-4 py-2">{child.sex}</td>
-                        <td className="border border-[#CCCCCC] px-4 py-2">{child.birthdate}</td>
-                        <td className="border border-[#CCCCCC] px-4 py-2">{child.heightCm}</td>
-                        <td className="border border-[#CCCCCC] px-4 py-2">{child.weightKg}</td>
-                        <td className="border border-[#CCCCCC] px-4 py-2">{child.nutritionalStatus}</td>
-                        <td className="border py-2 flex flex-row justify-center gap-2">
-                          <Image
-                            src="/svg/edit.svg"
-                            alt="Edit"
-                            width={20}
-                            height={20}
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              handleEditClick(child);
-                            }}
-                          />
-                          <Image
-                            src="/svg/archive.svg"
-                            alt="Archive"
-                            width={20}
-                            height={20}
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              handleArchiveClick(child);
-                            }}
-                          />
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-            </div>
-          </div>
-        </div>
+      <div className="w-full mt-[1rem] ">
+        <ChildTable
+          children={paginatedChildren}
+          onSort={handleSort}
+          sortConfig={sortConfig}
+          onEdit={handleEditClick}
+          onArchive={handleArchiveClick}
+          onRowClick={handleRowClick}
+        />
       </div>
+      <Pagination
+        currentPage={currentPage}
+        totalPages={Math.ceil(children.length / itemsPerPage)}
+        onPageChange={handlePageChange}
+      />
 
       {isModalOpen && selectedChild && (
         <Modal onClose={() => setIsModalOpen(false)}>
           <div ref={modalRef} className="relative">
             <button
-              className="absolute top-[-3rem] right-[-2rem]  text-gray-500 hover:text-gray-700 p-4 text-[3rem]"
+              className="absolute top-[-3rem] right-[-2rem] text-gray-500 hover:text-gray-700 p-4 text-[3rem]"
               onClick={() => setIsModalOpen(false)}
             >
               &times;
@@ -247,22 +252,109 @@ const NutritionalStatus: React.FC = () => {
             >
               &times;
             </button>
-            <h2>Edit Child Details</h2>
-            <input
-              type="text"
-              value={selectedChild.name}
-              onChange={(e) => setSelectedChild({ ...selectedChild, name: e.target.value })}
-            />
-            <input
+            <h2>Update Nutritional Status of the Child</h2>
+            <div className="flex flex-row gap-2">
+              <div className="w-[30%]">
+                <p>First Name of the Child:</p>
+                <div className="border border-gray-300 rounded-md p-1">
+                  <input
+                    className="w-full outline-none"
+                    type="text"
+                    value={selectedChild.name}
+                    onChange={(e) => setSelectedChild({ ...selectedChild, name: e.target.value })}
+                  />
+                </div>
+              </div>
+              <div className="w-[30%]">
+                <p>Middle Name of the Child:</p>
+                <div className="border border-gray-300 rounded-md p-1">
+                  <input
+                    className="w-full outline-none"
+                    type="text"
+                    value={selectedChild.name}
+                    onChange={(e) => setSelectedChild({ ...selectedChild, name: e.target.value })}
+                  />
+                </div>
+              </div>
+              <div className="w-[30%]">
+                <p>Last Name of the Child:</p>
+                <div className="border border-gray-300 rounded-md p-1">
+                  <input
+                    className="w-full outline-none"
+                    type="text"
+                    value={selectedChild.name}
+                    onChange={(e) => setSelectedChild({ ...selectedChild, name: e.target.value })}
+                  />
+                </div>
+              </div>
+            </div>
+            <div className="flex flex-row gap-2">
+              <p>Sex:</p>
+              <div className="flex flex-col gap-2">
+                <div className="flex flex-row gap-2">
+                <label>
+                <input
+                  type="radio"
+                  name="sex"
+                  value="male"
+                  checked={selectedChild.sex === "male"}
+                  onChange={(e) => setSelectedChild({ ...selectedChild, sex: e.target.value })}
+                />
+                Male
+              </label>
+              <label>
+                <input
+                  type="radio"
+                  name="sex"
+                  value="female"
+                  checked={selectedChild.sex === "female"}
+                  onChange={(e) => setSelectedChild({ ...selectedChild, sex: e.target.value })}
+                />
+                Female
+              </label>
+              </div>
+               </div>
+                <div>
+                <p>Birthdate:</p>
+                <div className="border border-gray-300 rounded-md p-1">
+                <input
               type="text"
               value={selectedChild.birthdate}
               onChange={(e) => setSelectedChild({ ...selectedChild, birthdate: e.target.value })}
             />
+            </div>
+            </div>
+             <p>During Birth:</p>
+              <label>
+              <input
+                    className="w-full outline-none"
+                    type="text"
+                    value={selectedChild.name}
+                    onChange={(e) => setSelectedChild({ ...selectedChild, name: e.target.value })}
+                  />
+                Male
+              </label>
+            </div>
+            <p>Current :</p>
+            <p>Age in Months :</p>
+            <p>Weight (kg):</p>
+            <p>Height (cm):</p>
+            <p>Nutritional Status:</p>
+            <p>Weight for Age:</p>
+            <p>Length/Height for Age:</p>
+            <p>Weight for Length/Height:</p>
+            <p>Prepared By:</p>
+            <p>Date:</p>
+            <p>Checked By:</p>
+            <p>Date:</p>
+            <button>Cancel</button>
+            <button>Save</button>
             <input
               type="text"
               value={selectedChild.address}
               onChange={(e) => setSelectedChild({ ...selectedChild, address: e.target.value })}
             />
+
             <input
               type="email"
               value={selectedChild.email}
@@ -272,11 +364,6 @@ const NutritionalStatus: React.FC = () => {
               type="number"
               value={selectedChild.age}
               onChange={(e) => setSelectedChild({ ...selectedChild, age: parseInt(e.target.value) })}
-            />
-            <input
-              type="text"
-              value={selectedChild.sex}
-              onChange={(e) => setSelectedChild({ ...selectedChild, sex: e.target.value })}
             />
             <input
               type="text"

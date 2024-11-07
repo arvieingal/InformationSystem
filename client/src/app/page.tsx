@@ -44,7 +44,7 @@ const Login = () => {
       if (result?.error) {
         setError('Invalid username or password.');
       } else {
-        router.push('/landing');
+        router.push('/main');
       }
     } catch (error) {
       setError('An error occurred. Please try again.');
@@ -74,23 +74,23 @@ const Login = () => {
 
   return (
     <div className="w-full h-screen">
-      <div className="w-full h-full flex justify-center">
-        <div className="hidden md:flex items-center justify-center w-[70%]">
+      <div className="w-full h-full flex 2xl:flex 2xl:flex-row  flex-row justify-center sm:flex sm:flex-col sm:px-20 lg:px-0 2xl:px-0 lg:flex lg:flex-row sm:items-center sm:justify-center ">
+        <div className="hidden  items-center justify-center w-[70%] 2xl:w-full  xl:w-full lg:w-full md:w-full md:hidden lg:block ">
           <Image
             className="h-screen w-full object-cover rounded-l-[5px]"
-            src="/img/register.png"
+            src="/image/register.png"
             width={1000}
             height={800}
             alt="Login Image"
           />
         </div>
 
-        <div className="w-[30%] flex flex-col items-center">
-          <div className="mt-[4rem]">
+        <div className="w-[30%] xl:w-full lg:w-full md:w-full flex flex-col items-center sm:w-[90%] xl:px-[90px] 2xl:w-[50%] 2xl:px-0">
+          <div className="mt-[-5rem]">
             <Image src="/svg/logo.svg" width={92} height={91} alt="Logo" />
           </div>
 
-          <div className="flex items-center justify-center flex-col mb-6">
+          <div className="flex items-center justify-center flex-col mb-[2rem]">
             <p className="font-semibold text-[34px] 2xl:text-[40px]">Welcome!</p>
             <p className="text-[13px] 2xl:text-[16px]">Please enter your details</p>
           </div>
@@ -170,7 +170,6 @@ const Login = () => {
                 <button
                   type="submit"
                   className="w-[84%] h-[36px] bg-[#24968B] text-white rounded-[25px]"
-                  onClick={() => router.push('/main')}
                 >
                   <span className="text-[16px] flex items-center justify-center">
                     Log in

@@ -76,7 +76,7 @@ const [fieldError, setFieldError] = useState<{
       <div className="w-[80%]  md:w-[94%] 2xl:w-[250%]">
         <Image
           className="h-screen w-full  object-cover rounded-l-[5px]"
-          src="/img/register.png"
+          src="/image/register.png"
           width={1000}
           height={800}
           alt="Login Image"

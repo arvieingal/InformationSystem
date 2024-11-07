@@ -41,7 +41,15 @@ const HealthSidebar = () => {
             height={50}
             alt="Home"
             className={`w-[30px] h-[30px] cursor-pointer ${clickedImage === "home" ? "filter-green" : ""}`}
-            onClick={() => handleImageClick("home", "/main/health")}
+            onClick={() => handleImageClick("home", "/main")}
+          />
+            <Image
+            src={clickedImage === "health_dashboard" ? "/svg/active_dashboard.svg" : "/svg/health_dashboard.svg"}
+            width={50}
+            height={50}
+            alt="Health Dashboard"
+            className={`w-[30px] h-[30px] cursor-pointer ${clickedImage === "health_dashboard" ? "filter-green" : ""}`}
+            onClick={() => handleImageClick("health_dashboard", "/main/health")}
           />
 
           <Image
