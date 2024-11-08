@@ -1,9 +1,9 @@
-'use client';
+"use client";
 
-import React, { useState } from 'react';
-import Image from 'next/image';
-import CardGrid from '@/components/CardGrid';
-import { dashboardCards } from '@/constants/cardData';
+import React, { useState } from "react";
+import Image from "next/image";
+import CardGrid from "@/components/CardGrid";
+import { dashboardCards } from "@/constants/cardData";
 
 const Profiling = () => {
   const [selectedCard, setSelectedCard] = useState<number | null>(null);
@@ -11,8 +11,8 @@ const Profiling = () => {
   return (
     <div>
       {selectedCard === null && (
-        <>
-          <div className='w-full h-full flex items-center justify-center mt-[5rem]'>
+        <div className="w-full h-full pt-[5rem]">
+          <div className="flex items-center justify-center">
             <Image
               src="/svg/dashboard.svg"
               width={100}
@@ -21,11 +21,15 @@ const Profiling = () => {
               className="w-[400px] h-[200px]"
             />
           </div>
-          <div className='flex flex-col items-center justify-center'>
-            <p className='text-[#06C46C] font-semibold text-[34px] mt-[3rem]'>Welcome to Our Community!</p>
-            <p className='font-semibold text-[14px] mb-[2rem]'>Get to know us more, browse our residents profiles</p>
+          <div className="flex flex-col items-center justify-center pt-[3rem]">
+            <p className="text-[#06C46C] font-semibold text-[34px]">
+              Welcome to Our Community!
+            </p>
+            <p className="font-semibold text-[14px] pb-[2rem]">
+              Get to know us more, browse our residents profiles
+            </p>
           </div>
-        </>
+        </div>
       )}
       <CardGrid cards={dashboardCards} />
     </div>
