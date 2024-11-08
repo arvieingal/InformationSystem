@@ -8,7 +8,7 @@ interface ModalProps {
 const PersonModal: React.FC<ModalProps> = ({ onClose, children }) => {
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center">
-      <div className="bg-white rounded-lg shadow-lg p-6 w-1/2 h-[50%]">
+      <div className="bg-white rounded-lg shadow-lg p-6 w-[60%] h-[70%]">
         <button
           className="absolute top-2 right-2 text-gray-600 hover:text-gray-900"
           onClick={onClose}
