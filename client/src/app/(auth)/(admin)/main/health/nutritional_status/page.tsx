@@ -11,7 +11,7 @@ import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 import { FaCalendarAlt } from "react-icons/fa";
 
-interface Child {
+export interface Child {
   id: number;
   name: string;
   age: number;
@@ -20,17 +20,25 @@ interface Child {
   heightCm: number;
   weightKg: number;
   nutritionalStatus: string;
-  address?: string;
-  email?: string;
-  purok?: string;
-  phoneNumber?: string;
+  address: string;
+  purok: string;
+  weightAtBirth?: string;
+  heightAtBirth?: string;
+  currentWeight?: string;
+  currentHeight?: string;
+  currentAge?: number;
+  first_name?: string;
+  middle_name?: string;
+  last_name?: string;
+  suffix?: string;
 }
 
 // Define a type for the form data
 interface ChildFormData {
-  firstName: string;
-  middleName: string;
-  lastName: string;
+  id?: number;
+  first_name: string;
+  middle_name: string;
+  last_name: string;
   sex: string;
   birthdate: string;
   weightAtBirth: string;
@@ -40,17 +48,27 @@ interface ChildFormData {
   currentHeight: string;
   address: string;
   purok: string;
+  suffix?: string;
+  nutritionalStatus?: string;
+  heightAgeZ?: number;
+  weightHeightZ?: number;
+  measurementDate?: string;
 }
 
 // Function to calculate nutritional status based on age, weight, and height
-const calculateNutritionalStatus = (age: number, weight: number, height: number): string => {
-  // Example logic for determining nutritional status
+const calculateNutritionalStatus = (
+  age: number,
+  weight: number,
+  height: number
+): string => {
   if (age < 24) {
     if (weight < 10) return "Underweight";
-    if (weight > 15) return "Overweight";
+    if (weight > 15 && weight <= 20) return "Overweight";
+    if (weight > 20) return "Obese";
   } else {
     if (height < 80) return "Underweight";
-    if (height > 100) return "Overweight";
+    if (height > 100 && height <= 120) return "Overweight";
+    if (height > 120) return "Obese";
   }
   return "Normal";
 };
@@ -59,22 +77,28 @@ const NutritionalStatus: React.FC = () => {
   const router = useRouter();
   const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
   const [selectedChild, setSelectedChild] = useState<ChildFormData>({
-    firstName: '',
-    middleName: '',
-    lastName: '',
-    sex: '',
-    birthdate: '',
-    weightAtBirth: '',
-    heightAtBirth: '',
+    first_name: "",
+    middle_name: "",
+    last_name: "",
+    sex: "",
+    birthdate: "",
+    weightAtBirth: "",
+    heightAtBirth: "",
     currentAge: 0,
-    currentWeight: '',
-    currentHeight: '',
-    address: '',
-    purok: '',
+    currentWeight: "",
+    currentHeight: "",
+    address: "",
+    purok: "",
+    nutritionalStatus: "",
+    heightAgeZ: 0,
+    weightHeightZ: 0,
+    measurementDate: new Date().toISOString().split("T")[0],
   });
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [isFilterDropdownOpen, setIsFilterDropdownOpen] = useState(false);
+  const [originalChildren, setOriginalChildren] = useState<Child[]>([]);
+
   const modalRef = useRef<HTMLDivElement>(null);
   const [sortConfig, setSortConfig] = useState<{
     key: keyof Child;
@@ -82,7 +106,34 @@ const NutritionalStatus: React.FC = () => {
   } | null>(null);
   const [children, setChildren] = useState<Child[]>([]);
   const [currentPage, setCurrentPage] = useState<number>(1);
-  const itemsPerPage = 12;
+  const itemsPerPage = 15;
+
+  const [error, setError] = useState<string | null>(null);
+
+  const addModalRef = useRef<HTMLDivElement>(null);
+
+  const [archivedChildren, setArchivedChildren] = useState<number[]>([]);
+
+  const handleClickOutsideAddModal = (event: MouseEvent) => {
+    if (
+      addModalRef.current &&
+      !addModalRef.current.contains(event.target as Node)
+    ) {
+      setIsAddModalOpen(false);
+    }
+  };
+
+  useEffect(() => {
+    if (isAddModalOpen) {
+      document.addEventListener("mousedown", handleClickOutsideAddModal);
+    } else {
+      document.removeEventListener("mousedown", handleClickOutsideAddModal);
+    }
+
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutsideAddModal);
+    };
+  }, [isAddModalOpen]);
 
   useEffect(() => {
     const fetchChildren = async () => {
@@ -90,26 +141,26 @@ const NutritionalStatus: React.FC = () => {
         const response = await fetch("http://localhost:3001/api/children");
         if (response.ok) {
           const data: Child[] = await response.json();
-          console.log("Fetched children data:", data);
-          setChildren(data);
+          const filteredData = data.filter(child => !archivedChildren.includes(child.id));
+          setChildren(filteredData);
+          setOriginalChildren(filteredData);
         } else {
-          console.error("Failed to fetch children data.");
+          throw new Error("Failed to fetch children data.");
         }
-      } catch (error) {
-        console.error("Error fetching children data:", error);
+      } catch (error: any) {
+        setError(error.message);
       }
     };
 
     fetchChildren();
-  }, []);
+  }, [archivedChildren]);
 
   const fetchChildById = async (id: number) => {
     try {
-      const response = await fetch(`localhost:3001/api/children/${id}`);
+      const response = await fetch(`http://localhost:3001/api/children/${id}`);
       if (response.ok) {
         const data: Child = await response.json();
         setSelectedChild(data as any);
-        setIsModalOpen(true);
       } else {
         console.error("Child not found.");
       }
@@ -118,30 +169,53 @@ const NutritionalStatus: React.FC = () => {
     }
   };
 
-  function handleRowClick(child: Child): void {
+  const handleDateChange = (date: Date | null) => {
     setSelectedChild({
-      firstName: child.name.split(' ')[0] || '',
-      middleName: child.name.split(' ')[1] || '',
-      lastName: child.name.split(' ')[2] || '',
+      ...selectedChild,
+      birthdate: date ? date.toISOString().split("T")[0] : "",
+    });
+  };
+
+  const handleRowClick = (child: Child) => {
+    setSelectedChild({
+      first_name: child.first_name || "",
+      middle_name: child.middle_name || "",
+      last_name: child.last_name || "",
       sex: child.sex,
       birthdate: child.birthdate,
-      weightAtBirth: '', // Assuming this data is not available in Child
-      heightAtBirth: '', // Assuming this data is not available in Child
+      weightAtBirth: child.weightAtBirth || "",
+      heightAtBirth: child.heightAtBirth || "",
       currentAge: child.age,
       currentWeight: child.weightKg.toString(),
       currentHeight: child.heightCm.toString(),
-      address: child.address || '',
-      purok: child.purok || '',
+      address: child.address || "",
+      purok: child.purok || "",
+      nutritionalStatus: child.nutritionalStatus || "",
     });
     setIsModalOpen(true);
-  }
+  };
 
   async function handleEditClick(child: Child): Promise<void> {
     const confirmEdit = await SweetAlert.showConfirm(
       `Are you sure you want to edit this child with ID: ${child.id}?`
     );
+
     if (confirmEdit) {
-      setSelectedChild(child);
+      setSelectedChild({
+        ...child,
+        first_name: child.first_name || "",
+        middle_name: child.middle_name || "",
+        last_name: child.last_name || "",
+        sex: child.sex || "",
+        birthdate: child.birthdate || "",
+        weightAtBirth: child.weightAtBirth || "",
+        heightAtBirth: child.heightAtBirth || "",
+        currentAge: child.currentAge || 0,
+        currentWeight: child.currentWeight || "",
+        currentHeight: child.currentHeight || "",
+        address: child.address || "",
+        purok: child.purok || "",
+      });
       setIsEditModalOpen(true);
     }
   }
@@ -151,21 +225,37 @@ const NutritionalStatus: React.FC = () => {
       `Are you sure you want to archive this child with ID: ${child.id}?`
     );
     if (confirmArchive) {
-      console.log(`Child with ID: ${child.id} archived.`);
+      try {
+        const response = await fetch(`http://localhost:3001/api/children/${child.id}`, {
+          method: "PUT",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ status: "Archive" }),
+        });
+
+        if (response.ok) {
+          setArchivedChildren((prevArchived) => [...prevArchived, child.id]);
+          console.log(`Child with ID: ${child.id} archived.`);
+        } else {
+          console.error("Failed to archive child.");
+        }
+      } catch (error) {
+        console.error("Error archiving child:", error);
+      }
     }
   }
 
-  useEffect(() => {
-    function handleClickOutside(event: MouseEvent) {
-      if (
-        modalRef.current &&
-        !modalRef.current.contains(event.target as Node)
-      ) {
-        setIsModalOpen(false);
-      }
+  const handleClickOutside = (event: MouseEvent) => {
+    if (modalRef.current && !modalRef.current.contains(event.target as Node)) {
+      setIsModalOpen(false);
+      setIsEditModalOpen(false);
+      setIsAddModalOpen(false);
     }
+  };
 
-    if (isModalOpen) {
+  useEffect(() => {
+    if (isModalOpen || isEditModalOpen || isAddModalOpen) {
       document.addEventListener("mousedown", handleClickOutside);
     } else {
       document.removeEventListener("mousedown", handleClickOutside);
@@ -174,7 +264,7 @@ const NutritionalStatus: React.FC = () => {
     return () => {
       document.removeEventListener("mousedown", handleClickOutside);
     };
-  }, [isModalOpen]);
+  }, [isModalOpen, isEditModalOpen, isAddModalOpen]);
 
   function handleSort(key: keyof Child) {
     let direction = "ascending";
@@ -218,21 +308,40 @@ const NutritionalStatus: React.FC = () => {
   }, [sortedChildren, currentPage]);
 
   const handleSearch = (query: string) => {
-    // Implement search logic here
+    const lowerCaseQuery = query.toLowerCase();
+    const filteredChildren = originalChildren.filter((child) => {
+      return (
+        child.id.toString().includes(lowerCaseQuery) ||
+        (child.name && child.name.toLowerCase().includes(lowerCaseQuery)) ||
+        child.age.toString().includes(lowerCaseQuery) ||
+        child.sex.toLowerCase().includes(lowerCaseQuery) ||
+        child.birthdate.includes(lowerCaseQuery) ||
+        child.heightCm.toString().includes(lowerCaseQuery) ||
+        child.weightKg.toString().includes(lowerCaseQuery) ||
+        child.nutritionalStatus.toLowerCase().includes(lowerCaseQuery) ||
+        (child.address && child.address.toLowerCase().includes(lowerCaseQuery)) ||
+        (child.purok && child.purok.toLowerCase().includes(lowerCaseQuery)) ||
+        (child.weightAtBirth && child.weightAtBirth.includes(lowerCaseQuery)) ||
+        (child.heightAtBirth && child.heightAtBirth.includes(lowerCaseQuery)) ||
+        (child.currentWeight && child.currentWeight.includes(lowerCaseQuery)) ||
+        (child.currentHeight && child.currentHeight.includes(lowerCaseQuery))
+      );
+    });
+    setChildren(filteredChildren);
   };
 
   const handlePageChange = (page: number) => {
     setCurrentPage(page);
   };
 
-  const handleAddChild = async (childData: ChildFormData) => {
+  const handleAddChild = async () => {
     try {
-      const response = await fetch("http://localhost:3001/api/children", {
+      const response = await fetch("http://localhost:3001/api/add/children", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify(childData),
+        body: JSON.stringify(selectedChild),
       });
 
       if (response.ok) {
@@ -251,50 +360,116 @@ const NutritionalStatus: React.FC = () => {
   useEffect(() => {
     const { currentAge, currentWeight, currentHeight } = selectedChild;
     if (currentAge && currentWeight && currentHeight) {
-      const status = calculateNutritionalStatus(currentAge, parseFloat(currentWeight), parseFloat(currentHeight));
+      const status = calculateNutritionalStatus(
+        currentAge,
+        parseFloat(currentWeight),
+        parseFloat(currentHeight)
+      );
       setSelectedChild((prev) => ({ ...prev, nutritionalStatus: status }));
     }
-  }, [selectedChild.currentAge, selectedChild.currentWeight, selectedChild.currentHeight]);
+  }, [
+    selectedChild.currentAge,
+    selectedChild.currentWeight,
+    selectedChild.currentHeight,
+  ]);
+
+  // Utility function to safely parse date strings
+  const parseDate = (dateString: string) => {
+    if (!dateString) return null; // Return null if the date string is empty
+    const date = new Date(dateString);
+    return isNaN(date.getTime()) ? null : date;
+  };
+
+  useEffect(() => {
+    if (isEditModalOpen && selectedChild.id) {
+      fetchChildById(selectedChild.id);
+    }
+  }, [isEditModalOpen, selectedChild.id]);
+
+  async function handleUpdateChild() {
+    try {
+      const response = await fetch(`/api/children/${selectedChild.id}`, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(selectedChild),
+      });
+
+      if (response.ok) {
+        const updatedChild = await response.json();
+        console.log("Child updated successfully:", updatedChild);
+        setIsEditModalOpen(false); // Close the modal after update
+        // Optionally, update the children list in the state
+        setChildren((prevChildren) =>
+          prevChildren.map((child) =>
+            child.id === updatedChild.id ? updatedChild : child
+          )
+        );
+      } else {
+        console.error("Failed to update child.");
+      }
+    } catch (error) {
+      console.error("Error updating child:", error);
+    }
+  }
+
+  const handleAddModalOpen = () => {
+    // Reset selectedChild to empty values for a new entry
+    setSelectedChild({
+      first_name: "",
+      middle_name: "",
+      last_name: "",
+      sex: "",
+      birthdate: "",
+      weightAtBirth: "",
+      heightAtBirth: "",
+      currentAge: 0,
+      currentWeight: "",
+      currentHeight: "",
+      address: "",
+      purok: "",
+      nutritionalStatus: "",
+      // Ensure all fields are reset to empty or default values
+    });
+    setIsAddModalOpen(true);
+  };
 
   return (
     <>
-      <div className="flex flex-row md:flex md:flex-row justify-center gap-[3rem] ">
-        <div onClick={() => router.push("/main/health/nutritional_status")}>
-          <Image
-            className="mt-[2rem]"
-            src="/svg/immunization_records.svg"
-            alt="Nutritional Status"
-            width={200}
-            height={50}
-          />
-        </div>
-        <div onClick={() => router.push("/main/health/immunization_record")}>
-          <Image
-            src="/svg/health_image.svg"
-            alt="Nutritional Status"
-            width={200}
-            height={50}
-          />
-        </div>
-      </div>
+      <div className="flex flex-row md:flex md:flex-row justify-center gap-[3rem] mt-[2rem] "></div>
       <div className="w-full flex flex-row pr-[3rem]  items-center justify-between gap-4 ">
         <div className="w-full pl-2">
           <SearchBar onSearch={handleSearch} />
         </div>
-        <button className="flex items-center space-x-2 text-blue-500 hover:underline">
-          <Image
-            src="/svg/filter.svg"
-            alt="Nutritional Status"
-            width={30}
-            height={50}
-            onClick={() => setIsFilterDropdownOpen(!isFilterDropdownOpen)}
-          />
+        <Image
+          src="/svg/filter.svg"
+          alt="Nutritional Status"
+          width={30}
+          height={50}
+          onClick={() => setIsFilterDropdownOpen(!isFilterDropdownOpen)}
+          className="cursor-pointer"
+        />
+        <button
+          className="flex items-center space-x-2 text-blue-500 hover:underline"
+          onClick={handleAddModalOpen}
+        >
           <Image
             src="/svg/add_nutritional.svg"
             alt="Nutritional Status"
             width={30}
             height={50}
-            onClick={() => setIsAddModalOpen(true)}
+          />
+        </button>
+        <button
+          className="flex items-center space-x-2 text-blue-500 hover:underline"
+          onClick={() => router.push("/main/health/report")}
+        >
+          <Image
+            src="/svg/report.svg"
+            alt="Nutritional Status"
+            width={30}
+            height={50}
           />
         </button>
         {isFilterDropdownOpen && (
@@ -362,13 +537,18 @@ const NutritionalStatus: React.FC = () => {
             <div className="w-full flex flex-row gap-[10rem] text mt-[2rem]">
               <p className="text">
                 <span className="font-medium">Name of the Child:</span>
-                <u>{selectedChild.firstName}</u>
-                <u>{selectedChild.middleName || 'N/A'}</u>
-                <u>{selectedChild.lastName}</u>
+                <u>{selectedChild.first_name}</u>
+                <u>{selectedChild.last_name}</u>
+                <u>
+                  {selectedChild.middle_name ? selectedChild.middle_name : ""}
+                </u>
                 <select
-                  value={selectedChild.suffix || ''}
+                  value={selectedChild.suffix || ""}
                   onChange={(e) =>
-                    setSelectedChild({ ...selectedChild, suffix: e.target.value })
+                    setSelectedChild({
+                      ...selectedChild,
+                      suffix: e.target.value,
+                    })
                   }
                 >
                   <option value="">Select Suffix</option>
@@ -399,7 +579,7 @@ const NutritionalStatus: React.FC = () => {
             <p className="font-medium mt-[2rem]">Nutritional Status:</p>
             <div className="w-full flex flex-row gap-[5rem] mt-4">
               <select
-                value={selectedChild.nutritionalStatus || ''}
+                value={selectedChild.nutritionalStatus || ""}
                 onChange={(e) =>
                   setSelectedChild({
                     ...selectedChild,
@@ -411,15 +591,19 @@ const NutritionalStatus: React.FC = () => {
                 <option value="Normal">Normal</option>
                 <option value="Overweight">Overweight</option>
                 <option value="Underweight">Underweight</option>
+                <option value="Obese">Obese</option>
                 {/* Add more options as needed */}
               </select>
             </div>
             <p className="font-medium mt-[2rem]">Location:</p>
             <div className="w-full flex flex-row gap-[10rem]">
-              <p className="text">Address: <u>{selectedChild.address}</u></p>
-              <p className="text">Purok/Zone: <u>{selectedChild.purok}</u></p>
+              <p className="text">
+                Address: <u>{selectedChild.address}</u>
+              </p>
+              <p className="text">
+                Purok/Zone: <u>{selectedChild.purok}</u>
+              </p>
             </div>
-
           </div>
         </Modal>
       )}
@@ -452,27 +636,11 @@ const NutritionalStatus: React.FC = () => {
                   <input
                     className="w-full outline-none"
                     type="text"
-                    value={selectedChild.firstName}
+                    value={selectedChild.first_name}
                     onChange={(e) =>
                       setSelectedChild({
                         ...selectedChild,
-                        firstName: e.target.value,
-                      })
-                    }
-                  />
-                </div>
-              </div>
-              <div className="w-full">
-                <p>Middle Name of the Child:</p>
-                <div className="border border-gray-300 rounded-md p-1">
-                  <input
-                    className="w-full outline-none"
-                    type="text"
-                    value={selectedChild.middleName}
-                    onChange={(e) =>
-                      setSelectedChild({
-                        ...selectedChild,
-                        middleName: e.target.value,
+                        first_name: e.target.value,
                       })
                     }
                   />
@@ -484,11 +652,27 @@ const NutritionalStatus: React.FC = () => {
                   <input
                     className="w-full outline-none"
                     type="text"
-                    value={selectedChild.lastName}
+                    value={selectedChild.last_name}
                     onChange={(e) =>
                       setSelectedChild({
                         ...selectedChild,
-                        lastName: e.target.value,
+                        last_name: e.target.value,
+                      })
+                    }
+                  />
+                </div>
+              </div>
+              <div className="w-full">
+                <p>Middle Name of the Child:</p>
+                <div className="border border-gray-300 rounded-md p-1">
+                  <input
+                    className="w-full outline-none"
+                    type="text"
+                    value={selectedChild.middle_name}
+                    onChange={(e) =>
+                      setSelectedChild({
+                        ...selectedChild,
+                        middle_name: e.target.value,
                       })
                     }
                   />
@@ -530,26 +714,26 @@ const NutritionalStatus: React.FC = () => {
                 </div>
               </div>
               <div className="w-full">
-              <p>Birthdate:</p>
+                <p>Birthdate:</p>
                 <div className="border border-gray-300 rounded-md p-1 flex items-center">
                   <DatePicker
-                    selected={new Date(selectedChild.birthdate)}
+                    selected={parseDate(selectedChild.birthdate)}
                     onChange={(date: Date | null) =>
                       setSelectedChild({
                         ...selectedChild,
-                        birthdate: date?.toISOString().split('T')[0] || '', 
+                        birthdate: date ? date.toISOString().split("T")[0] : "",
                       })
                     }
                     dateFormat="yyyy-MM-dd"
                     className="w-full outline-none"
                     customInput={
-                      <div className="flex items-centerrounded-md p-1 ">
-                        <input 
-                          className="w-full outline-none" 
-                          value={selectedChild.birthdate} 
-                          readOnly 
+                      <div className="flex items-center rounded-md p-1 text-black">
+                        <input
+                          className="w-full outline-none"
+                          value={selectedChild.birthdate}
+                          readOnly
                         />
-                        <FaCalendarAlt className=" text-black  w-[2rem] ml-[5rem]" />
+                        <FaCalendarAlt className="ml-2 text-black" />
                       </div>
                     }
                   />
@@ -643,9 +827,9 @@ const NutritionalStatus: React.FC = () => {
               {/* Nutritional Status */}
               <div className="w-full">
                 <h1 className="text-lg font-semibold">Nutritional Status :</h1>
-                <div className="w-full flex gap-[20px] mt-4">
+                <div className="w-full flex gap-[2rem] mt-4">
                   <p>Weight for Age:</p>
-                  <div className="border border-gray-300 rounded-md p-1 w-[3rem] h-[2.5rem]">
+                  <div className="border border-gray-300 rounded-md p-1 w-[8rem] h-[2.5rem]">
                     <input
                       className="w-full outline-none flex text-center justify-center"
                       type="number"
@@ -659,7 +843,7 @@ const NutritionalStatus: React.FC = () => {
                     />
                   </div>
                   <p>Length/Height for Age:</p>
-                  <div className="border border-gray-300 rounded-md p-1 w-[3rem] h-[2.5rem]">
+                  <div className="border border-gray-300 rounded-md p-1 w-[8rem] h-[2.5rem]">
                     <input
                       className="w-full outline-none flex text-center justify-center"
                       type="number"
@@ -673,7 +857,7 @@ const NutritionalStatus: React.FC = () => {
                     />
                   </div>
                   <p>Weight for Length/Height:</p>
-                  <div className="border border-gray-300 rounded-md p-1 w-[3rem] h-[2.5rem]">
+                  <div className="border border-gray-300 rounded-md p-1 w-[8rem] h-[2.5rem]">
                     <input
                       className="w-full outline-none flex text-center justify-center"
                       type="number"
@@ -686,6 +870,26 @@ const NutritionalStatus: React.FC = () => {
                       }
                     />
                   </div>
+                  <p className="font-medium ">Nutritional Status:</p>
+            <div className="w-full border border-gray-300 rounded-md h-[2.5rem] outline-none">
+               <select
+                 className="w-full outline-none flex "
+                value={selectedChild.nutritionalStatus || ""}
+                onChange={(e) =>
+                  setSelectedChild({
+                    ...selectedChild,
+                    nutritionalStatus: e.target.value,
+                  })
+                }
+              >
+                <option value="">Select Nutritional Status</option>
+                <option value="Normal">Normal</option>
+                <option value="Overweight">Overweight</option>
+                <option value="Underweight">Underweight</option>
+                <option value="Obese">Obese</option>
+                {/* Add more options as needed */}
+              </select>
+            </div>
                 </div>
               </div>
             </div>
@@ -724,12 +928,7 @@ const NutritionalStatus: React.FC = () => {
                 </button>
               </div>
               <div className="w-full border border-gray-300 bg-[#007F73] rounded-md p-2">
-                <button
-                  className="w-full"
-                  onClick={() => {
-                    /* handle save logic here */
-                  }}
-                >
+                <button className="w-full" onClick={handleUpdateChild}>
                   <p className="text-white text-lg font-medium">
                     Update Nutritional Status
                   </p>
@@ -742,7 +941,7 @@ const NutritionalStatus: React.FC = () => {
 
       {isAddModalOpen && (
         <Modal onClose={() => setIsAddModalOpen(false)}>
-          <div className="relative">
+          <div ref={addModalRef} className="relative">
             <button
               className="absolute top-[-3rem] right-[-2rem] text-gray-500 hover:text-gray-700 p-4 text-[3rem]"
               onClick={() => setIsAddModalOpen(false)}
@@ -768,28 +967,11 @@ const NutritionalStatus: React.FC = () => {
                   <input
                     className="w-full outline-none"
                     type="text"
-                    value={selectedChild.firstName}
+                    value={selectedChild.first_name}
                     onChange={(e) =>
                       setSelectedChild({
                         ...selectedChild,
-                        firstName: e.target.value,
-                      })
-                    }
-                  />
-                </div>
-                
-              </div>
-              <div className="w-full">
-                <p>Middle Name of the Child:</p>
-                <div className="border border-gray-300 rounded-md p-1">
-                  <input
-                    className="w-full outline-none"
-                    type="text"
-                    value={selectedChild.middleName}
-                    onChange={(e) =>
-                      setSelectedChild({
-                        ...selectedChild,
-                        middleName: e.target.value,
+                        first_name: e.target.value,
                       })
                     }
                   />
@@ -801,24 +983,38 @@ const NutritionalStatus: React.FC = () => {
                   <input
                     className="w-full outline-none"
                     type="text"
-                    value={selectedChild.lastName}
+                    value={selectedChild.last_name}
                     onChange={(e) =>
                       setSelectedChild({
                         ...selectedChild,
-                        lastName: e.target.value,
+                        last_name: e.target.value,
                       })
                     }
                   />
-                
                 </div>
-                
+              </div>
+              <div className="w-full">
+                <p>Middle Name of the Child:</p>
+                <div className="border border-gray-300 rounded-md p-1">
+                  <input
+                    className="w-full outline-none"
+                    type="text"
+                    value={selectedChild.middle_name}
+                    onChange={(e) =>
+                      setSelectedChild({
+                        ...selectedChild,
+                        middle_name: e.target.value,
+                      })
+                    }
+                  />
+                </div>
               </div>
               <div className="w-full">
                 <p>Suffix:</p>
                 <div className="border border-gray-300 rounded-md p-1">
                   <select
                     className="w-full outline-none"
-                    value={selectedChild.suffix || ''}
+                    value={selectedChild.suffix || ""}
                     onChange={(e) =>
                       setSelectedChild({
                         ...selectedChild,
@@ -829,7 +1025,7 @@ const NutritionalStatus: React.FC = () => {
                     <option value="">Select Suffix</option>
                     <option value="Jr.">Jr.</option>
                     <option value="Sr.">Sr.</option>
-                    <option value="III">III</option>
+                    <option value="III">III</option>{" "}
                     {/* Add more suffix options as needed */}
                   </select>
                 </div>
@@ -870,22 +1066,29 @@ const NutritionalStatus: React.FC = () => {
                 </div>
               </div>
               <div className="w-full">
-
                 <p>Birthdate:</p>
                 <div className="border border-gray-300 rounded-md p-1 flex items-center">
                   <DatePicker
-                    selected={new Date(selectedChild.birthdate)}
-                    onChange={(date: Date | null) =>
-                      setSelectedChild({
-                        ...selectedChild,
-                        birthdate: date?.toISOString().split('T')[0] || '',
-                      })
+                    selected={
+                      selectedChild.birthdate
+                        ? new Date(selectedChild.birthdate)
+                        : null
                     }
+                    onChange={handleDateChange}
                     dateFormat="yyyy-MM-dd"
                     className="w-full outline-none"
+                    placeholderText="Select birthdate"
+                    showYearDropdown
+                    scrollableYearDropdown
+                    minDate={new Date("1900-01-01")}
+                    maxDate={new Date()}
                     customInput={
                       <div className="flex items-center rounded-md p-1 text-black">
-                        <input className="w-full outline-none" />
+                        <input
+                          className="w-full outline-none"
+                          value={selectedChild.birthdate}
+                          readOnly
+                        />
                         <FaCalendarAlt className="ml-2 text-black" />
                       </div>
                     }
@@ -987,6 +1190,7 @@ const NutritionalStatus: React.FC = () => {
                       className="w-full outline-none flex text-center justify-center"
                       type="number"
                       value={selectedChild.currentWeight}
+                      placeholder="kg"
                       onChange={(e) =>
                         setSelectedChild({
                           ...selectedChild,
@@ -1001,6 +1205,7 @@ const NutritionalStatus: React.FC = () => {
                       className="w-full outline-none flex text-center justify-center"
                       type="number"
                       value={selectedChild.currentHeight}
+                      placeholder="cm"
                       onChange={(e) =>
                         setSelectedChild({
                           ...selectedChild,
@@ -1015,6 +1220,7 @@ const NutritionalStatus: React.FC = () => {
                       className="w-full outline-none flex text-center justify-center"
                       type="number"
                       value={selectedChild.currentWeight}
+                      placeholder=""
                       onChange={(e) =>
                         setSelectedChild({
                           ...selectedChild,
@@ -1024,25 +1230,26 @@ const NutritionalStatus: React.FC = () => {
                     />
                   </div>
                   <div className="w-full">
-                <p>Nutritional Status:</p>
-                <div className="border border-gray-300 rounded-md p-1 w-[15rem]">
-                  <select
-                    className="w-full outline-none"
-                    value={selectedChild.nutritionalStatus || ''}
-                    onChange={(e) =>
-                      setSelectedChild({
-                        ...selectedChild,
-                        nutritionalStatus: e.target.value,
-                      })
-                    }
-                  >
-                    <option value="">Select Nutritional Status</option>
-                    <option value="Normal">Normal</option>
-                    <option value="Underweight">Underweight</option>
-                    <option value="Overweight">Overweight</option>
-                  </select>
-                </div>
-              </div>
+                    <p>Nutritional Status:</p>
+                    <div className="border border-gray-300 rounded-md p-1 w-[15rem]">
+                      <select
+                        className="w-full outline-none"
+                        value={selectedChild.nutritionalStatus || ""}
+                        onChange={(e) =>
+                          setSelectedChild({
+                            ...selectedChild,
+                            nutritionalStatus: e.target.value,
+                          })
+                        }
+                      >
+                        <option value="">Select Nutritional Status</option>
+                        <option value="Normal">Normal</option>
+                        <option value="Underweight">Underweight</option>
+                        <option value="Overweight">Overweight</option>
+                        <option value="Obese">Obese</option>
+                      </select>
+                    </div>
+                  </div>
                 </div>
               </div>
             </div>
@@ -1079,10 +1286,7 @@ const NutritionalStatus: React.FC = () => {
                 </button>
               </div>
               <div className="w-full border border-gray-300 bg-[#007F73] rounded-md p-2">
-                <button
-                  className="w-full"
-                  onClick={() => handleAddChild(selectedChild)}
-                >
+                <button className="w-full" onClick={handleAddChild}>
                   <p className="text-white text-lg font-medium">
                     Add Nutritional Status
                   </p>

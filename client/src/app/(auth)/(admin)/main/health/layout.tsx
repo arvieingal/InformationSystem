@@ -1,4 +1,4 @@
-import AdminHeader from "@/components/AdminHeader";
+import HealthHeader from "@/components/HealthHeader";
 import HealthSidebar from "@/components/HealthSidebar";
 
 export default function ProfilingLayout({
@@ -14,7 +14,7 @@ export default function ProfilingLayout({
             <HealthSidebar />
           </div>
           <div className="w-[94%] bg-[#E7EEF4]">
-            <div className="h-[11%]"><AdminHeader /></div>
+            <div className="h-[11%]"><HealthHeader /></div>
             <div className="h-[89%]">{children}</div>
           </div>
         </div>

@@ -16,9 +16,23 @@ module.exports = (sequelize, DataTypes) => {
         primaryKey: true,
         allowNull: false,
       },
-      name: {
+      first_name: {
         type: DataTypes.STRING,
         allowNull: false,
+        validate: {
+          notEmpty: true,
+        },
+      },
+      last_name: {
+        type: DataTypes.STRING,
+        allowNull: false,
+        validate: {
+          notEmpty: true,
+        },
+      },
+      middle_name: {
+        type: DataTypes.STRING,
+        allowNull: true,
         validate: {
           notEmpty: true,
         },
@@ -94,20 +108,11 @@ module.exports = (sequelize, DataTypes) => {
           notEmpty: true,
         },
       },
-      email: {
-        type: DataTypes.STRING,
+      status: {
+        type: DataTypes.ENUM,
+        values: ["Active", "Inactive", "Archive"],
         allowNull: false,
-        unique: true,
-        validate: {
-          isEmail: true,
-        },
-      },
-      phoneNumber: {
-        type: DataTypes.STRING,
-        allowNull: false,
-        validate: {
-          notEmpty: true,
-        },
+        defaultValue: "Active",
       },
     },
     {

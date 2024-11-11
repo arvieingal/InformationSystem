@@ -42,13 +42,13 @@ const Login = () => {
       });
 
       if (result?.error) {
-        setError('Invalid username or password.');
+        setError("Invalid username or password.");
       } else {
-        router.push('/main');
+        router.push("/main");
       }
     } catch (error) {
-      setError('An error occurred. Please try again.');
-      console.error('Login error:', error);
+      setError("An error occurred. Please try again.");
+      console.error("Login error:", error);
     }
   };
 
@@ -87,12 +87,22 @@ const Login = () => {
 
         <div className="w-[30%] xl:w-full lg:w-full md:w-full flex flex-col items-center sm:w-[90%] xl:px-[90px] 2xl:w-[50%] 2xl:px-0">
           <div className="mt-[-5rem]">
-            <Image src="/svg/logo.svg" width={92} height={91} alt="Logo" />
+            <Image
+              className="mt-[2rem]"
+              src="/svg/logo.svg"
+              width={92}
+              height={91}
+              alt="Logo"
+            />
           </div>
 
           <div className="flex items-center justify-center flex-col mb-[2rem]">
-            <p className="font-semibold text-[34px] 2xl:text-[40px]">Welcome!</p>
-            <p className="text-[13px] 2xl:text-[16px]">Please enter your details</p>
+            <p className="font-semibold text-[34px] 2xl:text-[40px]">
+              Welcome!
+            </p>
+            <p className="text-[13px] 2xl:text-[16px]">
+              Please enter your details
+            </p>
           </div>
 
           <div className="flex items-center justify-center w-full sm:px-[0px] md:px-[50px] lg:px-[60px] xl:px-[50px] 2xl:px-[70px]">
@@ -100,10 +110,10 @@ const Login = () => {
               onSubmit={handleEmailLogin}
               className=" w-full space-y-4 mt-[3rem]"
             >
-
               <div
-                className={`relative text-[#000000] h-[50px] ${submitted && fieldError.username ? "border-red-500" : ""
-                  }`}
+                className={`relative text-[#000000] h-[50px] ${
+                  submitted && fieldError.username ? "border-red-500" : ""
+                }`}
               >
                 <input
                   type="text"
@@ -134,7 +144,9 @@ const Login = () => {
                 >
                   <Image
                     className="md:w-[8] cursor-pointer"
-                    src={passwordVisible ? "/svg/visible.svg" : "/svg/visible.svg"}
+                    src={
+                      passwordVisible ? "/svg/visible.svg" : "/svg/visible.svg"
+                    }
                     width={18}
                     height={18}
                     alt={passwordVisible ? "Hide" : "Show"}

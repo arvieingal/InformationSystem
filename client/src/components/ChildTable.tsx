@@ -1,7 +1,8 @@
-import React from 'react';
+import React, { useState } from 'react';
 import Image from 'next/image';
 
-interface Child {
+// src/types/Child.ts
+export interface Child {
   id: number;
   name: string;
   age: number;
@@ -10,11 +11,19 @@ interface Child {
   heightCm: number;
   weightKg: number;
   nutritionalStatus: string;
-  address?: string;
-  email?: string;
-  purok?: string;
-  phoneNumber?: string;
+  address: string;
+  purok: string;
+  weightAtBirth?: string;
+  heightAtBirth?: string;
+  currentWeight?: string;
+  currentHeight?: string;
+  currentAge?: number;
+  first_name?: string;
+  middle_name?: string;
+  last_name?: string;
+  suffix?: string;
 }
+
 
 interface TableProps {
   children: Child[];
@@ -27,11 +36,11 @@ interface TableProps {
 
 const ChildTable: React.FC<TableProps> = ({ children, onSort, sortConfig, onEdit, onArchive, onRowClick }) => {
   return (
-    <div className='w-full px-[1.5rem]'>
+    <div className="w-full px-[1.5rem]">
       <table className="min-w-full border-collapse border border-[#CCCCCC] bg-white text-sm rounded-lg">
         <thead>
           <tr>
-            {['id', 'name', 'age', 'sex', 'birthdate', 'heightCm', 'weightKg', 'nutritionalStatus'].map((key) => (
+            {['id','name', 'age', 'sex', 'birthdate', 'heightCm', 'weightKg', 'nutritionalStatus'].map((key) => (
               <th
                 key={key}
                 className="border border-gray-600 bg-gray-300 py-2"
@@ -52,7 +61,9 @@ const ChildTable: React.FC<TableProps> = ({ children, onSort, sortConfig, onEdit
           {children.map((child, index) => (
             <tr key={index} onClick={() => onRowClick(child)}>
               <td className="border border-[#CCCCCC] px-4 py-2 cursor-pointer">{child.id}</td>
-              <td className="border border-[#CCCCCC] px-4 py-2">{child.name.split(" ")[0]}</td>
+              <td className="border border-[#CCCCCC] px-4 py-2">
+                {`${child.first_name || ''} ${child.last_name || ''} ${child.middle_name || ''}`.trim()}
+              </td>
               <td className="border border-[#CCCCCC] px-4 py-2">{child.age}</td>
               <td className="border border-[#CCCCCC] px-4 py-2">{child.sex}</td>
               <td className="border border-[#CCCCCC] px-4 py-2">{child.birthdate}</td>

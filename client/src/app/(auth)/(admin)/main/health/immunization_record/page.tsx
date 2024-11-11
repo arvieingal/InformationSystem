@@ -28,7 +28,7 @@ const ImmunizationRecord: React.FC = () => {
   const [currentPage, setCurrentPage] = useState<number>(1);
   const [isFilterDropdownOpen, setIsFilterDropdownOpen] = useState<boolean>(false);
   const [isAddModalOpen, setIsAddModalOpen] = useState<boolean>(false);
-  const itemsPerPage = 12;
+  const itemsPerPage = 15;
 
   useEffect(() => {
     const fetchImmunizations = async () => {
@@ -95,24 +95,8 @@ const ImmunizationRecord: React.FC = () => {
 
   return (
     <>
-      <div className="flex flex-row md:flex md:flex-row justify-center gap-[3rem]">
-        <div onClick={() => router.push("/main/health/nutritional_status")}>
-          <Image
-            className="mt-[2rem]"
-            src="/svg/immunization_records.svg"
-            alt="Nutritional Status"
-            width={200}
-            height={50}
-          />
-        </div>
-        <div onClick={() => router.push("/main/health/immunization_record")}>
-          <Image
-            src="/svg/health_image.svg"
-            alt="Nutritional Status"
-            width={200}
-            height={50}
-          />
-        </div>
+      <div className="flex flex-row md:flex md:flex-row justify-center gap-[3rem] mt-[2rem]">
+       
       </div>
       
       <div className="w-full flex flex-row pr-[3rem] items-center justify-between gap-4">
