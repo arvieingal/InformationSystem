@@ -15,6 +15,8 @@ import {
   ArcElement,
 } from "chart.js";
 import ChartDataLabels from "chartjs-plugin-datalabels";
+import { dummySectorData } from "@/constants/tableDummyData";
+import { sectorDonutData } from "@/constants/chartDummyData";
 
 ChartJS.register(
   CategoryScale,
@@ -28,43 +30,6 @@ ChartJS.register(
 );
 
 const Sector = () => {
-
-  const dummyPurokData = [
-    { number: 1, name: "Purok 1" },
-    { number: 2, name: "Purok 2" },
-    { number: 3, name: "Purok 3" },
-    { number: 4, name: "Purok 4" },
-    { number: 5, name: "Purok 5" },
-  ];
-
-  const donutData = {
-    labels: [
-      "Purok 1",
-      "Purok 2",
-      "Purok 3",
-      "Purok 4",
-      "Purok 5",
-      "Purok 6",
-      "Purok 7",
-    ],
-    datasets: [
-      {
-        label: "Population Percentage",
-        data: [13.75, 2, 20, 3.75, 7.5, 5.5, 10.5],
-        backgroundColor: [
-          "#B2E3C3",
-          "#FFD7BE",
-          "#007F73",
-          "#08C44C",
-          "#F5F5DC",
-          "#FFC2A7",
-          "#F7E34D",
-        ],
-        borderWidth: 1,
-      },
-    ],
-  };
-
   const donutOption: ChartOptions<"doughnut"> = {
     responsive: true,
     cutout: "50%", // Doughnut cutout for inner circle
@@ -116,7 +81,7 @@ const Sector = () => {
                   </tr>
                 </thead>
                 <tbody>
-                  {dummyPurokData.map((purok) => (
+                  {dummySectorData.map((purok) => (
                     <tr key={purok.number}>
                       <td className="p-2 text-center">{purok.number}</td>
                       <td className="p-2 text-left">{purok.name}</td>
@@ -129,7 +94,7 @@ const Sector = () => {
         </div>
         <div className="h-full w-[50%] bg-white">
           <div className="w-full h-full flex justify-center py-10">
-              <Doughnut data={donutData} options={donutOption} />
+              <Doughnut data={sectorDonutData} options={donutOption} />
           </div>
         </div>
       </div>

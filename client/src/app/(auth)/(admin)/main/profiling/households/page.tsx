@@ -3,42 +3,11 @@ import React, { useState, useEffect } from "react";
 import CardGrid from "@/components/CardGrid";
 import { dashboardCards } from "@/constants/cardData";
 import ProfilingSearchBar from "@/components/ProfilingSearchBar";
+import { dummyHouseholds } from "@/constants/tableDummyData";
 
 const Households = () => {
-  const dummyHouseholds = [
-    {
-      id: 1,
-      householdHead: "John Doe",
-      purok: "Purok 1",
-      isBusinessOwner: "Yes",
-    },
-    {
-      id: 2,
-      householdHead: "Maria Santos",
-      purok: "Purok 3",
-      isBusinessOwner: "No",
-    },
-    {
-      id: 3,
-      householdHead: "Pedro Garcia",
-      purok: "Purok 2",
-      isBusinessOwner: "Yes",
-    },
-    {
-      id: 4,
-      householdHead: "Ana Reyes",
-      purok: "Purok 1",
-      isBusinessOwner: "No",
-    },
-    {
-      id: 5,
-      householdHead: "Miguel Cruz",
-      purok: "Purok 4",
-      isBusinessOwner: "Yes",
-    },
-  ];
 
-  const onSearch = () => {};
+  const onSearch = () => { };
   return (
     <div className="h-full w-full">
       <CardGrid cards={dashboardCards} />
@@ -67,11 +36,10 @@ const Households = () => {
                   <td className="py-2">{household.purok}</td>
                   <td className="py-2 text-center">
                     <p
-                      className={`${
-                        household.isBusinessOwner === "Yes"
+                      className={`${household.isBusinessOwner === "Yes"
                           ? "bg-[#007F73] text-white"
                           : "bg-[#A4A4A4]"
-                      } rounded-[4px] py-1 w-20 inline-block`}
+                        } rounded-[4px] py-1 w-20 inline-block`}
                     >
                       {household.isBusinessOwner}
                     </p>

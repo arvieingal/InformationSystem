@@ -17,16 +17,7 @@ import {
 } from "chart.js";
 import { Bar, Doughnut } from "react-chartjs-2";
 import { DoughnutLegend } from "@/components/DoughnutLegend";
-
-interface GenderData {
-  male: number;
-  female: number;
-}
-
-interface VoterData {
-  registered: number;
-  nonRegistered: number;
-}
+import { ageData, genderDistribution, populationDonutData, voterDistribution } from "@/constants/chartDummyData";
 
 ChartJS.register(
   CategoryScale,
@@ -39,16 +30,6 @@ ChartJS.register(
 );
 
 export default function page() {
-  const genderDistribution: GenderData = {
-    male: 28130,
-    female: 11870,
-  };
-
-  const voterDistribution: VoterData = {
-    registered: 32000,
-    nonRegistered: 8000,
-  };
-
   const total = genderDistribution.male + genderDistribution.female;
   const malePercentage = ((genderDistribution.male / total) * 100).toFixed(0);
   const femalePercentage = ((genderDistribution.female / total) * 100).toFixed(
@@ -66,29 +47,8 @@ export default function page() {
     100
   ).toFixed(0);
 
-  const data = {
-    labels: [
-      "Elderly (75+ years)",
-      "Senior Citizens (60-74 years)",
-      "Adults (35-59 years)",
-      "Young Adults (20-34 years)",
-      "Youth (13-19 years)",
-      "Children (1-12 years)",
-      "Infants (0-1 year)",
-    ],
-    datasets: [
-      {
-        label: "Population",
-        data: [1000, 3000, 12000, 8000, 6000, 10000, 500],
-        backgroundColor: "#00C0A9",
-        borderRadius: 5, // Rounded corners
-        barThickness: 10,
-      },
-    ],
-  };
-
   // Configuration options for the chart
-  const options: ChartOptions<"bar"> = {
+  const ageOptions: ChartOptions<"bar"> = {
     responsive: true,
     indexAxis: "y", // This makes the chart horizontal
     scales: {
@@ -129,51 +89,7 @@ export default function page() {
     },
   };
 
-  const donutData = {
-    labels: [
-      "Purok 1",
-      "Purok 2",
-      "Purok 3",
-      "Purok 4",
-      "Purok 5",
-      "Purok 6",
-      "Purok 7",
-      "Purok 8",
-      "Purok 9",
-      "Purok 10",
-      "Purok 11",
-      "Purok 12",
-      "Purok 13",
-      "Purok 14",
-      "Purok 15",
-    ],
-    datasets: [
-      {
-        label: "Population Percentage",
-        data: [10, 15, 5, 20, 12, 8, 6, 7, 9, 10, 13, 5, 8, 6, 7],
-        backgroundColor: [
-          "#FF0000",
-          "#FF4500",
-          "#FFD700",
-          "#FFFF00",
-          "#ADFF2F",
-          "#7FFF00",
-          "#00FF00",
-          "#00FA9A",
-          "#00FFFF",
-          "#1E90FF",
-          "#0000FF",
-          "#8A2BE2",
-          "#FF00FF",
-          "#FF1493",
-          "#FF69B4",
-        ],
-        borderWidth: 1,
-      },
-    ],
-  };
-
-  const donutOption: ChartOptions<"doughnut"> = {
+  const populationDonutOptions: ChartOptions<"doughnut"> = {
     responsive: true,
     cutout: "50%", // Doughnut cutout
     plugins: {
@@ -270,7 +186,7 @@ export default function page() {
             </div>
             <div className="flex justify-center w-full"> {/* Modified container */}
               <div className="w-[90%]">
-                <Bar data={data} options={options} />
+                <Bar data={ageData} options={ageOptions} />
               </div>
             </div>
           </div>
@@ -279,10 +195,10 @@ export default function page() {
           <div className="h-full bg-white rounded-xl px-6">
             <div className="h-[85%] flex justify-center items-center w-full">
               <div className="w-[50%]">
-                <Doughnut data={donutData} options={donutOption} />
+                <Doughnut data={populationDonutData} options={populationDonutOptions} />
               </div>
               <div className="absolute right-[5%] top-[34%]">
-                <DoughnutLegend data={donutData} />
+                <DoughnutLegend data={populationDonutData} />
               </div>
             </div>
             <p className="text-[12px]">
