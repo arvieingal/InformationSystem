@@ -18,7 +18,7 @@ interface CardProps {
 const Card: React.FC<CardProps> = ({ src, alt, description, value, width, height, link, onClick, selected }) => {
   return (
     <Link href={link}>
-      <div
+      <button
         className={`relative p-2 rounded-lg shadow-md cursor-pointer my-2 mx-5 transition-all duration-300 ${selected ? 'bg-[#007F73] text-white' : 'bg-white'
           }`}
         onClick={onClick}
@@ -36,7 +36,7 @@ const Card: React.FC<CardProps> = ({ src, alt, description, value, width, height
           <p className='text-center text-[14px] text-medium'>{description}</p>
           <p className='text-center text-[9px] text-[#06C46C]'>{value}</p>
         </div>
-      </div>
+      </button>
     </Link>
   );
 };

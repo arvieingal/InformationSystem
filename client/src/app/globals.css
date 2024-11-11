@@ -17,3 +17,15 @@
   background-size: cover;
   background-position: center;
 }
+
+.doughnut-labels {
+  display: flex;
+  justify-content: center;
+  margin-top: 20px;
+}
+
+.label-outside {
+  margin: 0 10px;
+  display: flex;
+  align-items: center;
+}

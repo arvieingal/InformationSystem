@@ -28,7 +28,7 @@ export default function page() {
       </div>
       <div className="flex items-center justify-center w-full gap-14 pb-16 mt-16 flex-col md:flex-row">
         <div>
-          <div
+          <button
             className="w-[300px] h-[200px] md:w-[470px] md:h-[280px] bg-white rounded-lg flex items-center justify-center shadow-md shadow-gray-500 cursor-pointer"
             onClick={handleResidentClick}
           >
@@ -39,13 +39,13 @@ export default function page() {
               height={304}
               priority
             />
-          </div>
+          </button>
           <p className="md:text-[20px] text-[14px] text-center mt-12 font-semibold">
             Resident Profiling with Analytics
           </p>
         </div>
         <div>
-          <div
+          <button
             className="md:w-[470px] md:h-[280px] w-[300px] h-[200px] bg-white rounded-lg flex items-center justify-center shadow-md shadow-gray-500 cursor-pointer"
             onClick={handleHealthClick}
           >
@@ -56,7 +56,7 @@ export default function page() {
               height={304}
               priority
             />
-          </div>
+          </button>
           <p className="md:text-[20px] text-[14px] text-center mt-12 font-semibold">
             Health Information and Analytics
           </p>

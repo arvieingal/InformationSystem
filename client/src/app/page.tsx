@@ -75,7 +75,7 @@ const Login = () => {
   return (
     <div className="w-full h-screen">
       <div className="w-full h-full flex 2xl:flex 2xl:flex-row  flex-row justify-center sm:flex sm:flex-col sm:px-20 lg:px-0 2xl:px-0 lg:flex lg:flex-row sm:items-center sm:justify-center ">
-        <div className="hidden  items-center justify-center w-[70%] 2xl:w-full  xl:w-full lg:w-full md:w-full md:hidden lg:block ">
+        <div className="hidden  items-center justify-center w-[70%] md:hidden lg:block ">
           <Image
             className="h-screen w-full object-cover rounded-l-[5px]"
             src="/image/register.png"
@@ -85,7 +85,7 @@ const Login = () => {
           />
         </div>
 
-        <div className="w-[30%] xl:w-full lg:w-full md:w-full flex flex-col items-center sm:w-[90%] xl:px-[90px] 2xl:w-[50%] 2xl:px-0">
+        <div className="w-[30%] flex flex-col items-center px-0">
           <div className="mt-[-5rem]">
             <Image
               className="mt-[2rem]"

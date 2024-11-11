@@ -71,7 +71,7 @@ const HealthSidebar = () => {
           />
 
           <Image
-            src={clickedImage === "settings" ? "/svg/active_settings.svg" : "/svg/health_settings.svg"}
+            src={clickedImage === "settings" ? "/svg/active_settings.svg" : "/svg/settings.svg"}
             width={50}
             height={50}
             alt="Settings"

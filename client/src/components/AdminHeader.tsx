@@ -38,7 +38,7 @@ const AdminHeader = () => {
           </p>
         </div>
         <div>
-          <div className="text-[12px] md:text-[16px] cursor-pointer flex items-center justify-center py-1 px-3 rounded-md bg-[#007F73] text-white" onClick={toggleDropdown}>
+          <button className="text-[12px] md:text-[16px] cursor-pointer flex items-center justify-center py-1 px-3 rounded-md bg-[#007F73] text-white" onClick={toggleDropdown}>
             <p>{session?.user?.firstname}</p>
             <Image
               src="/svg/down-arrow.svg"
@@ -47,6 +47,7 @@ const AdminHeader = () => {
               alt="down-arrow"
               className="w-3 ml-2 text-white"
             />
+          </button>
           </div>
           {showDropdown && (
             <div className="bg-white z-50 absolute top-[75px] right-0 rounded-lg shadow-lg p-4 px-4">
@@ -78,7 +79,6 @@ const AdminHeader = () => {
           )}
         </div>
       </div>
-    </div>
   );
 };
 
