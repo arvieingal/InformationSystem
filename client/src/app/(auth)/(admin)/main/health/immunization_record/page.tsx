@@ -1,5 +1,5 @@
 'use client'
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import Image from 'next/image';
 import ImmunizationTable from '@/components/ImmunizationTable';
@@ -9,8 +9,18 @@ import SearchBar from '@/components/SearchBar';
 import Pagination from '@/components/Pagination';
 import PersonModal from '@/components/PersonModal';
 
+interface VaccineDose {
+  administered_by: string;
+  sideEffects: string;
+  location: string;
+  vaccine_type: string;
+  dose_description: string;
+  scheduled_date: string;
+  administered_date: string;
+}
+
 interface Immunization {
-  id: number;
+  record_id: number;
   first_name: string;
   last_name: string;
   middle_name: string;
@@ -23,12 +33,12 @@ interface Immunization {
   birth_height: number;
   birth_weight: number;
   sex: string;
-  sideEffects: string;
-  location: string;
   health_center: string;
   barangay: string;
   family_number: string;
-  administeredBy: string;
+  
+  // Related vaccineDose records (can be an array)
+  vaccineDoses: VaccineDose[];
 }
 
 const ImmunizationRecord: React.FC = () => {
@@ -38,7 +48,10 @@ const ImmunizationRecord: React.FC = () => {
   const [currentPage, setCurrentPage] = useState<number>(1);
   const [isFilterDropdownOpen, setIsFilterDropdownOpen] = useState<boolean>(false);
   const [isAddModalOpen, setIsAddModalOpen] = useState<boolean>(false);
-  const itemsPerPage = 10;
+  const [selectedImmunization, setSelectedImmunization] = useState<Immunization | null>(null);
+  const itemsPerPage = 15;
+
+  const addModalRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     const fetchImmunizations = async () => {
@@ -47,10 +60,8 @@ const ImmunizationRecord: React.FC = () => {
   
         if (response.ok) {
           const data = await response.json();
-
           setImmunizations(data);
           console.log("data:", data);
-
         } else {
           console.error("Failed to fetch immunization data.");
         }
@@ -62,8 +73,23 @@ const ImmunizationRecord: React.FC = () => {
     fetchImmunizations();
   }, []);
 
+  const handleClickOutsideAddModal = (event: MouseEvent) => {
+    if (addModalRef.current && !addModalRef.current.contains(event.target as Node)) {
+      setIsAddModalOpen(false);
+    }
+  };
 
-  
+  useEffect(() => {
+    if (isAddModalOpen) {
+      document.addEventListener("mousedown", handleClickOutsideAddModal);
+    } else {
+      document.removeEventListener("mousedown", handleClickOutsideAddModal);
+    }
+
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutsideAddModal);
+    };
+  }, [isAddModalOpen]);
 
   function handleSort(key: keyof Immunization) {
     let direction = 'ascending';
@@ -110,6 +136,16 @@ const ImmunizationRecord: React.FC = () => {
     setCurrentPage(page);
   };
 
+  const handleAddModalOpen = (immunization: Immunization) => {
+    setSelectedImmunization(immunization);
+    setIsAddModalOpen(true);
+  };
+
+  const handleRowClick = (immunization: Immunization) => {
+    setSelectedImmunization(immunization);
+    setIsAddModalOpen(true);
+  };
+
   return (
     <>
       <div className="flex flex-row md:flex md:flex-row justify-center gap-[3rem] mt-[2rem]">
@@ -133,7 +169,10 @@ const ImmunizationRecord: React.FC = () => {
             alt="Nutritional Status"
             width={30}
             height={50}
-            onClick={() => setIsAddModalOpen(true)}
+            onClick={() => {
+              const selectedImmunization = paginatedImmunizations[0]; // Example: Select the first immunization
+              handleAddModalOpen(selectedImmunization);
+            }}
           />
             <Image
             src="/svg/report.svg"
@@ -159,12 +198,12 @@ const ImmunizationRecord: React.FC = () => {
 
       <div className="w-full mt-[1rem]">
         <ImmunizationTable
-          immunizations={paginatedImmunizations}
-          onSort={handleSort}
-          sortConfig={sortConfig}
+          immunizations={paginatedImmunizations as Immunization[]}
+          onSort={handleSort as (key: keyof Immunization) => void}
+          sortConfig={sortConfig as { key: keyof Immunization; direction: string } | null}
           onEdit={() => {/* handle edit logic here */}}
           onArchive={() => {/* handle archive logic here */}}
-          onRowClick={() => {/* handle row click logic here */}}
+          onRowClick={handleRowClick}
         />
       </div>
       <Pagination
@@ -173,11 +212,183 @@ const ImmunizationRecord: React.FC = () => {
         onPageChange={handlePageChange}
       />
 
-      {isAddModalOpen && (
+      {isAddModalOpen && selectedImmunization && (
         <PersonModal onClose={() => setIsAddModalOpen(false)}>
-          <div className="p-4">
+          <div ref={addModalRef} className="relative p-4">
+            <button
+              className="absolute top-[-3rem] right-[-2rem] text-gray-500 hover:text-gray-700 p-4 text-[3rem]"
+              onClick={() => setIsAddModalOpen(false)}
+            >
+              &times;
+            </button>
             <h2 className="text-lg font-semibold">Add Immunization Record</h2>
-            {/* Add form fields and logic similar to the nutritional_status modal */}
+            <div className="grid grid-cols-4 gap-[20px] w-full mt-4">
+              <div className="w-full">
+                <p>First Name of the Child:</p>
+                <div className="border border-gray-300 rounded-md p-1">
+                  <input
+                    className="w-full outline-none"
+                    type="text"
+                    value={selectedImmunization.first_name}
+                    readOnly
+                  />
+                </div>
+              </div>
+              <div className="w-full">
+                <p>Last Name of the Child:</p>
+                <div className="border border-gray-300 rounded-md p-1">
+                  <input
+                    className="w-full outline-none"
+                    type="text"
+                    value={selectedImmunization.last_name}
+                    readOnly
+                  />
+                </div>
+              </div>
+              <div className="w-full">
+                <p>Middle Name:</p>
+                <div className="border border-gray-300 rounded-md p-1">
+                  <input
+                    className="w-full outline-none"
+                    type="text"
+                    value={selectedImmunization.middle_name}
+                    readOnly
+                  />
+                </div>
+              </div>
+              <div className="w-full">
+                <p>Suffix:</p>
+                <div className="border border-gray-300 rounded-md p-1">
+                  <input
+                    className="w-full outline-none"
+                    type="text"
+                    value={selectedImmunization.suffix}
+                    readOnly
+                  />
+                </div>
+              </div>
+              <div className="w-full">
+                <p>Date of Birth:</p>
+                <div className="border border-gray-300 rounded-md p-1">
+                  <input
+                    className="w-full outline-none"
+                    type="text"
+                    value={selectedImmunization.date_of_birth}
+                    readOnly
+                  />
+                </div>
+              </div>
+              <div className="w-full">
+                <p>Place of Birth:</p>
+                <div className="border border-gray-300 rounded-md p-1">
+                  <input
+                    className="w-full outline-none"
+                    type="text"
+                    value={selectedImmunization.place_of_birth}
+                    readOnly
+                  />
+                </div>
+              </div>
+              <div className="w-full">
+                <p>Address:</p>
+                <div className="border border-gray-300 rounded-md p-1">
+                  <input
+                    className="w-full outline-none"
+                    type="text"
+                    value={selectedImmunization.address}
+                    readOnly
+                  />
+                </div>
+              </div>
+              <div className="w-full">
+                <p>Mother's Name:</p>
+                <div className="border border-gray-300 rounded-md p-1">
+                  <input
+                    className="w-full outline-none"
+                    type="text"
+                    value={selectedImmunization.mother_name}
+                    readOnly
+                  />
+                </div>
+              </div>
+              <div className="w-full">
+                <p>Father's Name:</p>
+                <div className="border border-gray-300 rounded-md p-1">
+                  <input
+                    className="w-full outline-none"
+                    type="text"
+                    value={selectedImmunization.father_name}
+                    readOnly
+                  />
+                </div>
+              </div>
+              <div className="w-full">
+                <p>Birth Height (cm):</p>
+                <div className="border border-gray-300 rounded-md p-1">
+                  <input
+                    className="w-full outline-none"
+                    type="text"
+                    value={selectedImmunization.birth_height}
+                    readOnly
+                  />
+                </div>
+              </div>
+              <div className="w-full">
+                <p>Birth Weight (kg):</p>
+                <div className="border border-gray-300 rounded-md p-1">
+                  <input
+                    className="w-full outline-none"
+                    type="text"
+                    value={selectedImmunization.birth_weight}
+                    readOnly
+                  />
+                </div>
+              </div>
+              <div className="w-full">
+                <p>Sex:</p>
+                <div className="border border-gray-300 rounded-md p-1">
+                  <input
+                    className="w-full outline-none"
+                    type="text"
+                    value={selectedImmunization.sex}
+                    readOnly
+                  />
+                </div>
+              </div>
+              <div className="w-full">
+                <p>Health Center:</p>
+                <div className="border border-gray-300 rounded-md p-1">
+                  <input
+                    className="w-full outline-none"
+                    type="text"
+                    value={selectedImmunization.health_center}
+                    readOnly
+                  />
+                </div>
+              </div>
+              <div className="w-full">
+                <p>Barangay:</p>
+                <div className="border border-gray-300 rounded-md p-1">
+                  <input
+                    className="w-full outline-none"
+                    type="text"
+                    value={selectedImmunization.barangay}
+                    readOnly
+                  />
+                </div>
+              </div>
+              <div className="w-full">
+                <p>Family Number:</p>
+                <div className="border border-gray-300 rounded-md p-1">
+                  <input
+                    className="w-full outline-none"
+                    type="text"
+                    value={selectedImmunization.family_number}
+                    readOnly
+                  />
+                </div>
+              </div>
+            </div>
           </div>
         </PersonModal>
       )}

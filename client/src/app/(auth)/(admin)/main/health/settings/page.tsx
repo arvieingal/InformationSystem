@@ -23,7 +23,7 @@ const Settings: React.FC = () => {
             {/* User Management Section */}
             <div>
               <h2 className="text-2xl font-bold mb-4">User Management</h2>
-              <div className="space-y-4">
+              <div className="space-y-4 ">
                 <Card title="Add User" description="Create a new user account with required details, roles, and access permissions." imageSrc="/svg/people2.svg" onClick={() => handleCardClick('Add User')} />
                 <Card title="Update User" description="Edit an existing user’s profile, role, or permissions to reflect changes in access or information." imageSrc="/svg/update.svg" onClick={() => handleCardClick('Update User')} />
                 <Card title="Remove User" description="Delete a user account and revoke all associated system access and permissions." imageSrc="/svg/delete.svg" onClick={() => handleCardClick('Remove User')} />
@@ -82,7 +82,7 @@ const Modal = ({ content, onClose }: { content: string; onClose: () => void }) =
       case 'Add User':
         return (
           <>
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-2 gap-4 ">
               <div>
                 <label className="block text-sm font-medium text-gray-700">Email:</label>
                 <input type="email" className="w-full mb-2 p-2 border rounded-md" />
@@ -135,15 +135,15 @@ const Modal = ({ content, onClose }: { content: string; onClose: () => void }) =
   };
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center">
-      <div className="bg-white p-8 w-[50%] h-[50%] rounded-lg shadow-lg relative">
+    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center ">
+      <div className="bg-white p-8 w-[50%] h-[50%] rounded-lg shadow-lg relative ">
         <button
           className="absolute top-0 right-0 text-gray-600 hover:text-gray-900 text-[3rem]"
           onClick={onClose}
         >
           &times;
         </button>
-        <h2 className="text-2xl font-bold mb-4 flex items-center justify-center mt-[2rem]">{content}</h2>
+        <h2 className="text-2xl font-bold mb-4 flex items-center justify-center mt-[2rem] " >{content}</h2>
         {renderContent()}
       </div>
     </div>

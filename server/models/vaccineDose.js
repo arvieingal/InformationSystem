@@ -2,14 +2,14 @@
 const { Model } = require("sequelize");
 
 module.exports = (sequelize, DataTypes) => {
-  class vaccineDose extends Model {
-    static associate(models) {
-      // Define associations here
-      vaccineDose.belongsTo(models.childImmunizationRecord, {
-        foreignKey: "record_id",
-      });
-    }
-  }
+    class vaccineDose extends Model {
+        static associate(models) {
+          vaccineDose.belongsTo(models.childImmunizationRecord, {
+            foreignKey: "record_id", // Ensure foreignKey matches the field in childImmunizationRecord
+          });
+        }
+      }
+      
 
   vaccineDose.init(
     {

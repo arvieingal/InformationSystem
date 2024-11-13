@@ -2,12 +2,31 @@
 const { Model } = require("sequelize");
 
 module.exports = (sequelize, DataTypes) => {
-  class childImmunizationRecord extends Model {
+ 
+ 
+    class childImmunizationRecord extends Model {
     static associate(models) {
       // Define associations here
       childImmunizationRecord.hasMany(models.vaccineDose, {
         foreignKey: "record_id",
       });
+    }
+
+    // Add a static method to call a stored procedure
+     static async fetchWithVaccineDetails() {
+      try {
+        const results = await sequelize.query(
+          "CALL GetAllChildImmunizationRecordsWithVaccineDetails()"
+        );
+
+        console.log("results:", results);
+        return results;
+        
+        // Return the fetched results
+      } catch (error) {
+        console.error("Error fetching data using stored procedure:", error);
+        throw error; // Re-throw the error for higher-level handling
+      }
     }
   }
 
@@ -79,6 +98,11 @@ module.exports = (sequelize, DataTypes) => {
       updated_at: {
         type: DataTypes.DATE,
         defaultValue: DataTypes.NOW,
+      },
+
+      administered_by: {
+        type: DataTypes.STRING(50),
+        allowNull: true,
       },
     },
     {
