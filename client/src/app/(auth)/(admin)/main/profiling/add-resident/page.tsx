@@ -1,7 +1,13 @@
-import React from 'react'
+'use client'
+import React, { useState } from 'react'
 import Image from 'next/image'
+import UserModal from '@/components/UserModal'
 
-export default function page() {
+export default function AddResident() {
+  const [isAddUserModalOpen, setIsAddUserModalOpen] = useState(false)
+
+  const onUserSubmit = () => { }
+
   return (
     <div>
       <div className="w-full h-full pt-[5rem]">
@@ -23,20 +29,21 @@ export default function page() {
           </p>
         </div>
         <div className='flex justify-center items-center gap-32'>
-          <div className='h-[160px] w-[190px] bg-white flex flex-col items-center justify-center rounded-[10px]'>
-            <Image src={'/svg/add-logo.svg'} alt='Add User' height={100} width={100} className='h-[70%] w-full'/>
+          <div className='h-[160px] w-[190px] bg-white flex flex-col items-center justify-center rounded-[10px] cursor-pointer'>
+            <Image src={'/svg/add-logo.svg'} alt='Add User' height={100} width={100} className='h-[70%] w-full' />
             <div className='text-[#338A80] font-semibold'>Add User</div>
           </div>
-          <div className='h-[160px] w-[190px] bg-white flex flex-col items-center justify-center rounded-[10px]'>
+          <div className='h-[160px] w-[190px] bg-white flex flex-col items-center justify-center rounded-[10px] cursor-pointer'>
             <Image src={'/svg/add-logo.svg'} alt='Add User' height={100} width={100} className='h-[70%] w-full' />
             <div className='text-[#338A80] font-semibold'>Add Resident</div>
           </div>
-          <div className='h-[160px] w-[190px] bg-white flex flex-col items-center justify-center rounded-[10px]'>
+          <div className='h-[160px] w-[190px] bg-white flex flex-col items-center justify-center rounded-[10px] cursor-pointer'>
             <Image src={'/svg/add-logo.svg'} alt='Add User' height={100} width={100} className='h-[70%] w-full' />
             <div className='text-[#338A80] font-semibold'>Add Renter</div>
           </div>
         </div>
       </div>
+      <UserModal isOpen={true} onClose={() => setIsAddUserModalOpen(false)} onUserSubmit={onUserSubmit} />
     </div>
   )
 }

@@ -259,7 +259,7 @@ export default function OtpModal({ isOpen, onClose }: OtpModalProps) {
                 <div className="flex items-center justify-center flex-col pt-[1rem]">
                   <h2 className="text-[30px] font-medium">Forgot Password?</h2>
                   <p className="text-[12px]">
-                    No worries, we’ll send you reset instruction.
+                    No worries, we&apos;ll send you reset instruction.
                   </p>
                 </div>
                 <div className="px-[2rem] mt-[2rem]">
