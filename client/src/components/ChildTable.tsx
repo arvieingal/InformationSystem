@@ -3,6 +3,9 @@ import Image from 'next/image';
 
 // src/types/Child.ts
 export interface Child {
+  measurementDate: string;
+  dateOfBirth: string;
+  placeOfBirth: string;
   id: number;
   name: string;
   age: number;

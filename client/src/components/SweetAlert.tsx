@@ -42,7 +42,7 @@ const SweetAlert = {
   showConfirm: async (message: string) => {
     const result = await MySwal.fire({
       title: "<span class='text text-[20px] flex justify-center font-bold tracking-widest'>CONFIRM</span>",
-      html: `<span class='text  text-[14px] font-regular text-center justify-center flex pt-7 '>${message}</span>`,
+      html: `<span class='text  text-[16px] font-medium text-center justify-center flex pt-7 '>${message}</span>`,
       showCancelButton: true,
       cancelButtonText: "CANCEL",
       confirmButtonText: "CONFIRM",

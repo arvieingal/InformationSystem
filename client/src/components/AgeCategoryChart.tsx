@@ -28,15 +28,17 @@ export default function AgeCategoryChart({ ageCategory }: { ageCategory: string 
 
   const options = {
     responsive: true,
+    maintainAspectRatio: false,
+    aspectRatio: 1.5,
     plugins: {
       legend: {
-        position: 'bottom',
+        position: 'bottom' as const,
       },
     },
   };
 
   return (
-    <div>
+    <div style={{ width: '100%', height: '300px' }}>
       <h3 className="text-center font-semibold">{`Aged ${ageCategory}`}</h3>
       <Bar data={data} options={options} />
     </div>

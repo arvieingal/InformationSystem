@@ -99,7 +99,7 @@ module.exports = (sequelize, DataTypes) => {
       },
       measurementDate: {
         type: DataTypes.DATE,
-        allowNull: false,
+        allowNull: true,
       },
       address: {
         type: DataTypes.STRING,
@@ -113,6 +113,28 @@ module.exports = (sequelize, DataTypes) => {
         values: ["Active", "Inactive", "Archive"],
         allowNull: false,
         defaultValue: "Active",
+      },
+      dateOfBirth: {
+        type: DataTypes.DATE,
+        allowNull: true,
+      },
+      placeOfBirth: {
+        type: DataTypes.STRING,
+        allowNull: true,
+      },
+      heightAtBirth: {
+        type: DataTypes.FLOAT,
+        allowNull: true,
+        validate: {
+          isFloat: true,
+        },
+      },
+      weightAtBirth: {
+        type: DataTypes.FLOAT,
+        allowNull: true,
+        validate: {
+          isFloat: true,
+        },
       },
     },
     {

@@ -14,8 +14,8 @@ export default function ReportForm() {
       </div>
 
       {/* General Information */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 mb-6">
-        <div className="flex flex-col">
+      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 mb-6 px-[8rem]">
+        <div className="flex flex-col"> 
           <label>Municipality/City:</label>
           <input type="text" className="border-b border-black bg-transparent outline-none p-1" />
         </div>
@@ -60,7 +60,7 @@ export default function ReportForm() {
           <input type="text" className="border-b border-black bg-transparent outline-none p-1" />
         </div>
       </div>
-      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 px-[8rem]">
         <div className="flex flex-col">
           <label>Total # of Barangays:</label>
           <input type="text" className="border-b border-black bg-transparent outline-none p-1" />
@@ -87,7 +87,7 @@ export default function ReportForm() {
         </div>
       </div>
       {/* Table Section */}
-      <div className="overflow-x-auto mt-[2rem]">
+      <div className="overflow-x-auto mt-[2rem] px-[8rem]">
         <table className="min-w-full border border-gray-300 text-center text-sm">
           <thead>
             <tr className="bg-gray-200">
@@ -157,26 +157,23 @@ export default function ReportForm() {
           </tbody>
         </table>
       </div>
-      <p className="font-semibold">Use WEIGHT - for - LENGTH or WEIGHT - for - HEIGHT to correctly determine Overweight and Obesity.  </p>
+      <p className="font-semibold px-[8rem]">Use WEIGHT - for - LENGTH or WEIGHT - for - HEIGHT to correctly determine Overweight and Obesity.  </p>
       {/* Footer */}
-      <div className="grid grid-cols-3 gap-4 mt-6">
-        <div className="flex flex-col ">
+      <div className="grid grid-cols-3 gap-4 mt-6 px-[8rem]">
+        <div className="flex flex-col">
           <label>Prepared By:</label>
-          <p className="border-b border-black bg-transparent outline-none p-1 w-full">
-            Name & Signature of Nutritional Coordinator
-          </p>
+          <div className="border-b border-black bg-transparent outline-none p-[1rem] w-full"></div>
+          <p className="mt-2">Name & Signature of Nutritional Coordinator</p>
         </div>
-        <div className="flex flex-col ">
+        <div className="flex flex-col">
           <label>Checked By:</label>
-          <p className="border-b border-black bg-transparent outline-none p-1 w-full">
-            Name & Signature of City/Municipal Health
-          </p>
+          <div className="border-b border-black bg-transparent outline-none p-[1rem] w-full"></div>
+          <p className="mt-2">Name & Signature of City/Municipal Health</p>
         </div>
-        <div className="flex flex-col ">
+        <div className="flex flex-col">
           <label>Approved By:</label>
-          <p className="border-b border-black bg-transparent outline-none p-1 w-full">
-            Name & Signature of Mayor
-          </p>
+          <div className="border-b border-black bg-transparent outline-none p-[1rem] w-full"></div>
+          <p className="mt-2">Name & Signature of Mayor</p>
         </div>
       </div>
     </div>

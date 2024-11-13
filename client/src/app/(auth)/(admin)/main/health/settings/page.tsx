@@ -1,67 +1,150 @@
 'use client'
 
 import Image from 'next/image'
-import React from 'react'
+import React, { useState } from 'react'
 import { useRouter } from 'next/navigation'
 
 const Settings: React.FC = () => {
     const router = useRouter();
+    const [modalContent, setModalContent] = useState<string | null>(null);
 
-    function handleCardClick(path: string) {
-        router.push(path);
+    function handleCardClick(content: string) {
+        setModalContent(content);
     }
 
-    // Sample data
-    const adminName = "Juan dela Cruz";
-    const backupFrequency = "Weekly";
-    const lastBackupDate = "2024-10-28";
+    function closeModal() {
+        setModalContent(null);
+    }
 
     return (
-        <div>
-            <div className="flex flex-row md:flex md:flex-row justify-center gap-[4rem] ">
+        <div className="min-h-screen bg-[#EDF3F8] p-8">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+            
+            {/* User Management Section */}
+            <div>
+              <h2 className="text-2xl font-bold mb-4">User Management</h2>
+              <div className="space-y-4">
+                <Card title="Add User" description="Create a new user account with required details, roles, and access permissions." imageSrc="/svg/people2.svg" onClick={() => handleCardClick('Add User')} />
+                <Card title="Update User" description="Edit an existing user’s profile, role, or permissions to reflect changes in access or information." imageSrc="/svg/update.svg" onClick={() => handleCardClick('Update User')} />
+                <Card title="Remove User" description="Delete a user account and revoke all associated system access and permissions." imageSrc="/svg/delete.svg" onClick={() => handleCardClick('Remove User')} />
+              </div>
               
+              <h2 className="text-2xl font-bold mt-8 mb-4">Data Backup & Restore</h2>
+              <div className="space-y-4">
+                <Card title="Backup Now" description="Backup Frequency: Weekly\nBackup Status: Active" />
+              </div>
             </div>
-            <h1 className="text-3xl font-bold mb-6 flex items-center justify-center">System Settings & Maintenance</h1>
-      
-      {/* User Management Section */}
-      <div className="mb-8 p-6 bg-white shadow-md rounded-lg">
-        <h2 className="text-xl font-semibold mb-4">User Management</h2>
-        <div className="flex gap-4">
-          <button className="px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600">Add User</button>
-          <button className="px-4 py-2 bg-yellow-500 text-white rounded-md hover:bg-yellow-600">Update User</button>
-          <button className="px-4 py-2 bg-red-500 text-white rounded-md hover:bg-red-600">Remove User</button>
-        </div>
-      </div>
-
-      {/* Data Backup & Restore Section */}
-      <div className="mb-8 p-6 bg-white shadow-md rounded-lg">
-        <h2 className="text-xl font-semibold mb-4">Data Backup & Restore</h2>
-        <div className="flex items-center gap-4">
-          <button className="px-4 py-2 bg-green-500 text-white rounded-md hover:bg-green-600">Backup Now</button>
-          <div>
-            <p className="text-gray-600">Last Backup: <span className="font-medium">October 28, 2024</span></p>
-            <p className="text-gray-600">Backup Frequency: <span className="font-medium">Weekly</span></p>
-            <p className="text-gray-600">Backup Status: <span className="font-medium text-green-600">Success</span></p>
+    
+            {/* Audit Logs Section */}
+            <div>
+              <h2 className="text-2xl font-bold mb-4">Audit Logs</h2>
+              <div className="space-y-4">
+                <Card title="View Logs" description="Last User Action: Login by John Vincent Rosales (2:07 PM, Nov 6, 2024)\nLast Backup Action: Automated Weekly Backup (Sep 9, 2023)" imageSrc="/svg/list.svg" />
+                <LogEntry name="Mariz Gutib" />
+                <LogEntry name="" />
+                <LogEntry name="" />
+                <LogEntry name="" />
+                <LogEntry name="" />
+              </div>
+            </div>
           </div>
-        </div>
-      </div>
 
-      {/* Audit Logs Section */}
-      <div className="p-6 bg-white shadow-md rounded-lg">
-        <h2 className="text-xl font-semibold mb-4">Audit Logs</h2>
-        <div className="flex items-center gap-4 mb-4">
-          <button className="px-4 py-2 bg-gray-500 text-white rounded-md hover:bg-gray-600">View Logs</button>
-          <input 
-            type="text" 
-            placeholder="Search logs..." 
-            className="px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:border-blue-500" 
-          />
-          <button className="px-4 py-2 bg-indigo-500 text-white rounded-md hover:bg-indigo-600">Export Logs</button>
+          {modalContent && (
+            <Modal content={modalContent} onClose={closeModal} />
+          )}
         </div>
-        <div className="text-gray-600">
-          <p>Last User Action: <span className="font-medium">Login by Juan dela Cruz</span> (10:35 AM, Nov 1, 2024)</p>
-          <p>Last Backup Action: <span className="font-medium">Automatic Weekly Backup</span> (Oct 28, 2024)</p>
-        </div>
+    );
+};
+
+// Reusable Card Component
+const Card = ({ title, description, imageSrc, onClick }: { title: string; description: string; imageSrc?: string; onClick?: () => void }) => (
+  <div className="bg-white p-4 rounded-lg shadow flex items-start cursor-pointer" onClick={onClick}>
+    {imageSrc && (
+      <Image src={imageSrc} alt={title} width={30} height={30} className="mr-4" />
+    )}
+    <div>
+      <h3 className="text-lg font-semibold">{title}</h3>
+      <p className="text-gray-600 whitespace-pre-line mt-2">{description}</p>
+    </div>
+  </div>
+);
+
+const LogEntry = ({ name }: { name: string | undefined }) => (
+  <div className="bg-white p-4 rounded-lg shadow text-gray-700">
+    {name ? name : "No logs available"}
+  </div>
+);
+
+// Modal Component
+const Modal = ({ content, onClose }: { content: string; onClose: () => void }) => {
+  const renderContent = () => {
+    switch (content) {
+      case 'Add User':
+        return (
+          <>
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-700">Email:</label>
+                <input type="email" className="w-full mb-2 p-2 border rounded-md" />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700">Username:</label>
+                <input type="text" className="w-full mb-2 p-2 border rounded-md" />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700">Password:</label>
+                <input type="password" className="w-full mb-2 p-2 border rounded-md" />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700">Confirm Password:</label>
+                <input type="password" className="w-full mb-2 p-2 border rounded-md" />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700">Role:</label>
+                <input type="text" className="w-full mb-2 p-2 border rounded-md" />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700">Status:</label>
+                <input type="text" className="w-full mb-2 p-2 border rounded-md" />
+              </div>
+            </div>
+
+            <div className="flex justify-end mt-4 space-x-2">
+              <button className="bg-gray-200 text-black px-4 py-2 rounded-md ">Cancel</button>
+              <button className="bg-[#007F73] text-white px-4 py-2 rounded-md ">Update</button>
+            </div>
+          </>
+        );
+      case 'Update User':
+        return (
+          <>
+            <p>Update the user details here...</p>
+            {/* Add fields similar to 'Add User' if needed */}
+          </>
+        );
+      case 'Remove User':
+        return (
+          <>
+            <p>Are you sure you want to delete this user?</p>
+            <button className="mt-4 bg-red-500 text-white px-4 py-2 rounded">Delete</button>
+          </>
+        );
+      default:
+        return <p>Here you can add more details or forms related to {content}.</p>;
+    }
+  };
+
+  return (
+    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center">
+      <div className="bg-white p-8 w-[50%] h-[50%] rounded-lg shadow-lg relative">
+        <button
+          className="absolute top-0 right-0 text-gray-600 hover:text-gray-900 text-[3rem]"
+          onClick={onClose}
+        >
+          &times;
+        </button>
+        <h2 className="text-2xl font-bold mb-4 flex items-center justify-center mt-[2rem]">{content}</h2>
+        {renderContent()}
       </div>
     </div>
   );

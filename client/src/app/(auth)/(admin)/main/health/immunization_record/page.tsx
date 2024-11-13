@@ -7,18 +7,28 @@ import Modal from '@/components/PersonModal';
 import SweetAlert from '@/components/SweetAlert';
 import SearchBar from '@/components/SearchBar';
 import Pagination from '@/components/Pagination';
+import PersonModal from '@/components/PersonModal';
 
 interface Immunization {
   id: number;
-  fullName: string;
-  ageMonths: number;
-  vaccineType: string;
-  doseNumber: number;
+  first_name: string;
+  last_name: string;
+  middle_name: string;
+  suffix: string;
+  date_of_birth: string;
+  place_of_birth: string;
+  address: string;
+  mother_name: string;
+  father_name: string;
+  birth_height: number;
+  birth_weight: number;
   sex: string;
-  scheduledDate: string;
-  administeredBy: string;
   sideEffects: string;
   location: string;
+  health_center: string;
+  barangay: string;
+  family_number: string;
+  administeredBy: string;
 }
 
 const ImmunizationRecord: React.FC = () => {
@@ -28,15 +38,19 @@ const ImmunizationRecord: React.FC = () => {
   const [currentPage, setCurrentPage] = useState<number>(1);
   const [isFilterDropdownOpen, setIsFilterDropdownOpen] = useState<boolean>(false);
   const [isAddModalOpen, setIsAddModalOpen] = useState<boolean>(false);
-  const itemsPerPage = 15;
+  const itemsPerPage = 10;
 
   useEffect(() => {
     const fetchImmunizations = async () => {
       try {
-        const response = await fetch('http://localhost:3001/api/immunizations');
+        const response = await fetch('http://localhost:3001/api/childImmunizationRecords');
+  
         if (response.ok) {
-          const data: Immunization[] = await response.json();
+          const data = await response.json();
+
           setImmunizations(data);
+          console.log("data:", data);
+
         } else {
           console.error("Failed to fetch immunization data.");
         }
@@ -44,9 +58,12 @@ const ImmunizationRecord: React.FC = () => {
         console.error("Error fetching immunization data:", error);
       }
     };
-
+  
     fetchImmunizations();
   }, []);
+
+
+  
 
   function handleSort(key: keyof Immunization) {
     let direction = 'ascending';
@@ -118,9 +135,16 @@ const ImmunizationRecord: React.FC = () => {
             height={50}
             onClick={() => setIsAddModalOpen(true)}
           />
+            <Image
+            src="/svg/report.svg"
+            alt="Nutritional Status"
+            width={30}
+            height={50}
+            onClick={() => router.push('/main/health/immuniReport')}
+          />
         </button>
         {isFilterDropdownOpen && (
-          <div className="absolute right-[1rem] mt-[40%] bg-white border border-gray-300 rounded-md shadow-lg z-10">
+          <div className="absolute right-[1rem] mt-[16%] bg-white border border-gray-300 rounded-md shadow-lg z-10">
             <ul className="py-1">
               <li className="px-4 py-2 hover:bg-gray-100 cursor-pointer">Filter by Age</li>
               <li className="px-4 py-2 hover:bg-gray-100 cursor-pointer">Filter by Sex</li>
@@ -148,8 +172,18 @@ const ImmunizationRecord: React.FC = () => {
         totalPages={Math.ceil(immunizations.length / itemsPerPage)}
         onPageChange={handlePageChange}
       />
+
+      {isAddModalOpen && (
+        <PersonModal onClose={() => setIsAddModalOpen(false)}>
+          <div className="p-4">
+            <h2 className="text-lg font-semibold">Add Immunization Record</h2>
+            {/* Add form fields and logic similar to the nutritional_status modal */}
+          </div>
+        </PersonModal>
+      )}
     </>
   );
 };
 
 export default ImmunizationRecord;
+

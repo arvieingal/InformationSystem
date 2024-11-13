@@ -10,8 +10,11 @@ import Pagination from "@/components/Pagination";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 import { FaCalendarAlt } from "react-icons/fa";
+import { Child as ChildTableChild } from "@/components/ChildTable";
 
 export interface Child {
+  dateOfBirth: string;
+  placeOfBirth: string;
   id: number;
   name: string;
   age: number;
@@ -31,10 +34,13 @@ export interface Child {
   middle_name?: string;
   last_name?: string;
   suffix?: string;
+  measurementDate?: string;
 }
 
 // Define a type for the form data
 interface ChildFormData {
+  placeOfBirth: string;
+  dateOfBirth: string;
   id?: number;
   first_name: string;
   middle_name: string;
@@ -82,6 +88,8 @@ const NutritionalStatus: React.FC = () => {
     last_name: "",
     sex: "",
     birthdate: "",
+    dateOfBirth: "",
+    placeOfBirth: "",
     weightAtBirth: "",
     heightAtBirth: "",
     currentAge: 0,
@@ -101,7 +109,7 @@ const NutritionalStatus: React.FC = () => {
 
   const modalRef = useRef<HTMLDivElement>(null);
   const [sortConfig, setSortConfig] = useState<{
-    key: keyof Child;
+    key: keyof ChildTableChild;
     direction: string;
   } | null>(null);
   const [children, setChildren] = useState<Child[]>([]);
@@ -113,6 +121,20 @@ const NutritionalStatus: React.FC = () => {
   const addModalRef = useRef<HTMLDivElement>(null);
 
   const [archivedChildren, setArchivedChildren] = useState<number[]>([]);
+
+  const [filterCriteria, setFilterCriteria] = useState({
+    age: '',
+    sex: '',
+    birthdate: '',
+    height: '',
+    weight: '',
+    nutritionalStatus: '',
+    archived: false, // New filter for archived status
+  });
+
+  const handleFilterChange = (key: string, value: string | boolean) => {
+    setFilterCriteria((prev) => ({ ...prev, [key]: value }));
+  };
 
   const handleClickOutsideAddModal = (event: MouseEvent) => {
     if (
@@ -141,7 +163,9 @@ const NutritionalStatus: React.FC = () => {
         const response = await fetch("http://localhost:3001/api/children");
         if (response.ok) {
           const data: Child[] = await response.json();
-          const filteredData = data.filter(child => !archivedChildren.includes(child.id));
+          const filteredData = data.filter(
+            (child) => !archivedChildren.includes(child.id)
+          );
           setChildren(filteredData);
           setOriginalChildren(filteredData);
         } else {
@@ -175,7 +199,6 @@ const NutritionalStatus: React.FC = () => {
       birthdate: date ? date.toISOString().split("T")[0] : "",
     });
   };
-
   const handleRowClick = (child: Child) => {
     setSelectedChild({
       first_name: child.first_name || "",
@@ -191,13 +214,16 @@ const NutritionalStatus: React.FC = () => {
       address: child.address || "",
       purok: child.purok || "",
       nutritionalStatus: child.nutritionalStatus || "",
+      placeOfBirth: child.placeOfBirth || "",
+      dateOfBirth: child.dateOfBirth || "",
+      measurementDate: child.measurementDate || "",
     });
     setIsModalOpen(true);
   };
 
-  async function handleEditClick(child: Child): Promise<void> {
+  async function handleEditClick(child: ChildTableChild): Promise<void> {
     const confirmEdit = await SweetAlert.showConfirm(
-      `Are you sure you want to edit this child with ID: ${child.id}?`
+      ` <p> Are you sure you want to edit this child with ID: <span class="font-bold">${child.id}</span>?</p>`
     );
 
     if (confirmEdit) {
@@ -215,6 +241,9 @@ const NutritionalStatus: React.FC = () => {
         currentHeight: child.currentHeight || "",
         address: child.address || "",
         purok: child.purok || "",
+        dateOfBirth: child.dateOfBirth || "",
+        placeOfBirth: child.placeOfBirth || "",
+        measurementDate: child.measurementDate || "",
       });
       setIsEditModalOpen(true);
     }
@@ -222,17 +251,20 @@ const NutritionalStatus: React.FC = () => {
 
   async function handleArchiveClick(child: Child): Promise<void> {
     const confirmArchive = await SweetAlert.showConfirm(
-      `Are you sure you want to archive this child with ID: ${child.id}?`
+      `<p>Are you sure you want to archive this child with ID: <span class="font-bold">${child.id}</span>?</p>`
     );
     if (confirmArchive) {
       try {
-        const response = await fetch(`http://localhost:3001/api/children/${child.id}`, {
-          method: "PUT",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({ status: "Archive" }),
-        });
+        const response = await fetch(
+          `http://localhost:3001/api/children/${child.id}`,
+          {
+            method: "PUT",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({ status: "Archive" }),
+          }
+        );
 
         if (response.ok) {
           setArchivedChildren((prevArchived) => [...prevArchived, child.id]);
@@ -266,7 +298,7 @@ const NutritionalStatus: React.FC = () => {
     };
   }, [isModalOpen, isEditModalOpen, isAddModalOpen]);
 
-  function handleSort(key: keyof Child) {
+  function handleSort(key: keyof ChildTableChild) {
     let direction = "ascending";
     if (
       sortConfig &&
@@ -310,7 +342,7 @@ const NutritionalStatus: React.FC = () => {
   const handleSearch = (query: string) => {
     const lowerCaseQuery = query.toLowerCase();
     const filteredChildren = originalChildren.filter((child) => {
-      return (
+      const matchesQuery = 
         child.id.toString().includes(lowerCaseQuery) ||
         (child.name && child.name.toLowerCase().includes(lowerCaseQuery)) ||
         child.age.toString().includes(lowerCaseQuery) ||
@@ -324,8 +356,18 @@ const NutritionalStatus: React.FC = () => {
         (child.weightAtBirth && child.weightAtBirth.includes(lowerCaseQuery)) ||
         (child.heightAtBirth && child.heightAtBirth.includes(lowerCaseQuery)) ||
         (child.currentWeight && child.currentWeight.includes(lowerCaseQuery)) ||
-        (child.currentHeight && child.currentHeight.includes(lowerCaseQuery))
-      );
+        (child.currentHeight && child.currentHeight.includes(lowerCaseQuery));
+
+      const matchesFilter = 
+        (!filterCriteria.age || child.age.toString() === filterCriteria.age) &&
+        (!filterCriteria.sex || child.sex === filterCriteria.sex) &&
+        (!filterCriteria.birthdate || child.birthdate === filterCriteria.birthdate) &&
+        (!filterCriteria.height || child.heightCm.toString() === filterCriteria.height) &&
+        (!filterCriteria.weight || child.weightKg.toString() === filterCriteria.weight) &&
+        (!filterCriteria.nutritionalStatus || child.nutritionalStatus === filterCriteria.nutritionalStatus) &&
+        (filterCriteria.archived === archivedChildren.includes(child.id));
+
+      return matchesQuery && matchesFilter;
     });
     setChildren(filteredChildren);
   };
@@ -422,6 +464,8 @@ const NutritionalStatus: React.FC = () => {
       last_name: "",
       sex: "",
       birthdate: "",
+      dateOfBirth: "",
+      placeOfBirth: "",
       weightAtBirth: "",
       heightAtBirth: "",
       currentAge: 0,
@@ -463,7 +507,7 @@ const NutritionalStatus: React.FC = () => {
         </button>
         <button
           className="flex items-center space-x-2 text-blue-500 hover:underline"
-          onClick={() => router.push("/main/health/report")}
+          onClick={() => router.push("/main/health/nutriReport")}
         >
           <Image
             src="/svg/report.svg"
@@ -473,34 +517,36 @@ const NutritionalStatus: React.FC = () => {
           />
         </button>
         {isFilterDropdownOpen && (
-          <div className="absolute right-[1rem] mt-[40%] bg-white border border-gray-300 rounded-md shadow-lg z-10">
+          <div className="absolute right-[1rem]  md:mt-[48%] lg:mt-[36%] xl:mt-[28%] 2xl:mt-[20%] bg-white border border-gray-300 rounded-md shadow-lg z-10">
             <ul className="py-1">
-              <li className="px-4 py-2 hover:bg-gray-100 cursor-pointer">
+              <li className="px-4 py-2 hover:bg-gray-100 cursor-pointer" onClick={() => handleFilterChange('age', 'specificAge')}>
                 Filter by Age
               </li>
-              <li className="px-4 py-2 hover:bg-gray-100 cursor-pointer">
+              <li className="px-4 py-2 hover:bg-gray-100 cursor-pointer" onClick={() => handleFilterChange('sex', 'male')}>
                 Filter by Sex
               </li>
-              <li className="px-4 py-2 hover:bg-gray-100 cursor-pointer">
+              <li className="px-4 py-2 hover:bg-gray-100 cursor-pointer" onClick={() => handleFilterChange('birthdate', 'specificDate')}>
                 Filter by Birthdate
               </li>
-              <li className="px-4 py-2 hover:bg-gray-100 cursor-pointer">
+              <li className="px-4 py-2 hover:bg-gray-100 cursor-pointer" onClick={() => handleFilterChange('height', 'specificHeight')}>
                 Filter by Height
               </li>
-              <li className="px-4 py-2 hover:bg-gray-100 cursor-pointer">
+              <li className="px-4 py-2 hover:bg-gray-100 cursor-pointer" onClick={() => handleFilterChange('weight', 'specificWeight')}>
                 Filter by Weight
               </li>
-              <li className="px-4 py-2 hover:bg-gray-100 cursor-pointer">
+              <li className="px-4 py-2 hover:bg-gray-100 cursor-pointer" onClick={() => handleFilterChange('nutritionalStatus', 'Normal')}>
                 Filter by Nutritional Status
               </li>
-              {/* Add more filter options as needed */}
+              <li className="px-4 py-2 hover:bg-gray-100 cursor-pointer" onClick={() => handleFilterChange('archived', !filterCriteria.archived)}>
+                {filterCriteria.archived ? 'Show Active' : 'Show Archived'}
+              </li>
             </ul>
           </div>
         )}
       </div>
       <div className="w-full mt-[1rem] ">
         <ChildTable
-          children={paginatedChildren}
+          children={paginatedChildren as ChildTableChild[]}
           onSort={handleSort}
           sortConfig={sortConfig}
           onEdit={handleEditClick}
@@ -516,93 +562,180 @@ const NutritionalStatus: React.FC = () => {
 
       {isModalOpen && selectedChild && (
         <Modal onClose={() => setIsModalOpen(false)}>
-          <div ref={modalRef} className="relative">
+          <div ref={modalRef} className="relative border border-black w-full">
             <button
               className="absolute top-[-3rem] right-[-2rem] text-gray-500 hover:text-gray-700 p-4 text-[3rem]"
               onClick={() => setIsModalOpen(false)}
             >
               &times;
             </button>
-            <div>
-              <Image
+            <div className="w-full p-[2rem] gap-4">
+             
+                <div className="w-full flex pt-2">
+                <Image
                 src="/svg/health_nutritionalstatus.svg"
                 alt="Update Nutritional Status"
                 width={40}
                 height={50}
               />
-            </div>
-            <h2 className="text-lg font-semibold text">
-              View Full Nutritional Status of the Child
-            </h2>
-            <div className="w-full flex flex-row gap-[10rem] text mt-[2rem]">
-              <p className="text">
-                <span className="font-medium">Name of the Child:</span>
-                <u>{selectedChild.first_name}</u>
-                <u>{selectedChild.last_name}</u>
-                <u>
-                  {selectedChild.middle_name ? selectedChild.middle_name : ""}
-                </u>
-                <select
-                  value={selectedChild.suffix || ""}
-                  onChange={(e) =>
-                    setSelectedChild({
-                      ...selectedChild,
-                      suffix: e.target.value,
-                    })
-                  }
+               <h2 className=" font-semibold text text-[20px] ">
+                View Full Nutritional Status of the Child
+              </h2>
+                </div>
+                <p className="italic text-sm pl-[3rem]">Barangay Luz, Cebu City</p>
+              <div className="w-full flex flex-row  text mt-[2rem]  justify-between ">
+                <div className=" text flex flex-row ">
+                  <div className="flex flex-row  w-full gap-[1rem]  items-center">
+                    <p className="font-medium ">Child's Name:</p>
+                    <div className="flex flex-row gap-[1rem]">
+                      <div className="border-b border-black   p-1">
+                        <p className="text-center">{`${
+                          selectedChild.first_name
+                        } ${selectedChild.last_name} ${
+                          selectedChild.middle_name
+                            ? `${selectedChild.middle_name}`
+                            : ""
+                        } ${
+                          selectedChild.suffix ? selectedChild.suffix : ""
+                        }`}</p>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <div className=" text px-4 flex flex-row gap-[1rem] items-center">
+                  <span className="font-medium">Birthdate:</span>
+                  <div className="border-b border-black   p-1 text-center">
+                    {selectedChild.birthdate}
+                  </div>
+                </div>
+                <p className="text flex  flex-row gap-[2rem] items-center">
+                  <span className="font-medium">Age:</span>
+                  <div className="border-b border-black text-center p-1">
+                    {selectedChild.currentAge}
+                  </div>
+                </p>
+                <p className="text flex flex-row gap-[2rem] items-center">
+                  <span className="font-medium">Sex:</span>
+                  <div className="border-b border-black w-[12rem] text-center p-1">
+                    {selectedChild.sex}
+                  </div>
+                </p>
+              </div>
+              <div className="w-full flex-col pe-8 mt-[2rem]">
+                <div className="w-full flex flex-col">
+                  <p className="w-full font-medium text-[18px]">
+                    During Birth Information:
+                  </p>
+                  <div className="w-full flex flex-row gap-4 mt-2">
+                    <p>Birth Height (cm):</p>
+                    <p className="border-b border-black w-[4rem] h-[2rem] text-center p-1">
+                      {selectedChild.heightAtBirth}
+                    </p>
+                    <p>Birth Weight (kg):</p>
+                    <p className="border-b border-black w-[4rem] h-[2rem] text-center p-1">
+                      {selectedChild.weightAtBirth}
+                    </p>
+                    <p className="font-medium ">Date of Birth:</p>
+                    <p className="border-b border-black w-[10rem] h-[2rem]   p-1 text-center">
+                      {" "}
+                      {selectedChild.dateOfBirth}
+                    </p>
+                    <p className="font-medium ">Place of Birth:</p>
+                    <p className="border-b border-black w-[12rem] h-[2rem] p-1 text-center">
+                      {" "}
+                      {selectedChild.placeOfBirth}
+                    </p>
+                  </div>
+                </div>
+                <div className="w-full flex flex-col mt-4">
+                  <p className="w-full font-medium text-[18px]">
+                    Current Information:
+                  </p>
+                  <div className="w-full flex flex-row  gap-4 mt-1">
+                    <p className="">Age in Months:</p>
+                    <p className="border-b border-black w-[4rem] h-[2rem] text-center p-1">
+                      {selectedChild.currentAge}
+                    </p>
+                    <p>Height (cm):</p>
+                    <p className="border-b border-black w-[4rem] h-[2rem] text-center p-1">
+                      {selectedChild.currentHeight}
+                    </p>
+                    <p>Weight (kg):</p>
+                    <p className="border-b border-black w-[4rem] h-[2rem] text-center p-1">
+                      {selectedChild.currentWeight}
+                    </p>
+                    <p className="font-medium ">Measurement Date:</p>
+                    <p className="border-b border-black w-[10rem] h-[2rem] p-1 text-center">
+                      {selectedChild.measurementDate
+                        ? new Date(
+                            selectedChild.measurementDate
+                          ).toLocaleDateString("en-US", {
+                            year: "numeric",
+                            month: "long",
+                            day: "numeric",
+                          })
+                        : ""}
+                    </p>
+                  </div>
+                  <div className="w-full flex flex-row gap-[1rem]">
+                    <div className="w-full flex flex-row  mt-[2rem]">
+                      <p className="font-medium ">Current Address:</p>
+                      <p className="border-b border-black w-[12rem] h-[2rem] p-1 text-center">
+                        {" "}
+                        {selectedChild.address}
+                      </p>
+                    </div>
+
+                    <div className="w-full flex flex-row gap-[2rem] mt-[2rem]">
+                      <p className="font-medium ">Purok/Zone:</p>
+                      <p className="border-b border-black w-[12rem] h-[2rem] p-1 text-center">
+                        {" "}
+                        {selectedChild.purok}
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div className="w-full flex flex-col gap-[1rem] mt-[2rem] ">
+                <p className="font-medium text-[18px]">Nutritional Status:</p>
+                <div className="w-full flex flex-row gap-[1rem] justify-between">
+                  <div className="flex flex-row gap-[.5rem] items-center">
+                    <p >Weight for Age:</p>
+                    <p className="border-b border-black text-center  p-1">
+                      {selectedChild.currentWeight}
+                    </p>
+                  </div>
+
+                  <div className="flex flex-row gap-[.5rem] items-center">
+                    <p >Length/Height for Age:</p>
+                    <p className="border-b border-black  text-center p-1">
+                      {selectedChild.currentHeight}
+                    </p>
+                  </div>
+
+                  <div className="flex flex-row gap-[.5rem] items-center">
+                    <p >Weight for Length/Height:</p>
+                    <p className="border-b border-black  text-center p-1">
+                      {selectedChild.currentWeight}
+                    </p>
+                  </div>
+                  <div className="flex flex-row gap-[.5rem] items-center">
+                    <p >Nutritional Status:</p>
+                    <p className="border-b border-black  text-center p-1">
+                      {selectedChild.nutritionalStatus}
+                    </p>
+                  </div>
+                </div>
+              </div>
+              <div className="w-full flex  items-center justify-center mt-[4rem]">
+              <button
+                  className="bg-[#007F73] text-white px-[2rem] py-2 rounded-md"
+                  onClick={() => setIsModalOpen(false)} // Close modal on click
                 >
-                  <option value="">Select Suffix</option>
-                  <option value="Jr.">Jr.</option>
-                  <option value="Sr.">Sr.</option>
-                  <option value="III">III</option>
-                  {/* Add more suffix options as needed */}
-                </select>
-              </p>
-              <p className="text">
-                <span className="font-medium">Birthdate:</span>
-                <u>{selectedChild.birthdate}</u>
-              </p>
-              <p className="text">
-                <span className="font-medium">Age:</span>
-                <u>{selectedChild.currentAge}</u>
-              </p>
-            </div>
-            <p className="font-medium mt-[2rem]">Current:</p>
-            <div className="w-full flex flex-row gap-[5rem]">
-              <span className="font-medium">Age in Months:</span>
-              <u>{selectedChild.currentAge}</u>
-              <span className="font-medium">Weight(Kg):</span>
-              <u>{selectedChild.currentWeight}</u>
-              <span className="font-medium">Height(Cm):</span>
-              <u>{selectedChild.currentHeight}</u>
-            </div>
-            <p className="font-medium mt-[2rem]">Nutritional Status:</p>
-            <div className="w-full flex flex-row gap-[5rem] mt-4">
-              <select
-                value={selectedChild.nutritionalStatus || ""}
-                onChange={(e) =>
-                  setSelectedChild({
-                    ...selectedChild,
-                    nutritionalStatus: e.target.value,
-                  })
-                }
-              >
-                <option value="">Select Nutritional Status</option>
-                <option value="Normal">Normal</option>
-                <option value="Overweight">Overweight</option>
-                <option value="Underweight">Underweight</option>
-                <option value="Obese">Obese</option>
-                {/* Add more options as needed */}
-              </select>
-            </div>
-            <p className="font-medium mt-[2rem]">Location:</p>
-            <div className="w-full flex flex-row gap-[10rem]">
-              <p className="text">
-                Address: <u>{selectedChild.address}</u>
-              </p>
-              <p className="text">
-                Purok/Zone: <u>{selectedChild.purok}</u>
-              </p>
+                  OK
+                </button>
+              </div>
             </div>
           </div>
         </Modal>
@@ -610,26 +743,35 @@ const NutritionalStatus: React.FC = () => {
 
       {isEditModalOpen && selectedChild && (
         <Modal onClose={() => setIsEditModalOpen(false)}>
-          <div ref={modalRef} className="relative text">
+          <div ref={modalRef} className="relative text ">
             <button
               className="absolute top-[-3rem] right-[-2rem] text-gray-500 hover:text-gray-700 p-4 text-[3rem]"
               onClick={() => setIsEditModalOpen(false)}
             >
               &times;
             </button>
-            <div>
+           
+            </div>
+            <div className="w-full flex flex-col gap-[1rem] border border-black p-[2rem]"> 
+            <div className="w-full flex flex-row gap-[1rem]">
               <Image
                 src="/svg/health_nutritionalstatus.svg"
                 alt="Update Nutritional Status"
                 width={40}
                 height={50}
               />
-            </div>
+              
+            <div>
             <h2 className="text-lg font-semibold text">
               Update Child Nutritional Status
             </h2>
-
-            <div className="grid grid-cols-3 gap-[20px] w-full mt-4">
+            <p className="italic text-sm ">Barangay Luz, Cebu City</p>
+            </div>
+           
+        
+         </div>
+        
+            <div className="grid grid-cols-4 gap-[20px] w-full mt-4">
               <div className="w-full">
                 <p>First Name of the Child:</p>
                 <div className="border border-gray-300 rounded-md p-1">
@@ -676,6 +818,29 @@ const NutritionalStatus: React.FC = () => {
                       })
                     }
                   />
+                  <div></div>
+                </div>
+              </div>
+              <div className="w-full">
+                <p>Suffix:</p>
+                <div className="border border-gray-300 rounded-md p-1">
+                  <select
+                    className="w-full outline-none"
+                    value={selectedChild.suffix || ""}
+                    onChange={(e) =>
+                      setSelectedChild({
+                        ...selectedChild,
+                        suffix: e.target.value,
+                      })
+                    }
+                  >
+                    <option value="">Select Suffix</option>
+                    <option value="Jr.">Jr.</option>
+                    <option value="Sr.">Sr.</option>
+                    <option value="II">II</option>
+                    <option value="III">III</option>
+                    {/* Add more suffix options as needed */}
+                  </select>
                 </div>
               </div>
               <div className="w-full">
@@ -739,41 +904,62 @@ const NutritionalStatus: React.FC = () => {
                   />
                 </div>
               </div>
-              <div className="w-full">
-                <p>During Birth:</p>
-                <div className="w-full flex gap-[20px] ">
-                  <p>Weight (kg):</p>
-                  <div className="border border-gray-300 rounded-md p-1 w-[3rem] h-[2.5rem]">
+            </div>
+            <div className="w-full">
+              <p className="font-medium text-[18px]">During Birth:</p>
+              <div className="w-full flex gap-[20px] ">
+                <p>Weight (kg):</p>
+                <div className="border border-gray-300 rounded-md p-1 w-[3rem] h-[2.5rem]">
+                  <input
+                    className="w-full outline-none"
+                    type="text"
+                    value={selectedChild.weightAtBirth}
+                    onChange={(e) =>
+                      setSelectedChild({
+                        ...selectedChild,
+                        weightAtBirth: e.target.value,
+                      })
+                    }
+                  />
+                </div>
+                <p>Height (cm):</p>
+                <div className="border border-gray-300 rounded-md p-1 w-[3rem] h-[2.5rem]">
+                  <input
+                    className="w-full outline-none "
+                    type="text"
+                    value={selectedChild.heightAtBirth}
+                    onChange={(e) =>
+                      setSelectedChild({
+                        ...selectedChild,
+                        heightAtBirth: e.target.value,
+                      })
+                    }
+                  />
+                </div>
+                <div className="flex flex-row gap-[10px]">
+                  <p>Place of Birth:</p>
+                  <div className=" border border-gray-300 rounded-md p-1 w-[15rem] h-[2.5rem] ">
+                    <input
+                      className="  rounded-md p-1  outline-none text-center"
+                      type="text"
+                      value={selectedChild.placeOfBirth}
+                    />
+                  </div>
+                </div>
+                <div className="flex flex-row gap-[10px]">
+                  <p>Date of Birth:</p>
+                  <div className="border border-gray-300 rounded-md p-1 w-[15rem] h-[2.5rem] flex items-center">
                     <input
                       className="w-full outline-none"
                       type="text"
-                      value={selectedChild.weightAtBirth}
-                      onChange={(e) =>
-                        setSelectedChild({
-                          ...selectedChild,
-                          weightAtBirth: e.target.value,
-                        })
-                      }
+                      value={selectedChild.dateOfBirth}
+                      readOnly
                     />
-                  </div>
-                  <p>Height (cm):</p>
-                  <div className="border border-gray-300 rounded-md p-1 w-[3rem] h-[2.5rem]">
-                    <input
-                      className="w-full outline-none "
-                      type="text"
-                      value={selectedChild.heightAtBirth}
-                      onChange={(e) =>
-                        setSelectedChild({
-                          ...selectedChild,
-                          heightAtBirth: e.target.value,
-                        })
-                      }
-                    />
+                    <FaCalendarAlt className="ml-2 text-black" />
                   </div>
                 </div>
               </div>
             </div>
-
             <div className="w-full flex flex-col gap-[20px]">
               {/* Current */}
               <div className="w-full">
@@ -820,6 +1006,38 @@ const NutritionalStatus: React.FC = () => {
                         })
                       }
                     />
+                  </div>
+                  <div className="flex flex-row gap-[10px]">
+                    <p>Measurement Date:</p>
+                    <div className="border border-gray-300 rounded-md p-1 w-[15rem] h-[2.5rem]">
+                      <DatePicker
+                        selected={
+                          selectedChild.measurementDate
+                            ? parseDate(selectedChild.measurementDate)
+                            : null
+                        }
+                        onChange={(date: Date | null) =>
+                          setSelectedChild({
+                            ...selectedChild,
+                            measurementDate: date
+                              ? date.toISOString().split("T")[0]
+                              : "",
+                          })
+                        }
+                        dateFormat="yyyy-MM-dd"
+                        className="w-full outline-none"
+                        customInput={
+                          <div className="flex items-center rounded-md p-1 text-black">
+                            <input
+                              className="w-full outline-none"
+                              value={selectedChild.measurementDate}
+                              readOnly
+                            />
+                            <FaCalendarAlt className="ml-2 text-black" />
+                          </div>
+                        }
+                      />
+                    </div>
                   </div>
                 </div>
               </div>
@@ -871,29 +1089,29 @@ const NutritionalStatus: React.FC = () => {
                     />
                   </div>
                   <p className="font-medium ">Nutritional Status:</p>
-            <div className="w-full border border-gray-300 rounded-md h-[2.5rem] outline-none">
-               <select
-                 className="w-full outline-none flex "
-                value={selectedChild.nutritionalStatus || ""}
-                onChange={(e) =>
-                  setSelectedChild({
-                    ...selectedChild,
-                    nutritionalStatus: e.target.value,
-                  })
-                }
-              >
-                <option value="">Select Nutritional Status</option>
-                <option value="Normal">Normal</option>
-                <option value="Overweight">Overweight</option>
-                <option value="Underweight">Underweight</option>
-                <option value="Obese">Obese</option>
-                {/* Add more options as needed */}
-              </select>
-            </div>
+                  <div className="w-full border border-gray-300 rounded-md h-[2.5rem] outline-none">
+                    <select
+                      className="w-full outline-none flex "
+                      value={selectedChild.nutritionalStatus || ""}
+                      onChange={(e) =>
+                        setSelectedChild({
+                          ...selectedChild,
+                          nutritionalStatus: e.target.value,
+                        })
+                      }
+                    >
+                      <option value="">Select Nutritional Status</option>
+                      <option value="Normal">Normal</option>
+                      <option value="Overweight">Overweight</option>
+                      <option value="Underweight">Underweight</option>
+                      <option value="Obese">Obese</option>
+                      {/* Add more options as needed */}
+                    </select>
+                  </div>
                 </div>
               </div>
             </div>
-            <div className="w-full flex flex-row gap-[10px] mt-[2rem]">
+            <div className="w-full flex flex-row gap-[10px] ">
               <p>Address:</p>
               <input
                 className="outline-none border border-gray-300 rounded-md p-1 w-[20rem]"
@@ -941,13 +1159,14 @@ const NutritionalStatus: React.FC = () => {
 
       {isAddModalOpen && (
         <Modal onClose={() => setIsAddModalOpen(false)}>
-          <div ref={addModalRef} className="relative">
+          <div ref={addModalRef} className="relative border border-black p-[2rem]">
             <button
               className="absolute top-[-3rem] right-[-2rem] text-gray-500 hover:text-gray-700 p-4 text-[3rem]"
               onClick={() => setIsAddModalOpen(false)}
             >
               &times;
             </button>
+            <div className="w-full flex flex-row gap-[1rem] ">
             <div>
               <Image
                 src="/svg/health_nutritionalstatus.svg"
@@ -956,10 +1175,13 @@ const NutritionalStatus: React.FC = () => {
                 height={50}
               />
             </div>
+            <div className="w-full flex flex-col gap-[1rem]">
             <h2 className="text-lg font-semibold text">
               Add Child Nutritional Status
             </h2>
-
+              <p className="italic text-sm ">Barangay Luz, Cebu City</p>
+                </div>
+            </div>
             <div className="grid grid-cols-4 gap-[20px] w-full mt-4">
               <div className="w-full">
                 <p>First Name of the Child:</p>
@@ -1025,7 +1247,8 @@ const NutritionalStatus: React.FC = () => {
                     <option value="">Select Suffix</option>
                     <option value="Jr.">Jr.</option>
                     <option value="Sr.">Sr.</option>
-                    <option value="III">III</option>{" "}
+                    <option value="II">II</option>
+                    <option value="III">III</option>
                     {/* Add more suffix options as needed */}
                   </select>
                 </div>
@@ -1095,48 +1318,69 @@ const NutritionalStatus: React.FC = () => {
                   />
                 </div>
               </div>
-              <div className="w-full">
-                <p>During Birth:</p>
-                <div className="w-full flex gap-[1rem] ">
-                  <p className="w-[20rem]">Weight (kg):</p>
-                  <div className="border border-gray-300 rounded-md p-1 w-[12rem] h-[2.5rem]">
+            </div>
+            <div className="w-full flex flex-col">
+              <p className="font-medium text-[18px]">During Birth:</p>
+              <div className="w-full flex gap-2 ">
+                <p className="">Weight (kg):</p>
+                <div className="border border-gray-300 rounded-md w-[5rem] h-[2.5rem]">
+                  <input
+                    className="w-full outline-none text-center "
+                    type="text"
+                    value={selectedChild.weightAtBirth}
+                    onChange={(e) =>
+                      setSelectedChild({
+                        ...selectedChild,
+                        weightAtBirth: e.target.value,
+                      })
+                    }
+                  />
+                </div>
+                <p>Height (cm):</p>
+                <div className="border border-gray-300 rounded-md p-1 w-[5rem] h-[2.5rem]">
+                  <input
+                    className="w-full outline-none text-center"
+                    type="text"
+                    value={selectedChild.heightAtBirth}
+                    onChange={(e) =>
+                      setSelectedChild({
+                        ...selectedChild,
+                        heightAtBirth: e.target.value,
+                      })
+                    }
+                  />
+                </div>
+                <div className="flex flex-row gap-[10px]">
+                  <p>Place of Birth:</p>
+                  <div className=" border border-gray-300 rounded-md p-1 w-[15rem] h-[2.5rem] ">
+                    <input
+                      className="  rounded-md p-1  outline-none text-center"
+                      type="text"
+                      value={selectedChild.placeOfBirth}
+                    />
+                  </div>
+                </div>
+                <div className="flex flex-row gap-[10px]">
+                  <p>Date of Birth:</p>
+                  <div className="border border-gray-300 rounded-md p-1 w-[15rem] h-[2.5rem] flex items-center">
                     <input
                       className="w-full outline-none"
                       type="text"
-                      value={selectedChild.weightAtBirth}
-                      onChange={(e) =>
-                        setSelectedChild({
-                          ...selectedChild,
-                          weightAtBirth: e.target.value,
-                        })
-                      }
+                      value={selectedChild.dateOfBirth}
+                      readOnly
                     />
-                  </div>
-                  <p>Height (cm):</p>
-                  <div className="border border-gray-300 rounded-md p-1 w-[12rem] h-[2.5rem]">
-                    <input
-                      className="w-full outline-none "
-                      type="text"
-                      value={selectedChild.heightAtBirth}
-                      onChange={(e) =>
-                        setSelectedChild({
-                          ...selectedChild,
-                          heightAtBirth: e.target.value,
-                        })
-                      }
-                    />
+                    <FaCalendarAlt className="ml-2 text-black" />
                   </div>
                 </div>
               </div>
             </div>
-
             <div className="w-full flex flex-col gap-[20px]">
               {/* Current */}
               <div className="w-full">
-                <h1 className="text-lg font-semibold">Current :</h1>
-                <div className="w-full flex gap-[20px]">
+                <h1 className="text-lg font-semibold mt-[1rem]">Current :</h1>
+                <div className="w-full flex gap-[1rem]">
                   <p>Age in Months :</p>
-                  <div className="border border-gray-300 rounded-md p-1 w-[3rem] h-[2.5rem] ">
+                  <div className="border border-gray-300 rounded-md p-1 w-[5rem] h-[2.5rem] ">
                     <input
                       className="w-full outline-none flex text-center justify-center"
                       type="number"
@@ -1150,7 +1394,7 @@ const NutritionalStatus: React.FC = () => {
                     />
                   </div>
                   <p>Weight (kg):</p>
-                  <div className="border border-gray-300 rounded-md p-1 w-[3rem] h-[2.5rem]">
+                  <div className="border border-gray-300 rounded-md p-1 w-[5rem] h-[2.5rem]">
                     <input
                       className="w-full outline-none"
                       type="text"
@@ -1164,7 +1408,7 @@ const NutritionalStatus: React.FC = () => {
                     />
                   </div>
                   <p>Height (cm):</p>
-                  <div className="border border-gray-300 rounded-md p-1 w-[3rem] h-[2.5rem]">
+                  <div className="border border-gray-300 rounded-md p-1 w-[5rem] h-[2.5rem]">
                     <input
                       className="w-full outline-none"
                       type="text"
@@ -1176,6 +1420,38 @@ const NutritionalStatus: React.FC = () => {
                         })
                       }
                     />
+                  </div>
+                  <div className="w-full flex flex-row gap-[10px]">
+                    <p>Measurement Date:</p>
+                    <div className="border border-gray-300 rounded-md p-1 w-[15rem] h-[2.5rem]">
+                      <DatePicker
+                        selected={
+                          selectedChild.measurementDate
+                            ? parseDate(selectedChild.measurementDate)
+                            : null
+                        }
+                        onChange={(date: Date | null) =>
+                          setSelectedChild({
+                            ...selectedChild,
+                            measurementDate: date
+                              ? date.toISOString().split("T")[0]
+                              : "",
+                          })
+                        }
+                        dateFormat="yyyy-MM-dd"
+                        className="w-full outline-none"
+                        customInput={
+                          <div className="flex items-center rounded-md p-1 text-black">
+                            <input
+                              className="w-full outline-none"
+                              value={selectedChild.measurementDate}
+                              readOnly
+                            />
+                            <FaCalendarAlt className="ml-2 text-black" />
+                          </div>
+                        }
+                      />
+                    </div>
                   </div>
                 </div>
               </div>

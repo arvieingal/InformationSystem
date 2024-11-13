@@ -22,6 +22,7 @@ export default function NutritionalStatusChart({ title }: NutritionalStatusChart
 
   const options: ChartOptions<'doughnut'> = {
     responsive: true,
+    maintainAspectRatio: false,
     plugins: {
       legend: {
         position: 'bottom',
@@ -30,7 +31,7 @@ export default function NutritionalStatusChart({ title }: NutritionalStatusChart
   };
 
   return (
-    <div className="bg-white p-4 shadow rounded">
+    <div className="bg-white p-4 shadow rounded" style={{ width: '500px', height: '400px' }}>
       <h3 className="text-center font-semibold">{title}</h3>
       <Doughnut data={data} options={options} />
     </div>

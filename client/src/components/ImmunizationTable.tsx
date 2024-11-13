@@ -2,13 +2,22 @@ import React from 'react';
 import Image from 'next/image';
 
 interface Immunization {
-  id: number;
-  fullName: string;
-  ageMonths: number;
-  vaccineType: string;
-  doseNumber: number;
+  record_id: number;
+  first_name: string;
+  last_name: string;
+  middle_name: string;
+  suffix: string;
+  date_of_birth: string;
+  place_of_birth: string;
+  address: string;
+  mother_name: string;
+  father_name: string;
+  birth_height: number;
+  birth_weight: number;
   sex: string;
-  scheduledDate: string;
+  health_center: string;
+  barangay: string;
+  family_number: string;
   administeredBy: string;
   sideEffects: string;
   location: string;
@@ -29,7 +38,7 @@ const ImmunizationTable: React.FC<TableProps> = ({ immunizations, onSort, sortCo
       <table className="min-w-full border-collapse border border-[#CCCCCC] bg-white text-sm rounded-lg">
         <thead>
           <tr>
-            {['id', 'fullName', 'ageMonths', 'vaccineType', 'doseNumber', 'sex', 'scheduledDate', 'administeredBy', 'sideEffects', 'location'].map((key) => (
+            {['id', 'name', 'date of birth', 'place of birth', 'address', 'mother name', 'father name', 'birth height', 'birth weight', 'sex', 'health center', 'barangay', 'family number', 'administered by', 'side effects', 'location'].map((key) => (
               <th
                 key={key}
                 className="border border-gray-600 bg-gray-300 py-2"
@@ -49,13 +58,19 @@ const ImmunizationTable: React.FC<TableProps> = ({ immunizations, onSort, sortCo
         <tbody className="text-center">
           {immunizations.map((immunization, index) => (
             <tr key={index} onClick={() => onRowClick(immunization)}>
-              <td className="border border-[#CCCCCC] px-4 py-2 cursor-pointer">{immunization.id}</td>
-              <td className="border border-[#CCCCCC] px-4 py-2">{immunization.fullName}</td>
-              <td className="border border-[#CCCCCC] px-4 py-2">{immunization.ageMonths}</td>
-              <td className="border border-[#CCCCCC] px-4 py-2">{immunization.vaccineType}</td>
-              <td className="border border-[#CCCCCC] px-4 py-2">{immunization.doseNumber}</td>
+              <td className="border border-[#CCCCCC] px-4 py-2 cursor-pointer">{immunization.record_id}</td>
+              <td className="border border-[#CCCCCC] px-4 py-2">{immunization.first_name}</td>
+              <td className="border border-[#CCCCCC] px-4 py-2">{immunization.date_of_birth}</td>
+              <td className="border border-[#CCCCCC] px-4 py-2">{immunization.place_of_birth}</td>
+              <td className="border border-[#CCCCCC] px-4 py-2">{immunization.address}</td>
+              <td className="border border-[#CCCCCC] px-4 py-2">{immunization.mother_name}</td>
+              <td className="border border-[#CCCCCC] px-4 py-2">{immunization.father_name}</td>
+              <td className="border border-[#CCCCCC] px-4 py-2">{immunization.birth_height}</td>
+              <td className="border border-[#CCCCCC] px-4 py-2">{immunization.birth_weight}</td>
               <td className="border border-[#CCCCCC] px-4 py-2">{immunization.sex}</td>
-              <td className="border border-[#CCCCCC] px-4 py-2">{immunization.scheduledDate}</td>
+              <td className="border border-[#CCCCCC] px-4 py-2">{immunization.health_center}</td>
+              <td className="border border-[#CCCCCC] px-4 py-2">{immunization.barangay}</td>
+              <td className="border border-[#CCCCCC] px-4 py-2">{immunization.family_number}</td>
               <td className="border border-[#CCCCCC] px-4 py-2">{immunization.administeredBy}</td>
               <td className="border border-[#CCCCCC] px-4 py-2">{immunization.sideEffects}</td>
               <td className="border border-[#CCCCCC] px-4 py-2">{immunization.location}</td>
