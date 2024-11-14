@@ -2,45 +2,9 @@
 import React from 'react'
 import CardGrid from '@/components/CardGrid'
 import { dashboardCards } from '@/constants/cardData'
+import { dummyPurokZone } from '@/constants/tableDummyData';
 
 const Purok = () => {
-  const dummyPurokZone = [
-    {
-      id: 1,
-      purokZoneName: 'Abellana',
-      population: 540,
-      totalHouseholdNumber: 208,
-      totalNumberOfRenters: 208,
-    },
-    {
-      id: 2,
-      purokZoneName: 'Banilad',
-      population: 600,
-      totalHouseholdNumber: 250,
-      totalNumberOfRenters: 150,
-    },
-    {
-      id: 3,
-      purokZoneName: 'Cebu City',
-      population: 1200,
-      totalHouseholdNumber: 500,
-      totalNumberOfRenters: 300,
-    },
-    {
-      id: 4,
-      purokZoneName: 'Mandaue',
-      population: 800,
-      totalHouseholdNumber: 350,
-      totalNumberOfRenters: 200,
-    },
-    {
-      id: 5,
-      purokZoneName: 'Lapu-Lapu',
-      population: 700,
-      totalHouseholdNumber: 300,
-      totalNumberOfRenters: 180,
-    },
-  ];
 
   return (
     <div className='h-full w-full'>

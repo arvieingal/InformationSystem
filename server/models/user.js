@@ -32,20 +32,6 @@ module.exports = (sequelize, DataTypes) => {
           isEmail: true,
         },
       },
-      firstname: {
-        type: DataTypes.STRING,
-        allowNull: false,
-        validate: {
-          notEmpty: true,
-        },
-      },
-      lastname: {
-        type: DataTypes.STRING,
-        allowNull: false,
-        validate: {
-          notEmpty: true,
-        },
-      },
       password: {
         type: DataTypes.STRING,
         allowNull: false,
@@ -74,6 +60,7 @@ module.exports = (sequelize, DataTypes) => {
     {
       sequelize,
       modelName: "User",
+      tableName: "users",
       timestamps: true,
     }
   );

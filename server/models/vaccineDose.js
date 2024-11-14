@@ -67,7 +67,7 @@ module.exports = (sequelize, DataTypes) => {
     {
       sequelize,
       modelName: "vaccineDose",
-      tableName: "vaccineDose",
+      tableName: "vaccine_dose",
       timestamps: true,
       createdAt: "created_at",
       updatedAt: "updated_at",

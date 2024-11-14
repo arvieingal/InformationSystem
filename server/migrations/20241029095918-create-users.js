@@ -19,14 +19,6 @@ module.exports = {
         allowNull: false,
         unique: true,
       },
-      firstname: {
-        type: Sequelize.STRING,
-        allowNull: false
-      },
-      lastname: {
-        type: Sequelize.STRING,
-        allowNull: false
-      },
       password: {
         type: Sequelize.STRING,
         allowNull: false
@@ -41,11 +33,11 @@ module.exports = {
         allowNull: false,
         defaultValue: 'active'
       },
-      createdAt: {
+      created_at: {
         allowNull: false,
         type: Sequelize.DATE
       },
-      updatedAt: {
+      updated_at: {
         allowNull: false,
         type: Sequelize.DATE
       }
