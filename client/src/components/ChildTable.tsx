@@ -9,7 +9,7 @@ export interface Child {
   measurementDate: string;
   dateOfBirth: string;
   placeOfBirth: string;
-  id: number;
+  child_id: number;
   name: string;
   age: number;
   sex: string;
@@ -66,7 +66,7 @@ const ChildTable: React.FC<TableProps> = ({ children, onSort, sortConfig, onEdit
         <tbody className="text-center">
           {children.map((child, index) => (
             <tr key={index} onClick={() => onRowClick(child)}>
-              <td className="border border-[#CCCCCC] px-4 py-2 cursor-pointer">{child.id}</td>
+              <td className="border border-[#CCCCCC] px-4 py-2 cursor-pointer">{child.child_id}</td>
               <td className="border border-[#CCCCCC] px-4 py-2">
                 {`${child.first_name || ''} ${child.last_name || ''} ${child.middle_name || ''} ${child.suffix || ''}`.trim()}
               </td>
