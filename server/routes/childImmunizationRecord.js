@@ -1,18 +1,32 @@
 const express = require("express");
 const router = express.Router();
-const { childImmunizationRecord, vaccineDose } = require("../models");
+const { childImmunizationRecord, Child } = require("../models");
 
 router.get("/childImmunizationRecords", async (req, res) => {
   try {
-    // Fetch child immunization records with associated vaccine doses
     const records = await childImmunizationRecord.findAll({
-      include: {
-        model: vaccineDose, // Include vaccineDose model
-        as: 'vaccineDoses', // Optional: Alias for the relationship if you have defined one in the models
-      },
+      include: [
+        {
+          model: Child,
+          as: "child",
+          attributes: ["last_name", "first_name", "middle_name", "suffix", "sex", "dateOfBirth"],
+        },
+      ],
     });
 
-    res.status(201).json(records);
+    if (records.length === 0) {
+      console.log("No records found.");
+    } else {
+      records.forEach((record) => {
+        console.log(
+          record.child.last_name,
+          record.child.first_name,
+          record.child.middle_name
+        );
+      });
+    }
+
+    res.status(200).json(records);
   } catch (error) {
     console.error("Error fetching child immunization records:", error);
     res.status(500).json({
