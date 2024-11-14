@@ -60,7 +60,10 @@ const ImmunizationRecord: React.FC = () => {
   
         if (response.ok) {
           const data = await response.json();
-          setImmunizations(data);
+       
+          const dataArray = Array.isArray(data) ? data : [];
+
+          setImmunizations(dataArray );
           console.log("data:", data);
         } else {
           console.error("Failed to fetch immunization data.");
@@ -72,6 +75,8 @@ const ImmunizationRecord: React.FC = () => {
   
     fetchImmunizations();
   }, []);
+
+  console.log(immunizations, 'tada tada')
 
   const handleClickOutsideAddModal = (event: MouseEvent) => {
     if (addModalRef.current && !addModalRef.current.contains(event.target as Node)) {

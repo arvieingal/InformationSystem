@@ -35,6 +35,9 @@ export interface Child {
   last_name?: string;
   suffix?: string;
   measurementDate?: string;
+  family_number?: string;
+  mother_name?: string;
+  father_name?: string;
 }
 
 // Define a type for the form data
@@ -59,6 +62,9 @@ interface ChildFormData {
   heightAgeZ?: number;
   weightHeightZ?: number;
   measurementDate?: string;
+  family_number?: string;
+  mother_name?: string;
+  father_name?: string;
 }
 
 // Function to calculate nutritional status based on age, weight, and height
@@ -87,9 +93,10 @@ const NutritionalStatus: React.FC = () => {
     middle_name: "",
     last_name: "",
     sex: "",
+    suffix: "",
     birthdate: "",
     dateOfBirth: "",
-    placeOfBirth: "",
+    placeOfBirth: "",     
     weightAtBirth: "",
     heightAtBirth: "",
     currentAge: 0,
@@ -101,6 +108,9 @@ const NutritionalStatus: React.FC = () => {
     heightAgeZ: 0,
     weightHeightZ: 0,
     measurementDate: new Date().toISOString().split("T")[0],
+    family_number: "",
+    mother_name: "",
+    father_name: "",
   });
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
@@ -196,7 +206,11 @@ const NutritionalStatus: React.FC = () => {
   const handleDateChange = (date: Date | null) => {
     setSelectedChild({
       ...selectedChild,
-      birthdate: date ? date.toISOString().split("T")[0] : "",
+      birthdate: date ? date.toLocaleDateString("en-US", {
+        month: "long",
+        day: "numeric",
+        year: "numeric",
+      }) : "",
     });
   };
   const handleRowClick = (child: Child) => {
@@ -204,6 +218,7 @@ const NutritionalStatus: React.FC = () => {
       first_name: child.first_name || "",
       middle_name: child.middle_name || "",
       last_name: child.last_name || "",
+      suffix: child.suffix || "",
       sex: child.sex,
       birthdate: child.birthdate,
       weightAtBirth: child.weightAtBirth || "",
@@ -217,6 +232,9 @@ const NutritionalStatus: React.FC = () => {
       placeOfBirth: child.placeOfBirth || "",
       dateOfBirth: child.dateOfBirth || "",
       measurementDate: child.measurementDate || "",
+      family_number: child.family_number || "",
+      mother_name: child.mother_name || "",
+      father_name: child.father_name || "",
     });
     setIsModalOpen(true);
   };
@@ -232,6 +250,7 @@ const NutritionalStatus: React.FC = () => {
         first_name: child.first_name || "",
         middle_name: child.middle_name || "",
         last_name: child.last_name || "",
+        suffix: child.suffix || "",
         sex: child.sex || "",
         birthdate: child.birthdate || "",
         weightAtBirth: child.weightAtBirth || "",
@@ -244,6 +263,9 @@ const NutritionalStatus: React.FC = () => {
         dateOfBirth: child.dateOfBirth || "",
         placeOfBirth: child.placeOfBirth || "",
         measurementDate: child.measurementDate || "",
+        family_number: child.family_number || "",
+        mother_name: child.mother_name || "",
+        father_name: child.father_name || "",
       });
       setIsEditModalOpen(true);
     }
@@ -462,6 +484,7 @@ const NutritionalStatus: React.FC = () => {
       first_name: "",
       middle_name: "",
       last_name: "",
+      suffix: "",
       sex: "",
       birthdate: "",
       dateOfBirth: "",
@@ -472,8 +495,12 @@ const NutritionalStatus: React.FC = () => {
       currentWeight: "",
       currentHeight: "",
       address: "",
+      family_number: "",
+      mother_name: "",
+      father_name: "",  
       purok: "",
       nutritionalStatus: "",
+      
       // Ensure all fields are reset to empty or default values
     });
     setIsAddModalOpen(true);
@@ -591,13 +618,9 @@ const NutritionalStatus: React.FC = () => {
                       <div className="border-b border-black   p-1">
                         <p className="text-center">{`${
                           selectedChild.first_name
-                        } ${selectedChild.last_name} ${
+                        } ${selectedChild.last_name ? selectedChild.last_name + ' ' : ''}${
                           selectedChild.middle_name
-                            ? `${selectedChild.middle_name}`
-                            : ""
-                        } ${
-                          selectedChild.suffix ? selectedChild.suffix : ""
-                        }`}</p>
+                        }${selectedChild.suffix ? ' ' + selectedChild.suffix : ''}`}</p>
                       </div>
                     </div>
                   </div>
@@ -671,9 +694,9 @@ const NutritionalStatus: React.FC = () => {
                         ? new Date(
                             selectedChild.measurementDate
                           ).toLocaleDateString("en-US", {
-                            year: "numeric",
                             month: "long",
                             day: "numeric",
+                            year: "numeric",
                           })
                         : ""}
                     </p>
@@ -886,10 +909,14 @@ const NutritionalStatus: React.FC = () => {
                     onChange={(date: Date | null) =>
                       setSelectedChild({
                         ...selectedChild,
-                        birthdate: date ? date.toISOString().split("T")[0] : "",
+                        birthdate: date ? date.toLocaleDateString("en-US", {
+                          month: "long",
+                          day: "numeric",
+                          year: "numeric",
+                        }) : "",
                       })
                     }
-                    dateFormat="yyyy-MM-dd"
+                    dateFormat="MMMM d, yyyy"
                     className="w-full outline-none"
                     customInput={
                       <div className="flex items-center rounded-md p-1 text-black">
@@ -1020,11 +1047,15 @@ const NutritionalStatus: React.FC = () => {
                           setSelectedChild({
                             ...selectedChild,
                             measurementDate: date
-                              ? date.toISOString().split("T")[0]
+                              ? date.toLocaleDateString("en-US", {
+                                  month: "long",
+                                  day: "numeric",
+                                  year: "numeric",
+                                })
                               : "",
                           })
                         }
-                        dateFormat="yyyy-MM-dd"
+                        dateFormat="MMMM d, yyyy"
                         className="w-full outline-none"
                         customInput={
                           <div className="flex items-center rounded-md p-1 text-black">
@@ -1298,7 +1329,7 @@ const NutritionalStatus: React.FC = () => {
                         : null
                     }
                     onChange={handleDateChange}
-                    dateFormat="yyyy-MM-dd"
+                    dateFormat="MMMM d, yyyy"
                     className="w-full outline-none"
                     placeholderText="Select birthdate"
                     showYearDropdown
@@ -1434,11 +1465,15 @@ const NutritionalStatus: React.FC = () => {
                           setSelectedChild({
                             ...selectedChild,
                             measurementDate: date
-                              ? date.toISOString().split("T")[0]
+                              ? date.toLocaleDateString("en-US", {
+                                  month: "long",
+                                  day: "numeric",
+                                  year: "numeric",
+                                })
                               : "",
                           })
                         }
-                        dateFormat="yyyy-MM-dd"
+                        dateFormat="MMMM d, yyyy"
                         className="w-full outline-none"
                         customInput={
                           <div className="flex items-center rounded-md p-1 text-black">

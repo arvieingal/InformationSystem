@@ -1,15 +1,8 @@
-'use strict';
+"use strict";
 
 module.exports = {
   up: async (queryInterface, Sequelize) => {
-    await queryInterface.createTable('child_immunization_records', {
-        child_id: {
-        type: Sequelize.INTEGER,
-        autoIncrement: true,
-        primaryKey: true,
-        allowNull: false,
-      },
-      // Add the new fields from the model
+    await queryInterface.createTable("vaccineDose", {
       dose_id: {
         type: Sequelize.INTEGER,
         autoIncrement: true,
@@ -20,8 +13,8 @@ module.exports = {
         type: Sequelize.INTEGER,
         allowNull: false,
         references: {
-          model: 'child_immunization_records', // Ensure this matches the table name
-          key: 'id', // Ensure this matches the primary key in the referenced table
+          model: "ChildImmunizationRecord",
+          key: "record_id",
         },
       },
       vaccine_type: {
@@ -64,6 +57,6 @@ module.exports = {
   },
 
   down: async (queryInterface, Sequelize) => {
-    await queryInterface.dropTable('child_immunization_records');
+    await queryInterface.dropTable("vaccineDose");
   },
-};
+}; 

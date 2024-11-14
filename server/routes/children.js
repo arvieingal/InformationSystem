@@ -54,7 +54,10 @@ router.post('/add/children', async (req, res) => {
       address,
       purok,
       heightAgeZ = 0, // Provide a default value if not present
-      weightHeightZ = 0, // Provide a default value if not present
+      weightHeightZ = 0,
+      family_number,
+      mother_name,
+      father_name,
       measurementDate = new Date() // Provide a default value if not present
     } = req.body;
 
@@ -80,7 +83,10 @@ router.post('/add/children', async (req, res) => {
       heightAtBirth,
       heightAgeZ,
       weightHeightZ,
-      measurementDate
+      measurementDate,
+      family_number,
+      mother_name,
+      father_name,
     });
 
     res.status(201).json(newChild);

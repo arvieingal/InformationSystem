@@ -3,6 +3,9 @@ import Image from 'next/image';
 
 // src/types/Child.ts
 export interface Child {
+  father_name: string;
+  mother_name: string;
+  family_number: string;
   measurementDate: string;
   dateOfBirth: string;
   placeOfBirth: string;
@@ -65,7 +68,7 @@ const ChildTable: React.FC<TableProps> = ({ children, onSort, sortConfig, onEdit
             <tr key={index} onClick={() => onRowClick(child)}>
               <td className="border border-[#CCCCCC] px-4 py-2 cursor-pointer">{child.id}</td>
               <td className="border border-[#CCCCCC] px-4 py-2">
-                {`${child.first_name || ''} ${child.last_name || ''} ${child.middle_name || ''}`.trim()}
+                {`${child.first_name || ''} ${child.last_name || ''} ${child.middle_name || ''} ${child.suffix || ''}`.trim()}
               </td>
               <td className="border border-[#CCCCCC] px-4 py-2">{child.age}</td>
               <td className="border border-[#CCCCCC] px-4 py-2">{child.sex}</td>

@@ -4,13 +4,16 @@ const { Model } = require("sequelize");
 module.exports = (sequelize, DataTypes) => {
   class Child extends Model {
     static associate(models) {
-      // Define associations here
+      Child.hasMany(models.childImmunizationRecord, {
+        foreignKey: "child_id",
+        as: "immunizationRecords",
+      });
     }
   }
 
   Child.init(
     {
-      id: {
+      child_id: {
         type: DataTypes.INTEGER,
         autoIncrement: true,
         primaryKey: true,
@@ -31,6 +34,13 @@ module.exports = (sequelize, DataTypes) => {
         },
       },
       middle_name: {
+        type: DataTypes.STRING,
+        allowNull: true,
+        validate: {
+          notEmpty: true,
+        },
+      },
+      suffix: {
         type: DataTypes.STRING,
         allowNull: true,
         validate: {
@@ -136,12 +146,35 @@ module.exports = (sequelize, DataTypes) => {
           isFloat: true,
         },
       },
+      mothers_name: {
+        type: DataTypes.STRING,
+        allowNull: true,
+        validate: {
+          notEmpty: true,
+        },
+      },
+      fathers_name: {
+        type: DataTypes.STRING,
+        allowNull: true,
+        validate: {
+          notEmpty: true,
+        },
+      },
+      family_number: {
+        type: DataTypes.STRING,
+        allowNull: true,
+        validate: {
+          notEmpty: true,
+        },
+      },
     },
     {
       sequelize,
       modelName: "Child",
       tableName: "children",
-      timestamps: false,
+      timestamps: true,
+      createdAt: "created_at",
+      updatedAt: "updated_at",
     }
   );
 
