@@ -21,6 +21,10 @@ module.exports = {
         type: Sequelize.STRING,
         allowNull: true,
       },
+      suffix: {
+        type: Sequelize.STRING,
+        allowNull: true,
+      },
       age: {
         type: Sequelize.INTEGER,
         allowNull: false,
@@ -31,6 +35,22 @@ module.exports = {
       },
       birthdate: {
         type: Sequelize.DATE,
+        allowNull: false,
+      },
+      barangay: {
+        type: Sequelize.STRING,
+        allowNull: false,
+      },
+      mothers_name: {
+        type: Sequelize.STRING,
+        allowNull: false,
+      },
+      fathers_name: {
+        type: Sequelize.STRING,
+        allowNull: false,
+      },
+      family_number: {
+        type: Sequelize.STRING,
         allowNull: false,
       },
       purok: {
@@ -86,6 +106,14 @@ module.exports = {
       weightAtBirth: {
         type: Sequelize.FLOAT,
         allowNull: true,
+      },
+      created_at: {
+        type: Sequelize.DATE,
+        allowNull: false,
+      },
+      updated_at: {
+        type: Sequelize.DATE,
+        allowNull: false,
       },
     });
   },

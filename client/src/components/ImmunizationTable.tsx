@@ -1,30 +1,8 @@
-import React from 'react';
+import React, { useState } from 'react';
 import Image from 'next/image';
-
-
-interface Immunization {
-  record_id: number;
-  suffix: string;
-  date_of_birth: string;
-  place_of_birth: string;
-  address: string;
-  mother_name: string;
-  father_name: string;
-  birth_height: number;
-  birth_weight: number;
-  sex: string;
-  health_center: string;
-  barangay: string;
-  family_number: string;
-  child: {
-    first_name: string;
-    middle_name: string;
-    last_name: string;
-    suffix: string;
-    sex: string;
-    dateOfBirth: string;
-  };
-}
+import { Immunization } from '@/types/Immunization';
+import SweetAlert from './SweetAlert';
+import ImmunizationModal from './ImmunizationModal';
 
 interface TableProps {
   immunizations: Immunization[];
@@ -33,9 +11,26 @@ interface TableProps {
   onEdit: (immunization: Immunization) => void;
   onArchive: (immunization: Immunization) => void;
   onRowClick: (immunization: Immunization) => void;
+  onViewDetails: (immunization: Immunization) => void;
 }
 
-const ImmunizationTable: React.FC<TableProps> = ({ immunizations, onSort, sortConfig, onEdit, onArchive, onRowClick }) => {
+const ImmunizationTable: React.FC<TableProps> = ({ immunizations, onSort, sortConfig, onEdit, onArchive, onRowClick, onViewDetails }) => {
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [selectedImmunization, setSelectedImmunization] = useState<Immunization | null>(null);
+
+  const handleEditClick = async (immunization: Immunization) => {
+    const isConfirmed = await SweetAlert.showConfirm("Do you want to edit this immunization?");
+    if (isConfirmed) {
+      setSelectedImmunization(immunization);
+      setIsModalOpen(true);
+    }
+  };
+
+  const handleSave = (updatedImmunization: Immunization) => {
+    onEdit(updatedImmunization);
+    setIsModalOpen(false);
+  };
+
   console.log(immunizations);
 
   return (
@@ -62,14 +57,14 @@ const ImmunizationTable: React.FC<TableProps> = ({ immunizations, onSort, sortCo
         </thead>
         <tbody className="text-center">
           {immunizations.map((immunization, index) => (
-            <tr key={index} onClick={() => onRowClick(immunization)}>
-              <td className="border border-[#CCCCCC] px-4 py-2 cursor-pointer">{immunization.record_id}</td>
-              <td className="border border-[#CCCCCC] px-4 py-2">{`${immunization.child.first_name || ''} ${immunization.child.middle_name || ''} ${immunization.child.last_name || ''} ${immunization.child.suffix || ''}`.trim()}</td>
-              <td className="border border-[#CCCCCC] px-4 py-2">{immunization.child.sex}</td>
-              <td className="border border-[#CCCCCC] px-4 py-2">{immunization.child.dateOfBirth}</td>
-              <td className="border border-[#CCCCCC] px-4 py-2">{immunization.health_center}</td>
-              <td className="border border-[#CCCCCC] px-4 py-2">{immunization.barangay}</td>
-              <td className="border border-[#CCCCCC] px-4 py-2">{immunization.family_number}</td>
+            <tr key={index}>
+              <td className="border border-[#CCCCCC] px-4 py-2 cursor-pointer" onClick={() => onViewDetails(immunization)}>{immunization.record_id}</td>
+              <td className="border border-[#CCCCCC] px-4 py-2 cursor-pointer" onClick={() => onViewDetails(immunization)}>{`${immunization.child.first_name || ''} ${immunization.child.middle_name || ''} ${immunization.child.last_name || ''} ${immunization.child.suffix || ''}`.trim()}</td>
+              <td className="border border-[#CCCCCC] px-4 py-2 cursor-pointer" onClick={() => onViewDetails(immunization)}>{immunization.child.sex}</td>
+              <td className="border border-[#CCCCCC] px-4 py-2 cursor-pointer" onClick={() => onViewDetails(immunization)}>{immunization.child.dateOfBirth}</td>
+              <td className="border border-[#CCCCCC] px-4 py-2 cursor-pointer" onClick={() => onViewDetails(immunization)}>{immunization.health_center}</td>
+              <td className="border border-[#CCCCCC] px-4 py-2 cursor-pointer" onClick={() => onViewDetails(immunization)}>{immunization.barangay}</td>
+              <td className="border border-[#CCCCCC] px-4 py-2 cursor-pointer" onClick={() => onViewDetails(immunization)}>{immunization.family_number}</td>
               <td className="border py-2 flex flex-row justify-center gap-2">
                 <Image
                   src="/svg/edit.svg"
@@ -78,7 +73,7 @@ const ImmunizationTable: React.FC<TableProps> = ({ immunizations, onSort, sortCo
                   height={20}
                   onClick={(e) => {
                     e.stopPropagation();
-                    onEdit(immunization);
+                    handleEditClick(immunization);
                   }}
                 />
                 <Image
@@ -96,6 +91,13 @@ const ImmunizationTable: React.FC<TableProps> = ({ immunizations, onSort, sortCo
           ))}
         </tbody>
       </table>
+      {isModalOpen && selectedImmunization && (
+        <ImmunizationModal
+          onClose={() => setIsModalOpen(false)}
+          immunization={selectedImmunization}
+          onSave={handleSave}
+        />
+      )}
     </div>
   );
 };
