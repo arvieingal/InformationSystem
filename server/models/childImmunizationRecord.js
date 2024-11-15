@@ -52,6 +52,14 @@ module.exports = (sequelize, DataTypes) => {
         type: DataTypes.DATE,
         allowNull: true,
       },
+      dose_number: {
+        type: DataTypes.INTEGER,
+        allowNull: true,
+      },
+      health_center: {
+        type: DataTypes.STRING(100),
+        allowNull: true,
+      },
       administered_date: {
         type: DataTypes.DATE,
         allowNull: true,
