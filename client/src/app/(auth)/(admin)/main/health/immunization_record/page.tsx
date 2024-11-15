@@ -8,38 +8,7 @@ import SweetAlert from '@/components/SweetAlert';
 import SearchBar from '@/components/SearchBar';
 import Pagination from '@/components/Pagination';
 import PersonModal from '@/components/PersonModal';
-
-interface VaccineDose {
-  administered_by: string;
-  sideEffects: string;
-  location: string;
-  vaccine_type: string;
-  dose_description: string;
-  scheduled_date: string;
-  administered_date: string;
-}
-
-interface Immunization {
-  record_id: number;
-  first_name: string;
-  last_name: string;
-  middle_name: string;
-  suffix: string;
-  date_of_birth: string;
-  place_of_birth: string;
-  address: string;
-  mother_name: string;
-  father_name: string;
-  birth_height: number;
-  birth_weight: number;
-  sex: string;
-  health_center: string;
-  barangay: string;
-  family_number: string;
-  
-  // Related vaccineDose records (can be an array)
-  vaccineDoses: VaccineDose[];
-}
+import { Immunization } from '@/types/Immunization';
 
 const ImmunizationRecord: React.FC = () => {
   const router = useRouter();
@@ -49,9 +18,28 @@ const ImmunizationRecord: React.FC = () => {
   const [isFilterDropdownOpen, setIsFilterDropdownOpen] = useState<boolean>(false);
   const [isAddModalOpen, setIsAddModalOpen] = useState<boolean>(false);
   const [selectedImmunization, setSelectedImmunization] = useState<Immunization | null>(null);
+  const [isViewModalOpen, setIsViewModalOpen] = useState<boolean>(false);
   const itemsPerPage = 15;
 
   const addModalRef = useRef<HTMLDivElement>(null);
+
+  const [formData, setFormData] = useState({
+    first_name: '',
+    last_name: '',
+    middle_name: '',
+    suffix: '',
+    date_of_birth: '',
+    place_of_birth: '',
+    address: '',
+    mother_name: '',
+    father_name: '',
+    birth_height: '',
+    birth_weight: '',
+    sex: '',
+    health_center: '',
+    barangay: '',
+    family_number: '',
+  });
 
   useEffect(() => {
     const fetchImmunizations = async () => {
@@ -151,6 +139,37 @@ const ImmunizationRecord: React.FC = () => {
     setIsAddModalOpen(true);
   };
 
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { name, value } = e.target;
+    setFormData({ ...formData, [name]: value });
+  };
+
+  const handleSubmit = async () => {
+    try {
+      const response = await fetch('http://localhost:3001/api/childImmunizationRecords', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(formData),
+      });
+
+      if (response.ok) {
+        console.log('Data successfully added to the database');
+        setIsAddModalOpen(false);
+      } else {
+        console.error('Failed to add data to the database');
+      }
+    } catch (error) {
+      console.error('Error adding data to the database:', error);
+    }
+  };
+
+  const handleViewDetails = (immunization: Immunization) => {
+    setSelectedImmunization(immunization);
+    setIsViewModalOpen(true);
+  };
+
   return (
     <>
       <div className="flex flex-row md:flex md:flex-row justify-center gap-[3rem] mt-[2rem]">
@@ -209,6 +228,7 @@ const ImmunizationRecord: React.FC = () => {
           onEdit={() => {/* handle edit logic here */}}
           onArchive={() => {/* handle archive logic here */}}
           onRowClick={handleRowClick}
+          onViewDetails={handleViewDetails}
         />
       </div>
       <Pagination
@@ -234,8 +254,9 @@ const ImmunizationRecord: React.FC = () => {
                   <input
                     className="w-full outline-none"
                     type="text"
-                    value={selectedImmunization.first_name}
-                    readOnly
+                    name="first_name"
+                    value={formData.first_name}
+                    onChange={handleInputChange}
                   />
                 </div>
               </div>
@@ -245,8 +266,9 @@ const ImmunizationRecord: React.FC = () => {
                   <input
                     className="w-full outline-none"
                     type="text"
-                    value={selectedImmunization.last_name}
-                    readOnly
+                    name="last_name"
+                    value={formData.last_name}
+                    onChange={handleInputChange}
                   />
                 </div>
               </div>
@@ -256,8 +278,9 @@ const ImmunizationRecord: React.FC = () => {
                   <input
                     className="w-full outline-none"
                     type="text"
-                    value={selectedImmunization.middle_name}
-                    readOnly
+                    name="middle_name"
+                    value={formData.middle_name}
+                    onChange={handleInputChange}
                   />
                 </div>
               </div>
@@ -267,8 +290,9 @@ const ImmunizationRecord: React.FC = () => {
                   <input
                     className="w-full outline-none"
                     type="text"
-                    value={selectedImmunization.suffix}
-                    readOnly
+                    name="suffix"
+                    value={formData.suffix}
+                    onChange={handleInputChange}
                   />
                 </div>
               </div>
@@ -278,8 +302,9 @@ const ImmunizationRecord: React.FC = () => {
                   <input
                     className="w-full outline-none"
                     type="text"
-                    value={selectedImmunization.date_of_birth}
-                    readOnly
+                    name="date_of_birth"
+                    value={formData.date_of_birth}
+                    onChange={handleInputChange}
                   />
                 </div>
               </div>
@@ -289,8 +314,9 @@ const ImmunizationRecord: React.FC = () => {
                   <input
                     className="w-full outline-none"
                     type="text"
-                    value={selectedImmunization.place_of_birth}
-                    readOnly
+                    name="place_of_birth"
+                    value={formData.place_of_birth}
+                    onChange={handleInputChange}
                   />
                 </div>
               </div>
@@ -300,8 +326,9 @@ const ImmunizationRecord: React.FC = () => {
                   <input
                     className="w-full outline-none"
                     type="text"
-                    value={selectedImmunization.address}
-                    readOnly
+                    name="address"
+                    value={formData.address}
+                    onChange={handleInputChange}
                   />
                 </div>
               </div>
@@ -311,8 +338,9 @@ const ImmunizationRecord: React.FC = () => {
                   <input
                     className="w-full outline-none"
                     type="text"
-                    value={selectedImmunization.mother_name}
-                    readOnly
+                    name="mother_name"
+                    value={formData.mother_name}
+                    onChange={handleInputChange}
                   />
                 </div>
               </div>
@@ -322,8 +350,9 @@ const ImmunizationRecord: React.FC = () => {
                   <input
                     className="w-full outline-none"
                     type="text"
-                    value={selectedImmunization.father_name}
-                    readOnly
+                    name="father_name"
+                    value={formData.father_name}
+                    onChange={handleInputChange}
                   />
                 </div>
               </div>
@@ -333,8 +362,9 @@ const ImmunizationRecord: React.FC = () => {
                   <input
                     className="w-full outline-none"
                     type="text"
-                    value={selectedImmunization.birth_height}
-                    readOnly
+                    name="birth_height"
+                    value={formData.birth_height}
+                    onChange={handleInputChange}
                   />
                 </div>
               </div>
@@ -344,8 +374,9 @@ const ImmunizationRecord: React.FC = () => {
                   <input
                     className="w-full outline-none"
                     type="text"
-                    value={selectedImmunization.birth_weight}
-                    readOnly
+                    name="birth_weight"
+                    value={formData.birth_weight}
+                    onChange={handleInputChange}
                   />
                 </div>
               </div>
@@ -355,8 +386,9 @@ const ImmunizationRecord: React.FC = () => {
                   <input
                     className="w-full outline-none"
                     type="text"
-                    value={selectedImmunization.sex}
-                    readOnly
+                    name="sex"
+                    value={formData.sex}
+                    onChange={handleInputChange}
                   />
                 </div>
               </div>
@@ -366,8 +398,9 @@ const ImmunizationRecord: React.FC = () => {
                   <input
                     className="w-full outline-none"
                     type="text"
-                    value={selectedImmunization.health_center}
-                    readOnly
+                    name="health_center"
+                    value={formData.health_center}
+                    onChange={handleInputChange}
                   />
                 </div>
               </div>
@@ -377,8 +410,9 @@ const ImmunizationRecord: React.FC = () => {
                   <input
                     className="w-full outline-none"
                     type="text"
-                    value={selectedImmunization.barangay}
-                    readOnly
+                    name="barangay"
+                    value={formData.barangay}
+                    onChange={handleInputChange}
                   />
                 </div>
               </div>
@@ -388,12 +422,41 @@ const ImmunizationRecord: React.FC = () => {
                   <input
                     className="w-full outline-none"
                     type="text"
-                    value={selectedImmunization.family_number}
-                    readOnly
+                    name="family_number"
+                    value={formData.family_number}
+                    onChange={handleInputChange}
                   />
                 </div>
               </div>
+              <button onClick={handleSubmit}>Submit</button>
             </div>
+          </div>
+        </PersonModal>
+      )}
+
+      {isViewModalOpen && selectedImmunization && (
+        <PersonModal onClose={() => setIsViewModalOpen(false)}>
+          <div className="p-4 relative">
+            <button
+              className="absolute top-[-4.7rem] right-[-3.4rem] text-gray-500 hover:text-gray-700 p-4 text-[4rem]"
+              onClick={() => setIsViewModalOpen(false)}
+            >
+              &times;
+            </button>
+            <h2 className="text-lg font-semibold">Immunization Record Details</h2>
+            <p>First Name: {selectedImmunization.child.first_name}</p>
+            <p>Last Name: {selectedImmunization.child.last_name}</p>
+            <p>Sex: {selectedImmunization.child.sex}</p>
+            <p>Date of Birth: {selectedImmunization.child.dateOfBirth}</p>
+            <p>Health Center: {selectedImmunization.health_center}</p>
+            <p>Barangay: {selectedImmunization.barangay}</p>
+            <p>Family Number: {selectedImmunization.family_number}</p>
+            <button
+              className="mt-4 bg-[#007F73] text-white px-4 py-2 rounded "
+              onClick={() => setIsViewModalOpen(false)}
+            >
+              OK
+            </button>
           </div>
         </PersonModal>
       )}

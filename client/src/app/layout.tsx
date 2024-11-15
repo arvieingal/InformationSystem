@@ -5,6 +5,11 @@ import ProvidersWrappers from "@/components/ProvidersWrappers";
 export const metadata: Metadata = {
   title: "Brgy.Luz Information System",
   description: "Brgy.Luz Information System",
+  icons: {
+    icon: ["/favicon.ico?v=4", "/svg/logo.svg"],
+    apple: ["/apple-touch-icon.png?v=4", "/svg/logo.svg"],
+    shortcut: ["/apple-touch-icon.png", "/svg/logo.svg"],
+  },
 };
 
 export default function RootLayout({

@@ -15,7 +15,7 @@ import { Child as ChildTableChild } from "@/components/ChildTable";
 export interface Child {
   dateOfBirth: string;
   placeOfBirth: string;
-  id: number;
+  child_id: number;
   name: string;
   age: number;
   sex: string;
@@ -44,7 +44,7 @@ export interface Child {
 interface ChildFormData {
   placeOfBirth: string;
   dateOfBirth: string;
-  id?: number;
+  child_id?: number;
   first_name: string;
   middle_name: string;
   last_name: string;
@@ -174,7 +174,7 @@ const NutritionalStatus: React.FC = () => {
         if (response.ok) {
           const data: Child[] = await response.json();
           const filteredData = data.filter(
-            (child) => !archivedChildren.includes(child.id)
+            (child) => !archivedChildren.includes(child.child_id)
           );
           setChildren(filteredData);
           setOriginalChildren(filteredData);
@@ -215,6 +215,7 @@ const NutritionalStatus: React.FC = () => {
   };
   const handleRowClick = (child: Child) => {
     setSelectedChild({
+      child_id: child.child_id,
       first_name: child.first_name || "",
       middle_name: child.middle_name || "",
       last_name: child.last_name || "",
@@ -241,12 +242,12 @@ const NutritionalStatus: React.FC = () => {
 
   async function handleEditClick(child: ChildTableChild): Promise<void> {
     const confirmEdit = await SweetAlert.showConfirm(
-      ` <p> Are you sure you want to edit this child with ID: <span class="font-bold">${child.id}</span>?</p>`
+      ` <p> Are you sure you want to edit this child with ID: <span class="font-bold">${child.child_id}</span>?</p>`
     );
 
     if (confirmEdit) {
       setSelectedChild({
-        ...child,
+        child_id: child.child_id,
         first_name: child.first_name || "",
         middle_name: child.middle_name || "",
         last_name: child.last_name || "",
@@ -273,12 +274,12 @@ const NutritionalStatus: React.FC = () => {
 
   async function handleArchiveClick(child: Child): Promise<void> {
     const confirmArchive = await SweetAlert.showConfirm(
-      `<p>Are you sure you want to archive this child with ID: <span class="font-bold">${child.id}</span>?</p>`
+      `<p>Are you sure you want to archive this child with ID: <span class="font-bold">${child.child_id}</span>?</p>`
     );
     if (confirmArchive) {
       try {
         const response = await fetch(
-          `http://localhost:3001/api/children/${child.id}`,
+          `http://localhost:3001/api/children/${child.child_id}`,
           {
             method: "PUT",
             headers: {
@@ -289,8 +290,8 @@ const NutritionalStatus: React.FC = () => {
         );
 
         if (response.ok) {
-          setArchivedChildren((prevArchived) => [...prevArchived, child.id]);
-          console.log(`Child with ID: ${child.id} archived.`);
+          setArchivedChildren((prevArchived) => [...prevArchived, child.child_id]);
+          console.log(`Child with ID: ${child.child_id} archived.`);
         } else {
           console.error("Failed to archive child.");
         }
@@ -364,32 +365,35 @@ const NutritionalStatus: React.FC = () => {
   const handleSearch = (query: string) => {
     const lowerCaseQuery = query.toLowerCase();
     const filteredChildren = originalChildren.filter((child) => {
+      const fullName = `${child.first_name || ''} ${child.middle_name || ''} ${child.last_name || ''} ${child.suffix || ''}`.toLowerCase();
+      
+      // Check if the query matches any of the child's properties
       const matchesQuery = 
-        child.id.toString().includes(lowerCaseQuery) ||
-        (child.name && child.name.toLowerCase().includes(lowerCaseQuery)) ||
-        child.age.toString().includes(lowerCaseQuery) ||
-        child.sex.toLowerCase().includes(lowerCaseQuery) ||
-        child.birthdate.includes(lowerCaseQuery) ||
-        child.heightCm.toString().includes(lowerCaseQuery) ||
-        child.weightKg.toString().includes(lowerCaseQuery) ||
-        child.nutritionalStatus.toLowerCase().includes(lowerCaseQuery) ||
-        (child.address && child.address.toLowerCase().includes(lowerCaseQuery)) ||
-        (child.purok && child.purok.toLowerCase().includes(lowerCaseQuery)) ||
-        (child.weightAtBirth && child.weightAtBirth.includes(lowerCaseQuery)) ||
-        (child.heightAtBirth && child.heightAtBirth.includes(lowerCaseQuery)) ||
-        (child.currentWeight && child.currentWeight.includes(lowerCaseQuery)) ||
-        (child.currentHeight && child.currentHeight.includes(lowerCaseQuery));
+          child.child_id.toString().includes(lowerCaseQuery) ||
+          fullName.includes(lowerCaseQuery) ||
+          child.age.toString().includes(lowerCaseQuery) ||
+          child.sex.toLowerCase() === lowerCaseQuery || // Ensure exact match for sex
+          child.birthdate.includes(lowerCaseQuery) ||
+          child.heightCm.toString().includes(lowerCaseQuery) ||
+          child.weightKg.toString().includes(lowerCaseQuery) ||
+          child.nutritionalStatus.toLowerCase().includes(lowerCaseQuery) ||
+          (child.address && child.address.toLowerCase().includes(lowerCaseQuery)) ||
+          (child.purok && child.purok.toLowerCase().includes(lowerCaseQuery)) ||
+          (child.weightAtBirth && child.weightAtBirth.toString().includes(lowerCaseQuery)) ||
+          (child.heightAtBirth && child.heightAtBirth.toString().includes(lowerCaseQuery)) ||
+          (child.currentWeight && child.currentWeight.toString().includes(lowerCaseQuery)) ||
+          (child.currentHeight && child.currentHeight.toString().includes(lowerCaseQuery));
 
-      const matchesFilter = 
-        (!filterCriteria.age || child.age.toString() === filterCriteria.age) &&
-        (!filterCriteria.sex || child.sex === filterCriteria.sex) &&
-        (!filterCriteria.birthdate || child.birthdate === filterCriteria.birthdate) &&
-        (!filterCriteria.height || child.heightCm.toString() === filterCriteria.height) &&
-        (!filterCriteria.weight || child.weightKg.toString() === filterCriteria.weight) &&
-        (!filterCriteria.nutritionalStatus || child.nutritionalStatus === filterCriteria.nutritionalStatus) &&
-        (filterCriteria.archived === archivedChildren.includes(child.id));
+        const matchesFilter = 
+            (!filterCriteria.age || child.age.toString() === filterCriteria.age) &&
+            (!filterCriteria.sex || child.sex.toLowerCase() === filterCriteria.sex.toLowerCase()) &&
+            (!filterCriteria.birthdate || child.birthdate === filterCriteria.birthdate) &&
+            (!filterCriteria.height || child.heightCm.toString() === filterCriteria.height) &&
+            (!filterCriteria.weight || child.weightKg.toString() === filterCriteria.weight) &&
+            (!filterCriteria.nutritionalStatus || child.nutritionalStatus === filterCriteria.nutritionalStatus) &&
+            (filterCriteria.archived === archivedChildren.includes(child.child_id));
 
-      return matchesQuery && matchesFilter;
+        return matchesQuery && matchesFilter;
     });
     setChildren(filteredChildren);
   };
@@ -445,14 +449,14 @@ const NutritionalStatus: React.FC = () => {
   };
 
   useEffect(() => {
-    if (isEditModalOpen && selectedChild.id) {
-      fetchChildById(selectedChild.id);
+    if (isEditModalOpen && selectedChild.child_id) {
+        fetchChildById(selectedChild.child_id);
     }
-  }, [isEditModalOpen, selectedChild.id]);
+  }, [isEditModalOpen, selectedChild.child_id]);
 
   async function handleUpdateChild() {
     try {
-      const response = await fetch(`/api/children/${selectedChild.id}`, {
+      const response = await fetch(`/api/children/${selectedChild.child_id}`, {
         method: "PUT",
         headers: {
           "Content-Type": "application/json",
@@ -467,7 +471,7 @@ const NutritionalStatus: React.FC = () => {
         // Optionally, update the children list in the state
         setChildren((prevChildren) =>
           prevChildren.map((child) =>
-            child.id === updatedChild.id ? updatedChild : child
+            child.child_id === updatedChild.child_id ? updatedChild : child
           )
         );
       } else {
@@ -481,6 +485,7 @@ const NutritionalStatus: React.FC = () => {
   const handleAddModalOpen = () => {
     // Reset selectedChild to empty values for a new entry
     setSelectedChild({
+      
       first_name: "",
       middle_name: "",
       last_name: "",
@@ -906,16 +911,7 @@ const NutritionalStatus: React.FC = () => {
                 <div className="border border-gray-300 rounded-md p-1 flex items-center">
                   <DatePicker
                     selected={parseDate(selectedChild.birthdate)}
-                    onChange={(date: Date | null) =>
-                      setSelectedChild({
-                        ...selectedChild,
-                        birthdate: date ? date.toLocaleDateString("en-US", {
-                          month: "long",
-                          day: "numeric",
-                          year: "numeric",
-                        }) : "",
-                      })
-                    }
+                    onChange={handleDateChange}
                     dateFormat="MMMM d, yyyy"
                     className="w-full outline-none"
                     customInput={

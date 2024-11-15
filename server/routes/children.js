@@ -20,10 +20,10 @@ router.get('/children', async (req, res) => {
   }
 });
 
-// GET /api/children/:id - Fetch a child by ID
-router.get('/children/:id', async (req, res) => {
+// GET /api/children/:child_id - Fetch a child by ID
+router.get('/children/:child_id', async (req, res) => {
   try {
-    const child = await db.Child.findByPk(req.params.id); 
+    const child = await db.Child.findByPk(req.params.child_id); 
     if (child) {
       res.json(child);
     } else {
@@ -96,10 +96,10 @@ router.post('/add/children', async (req, res) => {
   }
 });
 
-// PUT /api/children/:id - Update a child by ID
-router.put('/children/:id', async (req, res) => {
+// PUT /api/children/:child_id - Update a child by ID
+router.put('/children/:child_id', async (req, res) => {
   try {
-    const child = await db.Child.findByPk(req.params.id);
+    const child = await db.Child.findByPk(req.params.child_id);
     if (child) {
       await child.update(req.body);
       res.json(child);
