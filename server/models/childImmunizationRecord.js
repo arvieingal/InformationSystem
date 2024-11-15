@@ -2,16 +2,16 @@
 const { Model } = require("sequelize");
 
 module.exports = (sequelize, DataTypes) => {
-    class childImmunizationRecord extends Model {
-        static associate(models) {
-          childImmunizationRecord.belongsTo(models.Child, {
-            foreignKey: "child_id",
-            as: "child",
-          });
-        }
-      }
-      
- childImmunizationRecord.init(
+  class ChildImmunizationRecord extends Model {
+    static associate(models) {
+      ChildImmunizationRecord.belongsTo(models.Child, {
+        foreignKey: "child_id",
+        as: "child",
+      });
+    }
+  }
+
+  ChildImmunizationRecord.init(
     {
       record_id: {
         type: DataTypes.INTEGER,
@@ -95,5 +95,5 @@ module.exports = (sequelize, DataTypes) => {
     }
   );
 
-  return childImmunizationRecord;
+  return ChildImmunizationRecord;
 };

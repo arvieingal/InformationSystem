@@ -10,13 +10,13 @@ module.exports = {
         primaryKey: true,
         allowNull: false,
       },
-      family_id: {
+      household_number: {
         type: Sequelize.INTEGER,
-        references: {
-          model: 'families', // Name of the table in the database
-          key: 'family_id'
-        },
         allowNull: false,
+        references: {
+          model: 'household_head', // Name of the table in the database
+          key: 'household_number'
+        },
         onDelete: 'CASCADE'
       },
       family_name: {

@@ -1,10 +1,10 @@
 const express = require("express");
 const router = express.Router();
-const { childImmunizationRecord, Child } = require("../models");
+const { ChildImmunizationRecord, Child } = require("../models");
 
-router.get("/childImmunizationRecords", async (req, res) => {
+router.get("/child-immunization-records", async (req, res) => {
   try {
-    const records = await childImmunizationRecord.findAll({
+    const records = await ChildImmunizationRecord.findAll({
       include: [
         {
           model: Child,

@@ -2,17 +2,17 @@
 const { Model } = require("sequelize");
 
 module.exports = (sequelize, DataTypes) => {
-  class FamilyMember extends Model {
+  class HouseholdMember extends Model {
     static associate(models) {
       // Define associations here if needed
-      FamilyMember.belongsTo(models.Family, {
-        foreignKey: 'family_id',
+      HouseholdMember.belongsTo(models.HouseholdHead, {
+        foreignKey: 'household_number',
         onDelete: 'CASCADE'
       });
     }
   }
 
-  FamilyMember.init(
+  HouseholdMember.init(
     {
       member_id: {
         type: DataTypes.INTEGER,
@@ -20,11 +20,11 @@ module.exports = (sequelize, DataTypes) => {
         primaryKey: true,
         allowNull: false,
       },
-      family_id: {
+      household_number: {
         type: DataTypes.INTEGER,
         references: {
           model: 'household_head', // Name of the table in the database
-          key: 'family_id'
+          key: 'household_number'
         },
         allowNull: false,
         onDelete: 'CASCADE'
@@ -154,13 +154,13 @@ module.exports = (sequelize, DataTypes) => {
     },
     {
       sequelize,
-      modelName: "FamilyMember",
-      tableName: "family_members",
+      modelName: "HouseholdMember",
+      tableName: "household_members",
       timestamps: false, // Adjust if you want to include timestamps
       createdAt: "created_at",
       updatedAt: "updated_at",
     }
   );
 
-  return FamilyMember;
+  return HouseholdMember;
 };

@@ -2,21 +2,21 @@
 const { Model } = require("sequelize");
 
 module.exports = (sequelize, DataTypes) => {
-  class Family extends Model {
+  class HouseholdHead extends Model {
     static associate(models) {
       // Define associations here if needed
     }
   }
 
-  Family.init(
+  HouseholdHead.init(
     {
-      family_id: {
+      head_id: {
         type: DataTypes.INTEGER,
         autoIncrement: true,
         primaryKey: true,
         allowNull: false,
       },
-      family_number: {
+      household_number: {
         type: DataTypes.INTEGER,
         allowNull: false,
       },
@@ -145,13 +145,13 @@ module.exports = (sequelize, DataTypes) => {
     },
     {
       sequelize,
-      modelName: "Family",
-      tableName: "families",
+      modelName: "HouseholdHead",
+      tableName: "household_head",
       timestamps: true,
       createdAt: "created_at",
       updatedAt: "updated_at",
     }
   );
 
-  return Family;
+  return HouseholdHead;
 };

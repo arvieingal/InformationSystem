@@ -3,16 +3,17 @@
 /** @type {import('sequelize-cli').Migration} */
 module.exports = {
   async up (queryInterface, Sequelize) {
-    await queryInterface.createTable('household_head', {
-      family_id: {
+    await queryInterface.createTable('household', {
+      household_id: {
         type: Sequelize.INTEGER,
         autoIncrement: true,
         primaryKey: true,
         allowNull: false,
       },
-      family_number: {
+      household_number: {
         type: Sequelize.INTEGER,
         allowNull: false,
+        unique: true,
       },
       family_name: {
         type: Sequelize.STRING(255),
