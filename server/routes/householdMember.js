@@ -2,8 +2,8 @@ const express = require("express");
 const router = express.Router();
 const { FamilyMember } = require("../models");
 
-// Create a new family
-router.post("/family-members", async (req, res) => {
+// Create a new household member
+router.post("/household-member", async (req, res) => {
   try {
     const member = await FamilyMember.create(req.body);
     res.status(201).json(member);
@@ -12,8 +12,8 @@ router.post("/family-members", async (req, res) => {
   }
 });
 
-// Get all families
-router.get("/family-members", async (req, res) => {
+// Get all household member
+router.get("/household-member", async (req, res) => {
   try {
     const member = await FamilyMember.findAll();
     res.status(200).json(member);

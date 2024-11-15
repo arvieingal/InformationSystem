@@ -23,7 +23,7 @@ module.exports = (sequelize, DataTypes) => {
       family_id: {
         type: DataTypes.INTEGER,
         references: {
-          model: 'families', // Name of the table in the database
+          model: 'household_head', // Name of the table in the database
           key: 'family_id'
         },
         allowNull: false,

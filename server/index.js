@@ -7,8 +7,8 @@ const otpRoutes = require("./routes/otp"); // Import OTP routes
 const childrenRoutes = require("./routes/children"); // Import children routes
 const childImmunizationRoutes = require("./routes/childImmunizationRecord"); // Import child immunization routes
 const vaccineDoseRoutes = require("./routes/vaccineDose"); // Import vaccine dose routes
-const families = require("./routes/families"); // Import vaccine dose routes
-const familyMembers = require("./routes/familyMembers"); // Import vaccine dose routes
+const householdHead = require("./routes/householdHead"); // Import vaccine dose routes
+const householdMember = require("./routes/householdMember"); // Import vaccine dose routes
 const PORT = process.env.PORT || 3001;
 
 app.use(express.json());
@@ -18,8 +18,8 @@ app.use("/api", otpRoutes); // Use OTP routes with /api prefix
 app.use("/api", childrenRoutes);
 app.use("/api", childImmunizationRoutes); // Use child immunization routes with /api prefix
 app.use("/api", vaccineDoseRoutes); // Use vaccine dose routes with /api prefix
-app.use("/api", families); // Use vaccine dose routes with /api prefix
-app.use("/api", familyMembers); // Use vaccine dose routes with /api prefix
+app.use("/api", householdHead); // Use vaccine dose routes with /api prefix
+app.use("/api", householdMember); // Use vaccine dose routes with /api prefix
 const initApp = async () => {
   console.log("Testing the database connection...");
 

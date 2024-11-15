@@ -1,29 +1,9 @@
+<!-- database -->
 database_development
-#nutritional_status 
-#children
-CREATE TABLE children (
-    id INT AUTO_INCREMENT PRIMARY KEY,
-    first_name VARCHAR(255) NOT NULL,
-    last_name VARCHAR(255) NOT NULL,
-    middle_name VARCHAR(255),
-    age INT NOT NULL,
-    sex ENUM('Male', 'Female') NOT NULL,
-    birthdate DATE NOT NULL,
-    purok VARCHAR(255) NOT NULL,
-    nutritionalStatus VARCHAR(255) NOT NULL,
-    heightCm FLOAT NOT NULL,
-    weightKg FLOAT NOT NULL,
-    heightAgeZ FLOAT NOT NULL,
-    weightHeightZ FLOAT NOT NULL,
-    measurementDate DATE,
-    address VARCHAR(255) NOT NULL,
-    status ENUM('Active', 'Inactive', 'Archive') NOT NULL DEFAULT 'Active',
-    dateOfBirth DATE,
-    placeOfBirth VARCHAR(255),
-    heightAtBirth FLOAT,
-    weightAtBirth FLOAT
-    
-);
+
+<!-- nutritional_status  -->
+<!-- children -->
+
 INSERT INTO children (first_name, last_name, middle_name, suffix, age, sex, birthdate, purok, nutritionalStatus, heightCm, weightKg, heightAgeZ, weightHeightZ, measurementDate, address, status, dateOfBirth, placeOfBirth, heightAtBirth, weightAtBirth) VALUES
 ('John', 'Doe', 'A', 'Jr.', 5, 'Male', '2018-06-15', 'Purok 1', 'Normal', 110.5, 18.2, 0.5, 0.3, '2023-06-15', '123 Main St', 'Active', '2018-06-15', 'City Hospital', 50.0, 3.2),
 ('Jane', 'Smith', 'B', '', 6, 'Female', '2017-07-20', 'Purok 2', 'Underweight', 115.0, 17.0, -0.2, -0.5, '2023-07-20', '456 Elm St', 'Active', '2017-07-20', 'City Hospital', 48.5, 3.0),
@@ -76,7 +56,7 @@ INSERT INTO children (first_name, last_name, middle_name, suffix, age, sex, birt
 ('Uma', 'Stewart', 'W', '', 13, 'Female', '2010-07-15', 'Purok 49', 'Overweight', 155.0, 45.0, 1.1, 1.3, '2023-07-15', '4646 Birch St', 'Active', '2010-07-15', 'City Hospital', 51.5, 3.6),
 ('Victor', 'Hughes', 'X', '', 14, 'Male', '2009-10-19', 'Purok 50', 'Normal', 160.0, 50.0, 0.4, 0.5, '2023-10-19', '4747 Walnut St', 'Active', '2009-10-19', 'City Hospital', 50.5, 3.3);
 
-#child_immunization_record
+<!-- child_immunization_record -->
 INSERT INTO child_immunization_records (first_name, last_name, date_of_birth, sex, health_center) VALUES
 ('John', 'Doe', '2015-06-15', 'Male', 'Health Center 1'),
 ('Jane', 'Smith', '2016-07-20', 'Female', 'Health Center 2'),
@@ -127,3 +107,4 @@ INSERT INTO child_immunization_records (first_name, last_name, date_of_birth, se
 ('Sophie', 'Edwards', '2015-01-07', 'Female', 'Health Center 2'),
 ('Tyler', 'Collins', '2014-04-11', 'Male', 'Health Center 3'),
 ('Uma', 'Stewart', '2013-07-15', 'Female', 'Health Center 1');
+
