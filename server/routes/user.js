@@ -1,11 +1,21 @@
 const express = require('express');
 const router = express.Router();
-const { User } = require('../models');
+const { User, Log } = require('../models');
+
+// Helper function to log user actions
+async function logAction(userId, action) {
+  try {
+    await Log.create({ user_id: userId, action });
+  } catch (error) {
+    console.error('Error logging action:', error);
+  }
+}
 
 // Create a new user
 router.post('/users', async (req, res) => {
   try {
     const user = await User.create(req.body);
+    await logAction(user.user_id, 'User Created');
     res.status(201).json(user);
   } catch (error) {
     res.status(500).json({ error: error.message });
@@ -39,15 +49,29 @@ router.get('/users/:id', async (req, res) => {
 // Update a user
 router.put('/users/:id', async (req, res) => {
   try {
-    const [updated] = await User.update(req.body, {
-      where: { id: req.params.id }
-    });
-    if (updated) {
-      const updatedUser = await User.findByPk(req.params.id);
-      res.status(200).json(updatedUser);
-    } else {
-      res.status(404).json({ error: 'User not found' });
+    const { id } = req.params;
+    const { username, email, password, role, status } = req.body;
+
+    // Find the user by ID
+    const user = await User.findByPk(id);
+    if (!user) {
+      return res.status(404).json({ error: 'User not found' });
     }
+
+    // Update user details
+    user.username = username || user.username;
+    user.email = email || user.email;
+    user.password = password || user.password;
+    user.role = role || user.role;
+    user.status = status || user.status;
+
+    // Save the updated user
+    await user.save();
+
+    // Log the update action
+    await logAction(id, 'User Updated');
+
+    res.status(200).json(user);
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
@@ -57,9 +81,10 @@ router.put('/users/:id', async (req, res) => {
 router.delete('/users/:id', async (req, res) => {
   try {
     const deleted = await User.destroy({
-      where: { id: req.params.id }
+      where: { user_id: req.params.id }
     });
     if (deleted) {
+      await logAction(req.params.id, 'User Deleted');
       res.status(204).json();
     } else {
       res.status(404).json({ error: 'User not found' });

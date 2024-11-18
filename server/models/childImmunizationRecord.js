@@ -22,11 +22,7 @@ module.exports = (sequelize, DataTypes) => {
         type: DataTypes.STRING(100),
         allowNull: true,
       },
-      barangay: {
-        type: DataTypes.STRING(100),
-        allowNull: true,
-      },
-      dose_id: {
+      dose_number: {
         type: DataTypes.INTEGER,
         autoIncrement: true,
         primaryKey: true,
@@ -54,10 +50,6 @@ module.exports = (sequelize, DataTypes) => {
       },
       dose_number: {
         type: DataTypes.INTEGER,
-        allowNull: true,
-      },
-      health_center: {
-        type: DataTypes.STRING(100),
         allowNull: true,
       },
       administered_date: {

@@ -69,7 +69,7 @@ INSERT INTO children (
  '2003-08-20', 'City Hospital', 65.0, 7.0, 'Helen Lewis', 'Arthur Lewis', 'F020');
 
  #child_immunization_record
- INSERT INTO childImmunizationRecord (
+ INSERT INTO child_immunization_records (
   child_id, dose_number, vaccine_type, dose_description, scheduled_date, 
   administered_date, administered_by, side_effects, location, created_at, updated_at
 ) VALUES

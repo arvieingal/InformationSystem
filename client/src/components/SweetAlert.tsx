@@ -51,7 +51,7 @@ const SweetAlert = {
       customClass: {
         popup: "rounded-[25px] shadow-lg h-[250px]",
         title: "font-bold  border-b-2 text-black-900 tracking-widest",
-        cancelButton: "bg-[#E80000] text-white w-[100px] h-[35px] font-semibold mb-1 rounded-[7px] text-[14px] hover:bg-red-800 mr-[12px]",
+        cancelButton: "bg-[#9b2c2c] text-white w-[100px] h-[35px] font-semibold mb-1 rounded-[7px] text-[14px] hover:bg-red-800 mr-[12px]",
         confirmButton: "bg-[#24968B] text-white w-[100px] h-[35px] font-semibold mb-1 rounded-[7px] hover:bg-green-900 ml-1 outline-none",
       },
       buttonsStyling: false

@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import Image from 'next/image';
+import { formatDate } from './formatDate';
 
 // src/types/Child.ts
 export interface Child {
@@ -72,7 +73,7 @@ const ChildTable: React.FC<TableProps> = ({ children, onSort, sortConfig, onEdit
               </td>
               <td className="border border-[#CCCCCC] px-4 py-2">{child.age}</td>
               <td className="border border-[#CCCCCC] px-4 py-2">{child.sex}</td>
-              <td className="border border-[#CCCCCC] px-4 py-2">{child.birthdate}</td>
+              <td className="border border-[#CCCCCC] px-4 py-2">{formatDate(child.birthdate)}</td>
               <td className="border border-[#CCCCCC] px-4 py-2">{child.heightCm}</td>
               <td className="border border-[#CCCCCC] px-4 py-2">{child.weightKg}</td>
               <td className="border border-[#CCCCCC] px-4 py-2">{child.nutritionalStatus}</td>

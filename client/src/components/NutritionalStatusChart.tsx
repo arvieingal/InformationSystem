@@ -7,14 +7,21 @@ Chart.register(ArcElement);
 
 interface NutritionalStatusChartProps {
   title: string;
+  nutritionalData: any[];
 }
 
-export default function NutritionalStatusChart({ title }: NutritionalStatusChartProps) {
+export default function NutritionalStatusChart({ title, nutritionalData }: NutritionalStatusChartProps) {
+  // Map the nutritional data to the format expected by the chart
   const data: ChartData<'doughnut'> = {
     labels: ['Normal', 'Underweight', 'Overweight', 'Obese'],
     datasets: [
       {
-        data: [50, 25, 10, 15],
+        data: [
+          nutritionalData.filter(item => item.nutritionalStatus === 'Normal').length,
+          nutritionalData.filter(item => item.nutritionalStatus === 'Underweight').length,
+          nutritionalData.filter(item => item.nutritionalStatus === 'Overweight').length,
+          nutritionalData.filter(item => item.nutritionalStatus === 'Obese').length,
+        ],
         backgroundColor: ['#338A80', '#85D0C8', '#C2E7C5', '#D7EFB1'],
       },
     ],

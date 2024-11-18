@@ -17,14 +17,6 @@ module.exports = {
         type: Sequelize.STRING,
         allowNull: false,
       },
-      middle_name: {
-        type: Sequelize.STRING,
-        allowNull: true,
-      },
-      suffix: {
-        type: Sequelize.STRING,
-        allowNull: true,
-      },
       age: {
         type: Sequelize.INTEGER,
         allowNull: false,
@@ -37,30 +29,6 @@ module.exports = {
         type: Sequelize.DATE,
         allowNull: false,
       },
-      barangay: {
-        type: Sequelize.STRING,
-        allowNull: false,
-      },
-      mothers_name: {
-        type: Sequelize.STRING,
-        allowNull: false,
-      },
-      fathers_name: {
-        type: Sequelize.STRING,
-        allowNull: false,
-      },
-      family_number: {
-        type: Sequelize.STRING,
-        allowNull: false,
-      },
-      purok: {
-        type: Sequelize.STRING,
-        allowNull: false,
-      },
-      nutritionalStatus: {
-        type: Sequelize.STRING,
-        allowNull: false,
-      },
       heightCm: {
         type: Sequelize.FLOAT,
         allowNull: false,
@@ -69,50 +37,8 @@ module.exports = {
         type: Sequelize.FLOAT,
         allowNull: false,
       },
-      heightAgeZ: {
-        type: Sequelize.FLOAT,
-        allowNull: false,
-      },
-      weightHeightZ: {
-        type: Sequelize.FLOAT,
-        allowNull: false,
-      },
-      measurementDate: {
-        type: Sequelize.DATE,
-        allowNull: true,
-      },
-      address: {
+      nutritionalStatus: {
         type: Sequelize.STRING,
-        allowNull: false,
-      },
-      status: {
-        type: Sequelize.ENUM,
-        values: ["Active", "Inactive", "Archive"],
-        allowNull: false,
-        defaultValue: "Active",
-      },
-      dateOfBirth: {
-        type: Sequelize.DATE,
-        allowNull: true,
-      },
-      placeOfBirth: {
-        type: Sequelize.STRING,
-        allowNull: true,
-      },
-      heightAtBirth: {
-        type: Sequelize.FLOAT,
-        allowNull: true,
-      },
-      weightAtBirth: {
-        type: Sequelize.FLOAT,
-        allowNull: true,
-      },
-      created_at: {
-        type: Sequelize.DATE,
-        allowNull: false,
-      },
-      updated_at: {
-        type: Sequelize.DATE,
         allowNull: false,
       },
     });

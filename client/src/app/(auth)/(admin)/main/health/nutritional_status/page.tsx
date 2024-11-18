@@ -11,6 +11,7 @@ import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 import { FaCalendarAlt } from "react-icons/fa";
 import { Child as ChildTableChild } from "@/components/ChildTable";
+import { formatDate } from "@/components/formatDate";
 
 export interface Child {
   dateOfBirth: string;
@@ -206,11 +207,7 @@ const NutritionalStatus: React.FC = () => {
   const handleDateChange = (date: Date | null) => {
     setSelectedChild({
       ...selectedChild,
-      birthdate: date ? date.toLocaleDateString("en-US", {
-        month: "long",
-        day: "numeric",
-        year: "numeric",
-      }) : "",
+      birthdate: date ? formatDate(date.toISOString()) : "",
     });
   };
   const handleRowClick = (child: Child) => {
@@ -304,7 +301,7 @@ const NutritionalStatus: React.FC = () => {
   const handleClickOutside = (event: MouseEvent) => {
     if (modalRef.current && !modalRef.current.contains(event.target as Node)) {
       setIsModalOpen(false);
-      setIsEditModalOpen(false);
+      setIsEditModalOpen(true);
       setIsAddModalOpen(false);
     }
   };
@@ -455,15 +452,21 @@ const NutritionalStatus: React.FC = () => {
   }, [isEditModalOpen, selectedChild.child_id]);
 
   async function handleUpdateChild() {
+    const confirmUpdate = await SweetAlert.showConfirm(
+      `<p>Are you sure you want to update the child with ID: <span class="font-bold">${selectedChild.child_id}</span>?</p>`
+    );
+ 
+    if (!confirmUpdate) return; // Exit if the user cancels the update
+ 
     try {
-      const response = await fetch(`/api/children/${selectedChild.child_id}`, {
+      const response = await fetch(`http://localhost:3001/api/children/${selectedChild.child_id}`, {
         method: "PUT",
         headers: {
           "Content-Type": "application/json",
         },
         body: JSON.stringify(selectedChild),
       });
-
+ 
       if (response.ok) {
         const updatedChild = await response.json();
         console.log("Child updated successfully:", updatedChild);
@@ -483,7 +486,6 @@ const NutritionalStatus: React.FC = () => {
   }
 
   const handleAddModalOpen = () => {
-    // Reset selectedChild to empty values for a new entry
     setSelectedChild({
       
       first_name: "",
@@ -505,10 +507,13 @@ const NutritionalStatus: React.FC = () => {
       father_name: "",  
       purok: "",
       nutritionalStatus: "",
-      
-      // Ensure all fields are reset to empty or default values
-    });
+          });
     setIsAddModalOpen(true);
+  };
+
+  // Ensure the modal remains open when editing
+  const handleEditModalClose = () => {
+    setIsEditModalOpen(false);
   };
 
   return (
@@ -634,7 +639,7 @@ const NutritionalStatus: React.FC = () => {
                 <div className=" text px-4 flex flex-row gap-[1rem] items-center">
                   <span className="font-medium">Birthdate:</span>
                   <div className="border-b border-black   p-1 text-center">
-                    {selectedChild.birthdate}
+                    {formatDate(selectedChild.birthdate)}
                   </div>
                 </div>
                 <p className="text flex  flex-row gap-[2rem] items-center">
@@ -667,7 +672,7 @@ const NutritionalStatus: React.FC = () => {
                     <p className="font-medium ">Date of Birth:</p>
                     <p className="border-b border-black w-[10rem] h-[2rem]   p-1 text-center">
                       {" "}
-                      {selectedChild.dateOfBirth}
+                      {formatDate(selectedChild.dateOfBirth)}
                     </p>
                     <p className="font-medium ">Place of Birth:</p>
                     <p className="border-b border-black w-[12rem] h-[2rem] p-1 text-center">
@@ -770,17 +775,16 @@ const NutritionalStatus: React.FC = () => {
       )}
 
       {isEditModalOpen && selectedChild && (
-        <Modal onClose={() => setIsEditModalOpen(false)}>
-          <div ref={modalRef} className="relative text ">
+        <Modal onClose={handleEditModalClose}>
+          <div ref={modalRef} className="relative text">
             <button
               className="absolute top-[-3rem] right-[-2rem] text-gray-500 hover:text-gray-700 p-4 text-[3rem]"
-              onClick={() => setIsEditModalOpen(false)}
+              onClick={handleEditModalClose} 
             >
               &times;
             </button>
-           
-            </div>
-            <div className="w-full flex flex-col gap-[1rem] border border-black p-[2rem]"> 
+          </div>
+          <div className="w-full flex flex-col gap-[1rem] border border-black p-[2rem]">
             <div className="w-full flex flex-row gap-[1rem]">
               <Image
                 src="/svg/health_nutritionalstatus.svg"
@@ -788,17 +792,14 @@ const NutritionalStatus: React.FC = () => {
                 width={40}
                 height={50}
               />
-              
-            <div>
-            <h2 className="text-lg font-semibold text">
-              Update Child Nutritional Status
-            </h2>
-            <p className="italic text-sm ">Barangay Luz, Cebu City</p>
+              <div>
+                <h2 className="text-lg font-semibold text">
+                  Update Child Nutritional Status
+                </h2>
+                <p className="italic text-sm">Barangay Luz, Cebu City</p>
+              </div>
             </div>
-           
-        
-         </div>
-        
+
             <div className="grid grid-cols-4 gap-[20px] w-full mt-4">
               <div className="w-full">
                 <p>First Name of the Child:</p>
@@ -846,14 +847,14 @@ const NutritionalStatus: React.FC = () => {
                       })
                     }
                   />
-                  <div></div>
                 </div>
               </div>
               <div className="w-full">
                 <p>Suffix:</p>
                 <div className="border border-gray-300 rounded-md p-1">
-                  <select
+                  <input
                     className="w-full outline-none"
+                    type="text"
                     value={selectedChild.suffix || ""}
                     onChange={(e) =>
                       setSelectedChild({
@@ -861,19 +862,23 @@ const NutritionalStatus: React.FC = () => {
                         suffix: e.target.value,
                       })
                     }
-                  >
-                    <option value="">Select Suffix</option>
-                    <option value="Jr.">Jr.</option>
-                    <option value="Sr.">Sr.</option>
-                    <option value="II">II</option>
-                    <option value="III">III</option>
+                    list="suffix-options"
+                  />
+                  <datalist id="suffix-options">
+                    <option value="Jr." />
+                    <option value="Sr." />
+                    <option value="II" />
+                    <option value="III" />
                     {/* Add more suffix options as needed */}
-                  </select>
+                  </datalist>
                 </div>
               </div>
               <div className="w-full">
                 <p>Sex:</p>
                 <div className="w-[80%] flex justify-between px-4">
+                  <p className="font-medium">
+                    {selectedChild.sex.charAt(0).toUpperCase() + selectedChild.sex.slice(1)}
+                  </p>
                   <label>
                     <input
                       type="radio"
@@ -918,7 +923,7 @@ const NutritionalStatus: React.FC = () => {
                       <div className="flex items-center rounded-md p-1 text-black">
                         <input
                           className="w-full outline-none"
-                          value={selectedChild.birthdate}
+                          value={formatDate(selectedChild.birthdate)}
                           readOnly
                         />
                         <FaCalendarAlt className="ml-2 text-black" />
@@ -961,24 +966,18 @@ const NutritionalStatus: React.FC = () => {
                 </div>
                 <div className="flex flex-row gap-[10px]">
                   <p>Place of Birth:</p>
-                  <div className=" border border-gray-300 rounded-md p-1 w-[15rem] h-[2.5rem] ">
+                  <div className="border border-gray-300 rounded-md p-1 w-[15rem] h-[2.5rem]">
                     <input
-                      className="  rounded-md p-1  outline-none text-center"
+                      className="rounded-md p-1 outline-none text-center"
                       type="text"
                       value={selectedChild.placeOfBirth}
+                      onChange={(e) =>
+                        setSelectedChild({
+                          ...selectedChild,
+                          placeOfBirth: e.target.value,
+                        })
+                      }
                     />
-                  </div>
-                </div>
-                <div className="flex flex-row gap-[10px]">
-                  <p>Date of Birth:</p>
-                  <div className="border border-gray-300 rounded-md p-1 w-[15rem] h-[2.5rem] flex items-center">
-                    <input
-                      className="w-full outline-none"
-                      type="text"
-                      value={selectedChild.dateOfBirth}
-                      readOnly
-                    />
-                    <FaCalendarAlt className="ml-2 text-black" />
                   </div>
                 </div>
               </div>
@@ -1057,7 +1056,7 @@ const NutritionalStatus: React.FC = () => {
                           <div className="flex items-center rounded-md p-1 text-black">
                             <input
                               className="w-full outline-none"
-                              value={selectedChild.measurementDate}
+                              value={selectedChild.measurementDate ? formatDate(selectedChild.measurementDate) : ''}
                               readOnly
                             />
                             <FaCalendarAlt className="ml-2 text-black" />
@@ -1165,9 +1164,7 @@ const NutritionalStatus: React.FC = () => {
               <div className="w-full border border-[#696969] rounded-md p-2">
                 <button
                   className="w-full"
-                  onClick={() => {
-                    /* handle save logic here */
-                  }}
+                  onClick={handleEditModalClose} // Close modal on cancel
                 >
                   <p className="text-lg font-medium">Cancel</p>
                 </button>
@@ -1261,8 +1258,9 @@ const NutritionalStatus: React.FC = () => {
               <div className="w-full">
                 <p>Suffix:</p>
                 <div className="border border-gray-300 rounded-md p-1">
-                  <select
+                  <input
                     className="w-full outline-none"
+                    type="text"
                     value={selectedChild.suffix || ""}
                     onChange={(e) =>
                       setSelectedChild({
@@ -1270,19 +1268,21 @@ const NutritionalStatus: React.FC = () => {
                         suffix: e.target.value,
                       })
                     }
-                  >
-                    <option value="">Select Suffix</option>
-                    <option value="Jr.">Jr.</option>
-                    <option value="Sr.">Sr.</option>
-                    <option value="II">II</option>
-                    <option value="III">III</option>
+                    list="suffix-options"
+                  />
+                  <datalist id="suffix-options">
+                    <option value="Jr." />
+                    <option value="Sr." />
+                    <option value="II" />
+                    <option value="III" />
                     {/* Add more suffix options as needed */}
-                  </select>
+                  </datalist>
                 </div>
               </div>
               <div className="w-full">
                 <p>Sex:</p>
                 <div className="w-[80%] flex justify-between px-4">
+                  <p className="font-medium">{selectedChild.sex}</p>
                   <label>
                     <input
                       type="radio"
@@ -1343,6 +1343,13 @@ const NutritionalStatus: React.FC = () => {
                       </div>
                     }
                   />
+                  
+                </div>
+              </div>
+              <div className="w-full">
+                <p>Family Number:</p>
+                <div className="border border-gray-300 rounded-md p-1">
+                  <input className="w-full outline-none" type="number" value={selectedChild.family_number} onChange={(e) => setSelectedChild({ ...selectedChild, family_number: e.target.value })} />
                 </div>
               </div>
             </div>
@@ -1379,11 +1386,17 @@ const NutritionalStatus: React.FC = () => {
                 </div>
                 <div className="flex flex-row gap-[10px]">
                   <p>Place of Birth:</p>
-                  <div className=" border border-gray-300 rounded-md p-1 w-[15rem] h-[2.5rem] ">
+                  <div className="border border-gray-300 rounded-md p-1 w-[15rem] h-[2.5rem]">
                     <input
-                      className="  rounded-md p-1  outline-none text-center"
+                      className="rounded-md p-1 outline-none text-center"
                       type="text"
                       value={selectedChild.placeOfBirth}
+                      onChange={(e) =>
+                        setSelectedChild({
+                          ...selectedChild,
+                          placeOfBirth: e.target.value,
+                        })
+                      }
                     />
                   </div>
                 </div>

@@ -58,7 +58,7 @@ export default function page() {
             />
           </button>
           <p className="md:text-[20px] text-[14px] text-center mt-12 font-semibold">
-            Health Information and Analytics
+            Nutritional Status and Immunization Records
           </p>
         </div>
       </div>

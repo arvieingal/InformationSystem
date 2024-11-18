@@ -3,6 +3,7 @@ import Image from 'next/image';
 import { Immunization } from '@/types/Immunization';
 import SweetAlert from './SweetAlert';
 import ImmunizationModal from './ImmunizationModal';
+import { formatDate } from './formatDate';
 
 interface TableProps {
   immunizations: Immunization[];
@@ -61,7 +62,7 @@ const ImmunizationTable: React.FC<TableProps> = ({ immunizations, onSort, sortCo
               <td className="border border-[#CCCCCC] px-4 py-2 cursor-pointer" onClick={() => onViewDetails(immunization)}>{immunization.record_id}</td>
               <td className="border border-[#CCCCCC] px-4 py-2 cursor-pointer" onClick={() => onViewDetails(immunization)}>{`${immunization.child.first_name || ''} ${immunization.child.middle_name || ''} ${immunization.child.last_name || ''} ${immunization.child.suffix || ''}`.trim()}</td>
               <td className="border border-[#CCCCCC] px-4 py-2 cursor-pointer" onClick={() => onViewDetails(immunization)}>{immunization.child.sex}</td>
-              <td className="border border-[#CCCCCC] px-4 py-2 cursor-pointer" onClick={() => onViewDetails(immunization)}>{immunization.child.dateOfBirth}</td>
+              <td className="border border-[#CCCCCC] px-4 py-2 cursor-pointer" onClick={() => onViewDetails(immunization)}>{formatDate(immunization.child.dateOfBirth)}</td>
               <td className="border border-[#CCCCCC] px-4 py-2 cursor-pointer" onClick={() => onViewDetails(immunization)}>{immunization.health_center}</td>
               <td className="border border-[#CCCCCC] px-4 py-2 cursor-pointer" onClick={() => onViewDetails(immunization)}>{immunization.barangay}</td>
               <td className="border border-[#CCCCCC] px-4 py-2 cursor-pointer" onClick={() => onViewDetails(immunization)}>{immunization.family_number}</td>

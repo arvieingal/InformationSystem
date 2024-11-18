@@ -27,6 +27,7 @@ export interface Immunization {
   family_number: string;
   vaccineDoses: VaccineDose[];
   child: {
+    age: any;
     first_name: string;
     middle_name: string;
     last_name: string;

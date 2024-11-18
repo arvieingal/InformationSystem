@@ -74,7 +74,7 @@ const Login = () => {
 
   return (
     <div className="w-full h-screen">
-      <div className="w-full h-full flex 2xl:flex 2xl:flex-row  flex-row justify-center sm:flex sm:flex-col sm:px-20 lg:px-0 2xl:px-0 lg:flex lg:flex-row sm:items-center sm:justify-center ">
+      <div className="w-full h-full flex 2xl:flex 2xl:flex-row  flex-row justify-center sm:flex sm:flex-col sm:px-20  lg:px-0 2xl:px-0 lg:flex lg:flex-row sm:items-center sm:justify-center ">
         <div className="hidden  items-center justify-center w-[70%] md:hidden lg:block ">
           <Image
             className="h-screen w-full object-cover rounded-l-[5px]"
@@ -85,7 +85,7 @@ const Login = () => {
           />
         </div>
 
-        <div className="w-[30%] flex flex-col items-center px-0">
+        <div className="w-[30%] flex flex-col items-center px-0  ">
           <div className="mt-[-5rem]">
             <Image
               className="mt-[2rem]"
@@ -105,13 +105,13 @@ const Login = () => {
             </p>
           </div>
 
-          <div className="flex items-center justify-center w-full sm:px-[0px] md:px-[50px] lg:px-[60px] xl:px-[50px] 2xl:px-[70px]">
+          <div className="flex items-center justify-center w-full sm:px-[0px] md:px-[0px] lg:px-[60px] xl:px-[50px] 2xl:px-[70px]">
             <form
               onSubmit={handleEmailLogin}
               className=" w-full space-y-4 mt-[3rem]"
             >
               <div
-                className={`relative text-[#000000] h-[50px] ${
+                className={`relative text-[#000000] h-[50px]  ${
                   submitted && fieldError.username ? "border-red-500" : ""
                 }`}
               >
@@ -145,7 +145,7 @@ const Login = () => {
                   <Image
                     className="md:w-[8] cursor-pointer"
                     src={
-                      passwordVisible ? "/svg/visible.svg" : "/svg/visible.svg"
+                      passwordVisible ? "/svg/visible.svg" : "/svg/hidden.svg"
                     }
                     width={18}
                     height={18}

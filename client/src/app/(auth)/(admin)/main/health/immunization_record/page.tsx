@@ -9,6 +9,7 @@ import SearchBar from '@/components/SearchBar';
 import Pagination from '@/components/Pagination';
 import PersonModal from '@/components/PersonModal';
 import { Immunization } from '@/types/Immunization';
+import { formatDate } from '@/components/formatDate';
 
 const ImmunizationRecord: React.FC = () => {
   const router = useRouter();
@@ -303,7 +304,7 @@ const ImmunizationRecord: React.FC = () => {
                     className="w-full outline-none"
                     type="text"
                     name="date_of_birth"
-                    value={formData.date_of_birth}
+                    value={formatDate(formData.date_of_birth)}
                     onChange={handleInputChange}
                   />
                 </div>

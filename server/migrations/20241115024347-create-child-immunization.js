@@ -36,6 +36,10 @@ module.exports = {
         type: Sequelize.DATE,
         allowNull: true,
       },
+      health_center: {
+        type: Sequelize.STRING(100),
+        allowNull: true,
+      },
       administered_date: {
         type: Sequelize.DATE,
         allowNull: true,
@@ -48,7 +52,7 @@ module.exports = {
         type: Sequelize.TEXT,
         allowNull: true,
       },
-      
+
       location: {
         type: Sequelize.STRING(100),
         allowNull: true,
