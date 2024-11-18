@@ -47,25 +47,28 @@ module.exports = (sequelize, DataTypes) => {
           notEmpty: true,
         },
       },
-      age: {
-        type: DataTypes.INTEGER,
+      birthdate: {
+        type: DataTypes.DATE,
         allowNull: false,
-        validate: {
-          isInt: true,
+      },
+      age: {
+        type: DataTypes.VIRTUAL,
+        get() {
+          const birthdate = this.getDataValue('birthdate');
+          if (!birthdate) return null;
+          const ageDifMs = Date.now() - new Date(birthdate).getTime();
+          const ageDate = new Date(ageDifMs); // miliseconds from epoch
+          return Math.abs(ageDate.getUTCFullYear() - 1970);
         },
       },
-      sex: {
+      gender: {
         type: DataTypes.STRING,
         allowNull: false,
         validate: {
           isIn: [["Male", "Female"]],
         },
       },
-      birthdate: {
-        type: DataTypes.DATE,
-        allowNull: false,
-      },
-      purok: {
+      sitio_purok: {
         type: DataTypes.STRING,
         allowNull: false,
         validate: {
@@ -123,10 +126,6 @@ module.exports = (sequelize, DataTypes) => {
         values: ["Active", "Inactive", "Archive"],
         allowNull: false,
         defaultValue: "Active",
-      },
-      dateOfBirth: {
-        type: DataTypes.DATE,
-        allowNull: true,
       },
       placeOfBirth: {
         type: DataTypes.STRING,

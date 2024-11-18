@@ -3,16 +3,21 @@
 /** @type {import('sequelize-cli').Migration} */
 module.exports = {
   async up (queryInterface, Sequelize) {
-    await queryInterface.createTable('families', {
-      family_id: {
+    await queryInterface.createTable('household_member', {
+      member_id: {
         type: Sequelize.INTEGER,
         autoIncrement: true,
         primaryKey: true,
         allowNull: false,
       },
-      family_number: {
+      household_number: {
         type: Sequelize.INTEGER,
         allowNull: false,
+        references: {
+          model: 'household_head', // Name of the table in the database
+          key: 'household_number'
+        },
+        onDelete: 'CASCADE'
       },
       family_name: {
         type: Sequelize.STRING(255),
@@ -35,7 +40,7 @@ module.exports = {
         allowNull: false,
       },
       gender: {
-        type: Sequelize.STRING(10), // Fixed typo from STRINGSTRING to STRING
+        type: Sequelize.STRING(10),
         allowNull: false,
       },
       civil_status: {
@@ -135,11 +140,11 @@ module.exports = {
         type: Sequelize.DATE,
         allowNull: false,
         defaultValue: Sequelize.literal('CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP'),
-      },
+      }
     });
   },
 
   async down (queryInterface, Sequelize) {
-    await queryInterface.dropTable('families');
+    await queryInterface.dropTable('household_member');
   }
 };

@@ -9,6 +9,8 @@ const childImmunizationRoutes = require("./routes/childImmunizationRecord"); // 
 const families = require("./routes/families"); 
 const familyMembers = require("./routes/familyMembers"); 
 const logRoutes = require('./routes/log');
+const householdHead = require("./routes/householdHead"); // Import vaccine dose routes
+const householdMember = require("./routes/householdMember"); // Import vaccine dose routes
 const PORT = process.env.PORT || 3001;
 
 app.use(express.json());
@@ -20,6 +22,8 @@ app.use("/api", childImmunizationRoutes); // Use child immunization routes with 
 app.use("/api", families); 
 app.use("/api", familyMembers); 
 app.use('/api', logRoutes);
+app.use("/api", householdHead); // Use vaccine dose routes with /api prefix
+app.use("/api", householdMember); // Use vaccine dose routes with /api prefix
 const initApp = async () => {
   console.log("Testing the database connection...");
 
