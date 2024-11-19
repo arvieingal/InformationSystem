@@ -13,6 +13,7 @@ module.exports = {
           key: 'child_id', // Ensure this matches the primary key in the referenced table
         },
       },
+      
       // Add the new fields from the model
       record_id: {
         type: Sequelize.INTEGER,

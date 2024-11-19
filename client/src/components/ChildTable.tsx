@@ -4,6 +4,13 @@ import { formatDate } from './formatDate';
 
 // src/types/Child.ts
 export interface Child {
+  birthplace: string;
+  gender: string;
+  extension: string;
+  family_name: string;
+  given_name: string;
+  middle_name: string;
+  sitio_purok: string;
   father_name: string;
   mother_name: string;
   family_number: string;
@@ -25,10 +32,6 @@ export interface Child {
   currentWeight?: string;
   currentHeight?: string;
   currentAge?: number;
-  first_name?: string;
-  middle_name?: string;
-  last_name?: string;
-  suffix?: string;
 }
 
 
@@ -69,10 +72,10 @@ const ChildTable: React.FC<TableProps> = ({ children, onSort, sortConfig, onEdit
             <tr key={index} onClick={() => onRowClick(child)}>
               <td className="border border-[#CCCCCC] px-4 py-2 cursor-pointer">{child.child_id}</td>
               <td className="border border-[#CCCCCC] px-4 py-2">
-                {`${child.first_name || ''} ${child.last_name || ''} ${child.middle_name || ''} ${child.suffix || ''}`.trim()}
+                {`${child.given_name || ''} ${child.family_name || ''} ${child.middle_name || ''} ${child.extension || ''}`.trim()}
               </td>
               <td className="border border-[#CCCCCC] px-4 py-2">{child.age}</td>
-              <td className="border border-[#CCCCCC] px-4 py-2">{child.sex}</td>
+              <td className="border border-[#CCCCCC] px-4 py-2">{child.gender}</td>
               <td className="border border-[#CCCCCC] px-4 py-2">{formatDate(child.birthdate)}</td>
               <td className="border border-[#CCCCCC] px-4 py-2">{child.heightCm}</td>
               <td className="border border-[#CCCCCC] px-4 py-2">{child.weightKg}</td>

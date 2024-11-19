@@ -17,6 +17,7 @@ module.exports = (sequelize, DataTypes) => {
         type: DataTypes.INTEGER,
         primaryKey: true,
         allowNull: false,
+        autoIncrement: true,
       },
       health_center: {
         type: DataTypes.STRING(100),
@@ -24,8 +25,6 @@ module.exports = (sequelize, DataTypes) => {
       },
       dose_number: {
         type: DataTypes.INTEGER,
-        autoIncrement: true,
-        primaryKey: true,
         allowNull: false,
       },
       child_id: {
@@ -33,7 +32,7 @@ module.exports = (sequelize, DataTypes) => {
         allowNull: false,
         references: {
           model: "children",
-          key: "id",
+          key: "child_id",
         },
       },
       vaccine_type: {
@@ -46,10 +45,6 @@ module.exports = (sequelize, DataTypes) => {
       },
       scheduled_date: {
         type: DataTypes.DATE,
-        allowNull: true,
-      },
-      dose_number: {
-        type: DataTypes.INTEGER,
         allowNull: true,
       },
       administered_date: {
@@ -79,7 +74,7 @@ module.exports = (sequelize, DataTypes) => {
     },
     {
       sequelize,
-      modelName: "childImmunizationRecord",
+      modelName: "ChildImmunizationRecord",
       tableName: "child_immunization_records",
       timestamps: true,
       createdAt: "created_at",

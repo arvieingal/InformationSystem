@@ -15,11 +15,10 @@ import { formatDate } from "@/components/formatDate";
 
 export interface Child {
   dateOfBirth: string;
-  placeOfBirth: string;
+  birthplace: string;
   child_id: number;
-  name: string;
   age: number;
-  sex: string;
+  gender: string;
   birthdate: string;
   heightCm: number;
   weightKg: number;
@@ -31,25 +30,25 @@ export interface Child {
   currentWeight?: string;
   currentHeight?: string;
   currentAge?: number;
-  first_name?: string;
+  given_name?: string;
+  family_name?: string;
   middle_name?: string;
-  last_name?: string;
-  suffix?: string;
+  extension?: string;
   measurementDate?: string;
   family_number?: string;
   mother_name?: string;
   father_name?: string;
+  sitio_purok?: string;
 }
 
-// Define a type for the form data
 interface ChildFormData {
-  placeOfBirth: string;
+  birthplace: string;
   dateOfBirth: string;
   child_id?: number;
-  first_name: string;
+  given_name: string;
   middle_name: string;
-  last_name: string;
-  sex: string;
+  family_name: string;
+  gender: string;
   birthdate: string;
   weightAtBirth: string;
   heightAtBirth: string;
@@ -58,7 +57,7 @@ interface ChildFormData {
   currentHeight: string;
   address: string;
   purok: string;
-  suffix?: string;
+  extension?: string;
   nutritionalStatus?: string;
   heightAgeZ?: number;
   weightHeightZ?: number;
@@ -66,6 +65,7 @@ interface ChildFormData {
   family_number?: string;
   mother_name?: string;
   father_name?: string;
+  sitio_purok?: string;
 }
 
 // Function to calculate nutritional status based on age, weight, and height
@@ -90,14 +90,14 @@ const NutritionalStatus: React.FC = () => {
   const router = useRouter();
   const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
   const [selectedChild, setSelectedChild] = useState<ChildFormData>({
-    first_name: "",
+    given_name: "",
     middle_name: "",
-    last_name: "",
-    sex: "",
-    suffix: "",
+    family_name: "",
+    gender: "",
+    extension: "",
     birthdate: "",
     dateOfBirth: "",
-    placeOfBirth: "",     
+    birthplace  : "",     
     weightAtBirth: "",
     heightAtBirth: "",
     currentAge: 0,
@@ -112,6 +112,7 @@ const NutritionalStatus: React.FC = () => {
     family_number: "",
     mother_name: "",
     father_name: "",
+   
   });
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
@@ -135,7 +136,7 @@ const NutritionalStatus: React.FC = () => {
 
   const [filterCriteria, setFilterCriteria] = useState({
     age: '',
-    sex: '',
+    gender: '',
     birthdate: '',
     height: '',
     weight: '',
@@ -213,11 +214,11 @@ const NutritionalStatus: React.FC = () => {
   const handleRowClick = (child: Child) => {
     setSelectedChild({
       child_id: child.child_id,
-      first_name: child.first_name || "",
+      given_name: child.given_name || "",
       middle_name: child.middle_name || "",
-      last_name: child.last_name || "",
-      suffix: child.suffix || "",
-      sex: child.sex,
+      family_name: child.family_name || "",
+      extension: child.extension || "",
+      gender: child.gender,
       birthdate: child.birthdate,
       weightAtBirth: child.weightAtBirth || "",
       heightAtBirth: child.heightAtBirth || "",
@@ -227,7 +228,7 @@ const NutritionalStatus: React.FC = () => {
       address: child.address || "",
       purok: child.purok || "",
       nutritionalStatus: child.nutritionalStatus || "",
-      placeOfBirth: child.placeOfBirth || "",
+      birthplace: child.birthplace || "",
       dateOfBirth: child.dateOfBirth || "",
       measurementDate: child.measurementDate || "",
       family_number: child.family_number || "",
@@ -245,11 +246,11 @@ const NutritionalStatus: React.FC = () => {
     if (confirmEdit) {
       setSelectedChild({
         child_id: child.child_id,
-        first_name: child.first_name || "",
+        given_name: child.given_name || "",
         middle_name: child.middle_name || "",
-        last_name: child.last_name || "",
-        suffix: child.suffix || "",
-        sex: child.sex || "",
+        family_name: child.family_name || "",
+        extension: child.extension || "",
+        gender: child.gender || "",
         birthdate: child.birthdate || "",
         weightAtBirth: child.weightAtBirth || "",
         heightAtBirth: child.heightAtBirth || "",
@@ -259,11 +260,12 @@ const NutritionalStatus: React.FC = () => {
         address: child.address || "",
         purok: child.purok || "",
         dateOfBirth: child.dateOfBirth || "",
-        placeOfBirth: child.placeOfBirth || "",
+        birthplace: child.birthplace || "",
         measurementDate: child.measurementDate || "",
         family_number: child.family_number || "",
         mother_name: child.mother_name || "",
         father_name: child.father_name || "",
+      
       });
       setIsEditModalOpen(true);
     }
@@ -333,7 +335,7 @@ const NutritionalStatus: React.FC = () => {
   const sortedChildren = React.useMemo(() => {
     if (sortConfig && sortConfig.key) {
       return [...children].sort((a, b) => {
-        const key = sortConfig.key;
+        const key = sortConfig.key as keyof typeof a;
         const aValue = a[key];
         const bValue = b[key];
 
@@ -362,14 +364,14 @@ const NutritionalStatus: React.FC = () => {
   const handleSearch = (query: string) => {
     const lowerCaseQuery = query.toLowerCase();
     const filteredChildren = originalChildren.filter((child) => {
-      const fullName = `${child.first_name || ''} ${child.middle_name || ''} ${child.last_name || ''} ${child.suffix || ''}`.toLowerCase();
+      const fullName = `${child.given_name || ''} ${child.middle_name || ''} ${child.family_name || ''} ${child.extension || ''}`.toLowerCase();
       
       // Check if the query matches any of the child's properties
       const matchesQuery = 
           child.child_id.toString().includes(lowerCaseQuery) ||
           fullName.includes(lowerCaseQuery) ||
           child.age.toString().includes(lowerCaseQuery) ||
-          child.sex.toLowerCase() === lowerCaseQuery || // Ensure exact match for sex
+          child.gender.toLowerCase() === lowerCaseQuery || // Ensure exact match for gender
           child.birthdate.includes(lowerCaseQuery) ||
           child.heightCm.toString().includes(lowerCaseQuery) ||
           child.weightKg.toString().includes(lowerCaseQuery) ||
@@ -379,11 +381,12 @@ const NutritionalStatus: React.FC = () => {
           (child.weightAtBirth && child.weightAtBirth.toString().includes(lowerCaseQuery)) ||
           (child.heightAtBirth && child.heightAtBirth.toString().includes(lowerCaseQuery)) ||
           (child.currentWeight && child.currentWeight.toString().includes(lowerCaseQuery)) ||
-          (child.currentHeight && child.currentHeight.toString().includes(lowerCaseQuery));
+          (child.currentHeight && child.currentHeight.toString().includes(lowerCaseQuery)) ||
+          (child.sitio_purok && child.sitio_purok.toLowerCase().includes(lowerCaseQuery));
 
         const matchesFilter = 
             (!filterCriteria.age || child.age.toString() === filterCriteria.age) &&
-            (!filterCriteria.sex || child.sex.toLowerCase() === filterCriteria.sex.toLowerCase()) &&
+            (!filterCriteria.gender || child.gender.toLowerCase() === filterCriteria.gender.toLowerCase()) &&
             (!filterCriteria.birthdate || child.birthdate === filterCriteria.birthdate) &&
             (!filterCriteria.height || child.heightCm.toString() === filterCriteria.height) &&
             (!filterCriteria.weight || child.weightKg.toString() === filterCriteria.weight) &&
@@ -484,18 +487,16 @@ const NutritionalStatus: React.FC = () => {
       console.error("Error updating child:", error);
     }
   }
-
   const handleAddModalOpen = () => {
     setSelectedChild({
-      
-      first_name: "",
+      ...selectedChild,
+      given_name: "",
+      family_name: "",
       middle_name: "",
-      last_name: "",
-      suffix: "",
-      sex: "",
+      extension: "",
+      gender: "",
       birthdate: "",
-      dateOfBirth: "",
-      placeOfBirth: "",
+      birthplace: "",
       weightAtBirth: "",
       heightAtBirth: "",
       currentAge: 0,
@@ -506,8 +507,9 @@ const NutritionalStatus: React.FC = () => {
       mother_name: "",
       father_name: "",  
       purok: "",
+      sitio_purok: "",
       nutritionalStatus: "",
-          });
+    });
     setIsAddModalOpen(true);
   };
 
@@ -559,8 +561,8 @@ const NutritionalStatus: React.FC = () => {
               <li className="px-4 py-2 hover:bg-gray-100 cursor-pointer" onClick={() => handleFilterChange('age', 'specificAge')}>
                 Filter by Age
               </li>
-              <li className="px-4 py-2 hover:bg-gray-100 cursor-pointer" onClick={() => handleFilterChange('sex', 'male')}>
-                Filter by Sex
+              <li className="px-4 py-2 hover:bg-gray-100 cursor-pointer" onClick={() => handleFilterChange('gender', 'male')}>
+                Filter by gender
               </li>
               <li className="px-4 py-2 hover:bg-gray-100 cursor-pointer" onClick={() => handleFilterChange('birthdate', 'specificDate')}>
                 Filter by Birthdate
@@ -627,10 +629,10 @@ const NutritionalStatus: React.FC = () => {
                     <div className="flex flex-row gap-[1rem]">
                       <div className="border-b border-black   p-1">
                         <p className="text-center">{`${
-                          selectedChild.first_name
-                        } ${selectedChild.last_name ? selectedChild.last_name + ' ' : ''}${
+                          selectedChild.given_name
+                        } ${selectedChild.family_name ? selectedChild.family_name + ' ' : ''}${
                           selectedChild.middle_name
-                        }${selectedChild.suffix ? ' ' + selectedChild.suffix : ''}`}</p>
+                        }${selectedChild.extension ? ' ' + selectedChild.extension : ''}`}</p>
                       </div>
                     </div>
                   </div>
@@ -649,9 +651,9 @@ const NutritionalStatus: React.FC = () => {
                   </div>
                 </p>
                 <p className="text flex flex-row gap-[2rem] items-center">
-                  <span className="font-medium">Sex:</span>
+                  <span className="font-medium">gender:</span>
                   <div className="border-b border-black w-[12rem] text-center p-1">
-                    {selectedChild.sex}
+                    {selectedChild.gender}
                   </div>
                 </p>
               </div>
@@ -677,7 +679,7 @@ const NutritionalStatus: React.FC = () => {
                     <p className="font-medium ">Place of Birth:</p>
                     <p className="border-b border-black w-[12rem] h-[2rem] p-1 text-center">
                       {" "}
-                      {selectedChild.placeOfBirth}
+                      {selectedChild.birthplace}
                     </p>
                   </div>
                 </div>
@@ -807,11 +809,11 @@ const NutritionalStatus: React.FC = () => {
                   <input
                     className="w-full outline-none"
                     type="text"
-                    value={selectedChild.first_name}
+                    value={selectedChild.given_name}
                     onChange={(e) =>
                       setSelectedChild({
                         ...selectedChild,
-                        first_name: e.target.value,
+                        given_name: e.target.value,
                       })
                     }
                   />
@@ -823,11 +825,11 @@ const NutritionalStatus: React.FC = () => {
                   <input
                     className="w-full outline-none"
                     type="text"
-                    value={selectedChild.last_name}
+                    value={selectedChild.family_name}
                     onChange={(e) =>
                       setSelectedChild({
                         ...selectedChild,
-                        last_name: e.target.value,
+                        family_name: e.target.value,
                       })
                     }
                   />
@@ -850,45 +852,45 @@ const NutritionalStatus: React.FC = () => {
                 </div>
               </div>
               <div className="w-full">
-                <p>Suffix:</p>
+                <p>extension:</p>
                 <div className="border border-gray-300 rounded-md p-1">
                   <input
                     className="w-full outline-none"
                     type="text"
-                    value={selectedChild.suffix || ""}
+                    value={selectedChild.extension || ""}
                     onChange={(e) =>
                       setSelectedChild({
                         ...selectedChild,
-                        suffix: e.target.value,
+                        extension: e.target.value,
                       })
                     }
-                    list="suffix-options"
+                    list="extension-options"
                   />
-                  <datalist id="suffix-options">
+                  <datalist id="extension-options">
                     <option value="Jr." />
                     <option value="Sr." />
                     <option value="II" />
                     <option value="III" />
-                    {/* Add more suffix options as needed */}
+                    {/* Add more extension options as needed */}
                   </datalist>
                 </div>
               </div>
               <div className="w-full">
-                <p>Sex:</p>
+                <p>gender:</p>
                 <div className="w-[80%] flex justify-between px-4">
                   <p className="font-medium">
-                    {selectedChild.sex.charAt(0).toUpperCase() + selectedChild.sex.slice(1)}
+                    {selectedChild.gender.charAt(0).toUpperCase() + selectedChild.gender.slice(1)}
                   </p>
                   <label>
                     <input
                       type="radio"
-                      name="sex"
+                      name="gender"
                       value="male"
-                      checked={selectedChild.sex === "male"}
+                      checked={selectedChild.gender === "male"}
                       onChange={(e) =>
                         setSelectedChild({
                           ...selectedChild,
-                          sex: e.target.value,
+                          gender: e.target.value,
                         })
                       }
                     />
@@ -897,13 +899,13 @@ const NutritionalStatus: React.FC = () => {
                   <label>
                     <input
                       type="radio"
-                      name="sex"
+                      name="gender"
                       value="female"
-                      checked={selectedChild.sex === "female"}
+                      checked={selectedChild.gender === "female"}
                       onChange={(e) =>
                         setSelectedChild({
                           ...selectedChild,
-                          sex: e.target.value,
+                          gender: e.target.value,
                         })
                       }
                     />
@@ -970,11 +972,11 @@ const NutritionalStatus: React.FC = () => {
                     <input
                       className="rounded-md p-1 outline-none text-center"
                       type="text"
-                      value={selectedChild.placeOfBirth}
+                      value={selectedChild.birthplace}
                       onChange={(e) =>
                         setSelectedChild({
                           ...selectedChild,
-                          placeOfBirth: e.target.value,
+                          birthplace: e.target.value,
                         })
                       }
                     />
@@ -1213,11 +1215,11 @@ const NutritionalStatus: React.FC = () => {
                   <input
                     className="w-full outline-none"
                     type="text"
-                    value={selectedChild.first_name}
+                    value={selectedChild.given_name}
                     onChange={(e) =>
                       setSelectedChild({
                         ...selectedChild,
-                        first_name: e.target.value,
+                        given_name: e.target.value,
                       })
                     }
                   />
@@ -1229,11 +1231,11 @@ const NutritionalStatus: React.FC = () => {
                   <input
                     className="w-full outline-none"
                     type="text"
-                    value={selectedChild.last_name}
+                    value={selectedChild.family_name}
                     onChange={(e) =>
                       setSelectedChild({
                         ...selectedChild,
-                        last_name: e.target.value,
+                        family_name: e.target.value,
                       })
                     }
                   />
@@ -1256,43 +1258,43 @@ const NutritionalStatus: React.FC = () => {
                 </div>
               </div>
               <div className="w-full">
-                <p>Suffix:</p>
+                <p>extension:</p>
                 <div className="border border-gray-300 rounded-md p-1">
                   <input
                     className="w-full outline-none"
                     type="text"
-                    value={selectedChild.suffix || ""}
+                    value={selectedChild.extension || ""}
                     onChange={(e) =>
                       setSelectedChild({
                         ...selectedChild,
-                        suffix: e.target.value,
+                        extension: e.target.value,
                       })
                     }
-                    list="suffix-options"
+                    list="extension-options"
                   />
-                  <datalist id="suffix-options">
+                  <datalist id="extension-options">
                     <option value="Jr." />
                     <option value="Sr." />
                     <option value="II" />
                     <option value="III" />
-                    {/* Add more suffix options as needed */}
+                    {/* Add more extension options as needed */}
                   </datalist>
                 </div>
               </div>
               <div className="w-full">
-                <p>Sex:</p>
+                <p>gender:</p>
                 <div className="w-[80%] flex justify-between px-4">
-                  <p className="font-medium">{selectedChild.sex}</p>
+                  <p className="font-medium">{selectedChild.gender}</p>
                   <label>
                     <input
                       type="radio"
-                      name="sex"
+                      name="gender"
                       value="male"
-                      checked={selectedChild.sex === "male"}
+                      checked={selectedChild.gender === "male"}
                       onChange={(e) =>
                         setSelectedChild({
                           ...selectedChild,
-                          sex: e.target.value,
+                          gender: e.target.value,
                         })
                       }
                     />
@@ -1301,13 +1303,13 @@ const NutritionalStatus: React.FC = () => {
                   <label>
                     <input
                       type="radio"
-                      name="sex"
+                      name="gender"
                       value="female"
-                      checked={selectedChild.sex === "female"}
+                      checked={selectedChild.gender === "female"}
                       onChange={(e) =>
                         setSelectedChild({
                           ...selectedChild,
-                          sex: e.target.value,
+                          gender: e.target.value,
                         })
                       }
                     />
@@ -1390,11 +1392,11 @@ const NutritionalStatus: React.FC = () => {
                     <input
                       className="rounded-md p-1 outline-none text-center"
                       type="text"
-                      value={selectedChild.placeOfBirth}
+                      value={selectedChild.birthplace}
                       onChange={(e) =>
                         setSelectedChild({
                           ...selectedChild,
-                          placeOfBirth: e.target.value,
+                          birthplace: e.target.value,
                         })
                       }
                     />

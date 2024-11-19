@@ -1,135 +1,44 @@
-<!-- database -->
-database_development
+INSERT INTO household_head (household_number, family_name, given_name, middle_name, extension, relationship, gender, civil_status, birthdate, highest_educational_attainment, occupation, monthly_income, block_number, lot_number, sitio_purok, barangay, city, birthplace, religion, sectoral, registered_voter, business_in_area) VALUES
+(1, 'Smith', 'John', 'A', NULL, 'Head', 'Male', 'Married', '1980-01-01', 'College Graduate', 'Engineer', 5000.00, 101, 1, 'Zapatera', 'Barangay 1', 'City A', 'City A', 'Christianity', 'Others', 'Yes', 'No'),
+(2, 'Doe', 'Jane', NULL, NULL, 'Head', 'Female', 'Single', '1990-02-02', 'High School Graduate', 'Teacher', 3000.00, 102, 2, 'Sto. Nino', 'Barangay 2', 'City B', 'City B', 'Islam', 'PWD', 'No', 'Yes'),
+(3, 'Brown', 'Charlie', 'B', 'Jr.', 'Head', 'Male', 'Widowed', '1975-03-03', 'Elementary Graduate', 'Farmer', 2000.00, 103, 3, 'San Roque', 'Barangay 3', 'City C', 'City C', 'Buddhism', 'Senior Citizen', 'Yes', 'No'),
+(4, 'Johnson', 'Emily', NULL, NULL, 'Head', 'Female', 'Separated', '1985-04-04', 'College Level', 'Nurse', 4000.00, 104, 4, 'San Antonio', 'Barangay 4', 'City D', 'City D', 'Hinduism', 'Solo Parent', 'No', 'Yes'),
+(5, 'Williams', 'Michael', 'C', NULL, 'Head', 'Male', 'Married', '1995-05-05', 'High School Level', 'Driver', 2500.00, 105, 5, 'Lubi', 'Barangay 5', 'City E', 'City E', 'Atheism', 'LGBT', 'Yes', 'No');
 
- #child_immunization_record
- INSERT INTO child_immunization_records (
-  child_id, dose_number, vaccine_type, dose_description, scheduled_date, 
-  administered_date, administered_by, side_effects, location, created_at, updated_at
-) VALUES
-(1, 1, 'MMR', 'First dose of MMR vaccine', '2023-01-15', '2023-01-15', 'Dr. Smith', 'None', 'Health Center A', '2023-01-15 10:00:00', '2023-01-15 10:00:00'),
-(2, 2, 'DTP', 'Second dose of DTP vaccine', '2023-02-20', '2023-02-20', 'Nurse Johnson', 'Mild fever', 'Health Center B', '2023-02-20 11:00:00', '2023-02-20 11:00:00'),
-(3, 1, 'HepB', 'First dose of Hepatitis B vaccine', '2023-03-10', '2023-03-10', 'Dr. Lee', 'Soreness at injection site', 'Health Center C', '2023-03-10 09:30:00', '2023-03-10 09:30:00'),
-(4, 3, 'Polio', 'Third dose of Polio vaccine', '2023-04-05', '2023-04-05', 'Nurse Brown', 'None', 'Health Center D', '2023-04-05 14:00:00', '2023-04-05 14:00:00'),
-(5, 1, 'Varicella', 'First dose of Varicella vaccine', '2023-05-12', '2023-05-12', 'Dr. Davis', 'Rash', 'Health Center E', '2023-05-12 13:00:00', '2023-05-12 13:00:00'),
-(6, 2, 'MMR', 'Second dose of MMR vaccine', '2023-06-18', '2023-06-18', 'Dr. White', 'None', 'Health Center F', '2023-06-18 15:00:00', '2023-06-18 15:00:00'),
-(7, 1, 'DTP', 'First dose of DTP vaccine', '2023-07-22', '2023-07-22', 'Nurse Green', 'Fever', 'Health Center G', '2023-07-22 10:30:00', '2023-07-22 10:30:00'),
-(8, 2, 'HepB', 'Second dose of Hepatitis B vaccine', '2023-08-25', '2023-08-25', 'Dr. Black', 'None', 'Health Center H', '2023-08-25 11:45:00', '2023-08-25 11:45:00'),
-(9, 3, 'Polio', 'Third dose of Polio vaccine', '2023-09-30', '2023-09-30', 'Nurse Blue', 'None', 'Health Center I', '2023-09-30 14:15:00', '2023-09-30 14:15:00'),
-(10, 1, 'Varicella', 'First dose of Varicella vaccine', '2023-10-10', '2023-10-10', 'Dr. Red', 'Rash', 'Health Center J', '2023-10-10 13:30:00', '2023-10-10 13:30:00'),
-(11, 2, 'MMR', 'Second dose of MMR vaccine', '2023-11-15', '2023-11-15', 'Dr. Yellow', 'None', 'Health Center K', '2023-11-15 15:45:00', '2023-11-15 15:45:00'),
-(12, 1, 'DTP', 'First dose of DTP vaccine', '2023-12-20', '2023-12-20', 'Nurse Purple', 'Fever', 'Health Center L', '2023-12-20 10:00:00', '2023-12-20 10:00:00'),
-(13, 2, 'HepB', 'Second dose of Hepatitis B vaccine', '2024-01-25', '2024-01-25', 'Dr. Orange', 'None', 'Health Center M', '2024-01-25 11:30:00', '2024-01-25 11:30:00'),
-(14, 3, 'Polio', 'Third dose of Polio vaccine', '2024-02-28', '2024-02-28', 'Nurse Pink', 'None', 'Health Center N', '2024-02-28 14:00:00', '2024-02-28 14:00:00'),
-(15, 1, 'Varicella', 'First dose of Varicella vaccine', '2024-03-05', '2024-03-05', 'Dr. Gray', 'Rash', 'Health Center O', '2024-03-05 13:00:00', '2024-03-05 13:00:00'),
-(16, 2, 'MMR', 'Second dose of MMR vaccine', '2024-04-10', '2024-04-10', 'Dr. Cyan', 'None', 'Health Center P', '2024-04-10 15:30:00', '2024-04-10 15:30:00'),
-(17, 1, 'DTP', 'First dose of DTP vaccine', '2024-05-15', '2024-05-15', 'Nurse Magenta', 'Fever', 'Health Center Q', '2024-05-15 10:30:00', '2024-05-15 10:30:00'),
-(18, 2, 'HepB', 'Second dose of Hepatitis B vaccine', '2024-06-20', '2024-06-20', 'Dr. Violet', 'None', 'Health Center R', '2024-06-20 11:45:00', '2024-06-20 11:45:00'),
-(19, 3, 'Polio', 'Third dose of Polio vaccine', '2024-07-25', '2024-07-25', 'Nurse Indigo', 'None', 'Health Center S', '2024-07-25 14:15:00', '2024-07-25 14:15:00'),
-(20, 1, 'Varicella', 'First dose of Varicella vaccine', '2024-08-30', '2024-08-30', 'Dr. Teal', 'Rash', 'Health Center T', '2024-08-30 13:30:00', '2024-08-30 13:30:00');
-<!-- nutritional_status  -->
-<!-- children -->
 
-INSERT INTO children (first_name, last_name, middle_name, suffix, age, sex, birthdate, purok, nutritionalStatus, heightCm, weightKg, heightAgeZ, weightHeightZ, measurementDate, address, status, dateOfBirth, placeOfBirth, heightAtBirth, weightAtBirth) VALUES
-('John', 'Doe', 'A', 'Jr.', 5, 'Male', '2018-06-15', 'Purok 1', 'Normal', 110.5, 18.2, 0.5, 0.3, '2023-06-15', '123 Main St', 'Active', '2018-06-15', 'City Hospital', 50.0, 3.2),
-('Jane', 'Smith', 'B', '', 6, 'Female', '2017-07-20', 'Purok 2', 'Underweight', 115.0, 17.0, -0.2, -0.5, '2023-07-20', '456 Elm St', 'Active', '2017-07-20', 'City Hospital', 48.5, 3.0),
-('Alice', 'Johnson', 'C', 'III', 7, 'Female', '2016-05-10', 'Purok 3', 'Normal', 120.0, 20.0, 0.1, 0.0, '2023-05-10', '789 Oak St', 'Active', '2016-05-10', 'City Hospital', 49.0, 3.1),
-('Bob', 'Williams', 'D', '', 8, 'Male', '2015-08-25', 'Purok 4', 'Overweight', 130.0, 25.0, 1.0, 1.2, '2023-08-25', '101 Pine St', 'Active', '2015-08-25', 'City Hospital', 51.0, 3.5),
-('Charlie', 'Brown', 'E', 'Sr.', 9, 'Male', '2014-11-30', 'Purok 5', 'Normal', 135.0, 30.0, 0.3, 0.4, '2023-11-30', '202 Maple St', 'Active', '2014-11-30', 'City Hospital', 50.5, 3.3),
-('Daisy', 'Miller', 'F', '', 10, 'Female', '2013-01-15', 'Purok 6', 'Normal', 140.0, 32.0, 0.2, 0.1, '2023-01-15', '303 Birch St', 'Active', '2013-01-15', 'City Hospital', 49.5, 3.2),
-('Ethan', 'Davis', 'G', 'II', 11, 'Male', '2012-03-20', 'Purok 7', 'Underweight', 145.0, 35.0, -0.3, -0.4, '2023-03-20', '404 Cedar St', 'Active', '2012-03-20', 'City Hospital', 48.0, 3.0),
-('Fiona', 'Garcia', 'H', '', 12, 'Female', '2011-06-05', 'Purok 8', 'Normal', 150.0, 40.0, 0.0, 0.0, '2023-06-05', '505 Walnut St', 'Active', '2011-06-05', 'City Hospital', 50.0, 3.4),
-('George', 'Martinez', 'I', 'IV', 13, 'Male', '2010-09-10', 'Purok 9', 'Overweight', 155.0, 45.0, 1.1, 1.3, '2023-09-10', '606 Chestnut St', 'Active', '2010-09-10', 'City Hospital', 51.5, 3.6),
-('Hannah', 'Rodriguez', 'J', '', 14, 'Female', '2009-12-25', 'Purok 10', 'Normal', 160.0, 50.0, 0.4, 0.5, '2023-12-25', '707 Spruce St', 'Active', '2009-12-25', 'City Hospital', 50.5, 3.3),
-('Ian', 'Martinez', 'K', '', 5, 'Male', '2018-02-14', 'Purok 11', 'Normal', 110.0, 18.0, 0.5, 0.3, '2023-02-14', '808 Fir St', 'Active', '2018-02-14', 'City Hospital', 50.0, 3.2),
-('Julia', 'Hernandez', 'L', '', 6, 'Female', '2017-04-18', 'Purok 12', 'Underweight', 115.0, 17.0, -0.2, -0.5, '2023-04-18', '909 Poplar St', 'Active', '2017-04-18', 'City Hospital', 48.5, 3.0),
-('Kevin', 'Lopez', 'M', '', 7, 'Male', '2016-07-22', 'Purok 13', 'Normal', 120.0, 20.0, 0.1, 0.0, '2023-07-22', '1010 Willow St', 'Active', '2016-07-22', 'City Hospital', 49.0, 3.1),
-('Laura', 'Gonzalez', 'N', '', 8, 'Female', '2015-10-26', 'Purok 14', 'Overweight', 130.0, 25.0, 1.0, 1.2, '2023-10-26', '1111 Ash St', 'Active', '2015-10-26', 'City Hospital', 51.0, 3.5),
-('Michael', 'Wilson', 'O', '', 9, 'Male', '2014-01-30', 'Purok 15', 'Normal', 135.0, 30.0, 0.3, 0.4, '2023-01-30', '1212 Beech St', 'Active', '2014-01-30', 'City Hospital', 50.5, 3.3),
-('Nina', 'Anderson', 'P', '', 10, 'Female', '2013-04-04', 'Purok 16', 'Normal', 140.0, 32.0, 0.2, 0.1, '2023-04-04', '1313 Pine St', 'Active', '2013-04-04', 'City Hospital', 49.5, 3.2),
-('Oscar', 'Thomas', 'Q', '', 11, 'Male', '2012-07-08', 'Purok 17', 'Underweight', 145.0, 35.0, -0.3, -0.4, '2023-07-08', '1414 Maple St', 'Active', '2012-07-08', 'City Hospital', 48.0, 3.0),
-('Paula', 'Taylor', 'R', '', 12, 'Female', '2011-10-12', 'Purok 18', 'Normal', 150.0, 40.0, 0.0, 0.0, '2023-10-12', '1515 Oak St', 'Active', '2011-10-12', 'City Hospital', 50.0, 3.4),
-('Quinn', 'Moore', 'S', '', 13, 'Male', '2010-01-16', 'Purok 19', 'Overweight', 155.0, 45.0, 1.1, 1.3, '2023-01-16', '1616 Elm St', 'Active', '2010-01-16', 'City Hospital', 51.5, 3.6),
-('Rachel', 'Jackson', 'T', '', 14, 'Female', '2009-03-20', 'Purok 20', 'Normal', 160.0, 50.0, 0.4, 0.5, '2023-03-20', '1717 Cedar St', 'Active', '2009-03-20', 'City Hospital', 50.5, 3.3),
-('Sam', 'Lee', 'U', '', 5, 'Male', '2018-06-24', 'Purok 21', 'Normal', 110.0, 18.0, 0.5, 0.3, '2023-06-24', '1818 Birch St', 'Active', '2018-06-24', 'City Hospital', 50.0, 3.2),
-('Tina', 'Perez', 'V', '', 6, 'Female', '2017-09-28', 'Purok 22', 'Underweight', 115.0, 17.0, -0.2, -0.5, '2023-09-28', '1919 Walnut St', 'Active', '2017-09-28', 'City Hospital', 48.5, 3.0),
-('Umar', 'White', 'W', '', 7, 'Male', '2016-12-02', 'Purok 23', 'Normal', 120.0, 20.0, 0.1, 0.0, '2023-12-02', '2020 Chestnut St', 'Active', '2016-12-02', 'City Hospital', 49.0, 3.1),
-('Vera', 'Harris', 'X', '', 8, 'Female', '2015-02-06', 'Purok 24', 'Overweight', 130.0, 25.0, 1.0, 1.2, '2023-02-06', '2121 Spruce St', 'Active', '2015-02-06', 'City Hospital', 51.0, 3.5),
-('Will', 'Clark', 'Y', '', 9, 'Male', '2014-05-10', 'Purok 25', 'Normal', 135.0, 30.0, 0.3, 0.4, '2023-05-10', '2222 Fir St', 'Active', '2014-05-10', 'City Hospital', 50.5, 3.3),
-('Xena', 'Lewis', 'Z', '', 10, 'Female', '2013-08-14', 'Purok 26', 'Normal', 140.0, 32.0, 0.2, 0.1, '2023-08-14', '2323 Poplar St', 'Active', '2013-08-14', 'City Hospital', 49.5, 3.2),
-('Yusuf', 'Walker', 'A', '', 11, 'Male', '2012-11-18', 'Purok 27', 'Underweight', 145.0, 35.0, -0.3, -0.4, '2023-11-18', '2424 Willow St', 'Active', '2012-11-18', 'City Hospital', 48.0, 3.0),
-('Zara', 'Hall', 'B', '', 12, 'Female', '2011-02-22', 'Purok 28', 'Normal', 150.0, 40.0, 0.0, 0.0, '2023-02-22', '2525 Ash St', 'Active', '2011-02-22', 'City Hospital', 50.0, 3.4),
-('Adam', 'Allen', 'C', '', 13, 'Male', '2010-05-26', 'Purok 29', 'Overweight', 155.0, 45.0, 1.1, 1.3, '2023-05-26', '2626 Beech St', 'Active', '2010-05-26', 'City Hospital', 51.5, 3.6),
-('Bella', 'Young', 'D', '', 14, 'Female', '2009-08-30', 'Purok 30', 'Normal', 160.0, 50.0, 0.4, 0.5, '2023-08-30', '2727 Pine St', 'Active', '2009-08-30', 'City Hospital', 50.5, 3.3),
-('Cody', 'King', 'E', '', 5, 'Male', '2018-12-04', 'Purok 31', 'Normal', 110.0, 18.0, 0.5, 0.3, '2023-12-04', '2828 Maple St', 'Active', '2018-12-04', 'City Hospital', 50.0, 3.2),
-('Diana', 'Wright', 'F', '', 6, 'Female', '2017-03-08', 'Purok 32', 'Underweight', 115.0, 17.0, -0.2, -0.5, '2023-03-08', '2929 Oak St', 'Active', '2017-03-08', 'City Hospital', 48.5, 3.0),
-('Eli', 'Scott', 'G', '', 7, 'Male', '2016-06-12', 'Purok 33', 'Normal', 120.0, 20.0, 0.1, 0.0, '2023-06-12', '3030 Elm St', 'Active', '2016-06-12', 'City Hospital', 49.0, 3.1),
-('Faith', 'Green', 'H', '', 8, 'Female', '2015-09-16', 'Purok 34', 'Overweight', 130.0, 25.0, 1.0, 1.2, '2023-09-16', '3131 Cedar St', 'Active', '2015-09-16', 'City Hospital', 51.0, 3.5),
-('Gabe', 'Adams', 'I', '', 9, 'Male', '2014-12-20', 'Purok 35', 'Normal', 135.0, 30.0, 0.3, 0.4, '2023-12-20', '3232 Birch St', 'Active', '2014-12-20', 'City Hospital', 50.5, 3.3),
-('Holly', 'Baker', 'J', '', 10, 'Female', '2013-03-24', 'Purok 36', 'Normal', 140.0, 32.0, 0.2, 0.1, '2023-03-24', '3333 Walnut St', 'Active', '2013-03-24', 'City Hospital', 49.5, 3.2),
-('Isaac', 'Nelson', 'K', '', 11, 'Male', '2012-06-28', 'Purok 37', 'Underweight', 145.0, 35.0, -0.3, -0.4, '2023-06-28', '3434 Chestnut St', 'Active', '2012-06-28', 'City Hospital', 48.0, 3.0),
-('Jade', 'Carter', 'L', '', 12, 'Female', '2011-09-01', 'Purok 38', 'Normal', 150.0, 40.0, 0.0, 0.0, '2023-09-01', '3535 Spruce St', 'Active', '2011-09-01', 'City Hospital', 50.0, 3.4),
-('Kyle', 'Mitchell', 'M', '', 13, 'Male', '2010-12-05', 'Purok 39', 'Overweight', 155.0, 45.0, 1.1, 1.3, '2023-12-05', '3636 Fir St', 'Active', '2010-12-05', 'City Hospital', 51.5, 3.6),
-('Lily', 'Perez', 'N', '', 14, 'Female', '2009-03-09', 'Purok 40', 'Normal', 160.0, 50.0, 0.4, 0.5, '2023-03-09', '3737 Poplar St', 'Active', '2009-03-09', 'City Hospital', 50.5, 3.3),
-('Mason', 'Roberts', 'O', '', 5, 'Male', '2018-06-13', 'Purok 41', 'Normal', 110.0, 18.0, 0.5, 0.3, '2023-06-13', '3838 Willow St', 'Active', '2018-06-13', 'City Hospital', 50.0, 3.2),
-('Nora', 'Turner', 'P', '', 6, 'Female', '2017-09-17', 'Purok 42', 'Underweight', 115.0, 17.0, -0.2, -0.5, '2023-09-17', '3939 Ash St', 'Active', '2017-09-17', 'City Hospital', 48.5, 3.0),
-('Owen', 'Phillips', 'Q', '', 7, 'Male', '2016-12-21', 'Purok 43', 'Normal', 120.0, 20.0, 0.1, 0.0, '2023-12-21', '4040 Beech St', 'Active', '2016-12-21', 'City Hospital', 49.0, 3.1),
-('Piper', 'Campbell', 'R', '', 8, 'Female', '2015-03-25', 'Purok 44', 'Overweight', 130.0, 25.0, 1.0, 1.2, '2023-03-25', '4141 Pine St', 'Active', '2015-03-25', 'City Hospital', 51.0, 3.5),
-('Quincy', 'Parker', 'S', '', 9, 'Male', '2014-06-29', 'Purok 45', 'Normal', 135.0, 30.0, 0.3, 0.4, '2023-06-29', '4242 Maple St', 'Active', '2014-06-29', 'City Hospital', 50.5, 3.3),
-('Riley', 'Evans', 'T', '', 10, 'Female', '2013-10-03', 'Purok 46', 'Normal', 140.0, 32.0, 0.2, 0.1, '2023-10-03', '4343 Oak St', 'Active', '2013-10-03', 'City Hospital', 49.5, 3.2),
-('Sophie', 'Edwards', 'U', '', 11, 'Female', '2012-01-07', 'Purok 47', 'Underweight', 145.0, 35.0, -0.3, -0.4, '2023-01-07', '4444 Elm St', 'Active', '2012-01-07', 'City Hospital', 48.0, 3.0),
-('Tyler', 'Collins', 'V', '', 12, 'Male', '2011-04-11', 'Purok 48', 'Normal', 150.0, 40.0, 0.0, 0.0, '2023-04-11', '4545 Cedar St', 'Active', '2011-04-11', 'City Hospital', 50.0, 3.4),
-('Uma', 'Stewart', 'W', '', 13, 'Female', '2010-07-15', 'Purok 49', 'Overweight', 155.0, 45.0, 1.1, 1.3, '2023-07-15', '4646 Birch St', 'Active', '2010-07-15', 'City Hospital', 51.5, 3.6),
-('Victor', 'Hughes', 'X', '', 14, 'Male', '2009-10-19', 'Purok 50', 'Normal', 160.0, 50.0, 0.4, 0.5, '2023-10-19', '4747 Walnut St', 'Active', '2009-10-19', 'City Hospital', 50.5, 3.3);
+INSERT INTO household_member (household_number, family_name, given_name, middle_name, extension, relationship, gender, civil_status, birthdate, highest_educational_attainment, occupation, monthly_income, block_number, lot_number, sitio_purok, barangay, city, birthplace, religion, sectoral, registered_voter, business_in_area) VALUES
+(1, 'Smith', 'Anna', NULL, NULL, 'Daughter', 'Female', 'Single', '2005-06-06', 'High School Level', NULL, NULL, 101, 1, 'Zapatera', 'Barangay 1', 'City A', 'City A', 'Christianity', NULL, 'Yes', 'No'),
+(2, 'Doe', 'John', 'B', NULL, 'Son', 'Male', 'Single', '2000-07-07', 'College Level', NULL, NULL, 102, 2, 'Sto. Nino', 'Barangay 2', 'City B', 'City B', 'Islam', NULL, 'No', 'Yes'),
+(3, 'Brown', 'Emily', NULL, NULL, 'Daughter', 'Female', 'Single', '1998-08-08', 'High School Graduate', NULL, NULL, 103, 3, 'San Roque', 'Barangay 3', 'City C', 'City C', 'Buddhism', NULL, 'Yes', 'No'),
+(4, 'Johnson', 'Michael', 'C', NULL, 'Son', 'Male', 'Single', '2003-09-09', 'Elementary Graduate', NULL, NULL, 104, 4, 'San Antonio', 'Barangay 4', 'City D', 'City D', 'Hinduism', NULL, 'No', 'Yes'),
+(5, 'Williams', 'Sarah', NULL, NULL, 'Daughter', 'Female', 'Single', '2001-10-10', 'College Level', NULL, NULL, 105, 5, 'Lubi', 'Barangay 5', 'City E', 'City E', 'Atheism', NULL, 'Yes', 'No');
 
-<!-- child_immunization_record -->
-INSERT INTO child_immunization_records (first_name, last_name, date_of_birth, sex, health_center) VALUES
-('John', 'Doe', '2015-06-15', 'Male', 'Health Center 1'),
-('Jane', 'Smith', '2016-07-20', 'Female', 'Health Center 2'),
-('Alice', 'Johnson', '2014-05-10', 'Female', 'Health Center 3'),
-('Bob', 'Williams', '2013-08-25', 'Male', 'Health Center 1'),
-('Charlie', 'Brown', '2012-11-30', 'Male', 'Health Center 2'),
-('Daisy', 'Miller', '2011-01-15', 'Female', 'Health Center 3'),
-('Ethan', 'Davis', '2010-03-20', 'Male', 'Health Center 1'),
-('Fiona', 'Garcia', '2009-06-05', 'Female', 'Health Center 2'),
-('George', 'Martinez', '2008-09-10', 'Male', 'Health Center 3'),
-('Hannah', 'Rodriguez', '2007-12-25', 'Female', 'Health Center 1'),
-('Ian', 'Martinez', '2015-02-14', 'Male', 'Health Center 2'),
-('Julia', 'Hernandez', '2014-04-18', 'Female', 'Health Center 3'),
-('Kevin', 'Lopez', '2013-07-22', 'Male', 'Health Center 1'),
-('Laura', 'Gonzalez', '2012-10-26', 'Female', 'Health Center 2'),
-('Michael', 'Wilson', '2011-01-30', 'Male', 'Health Center 3'),
-('Nina', 'Anderson', '2010-04-04', 'Female', 'Health Center 1'),
-('Oscar', 'Thomas', '2009-07-08', 'Male', 'Health Center 2'),
-('Paula', 'Taylor', '2008-10-12', 'Female', 'Health Center 3'),
-('Quinn', 'Moore', '2007-01-16', 'Male', 'Health Center 1'),
-('Rachel', 'Jackson', '2015-03-20', 'Female', 'Health Center 2'),
-('Sam', 'Lee', '2014-06-24', 'Male', 'Health Center 3'),
-('Tina', 'Perez', '2013-09-28', 'Female', 'Health Center 1'),
-('Umar', 'White', '2012-12-02', 'Male', 'Health Center 2'),
-('Vera', 'Harris', '2011-02-06', 'Female', 'Health Center 3'),
-('Will', 'Clark', '2010-05-10', 'Male', 'Health Center 1'),
-('Xena', 'Lewis', '2009-08-14', 'Female', 'Health Center 2'),
-('Yusuf', 'Walker', '2008-11-18', 'Male', 'Health Center 3'),
-('Zara', 'Hall', '2007-02-22', 'Female', 'Health Center 1'),
-('Adam', 'Allen', '2015-05-26', 'Male', 'Health Center 2'),
-('Bella', 'Young', '2014-08-30', 'Female', 'Health Center 3'),
-('Cody', 'King', '2013-12-04', 'Male', 'Health Center 1'),
-('Diana', 'Wright', '2012-03-08', 'Female', 'Health Center 2'),
-('Eli', 'Scott', '2011-06-12', 'Male', 'Health Center 3'),
-('Faith', 'Green', '2010-09-16', 'Female', 'Health Center 1'),
-('Gabe', 'Adams', '2009-12-20', 'Male', 'Health Center 2'),
-('Holly', 'Baker', '2008-03-24', 'Female', 'Health Center 3'),
-('Isaac', 'Nelson', '2007-06-28', 'Male', 'Health Center 1'),
-('Jade', 'Carter', '2015-09-01', 'Female', 'Health Center 2'),
-('Kyle', 'Mitchell', '2014-12-05', 'Male', 'Health Center 3'),
-('Lily', 'Perez', '2013-03-09', 'Female', 'Health Center 1'),
-('Mason', 'Roberts', '2012-06-13', 'Male', 'Health Center 2'),
-('Nora', 'Turner', '2011-09-17', 'Female', 'Health Center 3'),
-('Owen', 'Phillips', '2010-12-21', 'Male', 'Health Center 1'),
-('Piper', 'Campbell', '2009-03-25', 'Female', 'Health Center 2'),
-('Quincy', 'Parker', '2008-06-29', 'Male', 'Health Center 3'),
-('Riley', 'Evans', '2007-10-03', 'Female', 'Health Center 1'),
-('Sophie', 'Edwards', '2015-01-07', 'Female', 'Health Center 2'),
-('Tyler', 'Collins', '2014-04-11', 'Male', 'Health Center 3'),
-('Uma', 'Stewart', '2013-07-15', 'Female', 'Health Center 1');
 
+INSERT INTO users (username, email, password, role, status, created_at, updated_at) VALUES
+('user1', 'user1@example.com', 'password1', 1, 'active', NOW(), NOW()),
+('user2', 'user2@example.com', 'password2', 2, 'inactive', NOW(), NOW()),
+('user3', 'user3@example.com', 'password3', 0, 'active', NOW(), NOW()),
+('user4', 'user4@example.com', 'password4', 1, 'active', NOW(), NOW()),
+('user5', 'user5@example.com', 'password5', 2, 'inactive', NOW(), NOW());
+
+
+INSERT INTO logs (user_id, action, timestamp) VALUES
+(1, 'Login', NOW()),
+(2, 'Logout', NOW()),
+(3, 'Update Profile', NOW()),
+(4, 'Delete Account', NOW()),
+(5, 'Change Password', NOW());
+
+INSERT INTO children (member_id, heightCm, weightKg, heightAgeZ, weightHeightZ, nutritionalStatus) VALUES
+(1, 120.5, 25.0, -1.0, 0.5, 'Normal'),
+(2, 110.0, 20.0, -2.0, 1.0, 'Underweight'),
+(3, 130.0, 30.0, 0.0, -0.5, 'Overweight'),
+(4, 115.0, 22.0, -1.5, 0.0, 'Normal'),
+(5, 125.0, 28.0, 0.5, 0.5, 'Normal');
+
+INSERT INTO child_immunization_records (child_id, dose_number, vaccine_type, dose_description, scheduled_date, health_center, administered_date, administered_by, side_effects, location, created_at, updated_at) VALUES
+(1, 1, 'MMR', 'First Dose', '2023-01-01', 'Health Center A', '2023-01-02', 'Nurse A', 'None', 'Location A', NOW(), NOW()),
+(2, 2, 'DPT', 'Second Dose', '2023-02-01', 'Health Center B', '2023-02-02', 'Nurse B', 'Fever', 'Location B', NOW(), NOW()),
+(3, 1, 'Polio', 'First Dose', '2023-03-01', 'Health Center C', '2023-03-02', 'Nurse C', 'None', 'Location C', NOW(), NOW()),
+(4, 3, 'Hepatitis B', 'Third Dose', '2023-04-01', 'Health Center D', '2023-04-02', 'Nurse D', 'Rash', 'Location D', NOW(), NOW()),
+(5, 1, 'BCG', 'First Dose', '2023-05-01', 'Health Center E', '2023-05-02', 'Nurse E', 'None', 'Location E', NOW(), NOW());

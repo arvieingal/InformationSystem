@@ -9,6 +9,7 @@ export interface VaccineDose {
 }
 
 export interface Immunization {
+  records: any;
   record_id: number;
   first_name: string;
   last_name: string;
@@ -27,6 +28,15 @@ export interface Immunization {
   family_number: string;
   vaccineDoses: VaccineDose[];
   child: {
+    address: ReactNode;
+    heightAtBirth: ReactNode;
+    birthplace: ReactNode;
+    father_name: ReactNode;
+    birthdate: ReactNode;
+    mother_name: ReactNode;
+    extension: any;
+    given_name: any;
+    family_name: any;
     age: any;
     first_name: string;
     middle_name: string;

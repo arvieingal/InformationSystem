@@ -4,10 +4,13 @@ const { Model } = require("sequelize");
 module.exports = (sequelize, DataTypes) => {
   class HouseholdMember extends Model {
     static associate(models) {
-      // Define associations here if needed
       HouseholdMember.belongsTo(models.HouseholdHead, {
         foreignKey: 'household_number',
         onDelete: 'CASCADE'
+      });
+      HouseholdMember.hasMany(models.Child, {
+        foreignKey: 'member_id',
+        as: 'children',
       });
     }
   }
@@ -155,8 +158,8 @@ module.exports = (sequelize, DataTypes) => {
     {
       sequelize,
       modelName: "HouseholdMember",
-      tableName: "household_members",
-      timestamps: false, // Adjust if you want to include timestamps
+      tableName: "household_member",
+      timestamps: false, 
       createdAt: "created_at",
       updatedAt: "updated_at",
     }

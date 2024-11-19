@@ -25,17 +25,17 @@ const ImmunizationRecord: React.FC = () => {
   const addModalRef = useRef<HTMLDivElement>(null);
 
   const [formData, setFormData] = useState({
-    first_name: '',
-    last_name: '',
+    given_name: '',
+    family_name: '',
     middle_name: '',
-    suffix: '',
-    date_of_birth: '',
-    place_of_birth: '',
+    extension: '',
+    birthdate: '',
+    birthplace: '',
     address: '',
     mother_name: '',
     father_name: '',
-    birth_height: '',
-    birth_weight: '',
+    heightAtBirth: '',
+    weightAtBirth: '',
     sex: '',
     health_center: '',
     barangay: '',
@@ -45,7 +45,7 @@ const ImmunizationRecord: React.FC = () => {
   useEffect(() => {
     const fetchImmunizations = async () => {
       try {
-        const response = await fetch('http://localhost:3001/api/childImmunizationRecords');
+        const response = await fetch('http://localhost:3001/api/childImmunizationRecord');
   
         if (response.ok) {
           const data = await response.json();
@@ -255,8 +255,8 @@ const ImmunizationRecord: React.FC = () => {
                   <input
                     className="w-full outline-none"
                     type="text"
-                    name="first_name"
-                    value={formData.first_name}
+                    name="given_name"
+                    value={formData.given_name}
                     onChange={handleInputChange}
                   />
                 </div>
@@ -267,8 +267,8 @@ const ImmunizationRecord: React.FC = () => {
                   <input
                     className="w-full outline-none"
                     type="text"
-                    name="last_name"
-                    value={formData.last_name}
+                    name="family_name"
+                    value={formData.family_name}
                     onChange={handleInputChange}
                   />
                 </div>
@@ -291,8 +291,8 @@ const ImmunizationRecord: React.FC = () => {
                   <input
                     className="w-full outline-none"
                     type="text"
-                    name="suffix"
-                    value={formData.suffix}
+                    name="extension"
+                    value={formData.extension}
                     onChange={handleInputChange}
                   />
                 </div>
@@ -303,8 +303,8 @@ const ImmunizationRecord: React.FC = () => {
                   <input
                     className="w-full outline-none"
                     type="text"
-                    name="date_of_birth"
-                    value={formatDate(formData.date_of_birth)}
+                    name="birthdate"
+                    value={formatDate(formData.birthdate)}
                     onChange={handleInputChange}
                   />
                 </div>
@@ -315,8 +315,8 @@ const ImmunizationRecord: React.FC = () => {
                   <input
                     className="w-full outline-none"
                     type="text"
-                    name="place_of_birth"
-                    value={formData.place_of_birth}
+                    name="birthplace"
+                    value={formData.birthplace}
                     onChange={handleInputChange}
                   />
                 </div>
@@ -363,8 +363,8 @@ const ImmunizationRecord: React.FC = () => {
                   <input
                     className="w-full outline-none"
                     type="text"
-                    name="birth_height"
-                    value={formData.birth_height}
+                    name="heightAtBirth"
+                    value={formData.heightAtBirth}
                     onChange={handleInputChange}
                   />
                 </div>
@@ -375,8 +375,8 @@ const ImmunizationRecord: React.FC = () => {
                   <input
                     className="w-full outline-none"
                     type="text"
-                    name="birth_weight"
-                    value={formData.birth_weight}
+                    name="weightAtBirth"
+                    value={formData.weightAtBirth}
                     onChange={handleInputChange}
                   />
                 </div>
@@ -444,14 +444,49 @@ const ImmunizationRecord: React.FC = () => {
             >
               &times;
             </button>
-            <h2 className="text-lg font-semibold">Immunization Record Details</h2>
-            <p>First Name: {selectedImmunization.child.first_name}</p>
-            <p>Last Name: {selectedImmunization.child.last_name}</p>
-            <p>Sex: {selectedImmunization.child.sex}</p>
-            <p>Date of Birth: {selectedImmunization.child.dateOfBirth}</p>
-            <p>Health Center: {selectedImmunization.health_center}</p>
-            <p>Barangay: {selectedImmunization.barangay}</p>
-            <p>Family Number: {selectedImmunization.family_number}</p>
+            <h2 className="text-lg font-semibold">Child Immunization Record</h2>
+            <div className="grid grid-cols-3 gap-4">
+              <div className="col-span-3">
+                <p>Child's Name: {`${selectedImmunization.child.family_name} ${selectedImmunization.child.given_name} ${selectedImmunization.child.middle_name} ${selectedImmunization.child.extension}`}</p>
+                <p>Mother's Name: {selectedImmunization.child.mother_name}</p>
+                <p>Sex: {selectedImmunization.child.sex}</p>
+              </div>
+              <div>
+                <p>Date of Birth: {selectedImmunization.child.birthdate}</p>
+                <p>Father's Name: {selectedImmunization.child.father_name}</p>
+                <p>Health Center: {selectedImmunization.health_center}</p>
+              </div>
+              <div>
+                <p>Place of Birth: {selectedImmunization.child.birthplace}</p>
+                <p>Birth Height: {selectedImmunization.child.heightAtBirth}</p>
+                <p>Barangay: {selectedImmunization.barangay}</p>
+              </div>
+              <div>
+                <p>Address: {selectedImmunization.child.address}</p>
+                <p>Birth Weight: {selectedImmunization.child.heightAtBirth}</p>
+                <p>Family Number: {selectedImmunization.family_number}</p>
+              </div>
+            </div>
+            <table className="w-full mt-4 border-collapse border border-gray-300">
+              <thead>
+                <tr>
+                  <th className="border border-gray-300 p-2">Bakuna</th>
+                  <th className="border border-gray-300 p-2">Doses</th>
+                  <th className="border border-gray-300 p-2">Petsa ng Bakuna</th>
+                  <th className="border border-gray-300 p-2">Remarks</th>
+                </tr>
+              </thead>
+              <tbody>
+                {/* Example row, replace with actual data */}
+                <tr>
+                  <td className="border border-gray-300 p-2">Example Vaccine</td>
+                  <td className="border border-gray-300 p-2">1</td>
+                  <td className="border border-gray-300 p-2">2023-01-01</td>
+                  <td className="border border-gray-300 p-2">No remarks</td>
+                </tr>
+                {/* Add more rows as needed */}
+              </tbody>
+            </table>
             <button
               className="mt-4 bg-[#007F73] text-white px-4 py-2 rounded "
               onClick={() => setIsViewModalOpen(false)}
