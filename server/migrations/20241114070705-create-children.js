@@ -9,20 +9,62 @@ module.exports = {
         primaryKey: true,
         allowNull: false,
       },
-      member_id: {
+      resident_id: {
         type: Sequelize.INTEGER,
+        allowNull: false,
         references: {
-          model: 'household_member',
-          key: 'member_id'
+          model: "resident", // Ensure this table exists
+          key: "resident_id", // Ensure this is a primary key in the resident table
         },
+        onUpdate: "CASCADE",
+        onDelete: "CASCADE",
+      },
+      first_name: {
+        type: Sequelize.STRING,
         allowNull: false,
       },
-      heightAtBirth: {
-        type: Sequelize.FLOAT,
+      last_name: {
+        type: Sequelize.STRING,
         allowNull: false,
       },
-      weightAtBirth: {
-        type: Sequelize.FLOAT,
+      middle_name: {
+        type: Sequelize.STRING,
+        allowNull: true,
+      },
+      suffix: {
+        type: Sequelize.STRING,
+        allowNull: true,
+      },
+      sex: {
+        type: Sequelize.STRING,
+        allowNull: false,
+      },
+      birthdate: {
+        type: Sequelize.DATE,
+        allowNull: false,
+      },
+      barangay: {
+        type: Sequelize.STRING,
+        allowNull: false,
+      },
+      mothers_name: {
+        type: Sequelize.STRING,
+        allowNull: false,
+      },
+      fathers_name: {
+        type: Sequelize.STRING,
+        allowNull: false,
+      },
+      family_number: {
+        type: Sequelize.STRING,
+        allowNull: false,
+      },
+      sitio_purok: {
+        type: Sequelize.STRING,
+        allowNull: false,
+      },
+      nutritionalStatus: {
+        type: Sequelize.STRING,
         allowNull: false,
       },
       heightCm: {
@@ -37,19 +79,15 @@ module.exports = {
         type: Sequelize.FLOAT,
         allowNull: false,
       },
-      weightAgeZ: {
-        type: Sequelize.FLOAT,
-        allowNull: false,
-      },  
       weightHeightZ: {
         type: Sequelize.FLOAT,
         allowNull: false,
       },
       measurementDate: {
         type: Sequelize.DATE,
-        allowNull: false,
+        allowNull: true,
       },
-      nutritionalStatus: {
+      address: {
         type: Sequelize.STRING,
         allowNull: false,
       },
@@ -59,11 +97,23 @@ module.exports = {
         allowNull: false,
         defaultValue: "Active",
       },
-      createdAt: {
+      placeOfBirth: {
+        type: Sequelize.STRING,
+        allowNull: true,
+      },
+      heightAtBirth: {
+        type: Sequelize.FLOAT,
+        allowNull: true,
+      },
+      weightAtBirth: {
+        type: Sequelize.FLOAT,
+        allowNull: true,
+      },
+      created_at: {
         type: Sequelize.DATE,
         allowNull: false,
       },
-      updatedAt: {
+      updated_at: {
         type: Sequelize.DATE,
         allowNull: false,
       },

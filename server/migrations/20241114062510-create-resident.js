@@ -1,69 +1,54 @@
-"use strict";
-const { Model } = require("sequelize");
+'use strict';
 
-module.exports = (sequelize, DataTypes) => {
-  class HouseholdHead extends Model {
-    static associate(models) {
-      // Define associations here if needed
-    }
-  }
-
-  HouseholdHead.init(
-    {
-      head_id: {
-        type: DataTypes.INTEGER,
+/** @type {import('sequelize-cli').Migration} */
+module.exports = {
+  async up (queryInterface, Sequelize) {
+    await queryInterface.createTable('resident', {
+      resident_id: {
+        type: Sequelize.INTEGER,
         autoIncrement: true,
         primaryKey: true,
         allowNull: false,
       },
       household_number: {
-        type: DataTypes.INTEGER,
+        type: Sequelize.INTEGER,
         allowNull: false,
+        unique: true,
       },
       family_name: {
-        type: DataTypes.STRING(255),
+        type: Sequelize.STRING(255),
         allowNull: false,
       },
       given_name: {
-        type: DataTypes.STRING(255),
+        type: Sequelize.STRING(255),
         allowNull: false,
       },
       middle_name: {
-        type: DataTypes.STRING(255),
+        type: Sequelize.STRING(255),
         allowNull: true,
       },
       extension: {
-        type: DataTypes.STRING(50),
+        type: Sequelize.STRING(50),
         allowNull: true,
       },
       relationship: {
-        type: DataTypes.STRING(50),
+        type: Sequelize.STRING(50),
         allowNull: false,
       },
       gender: {
-        type: DataTypes.STRING(10),
+        type: Sequelize.ENUM('Male', 'Female'),
         allowNull: false,
       },
       civil_status: {
-        type: DataTypes.ENUM('Married', 'Separated', 'Single', 'Widowed'),
+        type: Sequelize.ENUM('Married', 'Separated', 'Single', 'Widowed'),
         allowNull: false,
       },
       birthdate: {
-        type: DataTypes.DATE,
+        type: Sequelize.DATE,
         allowNull: false,
       },
-      age: {
-        type: DataTypes.VIRTUAL,
-        get() {
-          const birthdate = this.getDataValue('birthdate');
-          if (!birthdate) return null;
-          const ageDifMs = Date.now() - new Date(birthdate).getTime();
-          const ageDate = new Date(ageDifMs); // miliseconds from epoch
-          return Math.abs(ageDate.getUTCFullYear() - 1970);
-        },
-      },
       highest_educational_attainment: {
-        type: DataTypes.ENUM(
+        type: Sequelize.ENUM(
           'Elementary Level', 
           'Elementary Graduate', 
           'High School Level', 
@@ -74,23 +59,23 @@ module.exports = (sequelize, DataTypes) => {
         allowNull: true,
       },
       occupation: {
-        type: DataTypes.STRING(255),
+        type: Sequelize.STRING(255),
         allowNull: true,
       },
       monthly_income: {
-        type: DataTypes.DECIMAL(10, 2),
+        type: Sequelize.DECIMAL(10, 2),
         allowNull: true,
       },
       block_number: {
-        type: DataTypes.INTEGER,
+        type: Sequelize.INTEGER,
         allowNull: false,
       },
       lot_number: {
-        type: DataTypes.INTEGER,
+        type: Sequelize.INTEGER,
         allowNull: false,
       },
       sitio_purok: {
-        type: DataTypes.ENUM(
+        type: Sequelize.ENUM(
           'Zapatera', 
           'Sto. Nino', 
           'San Roque', 
@@ -107,23 +92,23 @@ module.exports = (sequelize, DataTypes) => {
         allowNull: false,
       },
       barangay: {
-        type: DataTypes.STRING(255),
+        type: Sequelize.STRING(255),
         allowNull: false,
       },
       city: {
-        type: DataTypes.STRING(255),
+        type: Sequelize.STRING(255),
         allowNull: false,
       },
       birthplace: {
-        type: DataTypes.STRING(255),
+        type: Sequelize.STRING(255),
         allowNull: false,
       },
       religion: {
-        type: DataTypes.STRING(255),
+        type: Sequelize.STRING(255),
         allowNull: false,
       },
       sectoral: {
-        type: DataTypes.ENUM(
+        type: Sequelize.ENUM(
           'LGBT', 
           'PWD', 
           'Senior Citizen', 
@@ -135,23 +120,31 @@ module.exports = (sequelize, DataTypes) => {
         allowNull: true,
       },
       registered_voter: {
-        type: DataTypes.ENUM('Yes', 'No'),
+        type: Sequelize.ENUM('Yes', 'No'),
         allowNull: false,
       },
-      business_in_area: {
-        type: DataTypes.ENUM('Yes', 'No'),
+      business_owner: {
+        type: Sequelize.ENUM('Yes', 'No'),
         allowNull: false,
       },
-    },
-    {
-      sequelize,
-      modelName: "HouseholdHead",
-      tableName: "household_head",
-      timestamps: true,
-      createdAt: "created_at",
-      updatedAt: "updated_at",
-    }
-  );
+      household_head: {
+        type: Sequelize.ENUM('Yes', 'No'),
+        allowNull: false,
+      },
+      created_at: {
+        type: Sequelize.DATE,
+        allowNull: false,
+        defaultValue: Sequelize.literal('CURRENT_TIMESTAMP'),
+      },
+      updated_at: {
+        type: Sequelize.DATE,
+        allowNull: false,
+        defaultValue: Sequelize.literal('CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP'),
+      },
+    });
+  },
 
-  return HouseholdHead;
+  async down (queryInterface, Sequelize) {
+    await queryInterface.dropTable('resident');
+  }
 };

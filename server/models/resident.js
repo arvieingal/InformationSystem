@@ -2,22 +2,15 @@
 const { Model } = require("sequelize");
 
 module.exports = (sequelize, DataTypes) => {
-  class HouseholdMember extends Model {
+  class Resident extends Model {
     static associate(models) {
-      HouseholdMember.belongsTo(models.HouseholdHead, {
-        foreignKey: 'household_number',
-        onDelete: 'CASCADE'
-      });
-      HouseholdMember.hasMany(models.Child, {
-        foreignKey: 'member_id',
-        as: 'children',
-      });
+      // Define associations here if needed
     }
   }
 
-  HouseholdMember.init(
+  Resident.init(
     {
-      member_id: {
+      household_id: {
         type: DataTypes.INTEGER,
         autoIncrement: true,
         primaryKey: true,
@@ -25,12 +18,8 @@ module.exports = (sequelize, DataTypes) => {
       },
       household_number: {
         type: DataTypes.INTEGER,
-        references: {
-          model: 'household_head', // Name of the table in the database
-          key: 'household_number'
-        },
         allowNull: false,
-        onDelete: 'CASCADE'
+        unique: true,
       },
       family_name: {
         type: DataTypes.STRING(255),
@@ -53,35 +42,25 @@ module.exports = (sequelize, DataTypes) => {
         allowNull: false,
       },
       gender: {
-        type: DataTypes.STRING(10),
+        type: DataTypes.ENUM("Male", "Female"),
         allowNull: false,
       },
       civil_status: {
-        type: DataTypes.ENUM('Married', 'Separated', 'Single', 'Widowed'),
+        type: DataTypes.ENUM("Married", "Separated", "Single", "Widowed"),
         allowNull: false,
       },
       birthdate: {
         type: DataTypes.DATE,
         allowNull: false,
       },
-      age: {
-        type: DataTypes.VIRTUAL,
-        get() {
-          const birthdate = this.getDataValue('birthdate');
-          if (!birthdate) return null;
-          const ageDifMs = Date.now() - new Date(birthdate).getTime();
-          const ageDate = new Date(ageDifMs); // miliseconds from epoch
-          return Math.abs(ageDate.getUTCFullYear() - 1970);
-        },
-      },
       highest_educational_attainment: {
         type: DataTypes.ENUM(
-          'Elementary Level', 
-          'Elementary Graduate', 
-          'High School Level', 
-          'High School Graduate', 
-          'College Level', 
-          'College Graduate'
+          "Elementary Level",
+          "Elementary Graduate",
+          "High School Level",
+          "High School Graduate",
+          "College Level",
+          "College Graduate"
         ),
         allowNull: true,
       },
@@ -103,18 +82,18 @@ module.exports = (sequelize, DataTypes) => {
       },
       sitio_purok: {
         type: DataTypes.ENUM(
-          'Zapatera', 
-          'Sto. Nino', 
-          'San Roque', 
-          'San Antonio', 
-          'Lubi', 
-          'Regla', 
-          'Sta.Cruz', 
-          'Abellana', 
-          'San Vicente', 
-          'Mabuhay', 
-          'Kalinao', 
-          'Nangka'
+          "Zapatera",
+          "Sto. Nino",
+          "San Roque",
+          "San Antonio",
+          "Lubi",
+          "Regla",
+          "Sta.Cruz",
+          "Abellana",
+          "San Vicente",
+          "Mabuhay",
+          "Kalinao",
+          "Nangka"
         ),
         allowNull: false,
       },
@@ -136,34 +115,38 @@ module.exports = (sequelize, DataTypes) => {
       },
       sectoral: {
         type: DataTypes.ENUM(
-          'LGBT', 
-          'PWD', 
-          'Senior Citizen', 
-          'Solo Parent', 
-          'Habal - Habal', 
-          'Erpat', 
-          'Others'
+          "LGBT",
+          "PWD",
+          "Senior Citizen",
+          "Solo Parent",
+          "Habal - Habal",
+          "Erpat",
+          "Others"
         ),
         allowNull: true,
       },
       registered_voter: {
-        type: DataTypes.ENUM('Yes', 'No'),
+        type: DataTypes.ENUM("Yes", "No"),
         allowNull: false,
       },
-      business_in_area: {
-        type: DataTypes.ENUM('Yes', 'No'),
+      business_owner: {
+        type: DataTypes.ENUM("Yes", "No"),
+        allowNull: false,
+      },
+      household_head: {
+        type: DataTypes.ENUM("Yes", "No"),
         allowNull: false,
       },
     },
     {
       sequelize,
-      modelName: "HouseholdMember",
-      tableName: "household_member",
-      timestamps: false, 
+      modelName: "Resident",
+      tableName: "resident",
+      timestamps: true,
       createdAt: "created_at",
       updatedAt: "updated_at",
     }
   );
 
-  return HouseholdMember;
+  return Resident;
 };

@@ -13,7 +13,6 @@ module.exports = {
           key: 'child_id', // Ensure this matches the primary key in the referenced table
         },
       },
-      
       // Add the new fields from the model
       record_id: {
         type: Sequelize.INTEGER,
@@ -37,10 +36,6 @@ module.exports = {
         type: Sequelize.DATE,
         allowNull: true,
       },
-      health_center: {
-        type: Sequelize.STRING(100),
-        allowNull: true,
-      },
       administered_date: {
         type: Sequelize.DATE,
         allowNull: true,
@@ -53,7 +48,7 @@ module.exports = {
         type: Sequelize.TEXT,
         allowNull: true,
       },
-
+      
       location: {
         type: Sequelize.STRING(100),
         allowNull: true,

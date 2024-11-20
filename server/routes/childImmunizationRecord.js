@@ -1,21 +1,15 @@
 const express = require("express");
 const router = express.Router();
-const { ChildImmunizationRecord, Child, HouseholdMember } = require("../models");
+const { ChildImmunizationRecord, Child } = require("../models");
 
-router.get("/childImmunizationRecord", async (req, res) => {
+router.get("/child-immunization-records", async (req, res) => {
   try {
     const records = await ChildImmunizationRecord.findAll({
       include: [
         {
           model: Child,
           as: "child",
-          include: [
-            {
-              model: HouseholdMember,
-              as: "householdMember",
-              attributes: ["family_name", "given_name", "middle_name", "extension", "gender", "birthdate"],
-            },
-          ],
+          attributes: ["last_name", "first_name", "middle_name", "suffix", "sex", "dateOfBirth"],
         },
       ],
     });
@@ -25,9 +19,9 @@ router.get("/childImmunizationRecord", async (req, res) => {
     } else {
       records.forEach((record) => {
         console.log(
-          record.child.householdMember.last_name,
-          record.child.householdMember.first_name,
-          record.child.householdMember.middle_name
+          record.child.last_name,
+          record.child.first_name,
+          record.child.middle_name
         );
       });
     }

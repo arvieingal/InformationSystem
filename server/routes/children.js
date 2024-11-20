@@ -87,7 +87,6 @@ router.post('/add/children', async (req, res) => {
       family_number,
       mother_name,
       father_name,
-      sitio_purok,
     });
 
     res.status(201).json(newChild);
@@ -118,34 +117,10 @@ function calculateNutritionalStatus(weight, height, age) {
   // Implement your logic here to determine the nutritional status
   // For example, using BMI or other criteria
   const bmi = weight / ((height / 100) ** 2);
-  if (bmi < 16) return "Severely Underweight";
-  if (bmi >= 16 && bmi < 18.5) return "Underweight";
+  if (bmi < 18.5) return "Underweight";
   if (bmi >= 18.5 && bmi < 24.9) return "Normal weight";
   if (bmi >= 25 && bmi < 29.9) return "Overweight";
   return "Obese";
-}
-
-// GET /api/young-children - Fetch children aged 0-6 years
-router.get('/young-children', fetchYoungChildren);
-
-// Function to fetch young children aged 0-6 years
-async function fetchYoungChildren(req, res) {
-  try {
-    const youngChildren = await db.Child.findAll({
-      where: {
-        age: {
-          [db.Sequelize.Op.lte]: 6 // Fetch children aged 0-6 years
-        },
-        status: {
-          [db.Sequelize.Op.ne]: 'Archive' // Ensure they are not archived
-        }
-      }
-    });
-    res.json(youngChildren);
-  } catch (error) {
-    console.error("Error fetching young children:", error);
-    res.status(500).json({ error: "An error occurred while fetching young children data." });
-  }
 }
 
 module.exports = router; 
