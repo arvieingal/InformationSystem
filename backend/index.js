@@ -8,6 +8,8 @@ const childrenRoutes = require('./routes/childrenRoutes');
 const childImmunizationRecordRoutes = require('./routes/childImmunizationRecordRoutes');
 
 const residentRoutes = require("./routes/residentRouters");
+const rentOwnerRoutes = require("./routes/rentOwnerRoutes");
+const renterRoutes = require("./routes/renterRoutes");
 
 const PORT = process.env.PORT || 3001;
 
@@ -18,6 +20,8 @@ app.use("/api", userRoutes);
 app.use('/api', childrenRoutes);
 app.use('/api', childImmunizationRecordRoutes);
 app.use("/api", residentRoutes);
+app.use("/api", rentOwnerRoutes);
+app.use("/api", renterRoutes);
 
 const initApp = async () => {
   console.log("Testing the database connection...");
