@@ -15,8 +15,6 @@ export interface Child {
   mother_name: string;
   family_number: string;
   measurementDate: string;
-  dateOfBirth: string;
-  placeOfBirth: string;
   child_id: number;
   name: string;
   age: number;
@@ -32,6 +30,15 @@ export interface Child {
   currentWeight?: string;
   currentHeight?: string;
   currentAge?: number;
+  householdMember: {
+    given_name: string;
+    family_name: string;
+    middle_name: string;
+    extension: string;
+    gender: string;
+    birthplace: string;
+    birthdate: string;
+  };
 }
 
 
@@ -72,11 +79,11 @@ const ChildTable: React.FC<TableProps> = ({ children, onSort, sortConfig, onEdit
             <tr key={index} onClick={() => onRowClick(child)}>
               <td className="border border-[#CCCCCC] px-4 py-2 cursor-pointer">{child.child_id}</td>
               <td className="border border-[#CCCCCC] px-4 py-2">
-                {`${child.given_name || ''} ${child.family_name || ''} ${child.middle_name || ''} ${child.extension || ''}`.trim()}
+                {`${child.householdMember.given_name || ''} ${child.householdMember.family_name || ''} ${child.householdMember.middle_name || ''} ${child.householdMember.extension || ''}`.trim()}
               </td>
-              <td className="border border-[#CCCCCC] px-4 py-2">{child.age}</td>
-              <td className="border border-[#CCCCCC] px-4 py-2">{child.gender}</td>
-              <td className="border border-[#CCCCCC] px-4 py-2">{formatDate(child.birthdate)}</td>
+              <td className="border border-[#CCCCCC] px-4 py-2">{child.currentAge}</td>
+              <td className="border border-[#CCCCCC] px-4 py-2">{child.householdMember.gender}</td>
+              <td className="border border-[#CCCCCC] px-4 py-2">{formatDate(child.householdMember.birthdate)}</td>
               <td className="border border-[#CCCCCC] px-4 py-2">{child.heightCm}</td>
               <td className="border border-[#CCCCCC] px-4 py-2">{child.weightKg}</td>
               <td className="border border-[#CCCCCC] px-4 py-2">{child.nutritionalStatus}</td>

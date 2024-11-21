@@ -1,18 +1,22 @@
 const express = require('express');
 const router = express.Router();
-const db = require('../models'); // Assuming you have a Sequelize model set up
+const db = require('../models'); 
 
-// GET /api/children - Fetch all children
+// GET /api/children - Fetch all children with household member data
 router.get('/children', async (req, res) => {
   try {
     const children = await db.Child.findAll({
       where: {
         status: {
-          [db.Sequelize.Op.ne]: 'Archive' // Fetch records where status is not 'Archive'
+          [db.Sequelize.Op.ne]: 'Archive'
         }
-      }
+      },
+      include: [{
+        model: db.HouseholdMember,
+        as: 'householdMember',
+        attributes: ['given_name', 'family_name', 'middle_name', 'extension', 'birthplace']
+      }]
     });
-    console.log("Fetched children:", children); // Log the fetched data
     res.json(children);
   } catch (error) {
     console.error("Error fetching children:", error);
@@ -20,10 +24,16 @@ router.get('/children', async (req, res) => {
   }
 });
 
-// GET /api/children/:child_id - Fetch a child by ID
+// GET /api/children/:child_id - Fetch a child by ID with household member data
 router.get('/children/:child_id', async (req, res) => {
   try {
-    const child = await db.Child.findByPk(req.params.child_id); 
+    const child = await db.Child.findByPk(req.params.child_id, {
+      include: [{
+        model: db.HouseholdMember,
+        as: 'householdMember',
+        attributes: ['given_name', 'family_name', 'middle_name', 'extension', 'birthplace']
+      }]
+    });
     if (child) {
       res.json(child);
     } else {
@@ -41,11 +51,12 @@ router.post('/add/children', async (req, res) => {
     console.log("Request body:", req.body); // Log the request body
 
     const {
-      first_name,
+      given_name,
       middle_name,
-      last_name,
-      sex,
+      family_name,
+      gender,
       birthdate,
+      birthplace,
       weightAtBirth,
       heightAtBirth,
       currentAge,
@@ -68,13 +79,17 @@ router.post('/add/children', async (req, res) => {
     const nutritionalStatus = calculateNutritionalStatus(currentWeight, currentHeight, currentAge);
 
     const newChild = await db.Child.create({
-      first_name: first_name,
+      given_name: given_name,
       middle_name: middle_name,
-      last_name: last_name,
-      age: currentAge,
-      sex: formattedSex, // Use the formatted sex
-      birthdate,
-      heightCm: currentHeight,
+      family_name: family_name,
+      gender: gender,
+      birthdate: birthdate,
+      birthplace: birthplace,
+      weightAtBirth: weightAtBirth,
+      heightAtBirth: heightAtBirth,
+      currentAge: currentAge,
+      currentWeight: currentWeight,
+      currentHeight: currentHeight,
       weightKg: currentWeight,
       nutritionalStatus,
       address,
@@ -131,16 +146,37 @@ router.get('/young-children', fetchYoungChildren);
 // Function to fetch young children aged 0-6 years
 async function fetchYoungChildren(req, res) {
   try {
+    const currentDate = new Date();
+    const sixYearsAgo = new Date();
+    sixYearsAgo.setFullYear(currentDate.getFullYear() - 6);
+
     const youngChildren = await db.Child.findAll({
       where: {
-        age: {
-          [db.Sequelize.Op.lte]: 6 // Fetch children aged 0-6 years
+        birthdate: {
+          [db.Sequelize.Op.gte]: sixYearsAgo
         },
         status: {
-          [db.Sequelize.Op.ne]: 'Archive' // Ensure they are not archived
+          [db.Sequelize.Op.ne]: 'Archive'
         }
       }
     });
+
+    // Update status to inactive for children older than 6 years
+    const olderChildren = await db.Child.findAll({
+      where: {
+        birthdate: {
+          [db.Sequelize.Op.lt]: sixYearsAgo
+        },
+        status: {
+          [db.Sequelize.Op.ne]: 'Archive'
+        }
+      }
+    });
+
+    for (const child of olderChildren) {
+      await child.update({ status: 'Inactive' });
+    }
+
     res.json(youngChildren);
   } catch (error) {
     console.error("Error fetching young children:", error);
