@@ -3,11 +3,11 @@ const Renter = require("../models/renter");
 const rentOwnerController = {
   getAllRenter: async (req, res) => {
     try {
-      const users = await Renter.findAllRenter();
-      if (users.length > 0) {
-        res.status(200).json(users);
+      const renter = await Renter.findAllRenter();
+      if (renter.length > 0) {
+        res.status(200).json(renter);
       } else {
-        res.status(404).json({ message: "No users found in the database" });
+        res.status(404).json({ message: "No renter found in the database" });
       }
     } catch (error) {
       console.error("Error in getAllUser controller:", error);

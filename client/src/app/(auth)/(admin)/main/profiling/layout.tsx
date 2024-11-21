@@ -1,11 +1,14 @@
 import AdminSidebar from "@/components/AdminSidebar";
 import AdminHeader from "@/components/AdminHeader";
+import { useEffect, useState } from "react";
+import { useSession } from "next-auth/react";
 
 export default function ProfilingLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+
   return (
     <html lang="en">
       <body>

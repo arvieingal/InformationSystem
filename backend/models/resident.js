@@ -1,9 +1,10 @@
 const pool = require("../config/db");
+const { residentQueries } = require("../queries/query");
 
 const Resident = {
   findAllResident: async () => {
     try {
-      const [rows] = await pool.execute("SELECT * FROM resident");
+      const [rows] = await pool.execute(residentQueries.findAllResident);
       console.log("Rows retrieved from database:", rows);
       return rows || [];
     } catch (error) {
