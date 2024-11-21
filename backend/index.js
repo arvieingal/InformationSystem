@@ -7,6 +7,7 @@ const userRoutes = require("./routes/userRouters");
 const childrenRoutes = require('./routes/childrenRoutes');
 const childImmunizationRecordRoutes = require('./routes/childImmunizationRecordRoutes');
 
+const residentRoutes = require("./routes/residentRouters");
 
 const PORT = process.env.PORT || 3001;
 
@@ -16,7 +17,7 @@ app.use("/api", otpRoutes);
 app.use("/api", userRoutes);
 app.use('/api', childrenRoutes);
 app.use('/api', childImmunizationRecordRoutes);
-
+app.use("/api", residentRoutes);
 
 const initApp = async () => {
   console.log("Testing the database connection...");
