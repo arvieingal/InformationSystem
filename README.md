@@ -1,9 +1,9 @@
 INSERT INTO household_head (household_number, family_name, given_name, middle_name, extension, relationship, gender, civil_status, birthdate, highest_educational_attainment, occupation, monthly_income, block_number, lot_number, sitio_purok, barangay, city, birthplace, religion, sectoral, registered_voter, business_in_area) VALUES
-(1, 'Smith', 'John', 'A', NULL, 'Head', 'Male', 'Married', '1980-01-01', 'College Graduate', 'Engineer', 5000.00, 101, 1, 'Zapatera', 'Barangay 1', 'City A', 'City A', 'Christianity', 'Others', 'Yes', 'No'),
-(2, 'Doe', 'Jane', NULL, NULL, 'Head', 'Female', 'Single', '1990-02-02', 'High School Graduate', 'Teacher', 3000.00, 102, 2, 'Sto. Nino', 'Barangay 2', 'City B', 'City B', 'Islam', 'PWD', 'No', 'Yes'),
-(3, 'Brown', 'Charlie', 'B', 'Jr.', 'Head', 'Male', 'Widowed', '1975-03-03', 'Elementary Graduate', 'Farmer', 2000.00, 103, 3, 'San Roque', 'Barangay 3', 'City C', 'City C', 'Buddhism', 'Senior Citizen', 'Yes', 'No'),
-(4, 'Johnson', 'Emily', NULL, NULL, 'Head', 'Female', 'Separated', '1985-04-04', 'College Level', 'Nurse', 4000.00, 104, 4, 'San Antonio', 'Barangay 4', 'City D', 'City D', 'Hinduism', 'Solo Parent', 'No', 'Yes'),
-(5, 'Williams', 'Michael', 'C', NULL, 'Head', 'Male', 'Married', '1995-05-05', 'High School Level', 'Driver', 2500.00, 105, 5, 'Lubi', 'Barangay 5', 'City E', 'City E', 'Atheism', 'LGBT', 'Yes', 'No');
+(1, 'Smith', 'John', 'A', NULL, 'Head', 'Male', 'Married', '2024-01-01', 'College Graduate', 'Engineer', 5000.00, 101, 1, 'Zapatera', 'Barangay 1', 'City A', 'City A', 'Christianity', 'Others', 'Yes', 'No'),
+(2, 'Doe', 'Jane', NULL, NULL, 'Head', 'Female', 'Single', '2023-02-02', 'High School Graduate', 'Teacher', 3000.00, 102, 2, 'Sto. Nino', 'Barangay 2', 'City B', 'City B', 'Islam', 'PWD', 'No', 'Yes'),
+(3, 'Brown', 'Charlie', 'B', 'Jr.', 'Head', 'Male', 'Widowed', '2022-03-03', 'Elementary Graduate', 'Farmer', 2000.00, 103, 3, 'San Roque', 'Barangay 3', 'City C', 'City C', 'Buddhism', 'Senior Citizen', 'Yes', 'No'),
+(4, 'Johnson', 'Emily', NULL, NULL, 'Head', 'Female', 'Separated', '2022-04-04', 'College Level', 'Nurse', 4000.00, 104, 4, 'San Antonio', 'Barangay 4', 'City D', 'City D', 'Hinduism', 'Solo Parent', 'No', 'Yes'),
+(5, 'Williams', 'Michael', 'C', NULL, 'Head', 'Male', 'Married', '2022-05-05', 'High School Level', 'Driver', 2500.00, 105, 5, 'Lubi', 'Barangay 5', 'City E', 'City E', 'Atheism', 'LGBT', 'Yes', 'No');
 
 
 INSERT INTO household_member (household_number, family_name, given_name, middle_name, extension, relationship, gender, civil_status, birthdate, highest_educational_attainment, occupation, monthly_income, block_number, lot_number, sitio_purok, barangay, city, birthplace, religion, sectoral, registered_voter, business_in_area) VALUES

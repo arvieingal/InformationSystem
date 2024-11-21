@@ -12,60 +12,79 @@ import "react-datepicker/dist/react-datepicker.css";
 import { FaCalendarAlt } from "react-icons/fa";
 import { Child as ChildTableChild } from "@/components/ChildTable";
 import { formatDate } from "@/components/formatDate";
+import DataTable from "react-data-table-component";
+
 
 export interface Child {
-  dateOfBirth: string;
-  birthplace: string;
-  child_id: number;
-  age: number;
-  gender: string;
-  birthdate: string;
-  heightCm: number;
-  weightKg: number;
-  nutritionalStatus: string;
-  address: string;
-  purok: string;
-  weightAtBirth?: string;
-  heightAtBirth?: string;
-  currentWeight?: string;
-  currentHeight?: string;
-  currentAge?: number;
-  given_name?: string;
-  family_name?: string;
-  middle_name?: string;
-  extension?: string;
-  measurementDate?: string;
-  family_number?: string;
-  mother_name?: string;
-  father_name?: string;
-  sitio_purok?: string;
+    resident: any;
+    currentHeight: any;
+    currentWeight: any;
+    address: any;
+  //household data
+    household_id: number;
+    family_name: string;
+    given_name: string;
+    middle_name: string;
+    extension: string;  
+    gender: string;
+    birthdate: string;
+    age: string;
+    birthplace: string;
+    sitio_purok: string;
+
+
+    //childrens data
+    child_id: number;
+    heightAtBirth: string;
+    weightAtBirth: string;
+    heightCm: string;
+    weightKg: string;
+    nutritionalStatus: string;
+    heightAgeZ:string;
+    weightAgeZ:string;
+    heightAtAgeZ:string;
+    weightAtAgeZ:string;
+    measurementDate:string;
+    status:string;
+
+
 }
 
+
+
+
 interface ChildFormData {
-  birthplace: string;
-  dateOfBirth: string;
-  child_id?: number;
+  resident: any;
+  family_number: string | number | readonly string[] | undefined;
+  currentAge: string | number | readonly string[] | undefined;
+  currentHeight: string | number | readonly string[] | undefined;
+  currentWeight: string | number | readonly string[] | undefined;
+  address: string | number | readonly string[] | undefined;
+  household_id: string;
+  family_name: string;
   given_name: string;
   middle_name: string;
-  family_name: string;
+  extension: string;  
   gender: string;
   birthdate: string;
-  weightAtBirth: string;
-  heightAtBirth: string;
-  currentAge: number;
-  currentWeight: string;
-  currentHeight: string;
-  address: string;
-  purok: string;
-  extension?: string;
+  age: string;
+  birthplace: string;
+  sitio_purok: string;
+
+
+  //childrens data
+  child_id?: number;
+  heightAtBirth?: string;
+  weightAtBirth?:string;
+  heightCm?: string;
+  weightKg?: string;
   nutritionalStatus?: string;
-  heightAgeZ?: number;
-  weightHeightZ?: number;
-  measurementDate?: string;
-  family_number?: string;
-  mother_name?: string;
-  father_name?: string;
-  sitio_purok?: string;
+  heightAgeZ?:string;
+  weightAgeZ?:string;
+  heightAtAgeZ:string;
+  weightAtAgeZ:string;
+  measurementDate:string;
+  status?:string;
 }
 
 // Function to calculate nutritional status based on age, weight, and height
@@ -90,29 +109,34 @@ const NutritionalStatus: React.FC = () => {
   const router = useRouter();
   const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
   const [selectedChild, setSelectedChild] = useState<ChildFormData>({
+    resident: null,
+    household_id: "",
+    family_name: "",
     given_name: "",
     middle_name: "",
-    family_name: "",
-    gender: "",
     extension: "",
+    gender: "",
     birthdate: "",
-    dateOfBirth: "",
-    birthplace  : "",     
-    weightAtBirth: "",
+    age: "",
+    birthplace: "",
+    sitio_purok: "",
+    child_id: undefined,
     heightAtBirth: "",
-    currentAge: 0,
-    currentWeight: "",
-    currentHeight: "",
-    address: "",
-    purok: "",
+    weightAtBirth: "",
+    heightCm: "",
+    weightKg: "",
     nutritionalStatus: "",
-    heightAgeZ: 0,
-    weightHeightZ: 0,
+    heightAgeZ: "",
+    weightAgeZ: "",
+    heightAtAgeZ: "",
+    weightAtAgeZ: "",
     measurementDate: new Date().toISOString().split("T")[0],
-    family_number: "",
-    mother_name: "",
-    father_name: "",
-   
+    status: "",
+    family_number: undefined,
+    currentAge: undefined,
+    currentHeight: undefined,
+    currentWeight: undefined,
+    address: "",
   });
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
@@ -144,6 +168,8 @@ const NutritionalStatus: React.FC = () => {
     archived: false, // New filter for archived status
   });
 
+  const [residents, setResidents] = useState<any[]>([]);
+
   const handleFilterChange = (key: string, value: string | boolean) => {
     setFilterCriteria((prev) => ({ ...prev, [key]: value }));
   };
@@ -169,28 +195,29 @@ const NutritionalStatus: React.FC = () => {
     };
   }, [isAddModalOpen]);
 
+ 
+
   useEffect(() => {
-    const fetchChildren = async () => {
+    const fetchResidents = async () => {
       try {
-        const response = await fetch("http://localhost:3001/api/children");
+        const response = await fetch("http://localhost:3001/api/residents");
         if (response.ok) {
-          const data: Child[] = await response.json();
-          const filteredData = data.filter(
-            (child) => !archivedChildren.includes(child.child_id)
-          );
-          setChildren(filteredData);
-          setOriginalChildren(filteredData);
+          const data = await response.json();
+          setResidents(data); 
         } else {
-          throw new Error("Failed to fetch children data.");
+          throw new Error("Failed to fetch residents data.");
         }
       } catch (error: any) {
         setError(error.message);
       }
+
+      console.log("selectedChild data", residents[0].given_name);
     };
+  
+    fetchResidents();
 
-    fetchChildren();
-  }, [archivedChildren]);
-
+  }, []);
+  
   const fetchChildById = async (id: number) => {
     try {
       const response = await fetch(`http://localhost:3001/api/children/${id}`);
@@ -213,27 +240,30 @@ const NutritionalStatus: React.FC = () => {
   };
   const handleRowClick = (child: Child) => {
     setSelectedChild({
+      resident: child.resident,
       child_id: child.child_id,
-      given_name: child.given_name || "",
-      middle_name: child.middle_name || "",
-      family_name: child.family_name || "",
-      extension: child.extension || "",
-      gender: child.gender,
-      birthdate: child.birthdate,
-      weightAtBirth: child.weightAtBirth || "",
-      heightAtBirth: child.heightAtBirth || "",
-      currentAge: child.age,
-      currentWeight: child.weightKg.toString(),
-      currentHeight: child.heightCm.toString(),
-      address: child.address || "",
-      purok: child.purok || "",
+      given_name: child.resident?.given_name || "",
+      middle_name: child.resident?.middle_name || "",
+      family_name: child.resident?.family_name || "",
+      extension: child.resident?.extension || "",
+      gender: child.resident?.gender,
+      birthdate: child.resident?.birthdate,
+      weightAtBirth: child.weightAtBirth ? child.weightAtBirth.toString() : "",
+      heightAtBirth: child.heightAtBirth ? child.heightAtBirth.toString() : "",
+      age: child.age ? child.age.toString() : "",
+      currentWeight: child.weightKg ? child.weightKg.toString() : "",
+      currentHeight: child.heightCm ? child.heightCm.toString() : "",
       nutritionalStatus: child.nutritionalStatus || "",
-      birthplace: child.birthplace || "",
-      dateOfBirth: child.dateOfBirth || "",
       measurementDate: child.measurementDate || "",
-      family_number: child.family_number || "",
-      mother_name: child.mother_name || "",
-      father_name: child.father_name || "",
+      family_number: undefined,
+      currentAge: undefined,
+      address: "",
+      household_id: "",
+      birthplace: "",
+      sitio_purok: "",
+      status: "",
+      heightAtAgeZ: "",
+      weightAtAgeZ: "",
     });
     setIsModalOpen(true);
   };
@@ -244,28 +274,30 @@ const NutritionalStatus: React.FC = () => {
     );
 
     if (confirmEdit) {
-      setSelectedChild({
+      ({
         child_id: child.child_id,
         given_name: child.given_name || "",
         middle_name: child.middle_name || "",
         family_name: child.family_name || "",
         extension: child.extension || "",
-        gender: child.gender || "",
-        birthdate: child.birthdate || "",
+        gender: child.gender,
+        birthdate: child.birthdate,
         weightAtBirth: child.weightAtBirth || "",
         heightAtBirth: child.heightAtBirth || "",
-        currentAge: child.currentAge || 0,
-        currentWeight: child.currentWeight || "",
-        currentHeight: child.currentHeight || "",
-        address: child.address || "",
-        purok: child.purok || "",
-        dateOfBirth: child.dateOfBirth || "",
-        birthplace: child.birthplace || "",
+        age: child.age ? child.age.toString() : "",
+        currentWeight: child.weightKg ? child.weightKg.toString() : "",
+        currentHeight: child.heightCm ? child.heightCm.toString() : "",
+        nutritionalStatus: child.nutritionalStatus || "",
         measurementDate: child.measurementDate || "",
-        family_number: child.family_number || "",
-        mother_name: child.mother_name || "",
-        father_name: child.father_name || "",
-      
+        family_number: undefined,
+        currentAge: undefined,
+        address: "",
+        household_id: "",
+        birthplace: "",
+        sitio_purok: "",
+        status: "",
+        heightAtAgeZ: "",
+        weightAtAgeZ: "",
       });
       setIsEditModalOpen(true);
     }
@@ -377,12 +409,10 @@ const NutritionalStatus: React.FC = () => {
           child.weightKg.toString().includes(lowerCaseQuery) ||
           child.nutritionalStatus.toLowerCase().includes(lowerCaseQuery) ||
           (child.address && child.address.toLowerCase().includes(lowerCaseQuery)) ||
-          (child.purok && child.purok.toLowerCase().includes(lowerCaseQuery)) ||
           (child.weightAtBirth && child.weightAtBirth.toString().includes(lowerCaseQuery)) ||
           (child.heightAtBirth && child.heightAtBirth.toString().includes(lowerCaseQuery)) ||
           (child.currentWeight && child.currentWeight.toString().includes(lowerCaseQuery)) ||
-          (child.currentHeight && child.currentHeight.toString().includes(lowerCaseQuery)) ||
-          (child.sitio_purok && child.sitio_purok.toLowerCase().includes(lowerCaseQuery));
+          (child.currentHeight && child.currentHeight.toString().includes(lowerCaseQuery));
 
         const matchesFilter = 
             (!filterCriteria.age || child.age.toString() === filterCriteria.age) &&
@@ -426,12 +456,11 @@ const NutritionalStatus: React.FC = () => {
 
   // Update nutritional status when age, weight, or height changes
   useEffect(() => {
-    const { currentAge, currentWeight, currentHeight } = selectedChild;
-    if (currentAge && currentWeight && currentHeight) {
+    if (selectedChild.age && selectedChild.weightKg && selectedChild.heightCm) {
       const status = calculateNutritionalStatus(
-        currentAge,
-        parseFloat(currentWeight),
-        parseFloat(currentHeight)
+        parseInt(selectedChild.age, ),
+        parseFloat(selectedChild.weightKg),
+        parseInt(selectedChild.heightCm, )
       );
       setSelectedChild((prev) => ({ ...prev, nutritionalStatus: status }));
     }
@@ -477,7 +506,7 @@ const NutritionalStatus: React.FC = () => {
         // Optionally, update the children list in the state
         setChildren((prevChildren) =>
           prevChildren.map((child) =>
-            child.child_id === updatedChild.child_id ? updatedChild : child
+            child.household_id === updatedChild.child_id ? updatedChild : child
           )
         );
       } else {
@@ -490,7 +519,7 @@ const NutritionalStatus: React.FC = () => {
   const handleAddModalOpen = () => {
     setSelectedChild({
       ...selectedChild,
-      given_name: "",
+      given_name: selectedChild.given_name,
       family_name: "",
       middle_name: "",
       extension: "",
@@ -499,14 +528,11 @@ const NutritionalStatus: React.FC = () => {
       birthplace: "",
       weightAtBirth: "",
       heightAtBirth: "",
-      currentAge: 0,
-      currentWeight: "",
-      currentHeight: "",
+      age: "",
+      weightKg: "",
+      heightCm: "",
       address: "",
       family_number: "",
-      mother_name: "",
-      father_name: "",  
-      purok: "",
       sitio_purok: "",
       nutritionalStatus: "",
     });
@@ -517,6 +543,7 @@ const NutritionalStatus: React.FC = () => {
   const handleEditModalClose = () => {
     setIsEditModalOpen(false);
   };
+
 
   return (
     <>
@@ -585,13 +612,12 @@ const NutritionalStatus: React.FC = () => {
       </div>
       <div className="w-full mt-[1rem] ">
         <ChildTable
-          children={paginatedChildren as ChildTableChild[]}
+          // children={paginatedChildren as ChildTableChild[]}
           onSort={handleSort}
           sortConfig={sortConfig}
-          onEdit={handleEditClick}
-          onArchive={handleArchiveClick}
-          onRowClick={handleRowClick}
-        />
+          onEdit={(child) => handleEditClick(child as any)}
+          onArchive={(child) => handleArchiveClick(child as any)}
+          onRowClick={(child) => handleRowClick(child as any)} children={[]}        />
       </div>
       <Pagination
         currentPage={currentPage}
@@ -629,9 +655,9 @@ const NutritionalStatus: React.FC = () => {
                     <div className="flex flex-row gap-[1rem]">
                       <div className="border-b border-black   p-1">
                         <p className="text-center">{`${
-                          selectedChild.given_name
+                          selectedChild.given_name || ''
                         } ${selectedChild.family_name ? selectedChild.family_name + ' ' : ''}${
-                          selectedChild.middle_name
+                          selectedChild.middle_name || ''
                         }${selectedChild.extension ? ' ' + selectedChild.extension : ''}`}</p>
                       </div>
                     </div>
@@ -647,13 +673,13 @@ const NutritionalStatus: React.FC = () => {
                 <p className="text flex  flex-row gap-[2rem] items-center">
                   <span className="font-medium">Age:</span>
                   <div className="border-b border-black text-center p-1">
-                    {selectedChild.currentAge}
+                    {selectedChild.age}
                   </div>
                 </p>
                 <p className="text flex flex-row gap-[2rem] items-center">
                   <span className="font-medium">gender:</span>
                   <div className="border-b border-black w-[12rem] text-center p-1">
-                    {selectedChild.gender}
+                    {selectedChild.resident?.gender}
                   </div>
                 </p>
               </div>
@@ -672,10 +698,6 @@ const NutritionalStatus: React.FC = () => {
                       {selectedChild.weightAtBirth}
                     </p>
                     <p className="font-medium ">Date of Birth:</p>
-                    <p className="border-b border-black w-[10rem] h-[2rem]   p-1 text-center">
-                      {" "}
-                      {formatDate(selectedChild.dateOfBirth)}
-                    </p>
                     <p className="font-medium ">Place of Birth:</p>
                     <p className="border-b border-black w-[12rem] h-[2rem] p-1 text-center">
                       {" "}
@@ -726,7 +748,7 @@ const NutritionalStatus: React.FC = () => {
                       <p className="font-medium ">Purok/Zone:</p>
                       <p className="border-b border-black w-[12rem] h-[2rem] p-1 text-center">
                         {" "}
-                        {selectedChild.purok}
+                        {selectedChild.sitio_purok}
                       </p>
                     </div>
                   </div>
@@ -879,7 +901,9 @@ const NutritionalStatus: React.FC = () => {
                 <p>gender:</p>
                 <div className="w-[80%] flex justify-between px-4">
                   <p className="font-medium">
-                    {selectedChild.gender.charAt(0).toUpperCase() + selectedChild.gender.slice(1)}
+                    {selectedChild.gender ? 
+                      selectedChild.gender.charAt(0).toUpperCase() + selectedChild.gender.slice(1) 
+                      : 'Not specified'}
                   </p>
                   <label>
                     <input
@@ -1156,9 +1180,9 @@ const NutritionalStatus: React.FC = () => {
               <input
                 className="outline-none border border-gray-300 rounded-md p-1 w-[20rem]"
                 type="text"
-                value={selectedChild.purok}
+                value={selectedChild.sitio_purok}
                 onChange={(e) =>
-                  setSelectedChild({ ...selectedChild, purok: e.target.value })
+                  setSelectedChild({ ...selectedChild, sitio_purok: e.target.value })
                 }
               />
             </div>
@@ -1408,7 +1432,7 @@ const NutritionalStatus: React.FC = () => {
                     <input
                       className="w-full outline-none"
                       type="text"
-                      value={selectedChild.dateOfBirth}
+                      value={selectedChild.birthdate}
                       readOnly
                     />
                     <FaCalendarAlt className="ml-2 text-black" />
@@ -1592,9 +1616,9 @@ const NutritionalStatus: React.FC = () => {
               <input
                 className="outline-none border border-gray-300 rounded-md p-1 w-[20rem]"
                 type="text"
-                value={selectedChild.purok}
+                value={selectedChild.sitio_purok}
                 onChange={(e) =>
-                  setSelectedChild({ ...selectedChild, purok: e.target.value })
+                  setSelectedChild({ ...selectedChild, sitio_purok: e.target.value })
                 }
               />
             </div>
@@ -1618,8 +1642,15 @@ const NutritionalStatus: React.FC = () => {
           </div>
         </Modal>
       )}
+      {/* <DataTable
+        title="Residents"
+        columns={columns}
+        data={residents}
+        pagination
+      /> */}
     </>
   );
 };
 
 export default NutritionalStatus;
+

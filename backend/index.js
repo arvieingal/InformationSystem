@@ -4,6 +4,9 @@ const cors = require("cors");
 const pool = require("./config/db");
 const otpRoutes = require("./routes/otp");
 const userRoutes = require("./routes/userRouters");
+const childrenRoutes = require('./routes/childrenRoutes');
+const childImmunizationRecordRoutes = require('./routes/childImmunizationRecordRoutes');
+
 const residentRoutes = require("./routes/residentRouters");
 const rentOwnerRoutes = require("./routes/rentOwnerRoutes");
 const renterRoutes = require("./routes/renterRoutes");
@@ -15,6 +18,8 @@ app.use(express.json());
 app.use(cors());
 app.use("/api", otpRoutes);
 app.use("/api", userRoutes);
+app.use('/api', childrenRoutes);
+app.use('/api', childImmunizationRecordRoutes);
 app.use("/api", residentRoutes);
 app.use("/api", rentOwnerRoutes);
 app.use("/api", renterRoutes);
