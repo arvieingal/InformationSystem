@@ -1,9 +1,9 @@
-const User = require("../models/user");
+const Resident = require("../models/resident");
 
-const userController = {
-  getAllUser: async (req, res) => {
+const residentController = {
+  getAllResident: async (req, res) => {
     try {
-      const users = await User.findAllUser();
+      const users = await Resident.findAllResident();
       if (users.length > 0) {
         res.status(200).json(users);
       } else {
@@ -19,4 +19,4 @@ const userController = {
   },
 };
 
-module.exports = userController;
+module.exports = residentController;

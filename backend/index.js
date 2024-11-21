@@ -4,6 +4,7 @@ const cors = require("cors");
 const pool = require("./config/db");
 const otpRoutes = require("./routes/otp");
 const userRoutes = require("./routes/userRouters");
+const residentRoutes = require("./routes/residentRouters");
 
 const PORT = process.env.PORT || 3001;
 
@@ -11,6 +12,7 @@ app.use(express.json());
 app.use(cors());
 app.use("/api", otpRoutes);
 app.use("/api", userRoutes);
+app.use("/api", residentRoutes);
 
 const initApp = async () => {
   console.log("Testing the database connection...");

@@ -1,9 +1,9 @@
 const pool = require("../config/db");
 
-const User = {
-  findAllUser: async () => {
+const Resident = {
+  findAllResident: async () => {
     try {
-      const [rows] = await pool.execute("SELECT * FROM users");
+      const [rows] = await pool.execute("SELECT * FROM resident");
       console.log("Rows retrieved from database:", rows);
       return rows || [];
     } catch (error) {
@@ -13,4 +13,4 @@ const User = {
   },
 };
 
-module.exports = User;
+module.exports = Resident;
