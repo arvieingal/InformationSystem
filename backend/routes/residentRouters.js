@@ -3,5 +3,6 @@ const router = express.Router();
 const residentController = require("../controller/residentController");
 
 router.get("/resident", residentController.getAllResident);
+router.get("/household-head", residentController.getHouseholdHead);
 
 module.exports = router;

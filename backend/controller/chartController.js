@@ -60,7 +60,9 @@ const chartController = {
       if (purokPopulation.length > 0) {
         res.status(200).json(purokPopulation);
       } else {
-        res.status(404).json({ message: "No purok population found in the database" });
+        res
+          .status(404)
+          .json({ message: "No purok population found in the database" });
       }
     } catch (error) {
       console.error("Error in getAllUser controller:", error);

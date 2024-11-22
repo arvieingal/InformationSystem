@@ -2,6 +2,7 @@
 import React, { useState, useEffect } from 'react';
 import AgeCategoryChart from '@/components/AgeCategoryChart';
 import NutritionalStatusChart from '@/components/NutritionalStatusChart';
+import api from '@/lib/axios';
 
 interface Child {
   age: number;
@@ -14,9 +15,9 @@ const HealthPage = () => {
   useEffect(() => {
     const fetchNutritionalData = async () => {
       try {
-        const response = await fetch("http://localhost:3001/api/children");
-        if (response.ok) {
-          const data = await response.json();
+        const response = await api.get("/api/children");
+        if (response.status === 200) {
+          const data = response.data;
           console.log(data);
           setNutritionalData(data);
         } else {
@@ -52,7 +53,7 @@ const HealthPage = () => {
   return (
     <div className="p-4 bg-gray-50 min-h-screen overflow-hidden">
       <h1 className="text-center text-2xl font-semibold mb-4">Number of Children Vaccinated by Vaccine Type and Gender</h1>
-      
+
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         {/* Age Category List */}
         <div className="w-full bg-white p-4 shadow rounded overflow-hidden">
