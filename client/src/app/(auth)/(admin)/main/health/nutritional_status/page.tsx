@@ -13,39 +13,40 @@ import { FaCalendarAlt } from "react-icons/fa";
 import { Child as ChildTableChild } from "@/components/ChildTable";
 import { formatDate } from "@/components/formatDate";
 import DataTable from "react-data-table-component";
+import api from "@/lib/axios";
 
 
 export interface Child {
-    resident: any;
-    currentHeight: any;
-    currentWeight: any;
-    address: any;
+  resident: any;
+  currentHeight: any;
+  currentWeight: any;
+  address: any;
   //household data
-    household_id: number;
-    family_name: string;
-    given_name: string;
-    middle_name: string;
-    extension: string;  
-    gender: string;
-    birthdate: string;
-    age: string;
-    birthplace: string;
-    sitio_purok: string;
+  household_id: number;
+  family_name: string;
+  given_name: string;
+  middle_name: string;
+  extension: string;
+  gender: string;
+  birthdate: string;
+  age: string;
+  birthplace: string;
+  sitio_purok: string;
 
 
-    //childrens data
-    child_id: number;
-    heightAtBirth: string;
-    weightAtBirth: string;
-    heightCm: string;
-    weightKg: string;
-    nutritionalStatus: string;
-    heightAgeZ:string;
-    weightAgeZ:string;
-    heightAtAgeZ:string;
-    weightAtAgeZ:string;
-    measurementDate:string;
-    status:string;
+  //childrens data
+  child_id: number;
+  heightAtBirth: string;
+  weightAtBirth: string;
+  heightCm: string;
+  weightKg: string;
+  nutritionalStatus: string;
+  heightAgeZ: string;
+  weightAgeZ: string;
+  heightAtAgeZ: string;
+  weightAtAgeZ: string;
+  measurementDate: string;
+  status: string;
 
 
 }
@@ -64,7 +65,7 @@ interface ChildFormData {
   family_name: string;
   given_name: string;
   middle_name: string;
-  extension: string;  
+  extension: string;
   gender: string;
   birthdate: string;
   age: string;
@@ -75,16 +76,16 @@ interface ChildFormData {
   //childrens data
   child_id?: number;
   heightAtBirth?: string;
-  weightAtBirth?:string;
+  weightAtBirth?: string;
   heightCm?: string;
   weightKg?: string;
   nutritionalStatus?: string;
-  heightAgeZ?:string;
-  weightAgeZ?:string;
-  heightAtAgeZ:string;
-  weightAtAgeZ:string;
-  measurementDate:string;
-  status?:string;
+  heightAgeZ?: string;
+  weightAgeZ?: string;
+  heightAtAgeZ: string;
+  weightAtAgeZ: string;
+  measurementDate: string;
+  status?: string;
 }
 
 // Function to calculate nutritional status based on age, weight, and height
@@ -195,29 +196,21 @@ const NutritionalStatus: React.FC = () => {
     };
   }, [isAddModalOpen]);
 
- 
+
 
   useEffect(() => {
-    const fetchResidents = async () => {
+    const fetchChildren = async () => {
       try {
-        const response = await fetch("http://localhost:3001/api/residents");
-        if (response.ok) {
-          const data = await response.json();
-          setResidents(data); 
-        } else {
-          throw new Error("Failed to fetch residents data.");
-        }
-      } catch (error: any) {
-        setError(error.message);
+        const response = await api.get("/api/children");
+        setChildren(response.data);
+      } catch (error) {
+        console.error("Error fetching renters:", error);
       }
-
-      console.log("selectedChild data", residents[0].given_name);
     };
-  
-    fetchResidents();
 
+    fetchChildren();
   }, []);
-  
+
   const fetchChildById = async (id: number) => {
     try {
       const response = await fetch(`http://localhost:3001/api/children/${id}`);
@@ -397,33 +390,33 @@ const NutritionalStatus: React.FC = () => {
     const lowerCaseQuery = query.toLowerCase();
     const filteredChildren = originalChildren.filter((child) => {
       const fullName = `${child.given_name || ''} ${child.middle_name || ''} ${child.family_name || ''} ${child.extension || ''}`.toLowerCase();
-      
+
       // Check if the query matches any of the child's properties
-      const matchesQuery = 
-          child.child_id.toString().includes(lowerCaseQuery) ||
-          fullName.includes(lowerCaseQuery) ||
-          child.age.toString().includes(lowerCaseQuery) ||
-          child.gender.toLowerCase() === lowerCaseQuery || // Ensure exact match for gender
-          child.birthdate.includes(lowerCaseQuery) ||
-          child.heightCm.toString().includes(lowerCaseQuery) ||
-          child.weightKg.toString().includes(lowerCaseQuery) ||
-          child.nutritionalStatus.toLowerCase().includes(lowerCaseQuery) ||
-          (child.address && child.address.toLowerCase().includes(lowerCaseQuery)) ||
-          (child.weightAtBirth && child.weightAtBirth.toString().includes(lowerCaseQuery)) ||
-          (child.heightAtBirth && child.heightAtBirth.toString().includes(lowerCaseQuery)) ||
-          (child.currentWeight && child.currentWeight.toString().includes(lowerCaseQuery)) ||
-          (child.currentHeight && child.currentHeight.toString().includes(lowerCaseQuery));
+      const matchesQuery =
+        child.child_id.toString().includes(lowerCaseQuery) ||
+        fullName.includes(lowerCaseQuery) ||
+        child.age.toString().includes(lowerCaseQuery) ||
+        child.gender.toLowerCase() === lowerCaseQuery || // Ensure exact match for gender
+        child.birthdate.includes(lowerCaseQuery) ||
+        child.heightCm.toString().includes(lowerCaseQuery) ||
+        child.weightKg.toString().includes(lowerCaseQuery) ||
+        child.nutritionalStatus.toLowerCase().includes(lowerCaseQuery) ||
+        (child.address && child.address.toLowerCase().includes(lowerCaseQuery)) ||
+        (child.weightAtBirth && child.weightAtBirth.toString().includes(lowerCaseQuery)) ||
+        (child.heightAtBirth && child.heightAtBirth.toString().includes(lowerCaseQuery)) ||
+        (child.currentWeight && child.currentWeight.toString().includes(lowerCaseQuery)) ||
+        (child.currentHeight && child.currentHeight.toString().includes(lowerCaseQuery));
 
-        const matchesFilter = 
-            (!filterCriteria.age || child.age.toString() === filterCriteria.age) &&
-            (!filterCriteria.gender || child.gender.toLowerCase() === filterCriteria.gender.toLowerCase()) &&
-            (!filterCriteria.birthdate || child.birthdate === filterCriteria.birthdate) &&
-            (!filterCriteria.height || child.heightCm.toString() === filterCriteria.height) &&
-            (!filterCriteria.weight || child.weightKg.toString() === filterCriteria.weight) &&
-            (!filterCriteria.nutritionalStatus || child.nutritionalStatus === filterCriteria.nutritionalStatus) &&
-            (filterCriteria.archived === archivedChildren.includes(child.child_id));
+      const matchesFilter =
+        (!filterCriteria.age || child.age.toString() === filterCriteria.age) &&
+        (!filterCriteria.gender || child.gender.toLowerCase() === filterCriteria.gender.toLowerCase()) &&
+        (!filterCriteria.birthdate || child.birthdate === filterCriteria.birthdate) &&
+        (!filterCriteria.height || child.heightCm.toString() === filterCriteria.height) &&
+        (!filterCriteria.weight || child.weightKg.toString() === filterCriteria.weight) &&
+        (!filterCriteria.nutritionalStatus || child.nutritionalStatus === filterCriteria.nutritionalStatus) &&
+        (filterCriteria.archived === archivedChildren.includes(child.child_id));
 
-        return matchesQuery && matchesFilter;
+      return matchesQuery && matchesFilter;
     });
     setChildren(filteredChildren);
   };
@@ -458,9 +451,9 @@ const NutritionalStatus: React.FC = () => {
   useEffect(() => {
     if (selectedChild.age && selectedChild.weightKg && selectedChild.heightCm) {
       const status = calculateNutritionalStatus(
-        parseInt(selectedChild.age, ),
+        parseInt(selectedChild.age,),
         parseFloat(selectedChild.weightKg),
-        parseInt(selectedChild.heightCm, )
+        parseInt(selectedChild.heightCm,)
       );
       setSelectedChild((prev) => ({ ...prev, nutritionalStatus: status }));
     }
@@ -479,7 +472,7 @@ const NutritionalStatus: React.FC = () => {
 
   useEffect(() => {
     if (isEditModalOpen && selectedChild.child_id) {
-        fetchChildById(selectedChild.child_id);
+      fetchChildById(selectedChild.child_id);
     }
   }, [isEditModalOpen, selectedChild.child_id]);
 
@@ -487,9 +480,9 @@ const NutritionalStatus: React.FC = () => {
     const confirmUpdate = await SweetAlert.showConfirm(
       `<p>Are you sure you want to update the child with ID: <span class="font-bold">${selectedChild.child_id}</span>?</p>`
     );
- 
+
     if (!confirmUpdate) return; // Exit if the user cancels the update
- 
+
     try {
       const response = await fetch(`http://localhost:3001/api/children/${selectedChild.child_id}`, {
         method: "PUT",
@@ -498,7 +491,7 @@ const NutritionalStatus: React.FC = () => {
         },
         body: JSON.stringify(selectedChild),
       });
- 
+
       if (response.ok) {
         const updatedChild = await response.json();
         console.log("Child updated successfully:", updatedChild);
@@ -617,7 +610,7 @@ const NutritionalStatus: React.FC = () => {
           sortConfig={sortConfig}
           onEdit={(child) => handleEditClick(child as any)}
           onArchive={(child) => handleArchiveClick(child as any)}
-          onRowClick={(child) => handleRowClick(child as any)} children={[]}        />
+          onRowClick={(child) => handleRowClick(child as any)} children={[]} />
       </div>
       <Pagination
         currentPage={currentPage}
@@ -635,30 +628,28 @@ const NutritionalStatus: React.FC = () => {
               &times;
             </button>
             <div className="w-full p-[2rem] gap-4">
-             
-                <div className="w-full flex pt-2">
+
+              <div className="w-full flex pt-2">
                 <Image
-                src="/svg/health_nutritionalstatus.svg"
-                alt="Update Nutritional Status"
-                width={40}
-                height={50}
-              />
-               <h2 className=" font-semibold text text-[20px] ">
-                View Full Nutritional Status of the Child
-              </h2>
-                </div>
-                <p className="italic text-sm pl-[3rem]">Barangay Luz, Cebu City</p>
+                  src="/svg/health_nutritionalstatus.svg"
+                  alt="Update Nutritional Status"
+                  width={40}
+                  height={50}
+                />
+                <h2 className=" font-semibold text text-[20px] ">
+                  View Full Nutritional Status of the Child
+                </h2>
+              </div>
+              <p className="italic text-sm pl-[3rem]">Barangay Luz, Cebu City</p>
               <div className="w-full flex flex-row  text mt-[2rem]  justify-between ">
                 <div className=" text flex flex-row ">
                   <div className="flex flex-row  w-full gap-[1rem]  items-center">
                     <p className="font-medium ">Child's Name:</p>
                     <div className="flex flex-row gap-[1rem]">
                       <div className="border-b border-black   p-1">
-                        <p className="text-center">{`${
-                          selectedChild.given_name || ''
-                        } ${selectedChild.family_name ? selectedChild.family_name + ' ' : ''}${
-                          selectedChild.middle_name || ''
-                        }${selectedChild.extension ? ' ' + selectedChild.extension : ''}`}</p>
+                        <p className="text-center">{`${selectedChild.given_name || ''
+                          } ${selectedChild.family_name ? selectedChild.family_name + ' ' : ''}${selectedChild.middle_name || ''
+                          }${selectedChild.extension ? ' ' + selectedChild.extension : ''}`}</p>
                       </div>
                     </div>
                   </div>
@@ -726,12 +717,12 @@ const NutritionalStatus: React.FC = () => {
                     <p className="border-b border-black w-[10rem] h-[2rem] p-1 text-center">
                       {selectedChild.measurementDate
                         ? new Date(
-                            selectedChild.measurementDate
-                          ).toLocaleDateString("en-US", {
-                            month: "long",
-                            day: "numeric",
-                            year: "numeric",
-                          })
+                          selectedChild.measurementDate
+                        ).toLocaleDateString("en-US", {
+                          month: "long",
+                          day: "numeric",
+                          year: "numeric",
+                        })
                         : ""}
                     </p>
                   </div>
@@ -786,7 +777,7 @@ const NutritionalStatus: React.FC = () => {
                 </div>
               </div>
               <div className="w-full flex  items-center justify-center mt-[4rem]">
-              <button
+                <button
                   className="bg-[#007F73] text-white px-[2rem] py-2 rounded-md"
                   onClick={() => setIsModalOpen(false)} // Close modal on click
                 >
@@ -803,7 +794,7 @@ const NutritionalStatus: React.FC = () => {
           <div ref={modalRef} className="relative text">
             <button
               className="absolute top-[-3rem] right-[-2rem] text-gray-500 hover:text-gray-700 p-4 text-[3rem]"
-              onClick={handleEditModalClose} 
+              onClick={handleEditModalClose}
             >
               &times;
             </button>
@@ -901,8 +892,8 @@ const NutritionalStatus: React.FC = () => {
                 <p>gender:</p>
                 <div className="w-[80%] flex justify-between px-4">
                   <p className="font-medium">
-                    {selectedChild.gender ? 
-                      selectedChild.gender.charAt(0).toUpperCase() + selectedChild.gender.slice(1) 
+                    {selectedChild.gender ?
+                      selectedChild.gender.charAt(0).toUpperCase() + selectedChild.gender.slice(1)
                       : 'Not specified'}
                   </p>
                   <label>
@@ -1069,10 +1060,10 @@ const NutritionalStatus: React.FC = () => {
                             ...selectedChild,
                             measurementDate: date
                               ? date.toLocaleDateString("en-US", {
-                                  month: "long",
-                                  day: "numeric",
-                                  year: "numeric",
-                                })
+                                month: "long",
+                                day: "numeric",
+                                year: "numeric",
+                              })
                               : "",
                           })
                         }
@@ -1217,20 +1208,20 @@ const NutritionalStatus: React.FC = () => {
               &times;
             </button>
             <div className="w-full flex flex-row gap-[1rem] ">
-            <div>
-              <Image
-                src="/svg/health_nutritionalstatus.svg"
-                alt="Update Nutritional Status"
-                width={40}
-                height={50}
-              />
-            </div>
-            <div className="w-full flex flex-col gap-[1rem]">
-            <h2 className="text-lg font-semibold text">
-              Add Child Nutritional Status
-            </h2>
-              <p className="italic text-sm ">Barangay Luz, Cebu City</p>
-                </div>
+              <div>
+                <Image
+                  src="/svg/health_nutritionalstatus.svg"
+                  alt="Update Nutritional Status"
+                  width={40}
+                  height={50}
+                />
+              </div>
+              <div className="w-full flex flex-col gap-[1rem]">
+                <h2 className="text-lg font-semibold text">
+                  Add Child Nutritional Status
+                </h2>
+                <p className="italic text-sm ">Barangay Luz, Cebu City</p>
+              </div>
             </div>
             <div className="grid grid-cols-4 gap-[20px] w-full mt-4">
               <div className="w-full">
@@ -1369,7 +1360,7 @@ const NutritionalStatus: React.FC = () => {
                       </div>
                     }
                   />
-                  
+
                 </div>
               </div>
               <div className="w-full">
@@ -1501,10 +1492,10 @@ const NutritionalStatus: React.FC = () => {
                             ...selectedChild,
                             measurementDate: date
                               ? date.toLocaleDateString("en-US", {
-                                  month: "long",
-                                  day: "numeric",
-                                  year: "numeric",
-                                })
+                                month: "long",
+                                day: "numeric",
+                                year: "numeric",
+                              })
                               : "",
                           })
                         }

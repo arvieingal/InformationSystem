@@ -156,10 +156,19 @@ const purokQueries = {
     `,
 };
 
+const childrenQueries = {
+  findAllChildren: "SELECT * FROM children",
+  findById: "SELECT * FROM children WHERE child_id = ?",
+  insert: "INSERT INTO children (name, age, address) VALUES (?, ?, ?)",
+  update: "UPDATE children SET name = ?, age = ?, address = ? WHERE child_id = ?",
+  delete: "UPDATE children SET status = 'Inactive' WHERE child_id = ?",
+};
+
 module.exports = {
   userQueries,
   renterQueries,
   residentQueries,
   getAllCharts,
   purokQueries,
+  childrenQueries,
 };

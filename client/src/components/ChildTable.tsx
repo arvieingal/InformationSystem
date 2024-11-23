@@ -15,6 +15,7 @@ import "react-datepicker/dist/react-datepicker.css";
 import { FaCalendarAlt } from "react-icons/fa";
 import { Child as ChildTableChild } from "@/components/ChildTable";
 import DataTable from "react-data-table-component";
+import api from '@/lib/axios';
 // src/types/Child.ts
 export interface Resident {
   household_id: number;
@@ -60,64 +61,74 @@ interface TableProps {
   onRowClick: (child: Child) => void;
 }
 
-
+// ... existing code ...
+type ChildData = {
+  child_id: number;
+  full_name: string;
+  age: number;
+  sex: string;
+  birthdate: string;
+  height_at_birth: number | null;
+  weight_at_birth: number | null;
+  height_cm: number | null;
+  weight_kg: number | null;
+  height_age_Z: number | null;
+  weight_age_Z: number | null;
+  weight_height_Z: number | null;
+  measurement_date: string | null;
+  nutritional_status: string | null;
+  status: string | null;
+};
 
 
 
 const ChildTable: React.FC<TableProps> = ({ children, onSort, sortConfig, onEdit, onArchive, onRowClick }) => {
   const [residents, setResidents] = useState<Resident[]>([]);
   const [error, setError] = useState<string | null>(null);
+  const [childrens, setChildrens] = useState<ChildData[]>([]);
+
 
   useEffect(() => {
-    const fetchResidents = async () => {
+    const fetchChildren = async () => {
       try {
-        const response = await fetch("http://localhost:3001/api/residents");
-        if (response.ok) {
-          const data = await response.json();
-          if (Array.isArray(data)) {
-            setResidents(data);
-          } else {
-            throw new Error("Fetched residents data is not an array.");
-          }
-        } else {
-          throw new Error("Failed to fetch residents data.");
-        }
-      } catch (error: any) {
-        setError(error.message);
+        const response = await api.get("/api/children");
+        setChildrens(response.data);
+      } catch (error) {
+        console.error("Error fetching renters:", error);
       }
     };
 
-    fetchResidents();
+    fetchChildren();
   }, []);
 
-  useEffect(() => {
-    if (residents.length > 0) {
-      const fetchChildren = async (household_id: number) => {
-        try {
-          const response = await fetch(`http://localhost:3001/api/children/household/${household_id}`);
-          if (response.ok) {
-            const data = await response.json();
-            const childrenData = Array.isArray(data) ? data : [];
-            setResidents(prevResidents => 
-              prevResidents.map(resident => 
-                resident.household_id === household_id 
-                ? { ...resident, children: childrenData }
-                : resident
-              )
-            );
-          } else {
-            throw new Error("Failed to fetch children data.");
-          }
-        } catch (error: any) {
-          setError(error.message);
-        }
-      };
+  // useEffect(() => {
+  //   if (residents.length > 0) {
+  //     const fetchChildren = async (household_id: number) => {
+  //       try {
+  //         const response = await fetch(`http://localhost:3001/api/children/household/${household_id}`);
+  //         if (response.ok) {
+  //           const data = await response.json();
+  //           const childrenData = Array.isArray(data) ? data : [];
+  //           setResidents(prevResidents =>
+  //             prevResidents.map(resident =>
+  //               resident.household_id === household_id
+  //                 ? { ...resident, children: childrenData }
+  //                 : resident
+  //             )
+  //           );
+  //         } else {
+  //           throw new Error("Failed to fetch children data.");
+  //         }
+  //       } catch (error: any) {
+  //         setError(error.message);
+  //       }
+  //     };
 
-      residents.forEach(resident => {
-        fetchChildren(resident.household_id);
-      });
-    }
-  }, [residents]);
+  //     residents.forEach(resident => {
+  //       fetchChildren(resident.household_id);
+  //     });
+  //   }
+  // }, [residents]);
 
   const handleSort = (key: keyof Child) => {
     onSort(key);
@@ -146,81 +157,34 @@ const ChildTable: React.FC<TableProps> = ({ children, onSort, sortConfig, onEdit
           </tr>
         </thead>
         <tbody className="text-center">
-          {residents.map((resident, index) => (
-            resident.children && resident.children.length > 0 ? (
-              resident.children.map((child, childIndex) => (
-                <tr key={`${index}-${childIndex}`} onClick={() => onRowClick(child)}>
-                  <td className="border border-[#CCCCCC] px-4 py-2 cursor-pointer">{resident.household_id}</td>
-                  <td className="border border-[#CCCCCC] px-4 py-2">
-                    {`${resident.given_name || ''} ${resident.family_name || ''} ${resident.middle_name || ''} ${resident.extension || ''}`.trim()}
-                  </td>
-                  <td className="border border-[#CCCCCC] px-4 py-2">{resident.age}</td>
-                  <td className="border border-[#CCCCCC] px-4 py-2">{resident.gender}</td>
-                  <td className="border border-[#CCCCCC] px-4 py-2">{formatDate(resident.birthdate)}</td>
-                  <td className="border border-[#CCCCCC] px-4 py-2">{child.heightCm}</td>
-                  <td className="border border-[#CCCCCC] px-4 py-2">{child.weightKg}</td>
-                  <td className="border border-[#CCCCCC] px-4 py-2">{child.nutritionalStatus}</td>
-                  <td className="border py-2 flex flex-row justify-center gap-2">
+        {childrens.map((chilren) => (
+                <tr key={chilren.child_id} className="border-b hover:bg-gray-50">
+                  <td className="text-center py-2">{chilren.child_id}</td>
+                  <td className="text-center py-2">{chilren.full_name}</td>
+                  <td className="text-center py-2">{chilren.age}</td>
+                  <td className="text-center py-2">{chilren.sex}</td>
+                  <td className="text-center py-2">{chilren.birthdate}</td>
+                  <td className="text-center py-2">{chilren.height_cm}</td>
+                  <td className="text-center py-2">{chilren.weight_kg}</td>
+                  <td className="text-center py-2">{chilren.nutritional_status}</td>
+                  <td className="text-center py-2 flex items-center">
                     <Image
-                      src="/svg/edit.svg"
+                      src={"/svg/edit_pencil.svg"}
                       alt="Edit"
-                      width={20}
-                      height={20}
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        onEdit(child);
-                      }}
+                      height={100}
+                      width={100}
+                      className="w-5 h-5 mr-2 cursor-pointer"
                     />
                     <Image
-                      src="/svg/archive.svg"
+                      src={"/svg/archive.svg"}
                       alt="Archive"
-                      width={20}
-                      height={20}
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        onArchive(child);
-                      }}
+                      height={100}
+                      width={100}
+                      className="w-6 h-6 cursor-pointer"
                     />
                   </td>
                 </tr>
-              ))
-            ) : (
-              <tr key={index} onClick={() => onRowClick(resident.children?.[0])}>
-                <td className="border border-[#CCCCCC] px-4 py-2 cursor-pointer">{resident.household_id}</td>
-                <td className="border border-[#CCCCCC] px-4 py-2">
-                  {`${resident.given_name || ''} ${resident.family_name || ''} ${resident.middle_name || ''} ${resident.extension || ''}`.trim()}
-                </td>
-                <td className="border border-[#CCCCCC] px-4 py-2">{resident.age}</td>
-                <td className="border border-[#CCCCCC] px-4 py-2">{resident.gender}</td>
-                <td className="border border-[#CCCCCC] px-4 py-2">{formatDate(resident.birthdate)}</td>
-                <td className="border border-[#CCCCCC] px-4 py-2">{resident.children?.[0]?.heightCm ?? 'N/A'}</td>
-                <td className="border border-[#CCCCCC] px-4 py-2">{resident.children?.[0]?.weightKg ?? 'N/A'}</td>
-                <td className="border border-[#CCCCCC] px-4 py-2">{resident.children?.[0]?.nutritionalStatus ?? 'N/A'}</td>
-                <td className="border py-2 flex flex-row justify-center gap-2">
-                  <Image
-                    src="/svg/edit.svg"
-                    alt="Edit"
-                    width={20}
-                    height={20}
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      onEdit(resident.children?.[0]);
-                    }}
-                  />
-                  <Image
-                    src="/svg/archive.svg"
-                    alt="Archive"
-                    width={20}
-                    height={20}
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      onArchive(resident.children?.[0]);
-                    }}
-                  />
-                </td>
-              </tr>
-            )
-          ))}
+              ))}
         </tbody>
       </table>
     </div>
