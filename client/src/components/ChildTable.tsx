@@ -17,22 +17,31 @@ import { Child as ChildTableChild } from "@/components/ChildTable";
 import DataTable from "react-data-table-component";
 // src/types/Child.ts
 export interface Resident {
-  household_id: number;
+  household_id: any;
   family_name: string;
   given_name: string;
   middle_name: string;
   extension: string;
   gender: string;
   birthdate: string;
+  sitio_purok: string;
+  barangay: string;
+  city: string;
+  birthplace: string;
   age: number;
   children: Child[]; // Add children as an array of Child
 }
 
 export interface Child {
+  household_id: any;
   age: any;
   birthdate: any;
   gender: any;
   extension: string;
+  sitio_purok: string;
+  barangay: string;
+  city: string;
+  birthplace: string;
   family_name: string;
   middle_name: string;
   given_name: string;
@@ -63,7 +72,6 @@ interface TableProps {
 
 
 
-
 const ChildTable: React.FC<TableProps> = ({ children, onSort, sortConfig, onEdit, onArchive, onRowClick }) => {
   const [residents, setResidents] = useState<Resident[]>([]);
   const [error, setError] = useState<string | null>(null);
@@ -76,6 +84,7 @@ const ChildTable: React.FC<TableProps> = ({ children, onSort, sortConfig, onEdit
           const data = await response.json();
           if (Array.isArray(data)) {
             setResidents(data);
+            console.log("resident evil:", data);
           } else {
             throw new Error("Fetched residents data is not an array.");
           }
@@ -90,9 +99,12 @@ const ChildTable: React.FC<TableProps> = ({ children, onSort, sortConfig, onEdit
     fetchResidents();
   }, []);
 
+
+  // console.log("residents", residents);
+
   useEffect(() => {
     if (residents.length > 0) {
-      const fetchChildren = async (household_id: number) => {
+      const fetchChildren = async (household_id: string) => {
         try {
           const response = await fetch(`http://localhost:3001/api/children/household/${household_id}`);
           if (response.ok) {
@@ -118,9 +130,13 @@ const ChildTable: React.FC<TableProps> = ({ children, onSort, sortConfig, onEdit
       });
     }
   }, [residents]);
-
   const handleSort = (key: keyof Child) => {
     onSort(key);
+  };
+
+  const handleRowClick = (resident: Resident) => {
+    setSelectedResident(resident);
+    setIsModalOpen(true);
   };
 
   return (
@@ -128,7 +144,7 @@ const ChildTable: React.FC<TableProps> = ({ children, onSort, sortConfig, onEdit
       <table className="min-w-full border-collapse border border-[#CCCCCC] bg-white text-sm rounded-lg">
         <thead>
           <tr>
-            {['id', 'name', 'age', 'sex', 'birthdate', 'heightCm', 'weightKg', 'nutritionalStatus'].map((key) => (
+            {['id', 'name', 'age(months)', 'sex', 'birthdate', 'heightCm', 'weightKg', 'nutritionalStatus'].map((key) => (
               <th
                 key={key}
                 className="border border-gray-600 bg-gray-300 py-2 cursor-pointer"
@@ -154,7 +170,7 @@ const ChildTable: React.FC<TableProps> = ({ children, onSort, sortConfig, onEdit
                   <td className="border border-[#CCCCCC] px-4 py-2">
                     {`${resident.given_name || ''} ${resident.family_name || ''} ${resident.middle_name || ''} ${resident.extension || ''}`.trim()}
                   </td>
-                  <td className="border border-[#CCCCCC] px-4 py-2">{resident.age}</td>
+                  <td className="border border-[#CCCCCC] px-4 py-2">{resident.age} months</td>
                   <td className="border border-[#CCCCCC] px-4 py-2">{resident.gender}</td>
                   <td className="border border-[#CCCCCC] px-4 py-2">{formatDate(resident.birthdate)}</td>
                   <td className="border border-[#CCCCCC] px-4 py-2">{child.heightCm}</td>
@@ -190,7 +206,7 @@ const ChildTable: React.FC<TableProps> = ({ children, onSort, sortConfig, onEdit
                 <td className="border border-[#CCCCCC] px-4 py-2">
                   {`${resident.given_name || ''} ${resident.family_name || ''} ${resident.middle_name || ''} ${resident.extension || ''}`.trim()}
                 </td>
-                <td className="border border-[#CCCCCC] px-4 py-2">{resident.age}</td>
+                <td className="border border-[#CCCCCC] px-4 py-2">{resident.age} months</td>
                 <td className="border border-[#CCCCCC] px-4 py-2">{resident.gender}</td>
                 <td className="border border-[#CCCCCC] px-4 py-2">{formatDate(resident.birthdate)}</td>
                 <td className="border border-[#CCCCCC] px-4 py-2">{resident.children?.[0]?.heightCm ?? 'N/A'}</td>
@@ -204,7 +220,7 @@ const ChildTable: React.FC<TableProps> = ({ children, onSort, sortConfig, onEdit
                     height={20}
                     onClick={(e) => {
                       e.stopPropagation();
-                      onEdit(resident.children?.[0]);
+                      onEdit(resident.household_id);
                     }}
                   />
                   <Image
@@ -214,7 +230,7 @@ const ChildTable: React.FC<TableProps> = ({ children, onSort, sortConfig, onEdit
                     height={20}
                     onClick={(e) => {
                       e.stopPropagation();
-                      onArchive(resident.children?.[0]);
+                      onArchive(resident.household_id);
                     }}
                   />
                 </td>
