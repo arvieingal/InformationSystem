@@ -8,4 +8,5 @@ router.post('/children', childrenController.addChild);
 router.put('/children/:child_id', childrenController.updateChild);
 router.get('/residents', childrenController.getAllResidents);
 router.get('/children/household/:household_id', childrenController.getChildrenByHouseholdId);
-module.exports = router; 
+
+module.exports = router;

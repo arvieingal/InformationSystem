@@ -4,8 +4,34 @@ import CardGrid from "@/components/CardGrid";
 import { dashboardCards } from "@/constants/cardData";
 import ProfilingSearchBar from "@/components/ProfilingSearchBar";
 import { dummyHouseholds } from "@/constants/tableDummyData";
+import api from "@/lib/axios";
+
+type Household = {
+  household_number: number;
+  family_name: string;
+  given_name: string;
+  middle_name: string;
+  sitio_purok: string;
+  is_business_owner: string;
+};
 
 const Households = () => {
+
+  const [households, setHouseholds] = useState<Household[]>([]);
+  console.log(households)
+
+  useEffect(() => {
+    const fetchHouseholds = async () => {
+      try {
+        const response = await api.get('/api/household-head');
+        setHouseholds(response.data);
+      } catch (error) {
+        console.error("Error fetching households:", error);
+      }
+    };
+
+    fetchHouseholds();
+  }, []);
 
   const onSearch = () => { };
   return (
@@ -17,7 +43,7 @@ const Households = () => {
         <div className="bg-white h-full rounded-[10px] overflow-y-auto">
           <table className="w-full border-collapse text-[14px]">
             <thead>
-              <tr className="border-b">
+              <tr className="sticky top-0 bg-white z-10 shadow-gray-300 shadow-sm">
                 <th className="text-center py-5 font-semibold">
                   Household Number
                 </th>
@@ -29,19 +55,19 @@ const Households = () => {
               </tr>
             </thead>
             <tbody>
-              {dummyHouseholds.map((household) => (
-                <tr key={household.id} className="border-b hover:bg-gray-50">
-                  <td className="py-2 text-center">{household.id}</td>
-                  <td className="py-2">{household.householdHead}</td>
-                  <td className="py-2">{household.purok}</td>
+              {households.map((household) => (
+                <tr key={household.household_number} className="border-b hover:bg-gray-50">
+                  <td className="py-2 text-center">{household.household_number}</td>
+                  <td className="py-2">{household.given_name} {household.middle_name} {household.family_name}</td>
+                  <td className="py-2">{household.sitio_purok}</td>
                   <td className="py-2 text-center">
                     <p
-                      className={`${household.isBusinessOwner === "Yes"
-                          ? "bg-[#007F73] text-white"
-                          : "bg-[#A4A4A4]"
+                      className={`${household.is_business_owner === "Yes"
+                        ? "bg-[#007F73] text-white"
+                        : "bg-[#A4A4A4]"
                         } rounded-[4px] py-1 w-20 inline-block`}
                     >
-                      {household.isBusinessOwner}
+                      {household.is_business_owner}
                     </p>
                   </td>
                 </tr>

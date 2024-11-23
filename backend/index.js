@@ -11,6 +11,7 @@ const residentRoutes = require("./routes/residentRouters");
 const rentOwnerRoutes = require("./routes/rentOwnerRoutes");
 const renterRoutes = require("./routes/renterRoutes");
 const chartRoutes = require("./routes/chartRoutes");
+const purokRoutes = require("./routes/purokRoutes");
 
 const PORT = process.env.PORT || 3001;
 
@@ -24,6 +25,7 @@ app.use("/api", residentRoutes);
 app.use("/api", rentOwnerRoutes);
 app.use("/api", renterRoutes);
 app.use("/api", chartRoutes);
+app.use("/api", purokRoutes);
 
 const initApp = async () => {
   console.log("Testing the database connection...");

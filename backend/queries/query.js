@@ -18,6 +18,17 @@ const residentQueries = {
   update:
     "UPDATE resident SET given_name = ?, family_name = ?, is_household_head = ? WHERE resident_id = ?",
   delete: "UPDATE resident SET status = 'Inactive' WHERE resident_id = ?",
+  findHouseholdHead: `SELECT 
+        household_number,
+        family_name,
+        given_name,
+        middle_name,
+        sitio_purok,
+        is_business_owner
+    FROM 
+        resident
+    WHERE 
+        is_household_head = 'Yes';`,
 };
 
 //renter queries
@@ -86,9 +97,69 @@ const getAllCharts = {
     `,
 };
 
+const purokQueries = {
+  findAllPurok: "SELECT * FROM purok",
+  findById: "SELECT * FROM purok WHERE purok_id = ?",
+  insert: "INSERT INTO purok (name, age, address) VALUES (?, ?, ?)",
+  update: "UPDATE purok SET name = ?, age = ?, address = ? WHERE purok_id = ?",
+  delete: "UPDATE purok SET status = 'Inactive' WHERE purok_id = ?",
+  countPurokPopulationByTable: `SELECT 
+        sp.sitio_purok,
+        sp.total_count,
+        COALESCE(resident_count, 0) AS resident,
+        COALESCE(renter_count, 0) AS renter
+    FROM (
+        SELECT 
+            sitio_purok,
+            COUNT(*) AS total_count
+        FROM (
+            SELECT sitio_purok FROM resident
+            WHERE sitio_purok IN ('Abellana', 'City Central', 'Kalinao', 'Lubi', 'Mabuhay', 'Nangka', 'Regla', 'San Antonio', 'San Roque', 'San Vicente', 'Sta. Cruz', 'Sto. Nino 1', 'Sto. Nino 2', 'Sto. Nino 3', 'Zapatera')
+            UNION ALL
+            SELECT sitio_purok FROM renter
+            WHERE sitio_purok IN ('Abellana', 'City Central', 'Kalinao', 'Lubi', 'Mabuhay', 'Nangka', 'Regla', 'San Antonio', 'San Roque', 'San Vicente', 'Sta. Cruz', 'Sto. Nino 1', 'Sto. Nino 2', 'Sto. Nino 3', 'Zapatera')
+        ) combined
+        GROUP BY sitio_purok
+    ) sp
+    LEFT JOIN (
+        SELECT 
+            sitio_purok, 
+            COUNT(*) AS resident_count
+        FROM resident
+        WHERE sitio_purok IN ('Abellana', 'City Central', 'Kalinao', 'Lubi', 'Mabuhay', 'Nangka', 'Regla', 'San Antonio', 'San Roque', 'San Vicente', 'Sta. Cruz', 'Sto. Nino 1', 'Sto. Nino 2', 'Sto. Nino 3', 'Zapatera')
+        GROUP BY sitio_purok
+    ) r ON sp.sitio_purok = r.sitio_purok
+    LEFT JOIN (
+        SELECT 
+            sitio_purok, 
+            COUNT(*) AS renter_count
+        FROM renter
+        WHERE sitio_purok IN ('Abellana', 'City Central', 'Kalinao', 'Lubi', 'Mabuhay', 'Nangka', 'Regla', 'San Antonio', 'San Roque', 'San Vicente', 'Sta. Cruz', 'Sto. Nino 1', 'Sto. Nino 2', 'Sto. Nino 3', 'Zapatera')
+        GROUP BY sitio_purok
+    ) rr ON sp.sitio_purok = rr.sitio_purok
+    ORDER BY sp.total_count DESC;
+    `,
+  countAllSectoralByPurok: `SELECT 
+        p.purok_id, -- Fetch the purok_id
+        p.purok_name AS sitio_purok,
+        CAST(COALESCE(SUM(CASE WHEN r.sectoral = 'LGBT' THEN 1 ELSE 0 END), 0) AS UNSIGNED) AS LGBT,
+        CAST(COALESCE(SUM(CASE WHEN r.sectoral = 'PWD' THEN 1 ELSE 0 END), 0) AS UNSIGNED) AS PWD,
+        CAST(COALESCE(SUM(CASE WHEN r.sectoral = 'Senior Citizen' THEN 1 ELSE 0 END), 0) AS UNSIGNED) AS Senior_Citizen,
+        CAST(COALESCE(SUM(CASE WHEN r.sectoral = 'Solo Parent' THEN 1 ELSE 0 END), 0) AS UNSIGNED) AS Solo_Parent,
+        CAST(COALESCE(SUM(CASE WHEN r.sectoral = 'Habal - Habal' THEN 1 ELSE 0 END), 0) AS UNSIGNED) AS Habal_Habal,
+        CAST(COALESCE(SUM(CASE WHEN r.sectoral = 'Erpat' THEN 1 ELSE 0 END), 0) AS UNSIGNED) AS Erpat,
+        CAST(COALESCE(SUM(CASE WHEN r.sectoral = 'Others' THEN 1 ELSE 0 END), 0) AS UNSIGNED) AS Others
+    FROM purok p
+    LEFT JOIN resident r ON p.purok_name = r.sitio_purok
+    GROUP BY p.purok_id, p.purok_name
+    ORDER BY p.purok_name;
+    `,
+};
+
 module.exports = {
   userQueries,
   renterQueries,
   residentQueries,
   getAllCharts,
+  purokQueries,
 };
