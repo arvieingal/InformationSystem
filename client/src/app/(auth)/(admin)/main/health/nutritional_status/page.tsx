@@ -22,32 +22,32 @@ export interface Child {
   currentWeight: any;
   address: any;
   //household data
-    household_id: number;
-    family_name: string;
-    given_name: string;
-    middle_name: string;
-    extension: string;  
-    gender: string;
-    birthdate: string;
-    age: string;
-    birthplace: string;
-    sitio_purok: string;
-    barangay: string;
-    city: string;
+  household_id: number;
+  family_name: string;
+  given_name: string;
+  middle_name: string;
+  extension: string;
+  gender: string;
+  birthdate: string;
+  age: string;
+  birthplace: string;
+  sitio_purok: string;
+  barangay: string;
+  city: string;
 
-    //childrens data
-    child_id: number;
-    heightAtBirth: string;
-    weightAtBirth: string;
-    heightCm: string;
-    weightKg: string;
-    nutritionalStatus: string;
-    heightAgeZ:string;
-    weightAgeZ:string;
-    heightAtAgeZ:string;
-    weightAtAgeZ:string;
-    measurementDate:string;
-    status:string;
+  //childrens data
+  child_id: number;
+  heightAtBirth: string;
+  weightAtBirth: string;
+  heightCm: string;
+  weightKg: string;
+  nutritionalStatus: string;
+  heightAgeZ: string;
+  weightAgeZ: string;
+  heightAtAgeZ: string;
+  weightAtAgeZ: string;
+  measurementDate: string;
+  status: string;
 }
 
 interface ChildFormData {
@@ -197,12 +197,12 @@ const NutritionalStatus: React.FC = () => {
 
 
   useEffect(() => {
-    const fetchChildren = async () => {
+    const fetchResidents = async () => {
       try {
         const response = await fetch("http://localhost:3001/api/residents");
         if (response.ok) {
-          const data: Child[] = await response.json(); 
-          setResidents(data[0]); 
+          const data: Child[] = await response.json();
+          setResidents(data[0]);
         } else {
           throw new Error("Failed to fetch residents data.");
         }
@@ -215,14 +215,14 @@ const NutritionalStatus: React.FC = () => {
   }, []);
 
   console.log(residents, 'Resident Data')
-  
+
   const fetchChildById = async (id: number) => {
     try {
       const response = await fetch(`http://localhost:3001/api/children/${id}`);
       const data: Child = await response.json();
 
       console.log("rsponse:", response.json());
-       
+
 
       setSelectedChild(data as any);
     } catch (error) {
@@ -329,10 +329,10 @@ const NutritionalStatus: React.FC = () => {
         );
 
         if (response.ok) {
-          setArchivedChildren((prevArchived) => [...prevArchived, child.child_id]); 
-        } else {  
+          setArchivedChildren((prevArchived) => [...prevArchived, child.child_id]);
+        } else {
         }
-      } catch (error) { 
+      } catch (error) {
       }
     }
   }
@@ -404,23 +404,23 @@ const NutritionalStatus: React.FC = () => {
       const fullName = `${child.given_name || ''} ${child.middle_name || ''} ${child.family_name || ''} ${child.extension || ''}`.toLowerCase();
 
       // Check if the query matches any of the child's properties
-      const matchesQuery = 
-          child.child_id.toString().includes(lowerCaseQuery) ||
-          fullName.includes(lowerCaseQuery) ||
-          child.age.toString().includes(lowerCaseQuery) ||
-          child.gender.toLowerCase() === lowerCaseQuery || // Ensure exact match for gender
-          child.birthdate.includes(lowerCaseQuery) ||
-          child.heightCm.toString().includes(lowerCaseQuery) ||
-          child.weightKg.toString().includes(lowerCaseQuery) ||
-          child.nutritionalStatus.toLowerCase().includes(lowerCaseQuery) ||
-          (child.address && child.address.toLowerCase().includes(lowerCaseQuery)) ||
-          (child.weightAtBirth && child.weightAtBirth.toString().includes(lowerCaseQuery)) ||
-          (child.heightAtBirth && child.heightAtBirth.toString().includes(lowerCaseQuery)) ||
-          (child.currentWeight && child.currentWeight.toString().includes(lowerCaseQuery)) ||
-          (child.currentHeight && child.currentHeight.toString().includes(lowerCaseQuery)) ||
-          (child.barangay && child.barangay.toLowerCase().includes(lowerCaseQuery)) ||
-          (child.city && child.city.toLowerCase().includes(lowerCaseQuery)) ||
-          (child.birthplace && child.birthplace.toLowerCase().includes(lowerCaseQuery));
+      const matchesQuery =
+        child.child_id.toString().includes(lowerCaseQuery) ||
+        fullName.includes(lowerCaseQuery) ||
+        child.age.toString().includes(lowerCaseQuery) ||
+        child.gender.toLowerCase() === lowerCaseQuery || // Ensure exact match for gender
+        child.birthdate.includes(lowerCaseQuery) ||
+        child.heightCm.toString().includes(lowerCaseQuery) ||
+        child.weightKg.toString().includes(lowerCaseQuery) ||
+        child.nutritionalStatus.toLowerCase().includes(lowerCaseQuery) ||
+        (child.address && child.address.toLowerCase().includes(lowerCaseQuery)) ||
+        (child.weightAtBirth && child.weightAtBirth.toString().includes(lowerCaseQuery)) ||
+        (child.heightAtBirth && child.heightAtBirth.toString().includes(lowerCaseQuery)) ||
+        (child.currentWeight && child.currentWeight.toString().includes(lowerCaseQuery)) ||
+        (child.currentHeight && child.currentHeight.toString().includes(lowerCaseQuery)) ||
+        (child.barangay && child.barangay.toLowerCase().includes(lowerCaseQuery)) ||
+        (child.city && child.city.toLowerCase().includes(lowerCaseQuery)) ||
+        (child.birthplace && child.birthplace.toLowerCase().includes(lowerCaseQuery));
 
       const matchesFilter =
         (!filterCriteria.age || child.age.toString() === filterCriteria.age) &&
@@ -583,7 +583,7 @@ const NutritionalStatus: React.FC = () => {
   //   });
   //   setIsModalOpen(true); // Open the modal
   // };
-  
+
   return (
     <>
       <div className="flex flex-row md:flex md:flex-row justify-center gap-[3rem] mt-[2rem] "></div>
@@ -677,17 +677,17 @@ const NutritionalStatus: React.FC = () => {
 
               <div className="w-full flex pt-2">
                 <Image
-                src="/svg/health_nutritionalstatus.svg"
-                alt="Update Nutritional Status"
-                width={40}
-                height={50}
-              />
-                
-               <h2 className=" font-semibold text text-[20px] ">
-                View Child Information
-              </h2>
-                </div>
-                <p className="italic text-sm pl-[3rem]">Barangay Luz, Cebu City</p>
+                  src="/svg/health_nutritionalstatus.svg"
+                  alt="Update Nutritional Status"
+                  width={40}
+                  height={50}
+                />
+
+                <h2 className=" font-semibold text text-[20px] ">
+                  View Child Information
+                </h2>
+              </div>
+              <p className="italic text-sm pl-[3rem]">Barangay Luz, Cebu City</p>
               <div className="w-full flex flex-row  text mt-[2rem]  justify-between ">
                 <div className=" text flex flex-row ">
                   <div className="flex flex-row  w-full gap-[1rem]  items-center">
@@ -761,7 +761,7 @@ const NutritionalStatus: React.FC = () => {
                       {selectedChild.currentWeight}
                     </p>
                     <p className="font-medium ">Measurement Date:</p>
-                  
+
                     <DatePicker
                       selected={selectedChild.measurementDate ? parseDate(selectedChild.measurementDate) : null}
                       onChange={(date: Date | null) =>
@@ -783,7 +783,7 @@ const NutritionalStatus: React.FC = () => {
                         </div>
                       }
                     />
-                  
+
                   </div>
                   <div className="w-full flex flex-row gap-[1rem]">
                     <div className="w-full flex flex-row  mt-[2rem]">
@@ -840,7 +840,7 @@ const NutritionalStatus: React.FC = () => {
                   className="bg-[#007F73] text-white px-[2rem] py-2 rounded-md"
                   onClick={() => setIsModalOpen(false)} // Close modal on click
                 >
-                 ADD 
+                  ADD
                 </button>
               </div>
             </div>
@@ -905,7 +905,7 @@ const NutritionalStatus: React.FC = () => {
                         setResidents({
                           ...residents,
                           family_name: e.target.value,
-                      })
+                        })
                       }
                     }}
                   />
@@ -959,8 +959,8 @@ const NutritionalStatus: React.FC = () => {
                 <p>gender:</p>
                 <div className="w-[80%] flex justify-between px-4">
                   <p className="font-medium">
-                    {residents ? 
-                      residents.gender.charAt(0).toUpperCase() + residents.gender.slice(1) 
+                    {residents ?
+                      residents.gender.charAt(0).toUpperCase() + residents.gender.slice(1)
                       : 'Not specified'}
                   </p>
                   <label>
@@ -977,7 +977,7 @@ const NutritionalStatus: React.FC = () => {
                           });
                         }
                       }}
-                        />
+                    />
                     Male
                   </label>
                   <label>
@@ -993,8 +993,8 @@ const NutritionalStatus: React.FC = () => {
                             gender: e.target.value,
                           });
                         }
-                      }}          
-                    />  
+                      }}
+                    />
                     Female
                   </label>
                 </div>
@@ -1089,7 +1089,7 @@ const NutritionalStatus: React.FC = () => {
                           age: e.target.value,
                         })
                       }
-                      
+
                     />
                   </div>
                   <p>Weight (kg):</p>
@@ -1645,7 +1645,7 @@ const NutritionalStatus: React.FC = () => {
           </div>
         </Modal>
       )}
-    
+
     </>
   );
 };
