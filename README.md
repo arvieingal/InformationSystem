@@ -15,12 +15,14 @@ INSERT INTO household_member (household_number, family_name, given_name, middle_
 
 
 INSERT INTO users (username, email, password, role, status, created_at, updated_at) VALUES
-('user1', 'user1@example.com', 'password1', 1, 'active', NOW(), NOW()),
-('user2', 'user2@example.com', 'password2', 2, 'inactive', NOW(), NOW()),
-('user3', 'user3@example.com', 'password3', 0, 'active', NOW(), NOW()),
-('user4', 'user4@example.com', 'password4', 1, 'active', NOW(), NOW()),
-('user5', 'user5@example.com', 'password5', 2, 'inactive', NOW(), NOW());
+('superadmin', 'superadmin@example.com', 'admin123', 1, 'active', NOW(), NOW()),
+('editor', 'editor@example.com', 'editor123', 2, 'active', NOW(), NOW()),
+('staff', 'staff@example.com', 'staff123', 2, 'active', NOW(), NOW()),
+('viewer', 'viewer@example.com', 'viewer123', 0, 'active', NOW(), NOW());
 
+Admin - Sir Andrew (All permission)
+Staff or Editor - one health worker and one GAD Committee secretary ( Permission: Add and Update) Every move ani nila kay mo reflect sa logs
+Viewer - Can view
 
 INSERT INTO logs (user_id, action, timestamp) VALUES
 (1, 'Login', NOW()),

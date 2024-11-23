@@ -18,22 +18,31 @@ import DataTable from "react-data-table-component";
 import api from '@/lib/axios';
 // src/types/Child.ts
 export interface Resident {
-  household_id: number;
+  household_id: any;
   family_name: string;
   given_name: string;
   middle_name: string;
   extension: string;
   gender: string;
   birthdate: string;
+  sitio_purok: string;
+  barangay: string;
+  city: string;
+  birthplace: string;
   age: number;
   children: Child[]; // Add children as an array of Child
 }
 
 export interface Child {
+  household_id: any;
   age: any;
   birthdate: any;
   gender: any;
   extension: string;
+  sitio_purok: string;
+  barangay: string;
+  city: string;
+  birthplace: string;
   family_name: string;
   middle_name: string;
   given_name: string;
@@ -79,7 +88,6 @@ type ChildData = {
   nutritional_status: string | null;
   status: string | null;
 };
-
 
 
 const ChildTable: React.FC<TableProps> = ({ children, onSort, sortConfig, onEdit, onArchive, onRowClick }) => {
@@ -134,12 +142,17 @@ const ChildTable: React.FC<TableProps> = ({ children, onSort, sortConfig, onEdit
     onSort(key);
   };
 
+  const handleRowClick = (resident: Resident) => {
+    setSelectedResident(resident);
+    setIsModalOpen(true);
+  };
+
   return (
     <div className="w-full px-[1.5rem]">
       <table className="min-w-full border-collapse border border-[#CCCCCC] bg-white text-sm rounded-lg">
         <thead>
           <tr>
-            {['id', 'name', 'age', 'sex', 'birthdate', 'heightCm', 'weightKg', 'nutritionalStatus'].map((key) => (
+            {['id', 'name', 'age(months)', 'sex', 'birthdate', 'heightCm', 'weightKg', 'nutritionalStatus'].map((key) => (
               <th
                 key={key}
                 className="border border-gray-600 bg-gray-300 py-2 cursor-pointer"
