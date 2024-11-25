@@ -12,57 +12,56 @@ const Children = {
     }
   },
 
-  // getChildrenByHouseholdId: async (household_id) => {
-  //   const query = `
-  //       SELECT *
-  //       FROM children
-  //       WHERE household_id = ?
-  //     `;
+  getChildById: async (childId) => {
+    const [rows] = await db.execute(
+      "SELECT * FROM children WHERE child_id = ?",
+      [childId]
+    );
+    return rows[0];
+  },
 
-  //   try {
-  //     const [children] = await db.execute(query, [household_id]);
-  //     return children;
-  //   } catch (error) {
-  //     console.error("Error fetching children by household ID:", error);
-  //     throw error;
-  //   }
-  // },
+  addChild: async (childData) => {
+    const { first_name, last_name, middle_name, gender, birthdate, address } =
+      childData;
+    const [result] = await db.execute(
+      "INSERT INTO children (first_name, last_name, middle_name, gender, birthdate, address) VALUES (?, ?, ?, ?, ?, ?)",
+      [first_name, last_name, middle_name, gender, birthdate, address]
+    );
+    return { child_id: result.insertId, ...childData };
+  },
 
-  // getAllArchiveChildren: async () => {
-  //   const [rows] = await db.execute(
-  //     "SELECT * FROM children WHERE status != ?",
-  //     ["Archive"]
-  //   );
-  //   return rows;
-  // },
-
-  // getChildById: async (childId) => {
-  //   const [rows] = await db.execute(
-  //     "SELECT * FROM children WHERE child_id = ?",
-  //     [childId]
-  //   );
-  //   return rows[0];
-  // },
-
-  // addChild: async (childData) => {
-  //   const { first_name, last_name, middle_name, gender, birthdate, address } =
-  //     childData;
-  //   const [result] = await db.execute(
-  //     "INSERT INTO children (first_name, last_name, middle_name, gender, birthdate, address) VALUES (?, ?, ?, ?, ?, ?)",
-  //     [first_name, last_name, middle_name, gender, birthdate, address]
-  //   );
-  //   return { child_id: result.insertId, ...childData };
-  // },
-
-  // updateChild: async (childId, childData) => {
-  //   const { first_name, last_name, middle_name, gender, birthdate, address } =
-  //     childData;
-  //   await db.execute(
-  //     "UPDATE children SET first_name = ?, last_name = ?, middle_name = ?, gender = ?, birthdate = ?, address = ? WHERE child_id = ?",
-  //     [first_name, last_name, middle_name, gender, birthdate, address, childId]
-  //   );
-  //   return { child_id: childId, ...childData };
-  // },
+  updateChild: async (childId, childData) => {
+    const {
+      height_at_birth,
+      weight_at_birth,
+      height_cm,
+      weight_kg,
+      height_age_Z,
+      weight_age_Z,
+      nutritional_status,
+      measurement_date
+    } = childData;
+  
+    try {
+      await db.execute(
+        "UPDATE children SET height_at_birth = ?, weight_at_birth = ?, height_cm = ?, weight_kg = ?, height_age_Z = ?, weight_age_Z = ?, nutritional_status = ?, measurement_date = ? WHERE child_id = ?",
+        [
+          height_at_birth ,
+          weight_at_birth ,
+          height_cm ,
+          weight_kg,
+          height_age_Z ,
+          weight_age_Z ,
+          nutritional_status ,
+          measurement_date ,
+          childId,
+        ]
+      );
+    } catch (err) {
+      console.error("Database error:", err);
+      // throw err; // Rethrow the error to propagate it back to the controller
+    }
+  },
 };
 
 module.exports = Children;

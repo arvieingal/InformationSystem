@@ -18,74 +18,52 @@ const childrenController = {
     }
   },
 
-  // getChildById: async (req, res) => {
-  //   try {
-  //     const child = await childModel.getChildById(req.params.child_id);
-  //     if (child) {
-  //       res.json(child);
-  //     } else {
-  //       res.status(404).json({ error: "Child not found." });
-  //     }
-  //   } catch (error) {
-  //     console.error("Error fetching child by ID:", error);
-  //     res
-  //       .status(500)
-  //       .json({ error: "An error occurred while fetching child data." });
-  //   }
-  // },
+  getChildById: async (req, res) => {
+    try {
+      const child = await Children.getChildById(req.params.child_id);
+      if (child) {
+        res.json(child);
+      } else {
+        res.status(404).json({ error: "Child not found." });
+      }
+    } catch (error) {
+      console.error("Error fetching child by ID:", error);
+      res
+        .status(500)
+        .json({ error: "An error occurred while fetching child data." });
+    }
+  },
 
-  // addChild: async (req, res) => {
-  //   try {
-  //     const newChild = await childModel.addChild(req.body);
-  //     res.status(201).json(newChild);
-  //   } catch (error) {
-  //     console.error("Error adding new child:", error);
-  //     res
-  //       .status(500)
-  //       .json({ error: "An error occurred while adding the child." });
-  //   }
-  // },
+  addChild: async (req, res) => {
+    try {
+      const newChild = await Children.addChild(req.body);
+      res.status(201).json(newChild);
+    } catch (error) {
+      console.error("Error adding new child:", error);
+      res
+        .status(500)
+        .json({ error: "An error occurred while adding the child." });
+    }
+  },
+  updateChild: async (req, res) => {
+    console.log("Request body:", req.body); // Log incoming request data
+    console.log("Child ID:", req.params.child_id); // Log child ID
+    try {
+      const updatedChild = await Children.updateChild(req.params.child_id, req.body);
+      res.json(updatedChild);
+    } catch (error) {
+      console.error("Error updating child:", error);
+      res.status(500).json({ error: "An error occurred while updating child data." });
+    }
+  },
 
-  // updateChild: async (req, res) => {
-  //   try {
-  //     const updatedChild = await childModel.updateChild(
-  //       req.params.child_id,
-  //       req.body
-  //     );
-  //     res.json(updatedChild);
-  //   } catch (error) {
-  //     console.error("Error updating child:", error);
-  //     res
-  //       .status(500)
-  //       .json({ error: "An error occurred while updating child data." });
-  //   }
-  // },
+  getAllResidents: async (req, res) => {
+    // Implementation
+  },
 
-  // getAllResidents: async (req, res) => {
-  //   try {
-  //     const residents = await childModel.getAllResidents();
-  //     res.json(residents);
-  //   } catch (error) {
-  //     console.error("Error fetching residents:", error);
-  //     res
-  //       .status(500)
-  //       .json({ error: "An error occurred while fetching residents data." });
-  //   }
-  // },
-
-  // getChildrenByHouseholdId: async (req, res) => {
-  //   const { household_id } = req.params;
-
-  //   try {
-  //     const children = await childModel.getChildrenByHouseholdId(household_id);
-  //     res.json(children);
-  //   } catch (error) {
-  //     console.error("Error fetching children by household ID:", error);
-  //     res
-  //       .status(500)
-  //       .json({ error: "An error occurred while fetching children data." });
-  //   }
-  // },
+  getChildrenByHouseholdId: async (req, res) => {
+    // Implementation
+  },
 };
 
 module.exports = childrenController;
