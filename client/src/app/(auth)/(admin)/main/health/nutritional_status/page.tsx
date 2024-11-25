@@ -1,5 +1,5 @@
 "use client";
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect, useRef, ReactNode } from "react";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
 import Modal from "@/components/PersonModal";
@@ -12,77 +12,73 @@ import "react-datepicker/dist/react-datepicker.css";
 import { FaCalendarAlt } from "react-icons/fa";
 import { Child as ChildTableChild } from "@/components/ChildTable";
 import { formatDate } from "@/components/formatDate";
-import DataTable from "react-data-table-component";
 import api from "@/lib/axios";
 
-
-export interface Child {
-  resident: any;
-  currentHeight: any;
-  currentWeight: any;
-  address: any;
-  //household data
-  household_id: number;
+export interface Resident {
+  resident_id: number;
   family_name: string;
   given_name: string;
   middle_name: string;
   extension: string;
   gender: string;
+  birthplace: string;
+  birthdate: string;
+  sitio_purok: string;
+  barangay: string;
+  city: string;
+  age: number;
+  children: Child[]; 
+}
+export interface Child {
+  resident_id: number;
+  full_name: string;
+  sex: string;
   birthdate: string;
   age: string;
+  address: string;
   birthplace: string;
   sitio_purok: string;
   barangay: string;
   city: string;
-
-  //childrens data
+  currentHeight: string;
+  currentWeight: string;
   child_id: number;
-  heightAtBirth: string;
-  weightAtBirth: string;
-  heightCm: string;
-  weightKg: string;
-  nutritionalStatus: string;
+  height_at_birth: string;
+  weight_at_birth: string;
+  height_cm: string;
+  weight_kg: string;
+  nutritional_status: string;
   heightAgeZ: string;
   weightAgeZ: string;
-  heightAtAgeZ: string;
-  weightAtAgeZ: string;
-  measurementDate: string;
+  weight_for_length: string;
+  measurement_date: string;
   status: string;
 }
 
 interface ChildFormData {
-  resident: any;
-  family_number: string | number | readonly string[] | undefined;
-  currentAge: string | number | readonly string[] | undefined;
-  currentHeight: string | number | readonly string[] | undefined;
-  currentWeight: string | number | readonly string[] | undefined;
-  address: string | number | readonly string[] | undefined;
-  household_id: string;
-  family_name: string;
-  given_name: string;
-  barangay: string;
-  city: string;
-  middle_name: string;
-  extension: string;
-  gender: string;
+  resident_id: number;
+  full_name: string;
+  sex: string;
   birthdate: string;
   age: string;
+  address: string;
   birthplace: string;
   sitio_purok: string;
-
-  //childrens data
-  child_id?: number;
-  heightAtBirth?: string;
-  weightAtBirth?: string;
-  heightCm?: string;
-  weightKg?: string;
-  nutritionalStatus?: string;
-  heightAgeZ?: string;
-  weightAgeZ?: string;
-  heightAtAgeZ: string;
-  weightAtAgeZ: string;
-  measurementDate: string;
-  status?: string;
+  barangay: string;
+  city: string;
+  currentHeight: string;
+  currentWeight: string;
+  child_id: number;
+  height_at_birth: string;
+  weight_at_birth: string;
+  height_cm: string;
+  weight_kg: string;
+  nutritional_status: string;
+  heightAgeZ: string;
+  weightAgeZ: string;
+  weight_for_length: string;
+  measurement_date: string;
+  status: string;
 }
 
 // Function to calculate nutritional status based on age, weight, and height
@@ -106,36 +102,29 @@ const NutritionalStatus: React.FC = () => {
   const router = useRouter();
   const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
   const [selectedChild, setSelectedChild] = useState<ChildFormData>({
-    resident: null,
-    household_id: "",
-    family_name: "",
-    given_name: "",
-    middle_name: "",
-    extension: "",
-    gender: "",
+    resident_id: 0,
+    full_name: "",
+    sex: "",
     birthdate: "",
     age: "",
+    address: "",
     birthplace: "",
     sitio_purok: "",
     barangay: "",
     city: "",
-    child_id: undefined,
-    heightAtBirth: "",
-    weightAtBirth: "",
-    heightCm: "",
-    weightKg: "",
-    nutritionalStatus: "",
-    heightAgeZ: "",
-    weightAgeZ: "",
-    heightAtAgeZ: "",
-    weightAtAgeZ: "",
-    measurementDate: new Date().toISOString().split("T")[0],
-    status: "",
-    family_number: "",
-    currentAge: "",
     currentHeight: "",
     currentWeight: "",
-    address: "",
+    child_id: 0,
+    height_at_birth: "",
+    weight_at_birth: "",
+    height_cm: "",
+    weight_kg: "",
+    nutritional_status: "",
+    heightAgeZ: "",
+    weightAgeZ: "",
+    weight_for_length: "",
+    measurement_date: new Date().toISOString().split("T")[0],
+    status: "",
   });
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
@@ -158,13 +147,13 @@ const NutritionalStatus: React.FC = () => {
   const [archivedChildren, setArchivedChildren] = useState<number[]>([]);
 
   const [filterCriteria, setFilterCriteria] = useState({
-    age: '',
-    gender: '',
-    birthdate: '',
-    height: '',
-    weight: '',
-    nutritionalStatus: '',
-    archived: false, // New filter for archived status
+    age: "",
+    gender: "",
+    birthdate: "",
+    height: "",
+    weight: "",
+    nutritionalStatus: "",
+    archived: false,
   });
 
   const [residents, setResidents] = useState<Child | null>(null);
@@ -194,8 +183,6 @@ const NutritionalStatus: React.FC = () => {
     };
   }, [isAddModalOpen]);
 
-
-
   useEffect(() => {
     const fetchResidents = async () => {
       try {
@@ -214,15 +201,12 @@ const NutritionalStatus: React.FC = () => {
     fetchResidents();
   }, []);
 
-  console.log(residents, 'Resident Data')
+  console.log(residents, "Resident Data");
 
   const fetchChildById = async (id: number) => {
     try {
       const response = await fetch(`http://localhost:3001/api/children/${id}`);
       const data: Child = await response.json();
-
-      console.log("rsponse:", response.json());
-
 
       setSelectedChild(data as any);
     } catch (error) {
@@ -236,76 +220,78 @@ const NutritionalStatus: React.FC = () => {
       birthdate: date ? formatDate(date.toISOString()) : "",
     });
   };
-  console.log(selectedChild.given_name, 'selectedChild')
 
   const handleRowClick = (child: Child) => {
     setSelectedChild({
-      resident: child?.resident,
-      child_id: child?.child_id,
-      given_name: child?.resident?.given_name || "",
-      middle_name: child?.resident?.middle_name || "",
-      family_name: child?.resident?.family_name || "",
-      extension: child?.resident?.extension || "",
-      gender: child?.resident?.gender,
-      birthdate: child?.resident?.birthdate,
-      weightAtBirth: child?.weightAtBirth ? child?.weightAtBirth.toString() : "",
-      heightAtBirth: child?.heightAtBirth ? child?.heightAtBirth.toString() : "",
-      age: child?.age ? child?.age.toString() : "",
-      currentWeight: child?.weightKg ? child?.weightKg.toString() : "",
-      currentHeight: child?.heightCm ? child?.heightCm.toString() : "",
-      nutritionalStatus: child?.nutritionalStatus || "",
-      measurementDate: child?.measurementDate || "",
-      family_number: undefined,
-      currentAge: undefined,
-      address: "",
-      household_id: "",
-      barangay: child?.resident?.barangay || "",
-      city: child?.resident?.city || "",
-      birthplace: child?.resident?.birthplace || "",
-      sitio_purok: child?.resident?.sitio_purok || "",
-      status: "",
-      heightAtAgeZ: "",
-      weightAtAgeZ: "",
+      resident_id: child.resident_id,
+      full_name: child.full_name,
+      sex: child.sex,
+      birthdate: child.birthdate,
+      age: child.age,
+      address: child.address,
+      birthplace: child.birthplace,
+      sitio_purok: child.sitio_purok,
+      barangay: child.barangay,
+      city: child.city,
+      currentHeight: child.currentHeight,
+      currentWeight: child.currentWeight,
+      child_id: child.child_id,
+      height_at_birth: child.height_at_birth,
+      weight_at_birth: child.weight_at_birth,
+      height_cm: child.height_cm,
+      weight_kg: child.weight_kg,
+      nutritional_status: child.nutritional_status,
+      heightAgeZ: child.heightAgeZ,
+      weightAgeZ: child.weightAgeZ,
+      weight_for_length: child.weight_for_length,
+      measurement_date: child.measurement_date,
+      status: child.status,
     });
     setIsModalOpen(true);
   };
-  async function handleEditClick(child: ChildTableChild | undefined): Promise<void> {
+  async function handleEditClick(child: ChildTableChild): Promise<void> {
     if (!child) {
       console.error("Child object is undefined");
       return;
     }
 
     const confirmEdit = await SweetAlert.showConfirm(
-      ` <p> Are you sure you want to edit this child with ID: <span class="font-bold">${residents?.household_id}</span>?</p>`
+      `<p> Are you sure you want to edit this child with ID: <span class="font-bold">${child.child_id}</span>?</p>`
     );
 
     if (confirmEdit) {
-      ({
-        child_id: child.child_id,
-        given_name: child.given_name || "",
-        middle_name: child.middle_name || "",
-        family_name: child.family_name || "",
-        extension: child.extension || "",
-        gender: child.gender,
+      setSelectedChild({
+        resident_id: child.resident_id,
+        full_name: child.full_name || "",
+        sex: child.sex,
         birthdate: child.birthdate,
-        weightAtBirth: child.weightAtBirth || "",
-        heightAtBirth: child.heightAtBirth || "",
         age: child.age ? child.age.toString() : "",
-        currentWeight: child.weightKg ? child.weightKg.toString() : "",
-        currentHeight: child.heightCm ? child.heightCm.toString() : "",
-        nutritionalStatus: child.nutritionalStatus || "",
-        measurementDate: child.measurementDate || "",
-        family_number: undefined,
-        currentAge: undefined,
-        address: "",
-        household_id: "",
-        barangay: "",
-        city: "",
-        birthplace: "",
-        sitio_purok: "",
-        status: "",
-        heightAtAgeZ: "",
-        weightAtAgeZ: "",
+        address: child.address || "",
+        birthplace: child.birthplace || "",
+        sitio_purok: child.sitio_purok || "",
+        barangay: child.barangay || "",
+        city: child.city || "",
+        currentHeight: child.currentHeight
+          ? child.currentHeight.toString()
+          : "",
+        currentWeight: child.currentWeight
+          ? child.currentWeight.toString()
+          : "",
+        child_id: child.child_id,
+        height_at_birth: child.height_at_birth
+          ? child.height_at_birth.toString()
+          : "",
+        weight_at_birth: child.weight_at_birth
+          ? child.weight_at_birth.toString()
+          : "",
+        height_cm: child.height_cm ? child.height_cm.toString() : "",
+        weight_kg: child.weight_kg ? child.weight_kg.toString() : "",
+        nutritional_status: child.nutritional_status || "",
+        heightAgeZ: child.heightAtAgeZ ? child.heightAtAgeZ.toString() : "",
+        weightAgeZ: child.weightAtAgeZ ? child.weightAtAgeZ.toString() : "",
+        weight_for_length:child.weight_for_length ? child.weight_for_length.toString() : "",
+        measurement_date: child.measurement_date || "",
+        status: child.status || "",
       });
       setIsEditModalOpen(true);
     }
@@ -313,7 +299,7 @@ const NutritionalStatus: React.FC = () => {
 
   async function handleArchiveClick(child: Child): Promise<void> {
     const confirmArchive = await SweetAlert.showConfirm(
-      `<p>Are you sure you want to archive this child with ID: <span class="font-bold">${residents?.household_id}</span>?</p>`
+      `<p>Are you sure you want to archive this child with ID: <span class="font-bold">${residents?.resident_id}</span>?</p>`
     );
     if (confirmArchive) {
       try {
@@ -329,11 +315,13 @@ const NutritionalStatus: React.FC = () => {
         );
 
         if (response.ok) {
-          setArchivedChildren((prevArchived) => [...prevArchived, child.child_id]);
+          setArchivedChildren((prevArchived) => [
+            ...prevArchived,
+            child.child_id,
+          ]);
         } else {
         }
-      } catch (error) {
-      }
+      } catch (error) {}
     }
   }
 
@@ -401,35 +389,47 @@ const NutritionalStatus: React.FC = () => {
   const handleSearch = (query: string) => {
     const lowerCaseQuery = query.toLowerCase();
     const filteredChildren = originalChildren.filter((child) => {
-      const fullName = `${child.given_name || ''} ${child.middle_name || ''} ${child.family_name || ''} ${child.extension || ''}`.toLowerCase();
+      const fullName = `${child.full_name}`.toLowerCase();
 
       // Check if the query matches any of the child's properties
       const matchesQuery =
         child.child_id.toString().includes(lowerCaseQuery) ||
         fullName.includes(lowerCaseQuery) ||
         child.age.toString().includes(lowerCaseQuery) ||
-        child.gender.toLowerCase() === lowerCaseQuery || // Ensure exact match for gender
+        child.sex.toLowerCase() === lowerCaseQuery || // Ensure exact match for gender
         child.birthdate.includes(lowerCaseQuery) ||
-        child.heightCm.toString().includes(lowerCaseQuery) ||
-        child.weightKg.toString().includes(lowerCaseQuery) ||
-        child.nutritionalStatus.toLowerCase().includes(lowerCaseQuery) ||
-        (child.address && child.address.toLowerCase().includes(lowerCaseQuery)) ||
-        (child.weightAtBirth && child.weightAtBirth.toString().includes(lowerCaseQuery)) ||
-        (child.heightAtBirth && child.heightAtBirth.toString().includes(lowerCaseQuery)) ||
-        (child.currentWeight && child.currentWeight.toString().includes(lowerCaseQuery)) ||
-        (child.currentHeight && child.currentHeight.toString().includes(lowerCaseQuery)) ||
-        (child.barangay && child.barangay.toLowerCase().includes(lowerCaseQuery)) ||
+        child.height_cm.toString().includes(lowerCaseQuery) ||
+        child.weight_kg.toString().includes(lowerCaseQuery) ||
+        child.nutritional_status.toLowerCase().includes(lowerCaseQuery) ||
+        (child.address &&
+          child.address.toLowerCase().includes(lowerCaseQuery)) ||
+        (child.weight_at_birth &&
+          child.weight_at_birth.toString().includes(lowerCaseQuery)) ||
+        (child.height_at_birth &&
+          child.height_at_birth.toString().includes(lowerCaseQuery)) ||
+        (child.currentWeight &&
+          child.currentWeight.toString().includes(lowerCaseQuery)) ||
+        (child.currentHeight &&
+          child.currentHeight.toString().includes(lowerCaseQuery)) ||
+        (child.barangay &&
+          child.barangay.toLowerCase().includes(lowerCaseQuery)) ||
         (child.city && child.city.toLowerCase().includes(lowerCaseQuery)) ||
-        (child.birthplace && child.birthplace.toLowerCase().includes(lowerCaseQuery));
+        (child.birthplace &&
+          child.birthplace.toLowerCase().includes(lowerCaseQuery));
 
       const matchesFilter =
         (!filterCriteria.age || child.age.toString() === filterCriteria.age) &&
-        (!filterCriteria.gender || child.gender.toLowerCase() === filterCriteria.gender.toLowerCase()) &&
-        (!filterCriteria.birthdate || child.birthdate === filterCriteria.birthdate) &&
-        (!filterCriteria.height || child.heightCm.toString() === filterCriteria.height) &&
-        (!filterCriteria.weight || child.weightKg.toString() === filterCriteria.weight) &&
-        (!filterCriteria.nutritionalStatus || child.nutritionalStatus === filterCriteria.nutritionalStatus) &&
-        (filterCriteria.archived === archivedChildren.includes(child.child_id));
+        (!filterCriteria.gender ||
+          child.sex.toLowerCase() === filterCriteria.gender.toLowerCase()) &&
+        (!filterCriteria.birthdate ||
+          child.birthdate === filterCriteria.birthdate) &&
+        (!filterCriteria.height ||
+          child.height_cm.toString() === filterCriteria.height) &&
+        (!filterCriteria.weight ||
+          child.weight_kg.toString() === filterCriteria.weight) &&
+        (!filterCriteria.nutritionalStatus ||
+          child.nutritional_status === filterCriteria.nutritionalStatus) &&
+        filterCriteria.archived === archivedChildren.includes(child.child_id);
 
       return matchesQuery && matchesFilter;
     });
@@ -464,19 +464,24 @@ const NutritionalStatus: React.FC = () => {
 
   // Update nutritional status when age, weight, or height changes
   useEffect(() => {
-    if (selectedChild.age && selectedChild.weightKg && selectedChild.heightCm) {
+    if (
+      selectedChild.age &&
+      selectedChild.currentWeight &&
+      selectedChild.currentHeight
+    ) {
       const status = calculateNutritionalStatus(
-        parseInt(selectedChild.age,),
-        parseFloat(selectedChild.weightKg),
-        parseInt(selectedChild.heightCm,)
+        parseInt(selectedChild.age.toString()),
+        parseFloat(selectedChild.currentWeight.toString()),
+        parseInt(selectedChild.currentHeight.toString())
       );
       setSelectedChild((prev) => ({ ...prev, nutritionalStatus: status }));
     }
   }, [
-    selectedChild.currentAge,
+    selectedChild.age,
     selectedChild.currentWeight,
     selectedChild.currentHeight,
   ]);
+
   // Utility function to safely parse date strings
   const parseDate = (dateString: string) => {
     if (!dateString) return null; // Return null if the date string is empty
@@ -491,62 +496,108 @@ const NutritionalStatus: React.FC = () => {
   }, [isEditModalOpen, selectedChild.child_id]);
 
   async function handleUpdateChild() {
+    console.log("Update button clicked!");
+
     const confirmUpdate = await SweetAlert.showConfirm(
-      `<p>Are you sure you want to update the child with ID: <span class="font-bold">${residents?.household_id}</span>?</p>`
+      `<p>Are you sure you want to update the child with ID: <span class="font-bold">${selectedChild.child_id}</span>?</p>`
     );
 
-    if (!confirmUpdate) return; // Exit if the user cancels the update
+    if (!confirmUpdate) {
+      console.log("Update canceled by user");
+      return;
+    }
+
+    console.log("Selected Child ID:", selectedChild.child_id);
+
+    // Validation check: Ensure that all required fields are filled before sending
+    if (
+      !selectedChild.currentWeight ||
+      !selectedChild.currentHeight ||
+      !selectedChild.age ||
+      !selectedChild.child_id
+    ) {
+      await SweetAlert.showError(
+        "Please fill in all required fields before updating."
+      );
+      return;
+    }
 
     try {
-      const response = await fetch(`http://localhost:3001/api/children/${selectedChild.child_id}`, {
-        method: "PUT",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(selectedChild),
-      });
+      console.log("Sending data to backend:", selectedChild);
+
+      // Prepare data for the request and ensure undefined values are converted to null
+      const requestData = {
+        height_at_birth: selectedChild.height_at_birth ?? null,
+        weight_at_birth: selectedChild.weight_at_birth ?? null,
+        height_cm: selectedChild.currentHeight ?? null,
+        weight_kg: selectedChild.currentWeight ?? null,
+        height_age_Z: selectedChild.heightAgeZ ?? null,
+        weight_age_Z: selectedChild.weightAgeZ ?? null,
+        nutritional_status: selectedChild.nutritional_status ?? null,
+        measurement_date: selectedChild.measurement_date ?? null,
+      };
+
+      const response = await fetch(
+        `http://localhost:3001/api/children/${selectedChild.child_id}`,
+        {
+          method: "PUT",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(requestData),
+        }
+      );
+
+      console.log("Response status:", response.status);
+
+      // Check if the response is empty or not JSON
+      let responseData = {};
+      if (response.status !== 204 && response.status !== 204) {
+        try {
+          responseData = await response.json(); // Try to parse the response
+          console.log("Backend response data:", responseData);
+        } catch (error) {
+          console.warn("Failed to parse response as JSON", error);
+        }
+      }
 
       if (response.ok) {
-        const updatedChild = await response.json();
-        console.log("Child updated successfully:", updatedChild);
-        setIsEditModalOpen(false); // Close the modal after update
-        // Optionally, update the children list in the state
-        setChildren((prevChildren) =>
-          prevChildren.map((child) =>
-            child.household_id === updatedChild.child_id ? updatedChild : child
-          )
+        let updatedChild;
+        try {
+          updatedChild = responseData; // Use the response data from backend
+          console.log("Updated child data from server:", updatedChild);
+        } catch (error) {
+          console.warn("Response is not JSON or is empty. Using local data.");
+          updatedChild = selectedChild;
+        }
+
+        // Update the children state
+        setChildren((prevChildren) => {
+          return prevChildren.map((child) =>
+            child.child_id === selectedChild.child_id
+              ? { ...child, ...updatedChild }
+              : child
+          );
+        });
+
+        setIsEditModalOpen(false);
+
+        await SweetAlert.showSuccess(
+          `<p>Child with ID: <span class="font-bold">${selectedChild.child_id}</span> has been updated successfully.</p>`
         );
       } else {
-        console.error("Failed to update child.");
+        console.error(`Failed to update child. Status: ${response.status}`);
+        await SweetAlert.showError(
+          `<p>Failed to update child with ID: <span class="font-bold">${selectedChild.child_id}</span>. Please try again later.</p>`
+        );
       }
     } catch (error) {
       console.error("Error updating child:", error);
+      await SweetAlert.showError(
+        `<p>An error occurred while updating the child with ID: <span class="font-bold">${selectedChild.child_id}</span>.</p>`
+      );
     }
   }
-  const handleAddModalOpen = () => {
-    setSelectedChild({
-      ...selectedChild,
-      given_name: selectedChild.given_name,
-      family_name: "",
-      middle_name: "",
-      extension: "",
-      gender: "",
-      birthdate: "",
-      birthplace: "",
-      weightAtBirth: "",
-      heightAtBirth: "",
-      age: "",
-      weightKg: "",
-      heightCm: "",
-      address: "",
-      family_number: "",
-      sitio_purok: "",
-      barangay: "",
-      city: "",
-      nutritionalStatus: "",
-    });
-    setIsAddModalOpen(true);
-  };
 
   // Ensure the modal remains open when editing
   const handleEditModalClose = () => {
@@ -559,30 +610,39 @@ const NutritionalStatus: React.FC = () => {
       [field]: value,
     }));
 
-    if (field === "currentWeight" || field === "currentHeight") {
+    // Trigger recalculation of nutritional status if relevant fields change
+    if (field === "currentWeight" || field === "currentHeight" || field === "age") {
       const weight = parseFloat(selectedChild.currentWeight?.toString() || "0");
       const height = parseInt(selectedChild.currentHeight?.toString() || "0");
-      const age = parseInt(selectedChild.currentAge?.toString() || "0");
+      const age = parseInt(selectedChild.age?.toString() || "0");
 
       if (!isNaN(weight) && !isNaN(height) && !isNaN(age)) {
         const status = calculateNutritionalStatus(age, weight, height);
-        setSelectedChild((prev) => ({ ...prev, nutritionalStatus: status }));
+        setSelectedChild((prev) => ({
+          ...prev,
+          nutritional_status: status,
+          weightAgeZ: calculateWeightForAge(age, weight),
+          heightAgeZ: calculateLengthForAge(age, height),
+          weight_for_length: calculateWeightForLength(weight, height),
+        }));
       }
     }
   };
 
-  // const handleRowClick = (resident: Resident) => {
-  //   setSelectedChild({
-  //     ...resident,
-  //     heightAtBirth: resident.children?.[0]?.heightAtBirth || "",
-  //     weightAtBirth: resident.children?.[0]?.weightAtBirth || "",
-  //     currentHeight: resident.children?.[0]?.heightCm || "",
-  //     currentWeight: resident.children?.[0]?.weightKg || "",
-  //     measurementDate: resident.children?.[0]?.measurementDate || "",
-  //     nutritionalStatus: resident.children?.[0]?.nutritionalStatus || "",
-  //   });
-  //   setIsModalOpen(true); // Open the modal
-  // };
+  function calculateWeightForAge(age: number, weight: number): string {
+    // Implement logic here
+    return weight.toString(); // Ensure return type is string
+  }
+
+  function calculateLengthForAge(age: number, height: number): string {
+    // Implement logic here
+    return height.toString(); // Ensure return type is string
+  }
+
+  function calculateWeightForLength(weight: number, height: number): string {
+    // Implement logic here
+    return (weight / height).toString(); // Ensure return type is string
+  }
 
   return (
     <>
@@ -601,17 +661,6 @@ const NutritionalStatus: React.FC = () => {
         />
         <button
           className="flex items-center space-x-2 text-blue-500 hover:underline"
-          onClick={handleAddModalOpen}
-        >
-          <Image
-            src="/svg/add_nutritional.svg"
-            alt="Nutritional Status"
-            width={30}
-            height={50}
-          />
-        </button>
-        <button
-          className="flex items-center space-x-2 text-blue-500 hover:underline"
           onClick={() => router.push("/main/health/nutriReport")}
         >
           <Image
@@ -624,26 +673,51 @@ const NutritionalStatus: React.FC = () => {
         {isFilterDropdownOpen && (
           <div className="absolute right-[1rem]  md:mt-[48%] lg:mt-[36%] xl:mt-[28%] 2xl:mt-[20%] bg-white border border-gray-300 rounded-md shadow-lg z-10">
             <ul className="py-1">
-              <li className="px-4 py-2 hover:bg-gray-100 cursor-pointer" onClick={() => handleFilterChange('age', 'specificAge')}>
+              <li
+                className="px-4 py-2 hover:bg-gray-100 cursor-pointer"
+                onClick={() => handleFilterChange("age", "specificAge")}
+              >
                 Filter by Age
               </li>
-              <li className="px-4 py-2 hover:bg-gray-100 cursor-pointer" onClick={() => handleFilterChange('gender', 'male')}>
+              <li
+                className="px-4 py-2 hover:bg-gray-100 cursor-pointer"
+                onClick={() => handleFilterChange("gender", "male")}
+              >
                 Filter by gender
               </li>
-              <li className="px-4 py-2 hover:bg-gray-100 cursor-pointer" onClick={() => handleFilterChange('birthdate', 'specificDate')}>
+              <li
+                className="px-4 py-2 hover:bg-gray-100 cursor-pointer"
+                onClick={() => handleFilterChange("birthdate", "specificDate")}
+              >
                 Filter by Birthdate
               </li>
-              <li className="px-4 py-2 hover:bg-gray-100 cursor-pointer" onClick={() => handleFilterChange('height', 'specificHeight')}>
+              <li
+                className="px-4 py-2 hover:bg-gray-100 cursor-pointer"
+                onClick={() => handleFilterChange("height", "specificHeight")}
+              >
                 Filter by Height
               </li>
-              <li className="px-4 py-2 hover:bg-gray-100 cursor-pointer" onClick={() => handleFilterChange('weight', 'specificWeight')}>
+              <li
+                className="px-4 py-2 hover:bg-gray-100 cursor-pointer"
+                onClick={() => handleFilterChange("weight", "specificWeight")}
+              >
                 Filter by Weight
               </li>
-              <li className="px-4 py-2 hover:bg-gray-100 cursor-pointer" onClick={() => handleFilterChange('nutritionalStatus', 'Normal')}>
+              <li
+                className="px-4 py-2 hover:bg-gray-100 cursor-pointer"
+                onClick={() =>
+                  handleFilterChange("nutritionalStatus", "Normal")
+                }
+              >
                 Filter by Nutritional Status
               </li>
-              <li className="px-4 py-2 hover:bg-gray-100 cursor-pointer" onClick={() => handleFilterChange('archived', !filterCriteria.archived)}>
-                {filterCriteria.archived ? 'Show Active' : 'Show Archived'}
+              <li
+                className="px-4 py-2 hover:bg-gray-100 cursor-pointer"
+                onClick={() =>
+                  handleFilterChange("archived", !filterCriteria.archived)
+                }
+              >
+                {filterCriteria.archived ? "Show Active" : "Show Archived"}
               </li>
             </ul>
           </div>
@@ -651,22 +725,18 @@ const NutritionalStatus: React.FC = () => {
       </div>
       <div className="w-full mt-[1rem] ">
         <ChildTable
-          // children={paginatedChildren as ChildTableChild[]}
+          children={paginatedChildren as unknown as ChildTableChild[]}
           onSort={handleSort}
           sortConfig={sortConfig}
           onEdit={(child) => handleEditClick(child as any)}
           onArchive={(child) => handleArchiveClick(child as any)}
-          onRowClick={(child) => handleRowClick(child as any)} children={[]} />
+          onRowClick={(child) => handleRowClick(child as any)}
+        />
       </div>
-      <Pagination
-        currentPage={currentPage}
-        totalPages={Math.ceil(children.length / itemsPerPage)}
-        onPageChange={handlePageChange}
-      />
 
       {isModalOpen && selectedChild && (
         <Modal onClose={() => setIsModalOpen(false)}>
-          <div ref={modalRef} className="relative border border-black w-full">
+          <div className="relative border border-black w-full">
             <button
               className="absolute top-[-3rem] right-[-2rem] text-gray-500 hover:text-gray-700 p-4 text-[3rem]"
               onClick={() => setIsModalOpen(false)}
@@ -674,7 +744,6 @@ const NutritionalStatus: React.FC = () => {
               &times;
             </button>
             <div className="w-full p-[2rem] gap-4">
-
               <div className="w-full flex pt-2">
                 <Image
                   src="/svg/health_nutritionalstatus.svg"
@@ -682,43 +751,41 @@ const NutritionalStatus: React.FC = () => {
                   width={40}
                   height={50}
                 />
-
-                <h2 className=" font-semibold text text-[20px] ">
+                <h2 className="font-semibold text text-[20px]">
                   View Child Information
                 </h2>
               </div>
-              <p className="italic text-sm pl-[3rem]">Barangay Luz, Cebu City</p>
-              <div className="w-full flex flex-row  text mt-[2rem]  justify-between ">
-                <div className=" text flex flex-row ">
-                  <div className="flex flex-row  w-full gap-[1rem]  items-center">
-                    <p className="font-medium ">Child's Name:</p>
+              <p className="italic text-sm pl-[3rem]">
+                Barangay Luz, Cebu City
+              </p>
+              <div className="w-full flex flex-row text mt-[2rem] justify-between">
+                <div className="text flex flex-row">
+                  <div className="flex flex-row w-full gap-[1rem] items-center">
+                    <p className="font-medium">Child's Name:</p>
                     <div className="flex flex-row gap-[1rem]">
-                      <div className="border-b border-black   p-1">
-                        <p className="text-center">{`${selectedChild.given_name || ''
-                          } ${selectedChild.family_name ? selectedChild.family_name + ' ' : ''}${selectedChild.middle_name || ''
-                          }${selectedChild.extension ? ' ' + selectedChild.extension : ''}`}</p>
+                      <div className="border-b border-black p-1">
+                        <p className="text-center">{`${selectedChild.full_name}`}</p>
                       </div>
                     </div>
                   </div>
                 </div>
-
-                <div className=" text px-4 flex flex-row gap-[1rem] items-center">
+                <div className="text px-4 flex flex-row gap-[1rem] items-center">
                   <span className="font-medium">Birthdate:</span>
-                  <div className="border-b border-black   p-1 text-center">
-                    {formatDate(residents ? residents.birthdate : "")}
+                  <div className="border-b border-black p-1 text-center">
+                    {formatDate(selectedChild.birthdate)}
                   </div>
                 </div>
-                <p className="text flex  flex-row gap-[2rem] items-center">
+                <p className="text flex flex-row gap-[2rem] items-center">
                   <span className="font-medium">Age:</span>
                   <div className="border-b border-black text-center p-1 flex flex-row gap-2 items-center">
-                    {residents ? residents.age : "N/A"}
+                    {selectedChild.age}
                     <p>months</p>
                   </div>
                 </p>
                 <p className="text flex flex-row gap-[2rem] items-center">
-                  <span className="font-medium">gender:</span>
+                  <span className="font-medium">Sex:</span>
                   <div className="border-b border-black w-[12rem] text-center p-1">
-                    {residents ? residents.gender : "N/A"}
+                    {selectedChild.sex}
                   </div>
                 </p>
               </div>
@@ -729,17 +796,16 @@ const NutritionalStatus: React.FC = () => {
                   </p>
                   <div className="w-full flex flex-row gap-4 mt-2">
                     <p>Birth Height (cm):</p>
-                    <p className="border-b border-black w-[4rem] h-[2rem] text-center p-1">
-                      {selectedChild.heightAtBirth}
+                    <p className="border-b border-black w-[4rem] h-[2rem] text-center p-1 ">
+                      {selectedChild.height_at_birth}
                     </p>
                     <p>Birth Weight (kg):</p>
-                    <p className="border-b border-black w-[4rem] h-[2rem] text-center p-1">
-                      {selectedChild.weightAtBirth}
+                    <p className="border-b border-black w-[4rem] h-[2rem] text-center p-1 ">
+                      {selectedChild.weight_at_birth}
                     </p>
-                    <p className="font-medium ">Place of Birth:</p>
-                    <p className="border-b border-black w-[12rem] h-[2rem] p-1 text-center">
-                      {" "}
-                      {residents ? residents.birthplace : " "}
+                    <p className="font-medium">Place of Birth:</p>
+                    <p className="border-b border-black w-[12rem] h-[2rem] text-center p-1 ">
+                      {selectedChild?.birthplace || "N/A"}
                     </p>
                   </div>
                 </div>
@@ -747,100 +813,77 @@ const NutritionalStatus: React.FC = () => {
                   <p className="w-full font-medium text-[18px]">
                     Current Information:
                   </p>
-                  <div className="w-full flex flex-row  gap-4 mt-1">
-                    <p className="">Age in Months:</p>
-                    <p className="border-b border-black w-[4rem] h-[2rem] text-center p-1">
-                      {selectedChild.currentAge}
+                  <div className="w-full flex flex-row gap-4 mt-1">
+                    <p>Age in Months:</p>
+                    <p className="border-b border-black w-[4rem] h-[2rem] text-center p-1 ">
+                      {selectedChild.age}
                     </p>
                     <p>Height (cm):</p>
-                    <p className="border-b border-black w-[4rem] h-[2rem] text-center p-1">
-                      {selectedChild.currentHeight}
+                    <p className="border-b border-black w-[4rem] h-[2rem] text-center p-1 ">
+                      {selectedChild.height_cm}
                     </p>
                     <p>Weight (kg):</p>
-                    <p className="border-b border-black w-[4rem] h-[2rem] text-center p-1">
-                      {selectedChild.currentWeight}
+                    <p className="border-b border-black w-[4rem] h-[2rem] text-center p-1 ">
+                      {selectedChild.weight_kg}
                     </p>
-                    <p className="font-medium ">Measurement Date:</p>
-
-                    <DatePicker
-                      selected={selectedChild.measurementDate ? parseDate(selectedChild.measurementDate) : null}
-                      onChange={(date: Date | null) =>
-                        setSelectedChild({
-                          ...selectedChild,
-                          measurementDate: date ? date.toISOString().split("T")[0] : "",
-                        })
-                      }
-                      dateFormat="MMMM d, yyyy"
-                      className="w-[12rem] h-[2rem] p-1 text-center"
-                      customInput={
-                        <div className="flex  border-b border-black items-center rounded-md p-1 text-black">
-                          <input
-                            className="w-full outline-none"
-                            value={selectedChild.measurementDate ? formatDate(selectedChild.measurementDate) : ''}
-                            readOnly
-                          />
-                          <FaCalendarAlt className="ml-2 text-black" />
-                        </div>
-                      }
-                    />
-
+                    <p className="font-medium">Measurement Date:</p>
+                    <p className="border-b border-black w-[12rem] h-[2rem] text-center p-1 ">
+                      {selectedChild.measurement_date
+                        ? formatDate(selectedChild.measurement_date)
+                        : ""}
+                    </p>
                   </div>
                   <div className="w-full flex flex-row gap-[1rem]">
-                    <div className="w-full flex flex-row  mt-[2rem]">
-                      <p className="font-medium ">Current Address:</p>
+                    <div className="w-full flex flex-row mt-[2rem]">
+                      <p className="font-medium">Current Address:</p>
                       <p className="border-b border-black w-[12rem] h-[2rem] p-1 text-center">
-                        {" "}
-                        {residents ? residents.barangay + ", " + residents.city : " "}
+                        {selectedChild.barangay + ", " + selectedChild.city}
                       </p>
                     </div>
-
                     <div className="w-full flex flex-row gap-[2rem] mt-[2rem]">
-                      <p className="font-medium ">Purok/Zone:</p>
+                      <p className="font-medium">Purok/Zone:</p>
                       <p className="border-b border-black w-[12rem] h-[2rem] p-1 text-center">
-                        {" "}
-                        {residents ? residents.sitio_purok : " "}
+                        {selectedChild.sitio_purok}
                       </p>
                     </div>
                   </div>
                 </div>
               </div>
-              <div className="w-full flex flex-col mt-[2rem] ">
+              <div className="w-full flex flex-col mt-[2rem]">
                 <p className="font-medium text-[18px]">Nutritional Status:</p>
-                <div className="w-full flex flex-row gap-[1rem] justify-between">
-                  <div className="flex flex-row gap-[.5rem] items-center mt-[1rem]">
-                    <p >Weight for Age:</p>
-                    <p className="border-b w-[4rem] border-black text-center  p-1">
-                      {selectedChild.currentWeight}
+                <div className="w-full flex flex-row justify-between">
+                  <div className="flex flex-row gap-[.5rem items-center mt-[1rem]">
+                    <p>Weight for Age:</p>
+                    <p className="border-b border-black w-[4rem] h-[2rem] text-center p-1 ">
+                      {selectedChild.weightAgeZ}
                     </p>
                   </div>
-
                   <div className="flex flex-row gap-[.5rem] items-center">
-                    <p >Length/Height for Age:</p>
-                    <p className="border-b w-[4rem] border-black  text-center p-1">
-                      {selectedChild.currentHeight}
+                    <p>Length/Height for Age:</p>
+                    <p className="border-b border-black w-[4rem] h-[2rem] text-center p-1 ">
+                      {selectedChild.heightAgeZ}
                     </p>
                   </div>
-
                   <div className="flex flex-row gap-[.5rem] items-center">
-                    <p >Weight for Length/Height:</p>
-                    <p className="border-b w-[4rem] border-black  text-center p-1">
-                      {selectedChild.currentWeight}
+                    <p>Weight for Length/Height:</p>
+                    <p className="border-b border-black w-[4rem] h-[2rem] text-center p-1 ">
+                      {selectedChild.weight_for_length}
                     </p>
                   </div>
                   <div className="flex flex-row gap-[.5rem] items-center">
                     <p>Nutritional Status:</p>
-                    <p className="border-b w-[4rem] border-black  text-center p-1">
-                      {selectedChild.nutritionalStatus}
+                    <p className="border-b border-black w-[4rem] h-[2rem] text-center p-1 ">
+                      {selectedChild.nutritional_status}
                     </p>
                   </div>
                 </div>
               </div>
-              <div className="w-full flex  items-center justify-center mt-[4rem]">
+              <div className="w-full flex items-center justify-center mt-[4rem]">
                 <button
                   className="bg-[#007F73] text-white px-[2rem] py-2 rounded-md"
-                  onClick={() => setIsModalOpen(false)} // Close modal on click
+                  onClick={() => setIsModalOpen(false)}
                 >
-                  ADD
+                  OK
                 </button>
               </div>
             </div>
@@ -876,164 +919,56 @@ const NutritionalStatus: React.FC = () => {
 
             <div className="grid grid-cols-4 gap-[20px] w-full mt-4">
               <div className="w-full">
-                <p>First Name of the Child:</p>
+                <p> Name of the Child:</p>
                 <div className="border border-gray-300 rounded-md p-1">
                   <input
                     className="w-full outline-none"
                     type="text"
-                    value={residents ? residents.given_name : ""}
-                    onChange={(e) => {
-                      if (residents) {
-                        setResidents({
-                          ...residents,
-                          given_name: e.target.value,
-                        });
-                      }
-                    }}
+                    value={selectedChild.full_name}
+                    readOnly
                   />
                 </div>
               </div>
               <div className="w-full">
-                <p>Last Name of the Child:</p>
+                <p>Sex:</p>
                 <div className="border border-gray-300 rounded-md p-1">
                   <input
                     className="w-full outline-none"
                     type="text"
-                    value={residents ? residents.family_name : ""}
-                    onChange={(e) => {
-                      if (residents) {
-                        setResidents({
-                          ...residents,
-                          family_name: e.target.value,
-                        })
-                      }
-                    }}
+                    value={selectedChild.sex}
+                    readOnly
                   />
-                </div>
-              </div>
-              <div className="w-full">
-                <p>Middle Name of the Child:</p>
-                <div className="border border-gray-300 rounded-md p-1">
-                  <input
-                    className="w-full outline-none"
-                    type="text"
-                    value={residents ? residents.middle_name : ""}
-                    onChange={(e) => {
-                      if (residents) {
-                        setResidents({
-                          ...residents,
-                          middle_name: e.target.value,
-                        });
-                      }
-                    }}
-                  />
-                </div>
-              </div>
-              <div className="w-full">
-                <p>extension:</p>
-                <div className="border border-gray-300 rounded-md p-1">
-                  <input
-                    className="w-full outline-none"
-                    type="text"
-                    value={residents ? residents.extension : ""}
-                    onChange={(e) => {
-                      if (residents) {
-                        setResidents({
-                          ...residents,
-                          extension: e.target.value,
-                        });
-                      }
-                    }}
-                    list="extension-options"
-                  />
-                  <datalist id="extension-options">
-                    <option value="Jr." />
-                    <option value="Sr." />
-                    <option value="II" />
-                    <option value="III" />
-                    {/* Add more extension options as needed */}
-                  </datalist>
-                </div>
-              </div>
-              <div className="w-full">
-                <p>gender:</p>
-                <div className="w-[80%] flex justify-between px-4">
-                  <p className="font-medium">
-                    {residents ?
-                      residents.gender.charAt(0).toUpperCase() + residents.gender.slice(1)
-                      : 'Not specified'}
-                  </p>
-                  <label>
-                    <input
-                      type="radio"
-                      name="gender"
-                      value="male"
-                      checked={selectedChild.gender === "male"}
-                      onChange={(e) => {
-                        if (residents) {
-                          setResidents({
-                            ...residents,
-                            gender: e.target.value,
-                          });
-                        }
-                      }}
-                    />
-                    Male
-                  </label>
-                  <label>
-                    <input
-                      type="radio"
-                      name="gender"
-                      value="female"
-                      checked={selectedChild.gender === "female"}
-                      onChange={(e) => {
-                        if (residents) {
-                          setResidents({
-                            ...residents,
-                            gender: e.target.value,
-                          });
-                        }
-                      }}
-                    />
-                    Female
-                  </label>
                 </div>
               </div>
               <div className="w-full">
                 <p>Birthdate:</p>
-                <div className="border border-gray-300 rounded-md p-1 flex items-center">
-                  <DatePicker
-                    selected={parseDate(residents ? residents.birthdate : "")}
-                    onChange={handleDateChange}
-                    dateFormat="MMMM d, yyyy"
+                <div className="border border-gray-300 rounded-md p-1">
+                  <input
                     className="w-full outline-none"
-                    customInput={
-                      <div className="flex items-center rounded-md p-1 text-black">
-                        <input
-                          className="w-full outline-none"
-                          value={formatDate(residents ? residents.birthdate : "")}
-                          readOnly
-                        />
-                        <FaCalendarAlt className="ml-2 text-black" />
-                      </div>
-                    }
+                    type="text"
+                    value={formatDate(selectedChild.birthdate)}
+                    readOnly
                   />
                 </div>
               </div>
             </div>
             <div className="w-full">
               <p className="font-medium text-[18px]">During Birth:</p>
-              <div className="w-full flex gap-[20px] ">
+              <div className="w-full flex gap-[2rem] ">
                 <p>Weight (kg):</p>
                 <div className="border border-gray-300 rounded-md p-1 w-[3rem] h-[2.5rem]">
                   <input
                     className="w-full outline-none"
                     type="text"
-                    value={selectedChild.weightAtBirth}
+                    value={
+                      selectedChild.weight_at_birth
+                        ? selectedChild.weight_at_birth.toString()
+                        : ""
+                    }
                     onChange={(e) =>
                       setSelectedChild({
                         ...selectedChild,
-                        weightAtBirth: e.target.value,
+                        weight_at_birth: e.target.value,
                       })
                     }
                   />
@@ -1041,13 +976,17 @@ const NutritionalStatus: React.FC = () => {
                 <p>Height (cm):</p>
                 <div className="border border-gray-300 rounded-md p-1 w-[3rem] h-[2.5rem]">
                   <input
-                    className="w-full outline-none "
+                    className="w-full outline-none"
                     type="text"
-                    value={selectedChild.heightAtBirth}
+                    value={
+                      selectedChild.height_at_birth
+                        ? selectedChild.height_at_birth.toString()
+                        : ""
+                    }
                     onChange={(e) =>
                       setSelectedChild({
                         ...selectedChild,
-                        heightAtBirth: e.target.value,
+                        height_at_birth: e.target.value,
                       })
                     }
                   />
@@ -1058,11 +997,11 @@ const NutritionalStatus: React.FC = () => {
                     <input
                       className="rounded-md p-1 outline-none text-center"
                       type="text"
-                      value={residents ? residents.birthplace : ""}
+                      value={selectedChild.birthplace}
                       onChange={(e) => {
-                        if (residents) {
-                          setResidents({
-                            ...residents,
+                        if (selectedChild) {
+                          setSelectedChild({
+                            ...selectedChild,
                             birthplace: e.target.value,
                           });
                         }
@@ -1082,14 +1021,13 @@ const NutritionalStatus: React.FC = () => {
                     <input
                       className="w-full outline-none flex text-center justify-center"
                       type="number"
-                      value={residents ? residents.age : ""}
+                      value={selectedChild.age}
                       onChange={(e) =>
-                        residents && setResidents({
-                          ...residents,
+                        setSelectedChild({
+                          ...selectedChild,
                           age: e.target.value,
                         })
                       }
-
                     />
                   </div>
                   <p>Weight (kg):</p>
@@ -1097,8 +1035,10 @@ const NutritionalStatus: React.FC = () => {
                     <input
                       className="w-full outline-none"
                       type="text"
-                      value={selectedChild.currentWeight}
-                      onChange={(e) => handleInputChange("currentWeight", e.target.value)}
+                      value={selectedChild.weight_kg}
+                      onChange={(e) =>
+                        handleInputChange("weight_kg", e.target.value)
+                      }
                     />
                   </div>
                   <p>Height (cm):</p>
@@ -1106,28 +1046,39 @@ const NutritionalStatus: React.FC = () => {
                     <input
                       className="w-full outline-none"
                       type="text"
-                      value={selectedChild.currentHeight}
-                      onChange={(e) => handleInputChange("currentHeight", e.target.value)}
+                      value={selectedChild.height_cm}
+                      onChange={(e) =>
+                        handleInputChange("height_cm", e.target.value)
+                      }
                     />
                   </div>
                   <div className="flex flex-row gap-[10px]">
                     <p>Measurement Date:</p>
                     <DatePicker
-                      selected={selectedChild.measurementDate ? parseDate(selectedChild.measurementDate) : null}
+                      selected={
+                        selectedChild.measurement_date
+                          ? parseDate(selectedChild.measurement_date)
+                          : null
+                      }
                       onChange={(date: Date | null) =>
                         setSelectedChild({
                           ...selectedChild,
-                          measurementDate: date ? date.toISOString().split("T")[0] : "",
+                          measurement_date: date
+                            ? date.toISOString().split("T")[0]
+                            : "",
                         })
                       }
                       dateFormat="MMMM d, yyyy"
                       className=" border-b  border-black w-[12rem] h-[2rem] p-1 text-center"
                       customInput={
-                        <div className="flex items-center rounded-md p-1 text-black">
+                        <div className="flex items-center p-1 text-black">
                           <input
                             className="w-full outline-none"
-                            value={selectedChild.measurementDate ? formatDate(selectedChild.measurementDate) : ''}
-                            readOnly
+                            value={
+                              selectedChild.measurement_date
+                                ? formatDate(selectedChild.measurement_date)
+                                : ""
+                            }
                           />
                           <FaCalendarAlt className="ml-2 text-black" />
                         </div>
@@ -1146,8 +1097,10 @@ const NutritionalStatus: React.FC = () => {
                     <input
                       className="w-full outline-none flex text-center justify-center"
                       type="number"
-                      value={selectedChild.currentWeight}
-                      onChange={(e) => handleInputChange("currentWeight", e.target.value)}
+                      value={selectedChild.weightAgeZ}
+                      onChange={(e) =>
+                        handleInputChange("weightAgeZ", e.target.value)
+                      }
                     />
                   </div>
                   <p>Length/Height for Age:</p>
@@ -1155,8 +1108,10 @@ const NutritionalStatus: React.FC = () => {
                     <input
                       className="w-full outline-none flex text-center justify-center"
                       type="number"
-                      value={selectedChild.currentHeight}
-                      onChange={(e) => handleInputChange("currentHeight", e.target.value)}
+                      value={selectedChild.heightAgeZ}
+                      onChange={(e) =>
+                        handleInputChange("heightAgeZ", e.target.value)
+                      }
                     />
                   </div>
                   <p>Weight for Length/Height:</p>
@@ -1164,418 +1119,10 @@ const NutritionalStatus: React.FC = () => {
                     <input
                       className="w-full outline-none flex text-center justify-center"
                       type="number"
-                      value={selectedChild.currentWeight}
-                      onChange={(e) => handleInputChange("currentWeight", e.target.value)}
-                    />
-                  </div>
-                  <p className="font-medium ">Nutritional Status:</p>
-                  <div className="w-full border border-gray-300 rounded-md h-[2.5rem] outline-none">
-                    <select
-                      className="w-full outline-none flex "
-                      value={selectedChild.nutritionalStatus || ""}
+                      value={selectedChild.weight_for_length}
                       onChange={(e) =>
-                        setSelectedChild({
-                          ...selectedChild,
-                          nutritionalStatus: e.target.value,
-                        })
+                        handleInputChange("weight_for_length", e.target.value)
                       }
-                    >
-                      <option value="">Select Nutritional Status</option>
-                      <option value="Normal">Normal</option>
-                      <option value="Overweight">Overweight</option>
-                      <option value="Underweight">Underweight</option>
-                      <option value="Obese">Obese</option>
-                      {/* Add more options as needed */}
-                    </select>
-                  </div>
-                </div>
-              </div>
-            </div>
-            <div className="w-full flex flex-row gap-[10px] ">
-              <p>Address:</p>
-              <input
-                className="outline-none border border-gray-300 rounded-md p-1 w-[20rem]"
-                type="text"
-                value={selectedChild.address}
-                onChange={(e) =>
-                  setSelectedChild({
-                    ...selectedChild,
-                    address: e.target.value,
-                  })
-                }
-              />
-              <p>Purok/Zone:</p>
-              <input
-                className="outline-none border border-gray-300 rounded-md p-1 w-[20rem]"
-                type="text"
-                value={selectedChild.sitio_purok}
-                onChange={(e) =>
-                  setSelectedChild({ ...selectedChild, sitio_purok: e.target.value })
-                }
-              />
-            </div>
-            <div className="w-full flex justify-between mt-[2rem] gap-[20px]">
-              <div className="w-full border border-[#696969] rounded-md p-2">
-                <button
-                  className="w-full"
-                  onClick={handleEditModalClose} // Close modal on cancel
-                >
-                  <p className="text-lg font-medium">Cancel</p>
-                </button>
-              </div>
-              <div className="w-full border border-gray-300 bg-[#007F73] rounded-md p-2">
-                <button className="w-full" onClick={handleUpdateChild}>
-                  <p className="text-white text-lg font-medium">
-                    Update Nutritional Status
-                  </p>
-                </button>
-              </div>
-            </div>
-          </div>
-        </Modal>
-      )}
-
-      {isAddModalOpen && (
-        <Modal onClose={() => setIsAddModalOpen(false)}>
-          <div ref={addModalRef} className="relative border border-black p-[2rem]">
-            <button
-              className="absolute top-[-3rem] right-[-2rem] text-gray-500 hover:text-gray-700 p-4 text-[3rem]"
-              onClick={() => setIsAddModalOpen(false)}
-            >
-              &times;
-            </button>
-            <div className="w-full flex flex-row gap-[1rem] ">
-              <div>
-                <Image
-                  src="/svg/health_nutritionalstatus.svg"
-                  alt="Update Nutritional Status"
-                  width={40}
-                  height={50}
-                />
-              </div>
-              <div className="w-full flex flex-col gap-[1rem]">
-                <h2 className="text-lg font-semibold text">
-                  Add Child Nutritional Status
-                </h2>
-                <p className="italic text-sm ">Barangay Luz, Cebu City</p>
-              </div>
-            </div>
-            <div className="grid grid-cols-4 gap-[20px] w-full mt-4">
-              <div className="w-full">
-                <p>First Name of the Child:</p>
-                <div className="border border-gray-300 rounded-md p-1">
-                  <input
-                    className="w-full outline-none"
-                    type="text"
-                    value={''}
-                    onChange={(e) =>
-                      setSelectedChild({
-                        ...selectedChild,
-                        given_name: e.target.value,
-                      })
-                    }
-                  />
-                </div>
-              </div>
-              <div className="w-full">
-                <p>Last Name of the Child:</p>
-                <div className="border border-gray-300 rounded-md p-1">
-                  <input
-                    className="w-full outline-none"
-                    type="text"
-                    value={selectedChild.family_name}
-                    onChange={(e) =>
-                      setSelectedChild({
-                        ...selectedChild,
-                        family_name: e.target.value,
-                      })
-                    }
-                  />
-                </div>
-              </div>
-              <div className="w-full">
-                <p>Middle Name of the Child:</p>
-                <div className="border border-gray-300 rounded-md p-1">
-                  <input
-                    className="w-full outline-none"
-                    type="text"
-                    value={selectedChild.middle_name}
-                    onChange={(e) =>
-                      setSelectedChild({
-                        ...selectedChild,
-                        middle_name: e.target.value,
-                      })
-                    }
-                  />
-                </div>
-              </div>
-              <div className="w-full">
-                <p>extension:</p>
-                <div className="border border-gray-300 rounded-md p-1">
-                  <input
-                    className="w-full outline-none"
-                    type="text"
-                    value={selectedChild.extension || ""}
-                    onChange={(e) =>
-                      setSelectedChild({
-                        ...selectedChild,
-                        extension: e.target.value,
-                      })
-                    }
-                    list="extension-options"
-                  />
-                  <datalist id="extension-options">
-                    <option value="Jr." />
-                    <option value="Sr." />
-                    <option value="II" />
-                    <option value="III" />
-                    {/* Add more extension options as needed */}
-                  </datalist>
-                </div>
-              </div>
-              <div className="w-full">
-                <p>gender:</p>
-                <div className="w-[80%] flex justify-between px-4">
-                  <p className="font-medium">{selectedChild.gender}</p>
-                  <label>
-                    <input
-                      type="radio"
-                      name="gender"
-                      value="male"
-                      checked={selectedChild.gender === "male"}
-                      onChange={(e) =>
-                        setSelectedChild({
-                          ...selectedChild,
-                          gender: e.target.value,
-                        })
-                      }
-                    />
-                    Male
-                  </label>
-                  <label>
-                    <input
-                      type="radio"
-                      name="gender"
-                      value="female"
-                      checked={selectedChild.gender === "female"}
-                      onChange={(e) =>
-                        setSelectedChild({
-                          ...selectedChild,
-                          gender: e.target.value,
-                        })
-                      }
-                    />
-                    Female
-                  </label>
-                </div>
-              </div>
-              <div className="w-full">
-                <p>Birthdate:</p>
-                <div className="border border-gray-300 rounded-md p-1 flex items-center">
-                  <DatePicker
-                    selected={
-                      selectedChild.birthdate
-                        ? new Date(selectedChild.birthdate)
-                        : null
-                    }
-                    onChange={handleDateChange}
-                    dateFormat="MMMM d, yyyy"
-                    className="w-full outline-none"
-                    placeholderText="Select birthdate"
-                    showYearDropdown
-                    scrollableYearDropdown
-                    minDate={new Date("1900-01-01")}
-                    maxDate={new Date()}
-                    customInput={
-                      <div className="flex items-center rounded-md p-1 text-black">
-                        <input
-                          className="w-full outline-none"
-                          value={selectedChild.birthdate}
-                          readOnly
-                        />
-                        <FaCalendarAlt className="ml-2 text-black" />
-                      </div>
-                    }
-                  />
-
-                </div>
-              </div>
-              <div className="w-full">
-                <p>Family Number:</p>
-                <div className="border border-gray-300 rounded-md p-1">
-                  <input className="w-full outline-none" type="number" value={selectedChild.family_number} onChange={(e) => setSelectedChild({ ...selectedChild, family_number: e.target.value })} />
-                </div>
-              </div>
-            </div>
-            <div className="w-full flex flex-col">
-              <p className="font-medium text-[18px]">During Birth:</p>
-              <div className="w-full flex gap-2 ">
-                <p className="">Weight (kg):</p>
-                <div className="border border-gray-300 rounded-md w-[5rem] h-[2.5rem]">
-                  <input
-                    className="w-full outline-none text-center "
-                    type="text"
-                    value={selectedChild.weightAtBirth}
-                    onChange={(e) =>
-                      setSelectedChild({
-                        ...selectedChild,
-                        weightAtBirth: e.target.value,
-                      })
-                    }
-                  />
-                </div>
-                <p>Height (cm):</p>
-                <div className="border border-gray-300 rounded-md p-1 w-[5rem] h-[2.5rem]">
-                  <input
-                    className="w-full outline-none text-center"
-                    type="text"
-                    value={selectedChild.heightAtBirth}
-                    onChange={(e) =>
-                      setSelectedChild({
-                        ...selectedChild,
-                        heightAtBirth: e.target.value,
-                      })
-                    }
-                  />
-                </div>
-                <div className="flex flex-row gap-[10px]">
-                  <p>Place of Birth:</p>
-                  <div className="border border-gray-300 rounded-md p-1 w-[15rem] h-[2.5rem]">
-                    <input
-                      className="rounded-md p-1 outline-none text-center"
-                      type="text"
-                      value={selectedChild.birthplace}
-                      onChange={(e) =>
-                        setSelectedChild({
-                          ...selectedChild,
-                          birthplace: e.target.value,
-                        })
-                      }
-                    />
-                  </div>
-                </div>
-                <div className="flex flex-row gap-[10px]">
-                  <p>Date of Birth:</p>
-                  <div className="border border-gray-300 rounded-md p-1 w-[15rem] h-[2.5rem] flex items-center">
-                    <input
-                      className="w-full outline-none"
-                      type="text"
-                      value={selectedChild.birthdate}
-                      readOnly
-                    />
-                    <FaCalendarAlt className="ml-2 text-black" />
-                  </div>
-                </div>
-              </div>
-            </div>
-            <div className="w-full flex flex-col gap-[20px]">
-              {/* Current */}
-              <div className="w-full">
-                <h1 className="text-lg font-semibold mt-[1rem]">Current :</h1>
-                <div className="w-full flex gap-[1rem]">
-                  <p>Age in Months :</p>
-                  <div className="border border-gray-300 rounded-md p-1 w-[5rem] h-[2.5rem] ">
-                    <input
-                      className="w-full outline-none flex text-center justify-center"
-                      type="number"
-                      value={selectedChild.currentAge}
-                      onChange={(e) =>
-                        setSelectedChild({
-                          ...selectedChild,
-                          currentAge: parseInt(e.target.value),
-                        })
-                      }
-                    />
-                  </div>
-                  <p>Weight (kg):</p>
-                  <div className="border border-gray-300 rounded-md p-1 w-[5rem] h-[2.5rem]">
-                    <input
-                      className="w-full outline-none"
-                      type="text"
-                      value={selectedChild.currentWeight}
-                      onChange={(e) => handleInputChange("currentWeight", e.target.value)}
-                    />
-                  </div>
-                  <p>Height (cm):</p>
-                  <div className="border border-gray-300 rounded-md p-1 w-[5rem] h-[2.5rem]">
-                    <input
-                      className="w-full outline-none"
-                      type="text"
-                      value={selectedChild.currentHeight}
-                      onChange={(e) => handleInputChange("currentHeight", e.target.value)}
-                    />
-                  </div>
-                  <div className="w-full flex flex-row gap-[10px]">
-                    <p>Measurement Date:</p>
-                    <div className="border border-gray-300 rounded-md p-1 w-[15rem] h-[2.5rem]">
-                      <DatePicker
-                        selected={
-                          selectedChild.measurementDate
-                            ? parseDate(selectedChild.measurementDate)
-                            : null
-                        }
-                        onChange={(date: Date | null) =>
-                          setSelectedChild({
-                            ...selectedChild,
-                            measurementDate: date
-                              ? date.toLocaleDateString("en-US", {
-                                month: "long",
-                                day: "numeric",
-                                year: "numeric",
-                              })
-                              : "",
-                          })
-                        }
-                        dateFormat="MMMM d, yyyy"
-                        className="w-full outline-none"
-                        customInput={
-                          <div className="flex items-center rounded-md p-1 text-black">
-                            <input
-                              className="w-full outline-none"
-                              value={selectedChild.measurementDate}
-                              readOnly
-                            />
-                            <FaCalendarAlt className="ml-2 text-black" />
-                          </div>
-                        }
-                      />
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              {/* Nutritional Status */}
-              <div className="w-full ">
-                <h1 className="text-lg font-semibold">Nutritional Status :</h1>
-                <div className="w-full flex gap-[2rem] mt-4">
-                  <p>Weight for Age:</p>
-                  <div className="border border-gray-300 rounded-md p-1 w-[10rem] h-[2.5rem]">
-                    <input
-                      className="w-full outline-none flex text-center justify-center"
-                      type="number"
-                      value={selectedChild.currentWeight}
-                      placeholder="kg"
-                      onChange={(e) => handleInputChange("currentWeight", e.target.value)}
-                    />
-                  </div>
-                  <p>Length/Height for Age:</p>
-                  <div className="border border-gray-300 rounded-md p-1 w-[10rem] h-[2.5rem]">
-                    <input
-                      className="w-full outline-none flex text-center justify-center"
-                      type="number"
-                      value={selectedChild.currentHeight}
-                      placeholder="cm"
-                      onChange={(e) => handleInputChange("currentHeight", e.target.value)}
-                    />
-                  </div>
-                  <p>Weight for Length/Height:</p>
-                  <div className="border border-gray-300 rounded-md p-1 w-[10rem] h-[2.5rem]">
-                    <input
-                      className="w-full outline-none flex text-center justify-center"
-                      type="number"
-                      value={selectedChild.currentWeight}
-                      placeholder=""
-                      onChange={(e) => handleInputChange("currentWeight", e.target.value)}
                     />
                   </div>
                   <div className="w-full">
@@ -1583,11 +1130,11 @@ const NutritionalStatus: React.FC = () => {
                     <div className="border border-gray-300 rounded-md p-1 w-[15rem]">
                       <select
                         className="w-full outline-none"
-                        value={selectedChild.nutritionalStatus || ""}
+                        value={selectedChild.nutritional_status || ""}
                         onChange={(e) =>
                           setSelectedChild({
                             ...selectedChild,
-                            nutritionalStatus: e.target.value,
+                            nutritional_status: e.target.value,
                           })
                         }
                       >
@@ -1621,7 +1168,10 @@ const NutritionalStatus: React.FC = () => {
                 type="text"
                 value={selectedChild.sitio_purok}
                 onChange={(e) =>
-                  setSelectedChild({ ...selectedChild, sitio_purok: e.target.value })
+                  setSelectedChild({
+                    ...selectedChild,
+                    sitio_purok: e.target.value,
+                  })
                 }
               />
             </div>
@@ -1629,15 +1179,15 @@ const NutritionalStatus: React.FC = () => {
               <div className="w-full border border-[#696969] rounded-md p-2">
                 <button
                   className="w-full"
-                  onClick={() => setIsAddModalOpen(false)}
+                  onClick={handleEditModalClose} // Close modal on cancel
                 >
                   <p className="text-lg font-medium">Cancel</p>
                 </button>
               </div>
               <div className="w-full border border-gray-300 bg-[#007F73] rounded-md p-2">
-                <button className="w-full" onClick={handleAddChild}>
+                <button className="w-full" onClick={handleUpdateChild}>
                   <p className="text-white text-lg font-medium">
-                    Add Nutritional Status
+                    Update Nutritional Status
                   </p>
                 </button>
               </div>
@@ -1645,10 +1195,8 @@ const NutritionalStatus: React.FC = () => {
           </div>
         </Modal>
       )}
-
     </>
   );
 };
 
 export default NutritionalStatus;
-
