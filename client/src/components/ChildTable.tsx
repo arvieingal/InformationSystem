@@ -142,10 +142,10 @@ const ChildTable: React.FC<TableProps> = ({ children, onSort, sortConfig, onEdit
     onSort(key);
   };
 
-  const handleRowClick = (resident: Resident) => {
-    setSelectedResident(resident);
-    setIsModalOpen(true);
-  };
+  // const handleRowClick = (resident: Resident) => {
+  //   setSelectedResident(resident);
+  //   setIsModalOpen(true);
+  // };
 
   return (
     <div className="w-full px-[1.5rem]">
