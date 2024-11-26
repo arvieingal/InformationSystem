@@ -1,5 +1,23 @@
 const Children = require("../models/childrenModel");
 
+// Function to categorize children
+const categorizeChildren = (children) => {
+  return children.map(child => {
+    const ageInMonths = Math.floor(child.age) * 12 + (child.age - Math.floor(child.age)) * 10;
+    let ageGroup = 'Other';
+
+    if (ageInMonths >= 0 && ageInMonths <= 5) ageGroup = '0-5 Months';
+    else if (ageInMonths >= 6 && ageInMonths <= 11) ageGroup = '6-11 Months';
+    else if (ageInMonths >= 12 && ageInMonths <= 23) ageGroup = '12-23 Months';
+    else if (ageInMonths >= 24 && ageInMonths <= 35) ageGroup = '24-35 Months';
+    else if (ageInMonths >= 36 && ageInMonths <= 47) ageGroup = '36-47 Months';
+    else if (ageInMonths >= 48 && ageInMonths <= 59) ageGroup = '48-59 Months';
+    else if (ageInMonths >= 60 && ageInMonths <= 71) ageGroup = '60-71 Months';
+
+    return { ...child, age_group: ageGroup };
+  });
+};
+
 const childrenController = {
   getAllChildren: async (req, res) => {
     try {
@@ -63,6 +81,23 @@ const childrenController = {
 
   getChildrenByHouseholdId: async (req, res) => {
     // Implementation
+  },
+
+  getCategorizedChildren: async (req, res) => {
+    try {
+      console.log("Fetching children data...");
+      const children = await Children.getAllChildren();
+      console.log("Children data fetched:", children);
+      if (!children || children.length === 0) {
+        console.error("No children found in the database.");
+        return res.status(404).json({ error: "Child not found." });
+      }
+      const categorizedData = categorizeChildren(children);
+      res.status(200).json(categorizedData);
+    } catch (error) {
+      console.error("Error fetching categorized children:", error);
+      res.status(500).json({ error: "Internal server error" });
+    }
   },
 };
 

@@ -83,16 +83,22 @@ const calculateNutritionalStatus = (
   weight: number,
   height: number
 ): string => {
-  if (age < 24) {
-    if (weight < 10) return "Underweight";
-    if (weight > 15 && weight <= 20) return "Overweight";
-    if (weight > 20) return "Obese";
-  } else {
-    if (height < 80) return "Underweight";
-    if (height > 100 && height <= 120) return "Overweight";
-    if (height > 120) return "Obese";
+  if (height < 20) {
+    return "Error: Height value seems incorrect. Please verify.";
   }
-  return "Normal";
+
+  // Placeholder logic for WFL-Z calculation
+  const wflZ = (weight / height) - 1; // Simplified example, replace with actual calculation
+
+  if (wflZ < -2) {
+    return "Underweight";
+  } else if (wflZ <= 1) {
+    return "Normal";
+  } else if (wflZ <= 2) {
+    return "Overweight";
+  } else {
+    return "Obese";
+  }
 };
 const NutritionalStatus: React.FC = () => {
   const router = useRouter();
@@ -193,9 +199,12 @@ const NutritionalStatus: React.FC = () => {
     };
 
     fetchResidents();
+
   }, []);
 
   console.log(residents, "Resident Data");
+
+  
 
   const fetchChildById = async (id: number) => {
     try {
@@ -207,6 +216,13 @@ const NutritionalStatus: React.FC = () => {
       console.error("Error fetching child by ID:", error);
     }
   };
+
+
+  // useEffect(() => {
+
+  //   fetchChildById(selectedChild.child_id);
+
+  // })
 
   const handleDateChange = (date: Date | null) => {
     setSelectedChild({
@@ -393,6 +409,7 @@ const NutritionalStatus: React.FC = () => {
           child.weight_at_birth.toString().includes(lowerCaseQuery)) ||
         (child.height_at_birth &&
           child.height_at_birth.toString().includes(lowerCaseQuery)) ||
+      
         (child.barangay &&
           child.barangay.toLowerCase().includes(lowerCaseQuery)) ||
         (child.city && child.city.toLowerCase().includes(lowerCaseQuery)) ||
@@ -477,7 +494,7 @@ const NutritionalStatus: React.FC = () => {
     }
   }, [isEditModalOpen, selectedChild.child_id]);
 
-  async function handleUpdateChild() {
+  async function handleUpdateChild(p0: any) {
     console.log("Update button clicked!");
 
     const confirmUpdate = await SweetAlert.showConfirm(
@@ -521,6 +538,7 @@ const NutritionalStatus: React.FC = () => {
         weight_kg: selectedChild.weight_kg ?? null,
         heightAgeZ: selectedChild.heightAgeZ ?? null,
         weightAgeZ: selectedChild.weightAgeZ ?? null,
+        weight_for_length: selectedChild.weight_for_length ?? null,
         nutritional_status: selectedChild.nutritional_status ?? null,
         measurement_date: selectedChild.measurement_date ?? null,
       };
@@ -538,27 +556,39 @@ const NutritionalStatus: React.FC = () => {
 
       console.log("Response status:", response.status);
 
-      if (response.ok) {
-        // Check if the response has content before parsing
-        const responseBody = await response.text();
-        const updatedChild = responseBody ? JSON.parse(responseBody) : null;
+      let responseData = {};
+      if (response.status !== 204) {
+        try {
+          responseData = await response.json(); 
+          console.log("Backend response data:", responseData);
+        } catch (error) {
+          console.warn("Failed to parse response as JSON", error);
+        }
+      }
 
-        if (updatedChild) {
-          // Update the children state
-          setChildren((prevChildren) => {
-            return prevChildren.map((child) =>
-              child.child_id === selectedChild.child_id
-                ? { ...child, ...updatedChild }
-                : child
-            );
-          });
+      if (response.ok) {
+        let updatedChild;
+        try {
+          updatedChild = responseData; 
+          console.log("Updated child data from server:", updatedChild);
+        } catch (error) {
+          console.warn("Response is not JSON or is empty. Using local data.");
+          updatedChild = selectedChild;
         }
 
-        setIsEditModalOpen(false);
+        setChildren((prevChildren) => {
+          return prevChildren.map((child) =>
+            child.child_id === selectedChild.child_id
+              ? { ...child, ...updatedChild }
+              : child
+          );
+        });
 
-        await SweetAlert.showSuccess(
-          `<p>Child with ID: <span class="font-bold">${selectedChild.child_id}</span> has been updated successfully.</p>`
-        );
+        setIsEditModalOpen(false);
+        await SweetAlert.showSuccess(`<p>Child with ID: <span class="font-bold">${selectedChild.child_id}</span> has been updated successfully.</p>`).then(() => {
+          window.location.reload();
+        });
+       
       } else {
         console.error(`Failed to update child. Status: ${response.status}`);
         await SweetAlert.showError(
@@ -573,7 +603,6 @@ const NutritionalStatus: React.FC = () => {
     }
   }
 
-  // Ensure the modal remains open when editing
   const handleEditModalClose = () => {
     setIsEditModalOpen(false);
   };
@@ -583,8 +612,6 @@ const NutritionalStatus: React.FC = () => {
       ...prev,
       [field]: value,
     }));
-
-    // Trigger recalculation of nutritional status if relevant fields change
     if (field === "weight_kg" || field === "height_cm") {
       const weight = parseFloat(value);
       const height = parseInt(selectedChild.height_cm || "0");
@@ -604,18 +631,17 @@ const NutritionalStatus: React.FC = () => {
   };
 
   function calculateWeightForAge(age: number, weight: number): string {
-    // Implement logic here
-    return weight.toString(); // Ensure return type is string
+    return weight.toString();
   }
 
   function calculateLengthForAge(age: number, height: number): string {
-    // Implement logic here
-    return height.toString(); // Ensure return type is string
+   
+    return height.toString();
   }
 
   function calculateWeightForLength(weight: number, height: number): string {
-    // Implement logic here
-    return (weight / height).toString(); // Ensure return type is string
+   
+    return (weight / height).toString(); 
   }
 
   return (

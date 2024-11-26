@@ -2,11 +2,9 @@
 
 import Image from 'next/image'
 import React, { useState, useEffect } from 'react'
-import { useRouter } from 'next/navigation'
 import { FaSearch, FaUser, FaDatabase, FaClipboardList } from 'react-icons/fa';
 
 const Settings: React.FC = () => {
-    // const router = useRouter(); // Commented out as it's not used
     const [modalContent, setModalContent] = useState<string | null>(null);
     const [searchTerm, setSearchTerm] = useState<string>('');
     const [logs, setLogs] = useState<any[]>([]);
@@ -16,7 +14,6 @@ const Settings: React.FC = () => {
             try {
                 const response = await fetch('http://localhost:3001/api/logs');
                 const data = await response.json();
-                // Filter logs for health-related actions
                 const healthLogs = data.filter((log: any) => log.action.includes('health'));
                 setLogs(healthLogs);
             } catch (error) {
@@ -27,8 +24,21 @@ const Settings: React.FC = () => {
         fetchLogs();
     }, []);
 
+    const logUserAction = async (action: string) => {
+        try {
+            await fetch('http://localhost:3001/api/user-actions', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ action, timestamp: new Date().toISOString() }),
+            });
+        } catch (error) {
+            console.error('Error logging user action:', error);
+        }
+    };
+
     function handleCardClick(content: string) {
         setModalContent(content);
+        logUserAction(`User clicked on ${content} card`);
     }
 
     function closeModal() {
@@ -54,27 +64,22 @@ const Settings: React.FC = () => {
             
             {/* User Management Section */}
             <div>
-              <h2 className="text-2xl font-bold mb-4 flex items-center"><FaUser className="mr-2" />User Management</h2>
+              <h2 className="text-2xl font-bold mb-4 flex items-center mt-[2rem]"><FaUser className="mr-2" />User Management</h2>
               <div className="space-y-4 ">
                 <Card title="Add User" description="Create a new user account with required details, roles, and access permissions." imageSrc="/svg/people2.svg" onClick={() => handleCardClick('Add User')} />
                 <Card title="Update User" description="Edit an existing user’s profile, role, or permissions to reflect changes in access or information." imageSrc="/svg/update.svg" onClick={() => handleCardClick('Update User')} />
                 <Card 
                   title="Change my Password" 
                   description="Change your current password to a new one." 
-                  imageSrc="/svg/password.svg" 
-                  onClick={() => handleCardClick('Account Details')} 
+                  imageSrc="/svg/reset-password.png" 
+                  onClick={() => handleCardClick('Change Password')} 
                 />
-              </div>
-              
-              <h2 className="text-2xl font-bold mt-8 mb-4 flex items-center"><FaDatabase className="mr-2" />Data Backup & Restore</h2>
-              <div className="space-y-4">
-                <Card title="Backup Now" description="Backup Frequency: Weekly\nBackup Status: Active" />
               </div>
             </div>
     
             {/* Audit Logs Section */}
             <div>
-              <h2 className="text-2xl font-bold mb-4 flex items-center"><FaClipboardList className="mr-2" />Audit Logs</h2>
+              <h2 className="text-2xl font-bold mb-4 flex items-center mt-[2rem]"><FaClipboardList className="mr-2" />Audit Logs</h2>
               <div className="space-y-4">
                 {logs.length > 0 ? logs.map((log, index) => (
                     <LogEntry key={index} name={`${log.user}: ${log.action}`} />

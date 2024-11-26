@@ -56,7 +56,6 @@ export interface Child {
   status: string;
 }
 
-
 interface TableProps {
   children: Child[];
   onSort: (key: keyof Child) => void;
@@ -90,7 +89,6 @@ type ChildData = {
   status: string | null;
 };
 
-
 const ChildTable: React.FC<TableProps> = ({ children, onSort, sortConfig, onEdit, onArchive, onRowClick }) => {
   const [residents, setResidents] = useState<Resident[]>([]);
   const [error, setError] = useState<string | null>(null);
@@ -99,18 +97,28 @@ const ChildTable: React.FC<TableProps> = ({ children, onSort, sortConfig, onEdit
   const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
   const [currentPage, setCurrentPage] = useState<number>(1);
   const itemsPerPage = 15;
+  const [archivedChildren, setArchivedChildren] = useState<number[]>([]);
+
+  // Function to fetch updated children data
+  const fetchChildren = async () => {
+    try {
+      const response = await api.get("/api/children");
+      setChildrens(response.data);
+    } catch (error) {
+      console.error("Error fetching children:", error);
+    }
+  };
 
   useEffect(() => {
-    const fetchChildren = async () => {
-      try {
-        const response = await api.get("/api/children");
-        setChildrens(response.data);
-      } catch (error) {
-        console.error("Error fetching renters:", error);
-      }
-    };
+    fetchChildren(); // Initial fetch
 
-    fetchChildren();
+    // Set up an interval to fetch data every 30 seconds
+    const intervalId = setInterval(() => {
+      fetchChildren();
+    }, 30000);
+
+    // Clean up the interval on component unmount
+    return () => clearInterval(intervalId);
   }, []);
 
   const handleSort = (key: keyof Child) => {
@@ -155,12 +163,48 @@ const ChildTable: React.FC<TableProps> = ({ children, onSort, sortConfig, onEdit
     return sortedChildren.slice(startIndex, endIndex);
   }, [sortedChildren, currentPage]);
 
+  const handleArchiveClick = async (child: Child) => {
+    const confirmArchive = await SweetAlert.showConfirm(
+      `<p>Are you sure you want to archive this child with ID: <span class="font-bold">${child.child_id}</span>?</p>`
+    );
+    if (confirmArchive) {
+      try {
+        const response = await fetch(
+          `http://localhost:3001/api/children/${child.child_id}`,
+          {
+            method: "PUT",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({ status: "Archive" }),
+          }
+        );
+
+        if (response.ok) {
+          setArchivedChildren((prevArchived) => [
+            ...prevArchived,
+            child.child_id,
+          ]);
+          onArchive(child); // Call the onArchive prop function
+        } else {
+          console.error("Failed to archive child.");
+        }
+      } catch (error) {
+        console.error("Error archiving child:", error);
+      }
+    }
+  };
+
+  const handleEditClick = (child: Child) => {
+    onEdit(child);
+  };
+
   return (
     <div className="w-full px-[1.5rem]">
       <table className="min-w-full border-collapse border border-[#CCCCCC] bg-white text-sm rounded-lg">
         <thead>
           <tr>
-            {['id', 'name', 'age(months)', 'sex', 'birthdate', 'heightCm', 'weightKg', 'nutritionalStatus', 'measurement date'].map((key) => (
+            {['id', 'name', 'age', 'sex', 'birthdate', 'weightKg', 'heightCm', 'nutritionalStatus', 'measurement date'].map((key) => (
               <th
                 key={key}
                 className="border border-black bg-gray-300 py-2 cursor-pointer"
@@ -185,8 +229,8 @@ const ChildTable: React.FC<TableProps> = ({ children, onSort, sortConfig, onEdit
               <td className="text-center border border-black py-2">{child.age}</td>
               <td className="text-center border border-black py-2">{child.sex}</td>
               <td className="text-center border border-black py-2">{formatDate(child.birthdate)}</td>
-              <td className="text-center border border-black py-2">{child.height_cm}</td>
               <td className="text-center border border-black py-2">{child.weight_kg}</td>
+              <td className="text-center border border-black py-2">{child.height_cm}</td>
               <td className="text-center border border-black py-2">{child.nutritional_status}</td>
               <td className="text-center border border-black py-2">{formatDate(child.measurement_date)}</td>
               <td className="text-center justify-center py-2 flex items-center border border-black">
@@ -198,7 +242,7 @@ const ChildTable: React.FC<TableProps> = ({ children, onSort, sortConfig, onEdit
                   className="w-5 h-5 mr-2 cursor-pointer"
                   onClick={(e) => {
                     e.stopPropagation();
-                    onEdit(child as unknown as Child);
+                    handleEditClick(child as unknown as Child);
                   }}
                 />
                 <Image
@@ -209,7 +253,7 @@ const ChildTable: React.FC<TableProps> = ({ children, onSort, sortConfig, onEdit
                   className="w-6 h-6 cursor-pointer"
                   onClick={(e) => {
                     e.stopPropagation();
-                    onArchive(child as unknown as Child);
+                    handleArchiveClick(child as unknown as Child);
                   }}
                 />
               </td>
@@ -221,13 +265,10 @@ const ChildTable: React.FC<TableProps> = ({ children, onSort, sortConfig, onEdit
         currentPage={currentPage}
         totalPages={Math.ceil(childrens.length / itemsPerPage)}
         onPageChange={handlePageChange}
-        
       />
     </div>
   );
 };
-
-
 
 export default ChildTable;
 
