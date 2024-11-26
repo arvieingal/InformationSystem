@@ -5,6 +5,7 @@ import { dashboardCards } from "@/constants/cardData";
 import ProfilingSearchBar from "@/components/ProfilingSearchBar";
 import { dummyHouseholds } from "@/constants/tableDummyData";
 import api from "@/lib/axios";
+import { useRouter } from "next/navigation";
 
 type Household = {
   household_number: number;
@@ -16,6 +17,7 @@ type Household = {
 };
 
 const Households = () => {
+  const router = useRouter()
 
   const [households, setHouseholds] = useState<Household[]>([]);
   console.log(households)
@@ -39,7 +41,7 @@ const Households = () => {
       <CardGrid cards={dashboardCards} />
       <ProfilingSearchBar onSearch={onSearch} />
 
-      <div className="h-[63%] px-32 pb-2">
+      <div className="h-[66%] px-32 pb-2">
         <div className="bg-white h-full rounded-[10px] overflow-y-auto">
           <table className="w-full border-collapse text-[14px]">
             <thead>
@@ -56,9 +58,11 @@ const Households = () => {
             </thead>
             <tbody>
               {households.map((household) => (
-                <tr key={household.household_number} className="border-b hover:bg-gray-50">
+                <tr key={household.household_number} className="border-b hover:bg-gray-50" onClick={() => router.push(`/main/profiling/households/${household.household_number}`)}>
                   <td className="py-2 text-center">{household.household_number}</td>
-                  <td className="py-2">{household.given_name} {household.middle_name} {household.family_name}</td>
+                  <td className="py-2 cursor-pointer">
+                    {household.given_name} {household.middle_name} {household.family_name}
+                  </td>
                   <td className="py-2">{household.sitio_purok}</td>
                   <td className="py-2 text-center">
                     <p

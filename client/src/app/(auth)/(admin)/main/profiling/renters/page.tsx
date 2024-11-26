@@ -6,6 +6,7 @@ import ProfilingSearchBar from "@/components/ProfilingSearchBar";
 import Image from "next/image";
 import { dummyRenters } from "@/constants/tableDummyData";
 import api from "@/lib/axios";
+import { useRouter } from "next/navigation";
 
 type RentOwner = {
   rent_number: number,
@@ -13,6 +14,7 @@ type RentOwner = {
 }
 
 const Renters = () => {
+  const router = useRouter()
   const [rentOwner, setRentOwner] = useState<RentOwner[]>([]);
 
   useEffect(() => {
@@ -46,7 +48,7 @@ const Renters = () => {
             </thead>
             <tbody>
               {rentOwner.map((rentOwner) => (
-                <tr key={rentOwner.rent_number} className="border-b hover:bg-gray-50">
+                <tr key={rentOwner.rent_number} className="border-b hover:bg-gray-50" onClick={() => router.push(`/main/profiling/renters/${rentOwner.rent_number}`)}>
                   <td className="text-center py-2">{rentOwner.rent_number}</td>
                   <td className="text-center py-2">{rentOwner.rent_owner}</td>
                   {/* <td className="text-center py-2 flex items-center">
