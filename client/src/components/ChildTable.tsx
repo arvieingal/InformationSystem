@@ -41,15 +41,14 @@ export interface Child {
   sitio_purok: string;
   barangay: string;
   city: string;
-  birthplace: string;
-  currentHeight: any;
-  currentWeight: any;
+  place_of_birth: string;
+  height_cm: any;
+  weight_kg: any;
   weight_for_length: any;
   child_id: number;
   height_at_birth: string;
   weight_at_birth: number;
-  height_cm: number;
-  weight_kg: number;
+  heightAgeZ: number;
   nutritional_status: string;
   heightAtAgeZ: number;
   weightAtAgeZ: number;
@@ -78,8 +77,6 @@ type ChildData = {
   barangay: string;
   city: string;
   birthdate: string;
-  currentHeight: number | null;
-  currentWeight: number | null;
   weight_for_length: number | null;
   height_at_birth: number | null;
   weight_at_birth: number | null;

@@ -36,22 +36,22 @@ const Children = {
       weight_at_birth,
       height_cm,
       weight_kg,
-      height_age_Z,
-      weight_age_Z,
+      heightAgeZ,
+      weightAgeZ,
       nutritional_status,
       measurement_date
     } = childData;
   
     try {
       await db.execute(
-        "UPDATE children SET height_at_birth = ?, weight_at_birth = ?, height_cm = ?, weight_kg = ?, height_age_Z = ?, weight_age_Z = ?, nutritional_status = ?, measurement_date = ? WHERE child_id = ?",
+        "UPDATE children SET height_at_birth = ?, weight_at_birth = ?, height_cm = ?, weight_kg = ?, heightAgeZ = ?, weightAgeZ = ?, nutritional_status = ?, measurement_date = ? WHERE child_id = ?",
         [
           height_at_birth ,
           weight_at_birth ,
           height_cm ,
           weight_kg,
-          height_age_Z ,
-          weight_age_Z ,
+          heightAgeZ ,
+          weightAgeZ ,
           nutritional_status ,
           measurement_date ,
           childId,

@@ -21,7 +21,7 @@ export interface Resident {
   middle_name: string;
   extension: string;
   gender: string;
-  birthplace: string;
+  place_of_birth: string;
   birthdate: string;
   sitio_purok: string;
   barangay: string;
@@ -36,12 +36,10 @@ export interface Child {
   birthdate: string;
   age: string;
   address: string;
-  birthplace: string;
+  place_of_birth: string;
   sitio_purok: string;
   barangay: string;
   city: string;
-  currentHeight: string;
-  currentWeight: string;
   child_id: number;
   height_at_birth: string;
   weight_at_birth: string;
@@ -62,12 +60,10 @@ interface ChildFormData {
   birthdate: string;
   age: string;
   address: string;
-  birthplace: string;
+  place_of_birth: string;
   sitio_purok: string;
   barangay: string;
   city: string;
-  currentHeight: string;
-  currentWeight: string;
   child_id: number;
   height_at_birth: string;
   weight_at_birth: string;
@@ -108,12 +104,10 @@ const NutritionalStatus: React.FC = () => {
     birthdate: "",
     age: "",
     address: "",
-    birthplace: "",
+    place_of_birth: "",
     sitio_purok: "",
     barangay: "",
     city: "",
-    currentHeight: "",
-    currentWeight: "",
     child_id: 0,
     height_at_birth: "",
     weight_at_birth: "",
@@ -229,12 +223,10 @@ const NutritionalStatus: React.FC = () => {
       birthdate: child.birthdate,
       age: child.age,
       address: child.address,
-      birthplace: child.birthplace,
+      place_of_birth: child.place_of_birth,
       sitio_purok: child.sitio_purok,
       barangay: child.barangay,
       city: child.city,
-      currentHeight: child.currentHeight,
-      currentWeight: child.currentWeight,
       child_id: child.child_id,
       height_at_birth: child.height_at_birth,
       weight_at_birth: child.weight_at_birth,
@@ -267,16 +259,10 @@ const NutritionalStatus: React.FC = () => {
         birthdate: child.birthdate,
         age: child.age ? child.age.toString() : "",
         address: child.address || "",
-        birthplace: child.birthplace || "",
+        place_of_birth: child.place_of_birth || "",
         sitio_purok: child.sitio_purok || "",
         barangay: child.barangay || "",
         city: child.city || "",
-        currentHeight: child.currentHeight
-          ? child.currentHeight.toString()
-          : "",
-        currentWeight: child.currentWeight
-          ? child.currentWeight.toString()
-          : "",
         child_id: child.child_id,
         height_at_birth: child.height_at_birth
           ? child.height_at_birth.toString()
@@ -407,15 +393,11 @@ const NutritionalStatus: React.FC = () => {
           child.weight_at_birth.toString().includes(lowerCaseQuery)) ||
         (child.height_at_birth &&
           child.height_at_birth.toString().includes(lowerCaseQuery)) ||
-        (child.currentWeight &&
-          child.currentWeight.toString().includes(lowerCaseQuery)) ||
-        (child.currentHeight &&
-          child.currentHeight.toString().includes(lowerCaseQuery)) ||
         (child.barangay &&
           child.barangay.toLowerCase().includes(lowerCaseQuery)) ||
         (child.city && child.city.toLowerCase().includes(lowerCaseQuery)) ||
-        (child.birthplace &&
-          child.birthplace.toLowerCase().includes(lowerCaseQuery));
+        (child.place_of_birth &&
+          child.place_of_birth.toLowerCase().includes(lowerCaseQuery));
 
       const matchesFilter =
         (!filterCriteria.age || child.age.toString() === filterCriteria.age) &&
@@ -466,20 +448,20 @@ const NutritionalStatus: React.FC = () => {
   useEffect(() => {
     if (
       selectedChild.age &&
-      selectedChild.currentWeight &&
-      selectedChild.currentHeight
+      selectedChild.weight_kg &&
+      selectedChild.height_cm
     ) {
       const status = calculateNutritionalStatus(
         parseInt(selectedChild.age.toString()),
-        parseFloat(selectedChild.currentWeight.toString()),
-        parseInt(selectedChild.currentHeight.toString())
+        parseFloat(selectedChild.weight_kg.toString()),
+        parseInt(selectedChild.height_cm.toString())
       );
       setSelectedChild((prev) => ({ ...prev, nutritionalStatus: status }));
     }
   }, [
     selectedChild.age,
-    selectedChild.currentWeight,
-    selectedChild.currentHeight,
+    selectedChild.weight_kg,
+    selectedChild.height_cm,
   ]);
 
   // Utility function to safely parse date strings
@@ -508,13 +490,19 @@ const NutritionalStatus: React.FC = () => {
     }
 
     console.log("Selected Child ID:", selectedChild.child_id);
+    console.log("Selected Child Data:", selectedChild);
 
     // Validation check: Ensure that all required fields are filled before sending
+    const weight_kg = parseFloat(selectedChild.weight_kg);
+    const height_cm = parseFloat(selectedChild.height_cm);
+    const age = parseFloat(selectedChild.age);
+
     if (
-      !selectedChild.currentWeight ||
-      !selectedChild.currentHeight ||
-      !selectedChild.age ||
-      !selectedChild.child_id
+      isNaN(weight_kg) ||
+      isNaN(height_cm) ||
+      isNaN(age) ||
+      selectedChild.child_id === undefined ||
+      selectedChild.child_id === null
     ) {
       await SweetAlert.showError(
         "Please fill in all required fields before updating."
@@ -529,10 +517,10 @@ const NutritionalStatus: React.FC = () => {
       const requestData = {
         height_at_birth: selectedChild.height_at_birth ?? null,
         weight_at_birth: selectedChild.weight_at_birth ?? null,
-        height_cm: selectedChild.currentHeight ?? null,
-        weight_kg: selectedChild.currentWeight ?? null,
-        height_age_Z: selectedChild.heightAgeZ ?? null,
-        weight_age_Z: selectedChild.weightAgeZ ?? null,
+        height_cm: selectedChild.height_cm ?? null,
+        weight_kg: selectedChild.weight_kg ?? null,
+        heightAgeZ: selectedChild.heightAgeZ ?? null,
+        weightAgeZ: selectedChild.weightAgeZ ?? null,
         nutritional_status: selectedChild.nutritional_status ?? null,
         measurement_date: selectedChild.measurement_date ?? null,
       };
@@ -550,35 +538,21 @@ const NutritionalStatus: React.FC = () => {
 
       console.log("Response status:", response.status);
 
-      // Check if the response is empty or not JSON
-      let responseData = {};
-      if (response.status !== 204 && response.status !== 204) {
-        try {
-          responseData = await response.json(); // Try to parse the response
-          console.log("Backend response data:", responseData);
-        } catch (error) {
-          console.warn("Failed to parse response as JSON", error);
-        }
-      }
-
       if (response.ok) {
-        let updatedChild;
-        try {
-          updatedChild = responseData; // Use the response data from backend
-          console.log("Updated child data from server:", updatedChild);
-        } catch (error) {
-          console.warn("Response is not JSON or is empty. Using local data.");
-          updatedChild = selectedChild;
-        }
+        // Check if the response has content before parsing
+        const responseBody = await response.text();
+        const updatedChild = responseBody ? JSON.parse(responseBody) : null;
 
-        // Update the children state
-        setChildren((prevChildren) => {
-          return prevChildren.map((child) =>
-            child.child_id === selectedChild.child_id
-              ? { ...child, ...updatedChild }
-              : child
-          );
-        });
+        if (updatedChild) {
+          // Update the children state
+          setChildren((prevChildren) => {
+            return prevChildren.map((child) =>
+              child.child_id === selectedChild.child_id
+                ? { ...child, ...updatedChild }
+                : child
+            );
+          });
+        }
 
         setIsEditModalOpen(false);
 
@@ -611,10 +585,10 @@ const NutritionalStatus: React.FC = () => {
     }));
 
     // Trigger recalculation of nutritional status if relevant fields change
-    if (field === "currentWeight" || field === "currentHeight" || field === "age") {
-      const weight = parseFloat(selectedChild.currentWeight?.toString() || "0");
-      const height = parseInt(selectedChild.currentHeight?.toString() || "0");
-      const age = parseInt(selectedChild.age?.toString() || "0");
+    if (field === "weight_kg" || field === "height_cm") {
+      const weight = parseFloat(value);
+      const height = parseInt(selectedChild.height_cm || "0");
+      const age = parseInt(selectedChild.age || "0");
 
       if (!isNaN(weight) && !isNaN(height) && !isNaN(age)) {
         const status = calculateNutritionalStatus(age, weight, height);
@@ -805,7 +779,7 @@ const NutritionalStatus: React.FC = () => {
                     </p>
                     <p className="font-medium">Place of Birth:</p>
                     <p className="border-b border-black w-[12rem] h-[2rem] text-center p-1 ">
-                      {selectedChild?.birthplace || "N/A"}
+                      {selectedChild?.place_of_birth || "N/A"}
                     </p>
                   </div>
                 </div>
@@ -997,12 +971,12 @@ const NutritionalStatus: React.FC = () => {
                     <input
                       className="rounded-md p-1 outline-none text-center"
                       type="text"
-                      value={selectedChild.birthplace}
+                      value={selectedChild.place_of_birth}
                       onChange={(e) => {
                         if (selectedChild) {
                           setSelectedChild({
                             ...selectedChild,
-                            birthplace: e.target.value,
+                            place_of_birth: e.target.value,
                           });
                         }
                       }}
@@ -1036,9 +1010,7 @@ const NutritionalStatus: React.FC = () => {
                       className="w-full outline-none"
                       type="text"
                       value={selectedChild.weight_kg}
-                      onChange={(e) =>
-                        handleInputChange("weight_kg", e.target.value)
-                      }
+                      onChange={(e) => handleInputChange("weight_kg", e.target.value)}
                     />
                   </div>
                   <p>Height (cm):</p>
@@ -1047,9 +1019,7 @@ const NutritionalStatus: React.FC = () => {
                       className="w-full outline-none"
                       type="text"
                       value={selectedChild.height_cm}
-                      onChange={(e) =>
-                        handleInputChange("height_cm", e.target.value)
-                      }
+                      onChange={(e) => handleInputChange("height_cm", e.target.value)}
                     />
                   </div>
                   <div className="flex flex-row gap-[10px]">
