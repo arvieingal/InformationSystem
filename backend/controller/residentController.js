@@ -36,6 +36,25 @@ const residentController = {
       });
     }
   },
+
+  insertHouseholdMember: async (req, res) => {
+    try {
+      const householdMember = await Resident.insertHouseholdMember();
+      if (householdMember.length > 0) {
+        res.status(200).json(householdMember);
+      } else {
+        res
+          .status(404)
+          .json({ message: "No household head found in the database" });
+      }
+    } catch (error) {
+      console.error("Error in household head controller:", error);
+      res.status(500).json({
+        message: "Internal server error while retrieving household head",
+        error: error.message,
+      });
+    }
+  },
 };
 
 module.exports = residentController;

@@ -23,6 +23,17 @@ const Resident = {
       throw error;
     }
   },
+
+  insertHouseholdMember: async () => {
+    try {
+      const [rows] = await pool.execute(residentQueries.insertHouseholdMember);
+      console.log("Rows retrieved from database:", rows);
+      return rows || [];
+    } catch (error) {
+      console.error("Error executing query:", error);
+      throw error;
+    }
+  },
 };
 
 module.exports = Resident;

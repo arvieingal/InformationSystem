@@ -28,7 +28,7 @@ const Purok = () => {
     <div className='h-full w-full'>
       <CardGrid cards={dashboardCards} />
       <div className="h-[77%] px-44 pb-4">
-        <div className="bg-white h-full rounded-[5px]">
+        <div className="bg-white h-full rounded-[5px] overflow-y-auto">
           <table className="w-full border-collapse text-[14px]">
             <thead className='text-[#6C6C6C] text-center'>
               <tr className="sticky top-0 bg-white z-10 shadow-gray-300 shadow-sm">

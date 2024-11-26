@@ -1,6 +1,6 @@
 //user queries
 const userQueries = {
-  findAllUser: "SELECT * FROM users",
+  findAllUser: "SELECT * FROM users WHERE status = 'Active'",
   findById: "SELECT * FROM users WHERE user_id = ?",
   insert:
     "INSERT INTO users (username, email, password, role, status) VALUES (?, ?, ?, ?, ?)",
@@ -11,10 +11,35 @@ const userQueries = {
 
 //resident queries
 const residentQueries = {
-  findAllResident: "SELECT * FROM resident",
+  findAllResident: "SELECT * FROM resident WHERE status = 'Active'",
   findById: "SELECT * FROM resident WHERE resident_id = ?",
-  insert:
-    "INSERT INTO resident (given_name, family_name, is_household_head) VALUES (?, ?, ?)",
+  insertHouseholdMember: `INSERT INTO resident (
+    household_number, family_name, given_name, middle_name, extension, relationship,
+    gender, civil_status, birthdate, block_number, lot_number, sitio_purok, barangay, city,
+    birthplace, religion, sectoral, is_registered_voter, is_business_owner, is_household_head,
+    status
+  ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+`,
+  insertHouseholdHead: `INSERT INTO resident (
+  household_number, 
+  family_name, 
+  given_name, 
+  relationship, 
+  gender, 
+  civil_status, 
+  birthdate, 
+  block_number, 
+  lot_number, 
+  sitio_purok, 
+  barangay, 
+  city, 
+  birthplace, 
+  religion, 
+  sectoral, 
+  is_household_head
+) 
+VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'Yes');
+`,
   update:
     "UPDATE resident SET given_name = ?, family_name = ?, is_household_head = ? WHERE resident_id = ?",
   delete: "UPDATE resident SET status = 'Inactive' WHERE resident_id = ?",
@@ -24,7 +49,11 @@ const residentQueries = {
         given_name,
         middle_name,
         sitio_purok,
-        is_business_owner
+        is_business_owner,
+        block_number,
+        lot_number,
+        barangay,
+        city
     FROM 
         resident
     WHERE 
@@ -160,7 +189,8 @@ const childrenQueries = {
   findAllChildren: "SELECT * FROM children",
   findById: "SELECT * FROM children WHERE child_id = ?",
   insert: "INSERT INTO children (name, age, address) VALUES (?, ?, ?)",
-  update: "UPDATE children SET name = ?, age = ?, address = ? WHERE child_id = ?",
+  update:
+    "UPDATE children SET name = ?, age = ?, address = ? WHERE child_id = ?",
   delete: "UPDATE children SET status = 'Inactive' WHERE child_id = ?",
 };
 
