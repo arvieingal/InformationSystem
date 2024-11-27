@@ -1,10 +1,10 @@
 const Log = require('../models/Log');
 
 const logUserAction = async (req, res) => {
-    const { action, timestamp } = req.body;
-    if (action && timestamp) {
+    const { username, action, timestamp } = req.body;
+    if (username && action && timestamp) {
         try {
-            await Log.create(action, timestamp);
+            await Log.create(username, action, timestamp);
             res.status(200).send('Action logged successfully');
         } catch (error) {
             console.error('Error logging user action:', error);
@@ -21,7 +21,7 @@ const getLogs = async (req, res) => {
         res.json(logs);
     } catch (error) {
         console.error('Error fetching logs:', error);
-        res.status(500).send('Internal server error');
+        res.status(500).json({ error: 'Internal server error' });
     }
 };
 

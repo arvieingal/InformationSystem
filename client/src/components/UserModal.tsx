@@ -15,6 +15,7 @@ interface FormData {
     username: string;
     email: string;
     password: string;
+    userId: string;
 }
 
 export default function UserModal({ isOpen, onClose, onUserSubmit }: UserProps) {
@@ -27,6 +28,38 @@ export default function UserModal({ isOpen, onClose, onUserSubmit }: UserProps) 
 
     const [message, setMessage] = useState("");
     const [loading, setLoading] = useState(false);
+
+    const handlePasswordChange = async (data: { currentPassword: string; newPassword: string; confirmNewPassword: string }) => {
+        const selectedUserId = getValues("userId");
+
+        if (data.newPassword !== data.confirmNewPassword) {
+            setMessage("New passwords do not match");
+            return;
+        }
+
+        try {
+            const response = await fetch('/api/users/change-password', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    userId: selectedUserId,
+                    currentPassword: data.currentPassword,
+                    newPassword: data.newPassword,
+                }),
+            });
+
+            if (response.ok) {
+                alert("Password changed successfully");
+                onClose();
+            } else {
+                const errorData = await response.json();
+                setMessage(errorData.message);
+            }
+        } catch (error) {
+            console.error("Error changing password:", error);
+            setMessage("An error occurred");
+        }
+    };
 
     return (
         <div>

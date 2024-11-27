@@ -47,21 +47,21 @@ const Children = {
       await db.execute(
         "UPDATE children SET height_at_birth = ?, weight_at_birth = ?, height_cm = ?, weight_kg = ?, heightAgeZ = ?, weightAgeZ = ?, weight_for_length = ?, nutritional_status = ?, measurement_date = ? WHERE child_id = ?",
         [
-          height_at_birth ,
-          weight_at_birth ,
-          height_cm ,
-          weight_kg,
-          heightAgeZ ,
-          weightAgeZ ,
-          weight_for_length ,
-          nutritional_status ,
-          measurement_date ,
+          height_at_birth ?? null,
+          weight_at_birth ?? null,
+          height_cm ?? null,
+          weight_kg ?? null,
+          heightAgeZ ?? null,
+          weightAgeZ ?? null,
+          weight_for_length ?? null,
+          nutritional_status ?? null,
+          measurement_date ?? null,
           childId,
         ]
       );
     } catch (err) {
       console.error("Database error:", err);
-      // throw err; // Rethrow the error to propagate it back to the controller
+      throw err; 
     }
   },
 
@@ -83,7 +83,7 @@ const Children = {
       FROM children;
     `;
     const [rows] = await db.execute(query);
-    console.log("Query results:", rows); // Add this line for logging
+    console.log("Query results:", rows); 
     return rows;
   },
 };

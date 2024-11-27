@@ -2,11 +2,10 @@
 
 import Image from 'next/image';
 import { formatDate } from './formatDate';
-import React, { useState, useEffect, useRef, ReactNode } from "react";
+import React, { useState, useEffect, ReactNode } from "react";
 import { useRouter } from "next/navigation";
 import Modal from "@/components/PersonModal";
 import SweetAlert from "@/components/SweetAlert";
-import SearchBar from "@/components/SearchBar";
 import Pagination from "@/components/Pagination";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
@@ -14,7 +13,7 @@ import { FaCalendarAlt } from "react-icons/fa";
 import { Child as ChildTableChild } from "@/components/ChildTable";
 import DataTable from "react-data-table-component";
 import api from '@/lib/axios';
-// src/types/Child.ts
+
 export interface Resident {
   resident_id: number;
   family_name: string;
@@ -34,19 +33,19 @@ export interface Resident {
 export interface Child {
   resident_id: number;
   full_name: string;
-  sex: any;
-  age: any;
-  birthdate: any;
+  sex: string;
+  age: number;
+  birthdate: string;
   address: string;
   sitio_purok: string;
   barangay: string;
   city: string;
   place_of_birth: string;
-  height_cm: any;
-  weight_kg: any;
-  weight_for_length: any;
+  height_cm: number;
+  weight_kg: number;
+  weight_for_length: number;
   child_id: number;
-  height_at_birth: string;
+  height_at_birth: number;
   weight_at_birth: number;
   heightAgeZ: number;
   nutritional_status: string;
@@ -92,32 +91,34 @@ type ChildData = {
 const ChildTable: React.FC<TableProps> = ({ children, onSort, sortConfig, onEdit, onArchive, onRowClick }) => {
   const [residents, setResidents] = useState<Resident[]>([]);
   const [error, setError] = useState<string | null>(null);
-  const [childrens, setChildrens] = useState<ChildData[]>([]);
-  const [selectedChild, setSelectedChild] = useState<ChildData | null>(null);
+  const [childrens, setChildrens] = useState<Child[]>([]);
+  const [selectedChild, setSelectedChild] = useState<Child | null>(null);
   const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
   const [currentPage, setCurrentPage] = useState<number>(1);
   const itemsPerPage = 15;
   const [archivedChildren, setArchivedChildren] = useState<number[]>([]);
+  const [searchQuery, setSearchQuery] = useState<string>("");
+  const [isFilterDropdownOpen, setIsFilterDropdownOpen] = useState<boolean>(false);
+  const [filterCriteria, setFilterCriteria] = useState<{ archived: boolean }>({ archived: false });
+  const router = useRouter();
 
-  // Function to fetch updated children data
   const fetchChildren = async () => {
     try {
       const response = await api.get("/api/children");
       setChildrens(response.data);
     } catch (error) {
       console.error("Error fetching children:", error);
+      setError("Failed to fetch children data.");
     }
   };
 
   useEffect(() => {
-    fetchChildren(); // Initial fetch
+    fetchChildren();
 
-    // Set up an interval to fetch data every 30 seconds
     const intervalId = setInterval(() => {
       fetchChildren();
     }, 30000);
 
-    // Clean up the interval on component unmount
     return () => clearInterval(intervalId);
   }, []);
 
@@ -125,7 +126,7 @@ const ChildTable: React.FC<TableProps> = ({ children, onSort, sortConfig, onEdit
     onSort(key);
   };
 
-  const handleRowClick = (child: ChildData) => {
+  const handleRowClick = (child: Child) => {
     setSelectedChild(child);
     setIsModalOpen(true);
   };
@@ -134,15 +135,43 @@ const ChildTable: React.FC<TableProps> = ({ children, onSort, sortConfig, onEdit
     setCurrentPage(page);
   };
 
+  const filteredChildren = React.useMemo(() => {
+    if (!searchQuery) return childrens;
+    const query = searchQuery.toLowerCase();
+
+    return childrens.filter((child) => {
+      console.log(`Checking child: ${child.full_name}, sex: ${child.sex}`);
+
+      if (child.sex.toLowerCase() === query) {
+        return true;
+      }
+
+      return Object.entries(child).some(([key, value]) => {
+        if (value === null || value === undefined) return false;
+        const stringValue = value.toString().toLowerCase();
+
+        if (stringValue.includes(query)) return true;
+
+        if (key === 'birthdate' || key === 'measurement_date') {
+          const date = new Date(value);
+          const monthName = date.toLocaleString('default', { month: 'long' }).toLowerCase();
+          return monthName.includes(query);
+        }
+
+        return false;
+      });
+    });
+  }, [childrens, searchQuery]);
+
   const sortedChildren = React.useMemo(() => {
     if (sortConfig && sortConfig.key) {
-      return [...childrens].sort((a, b) => {
+      return [...filteredChildren].sort((a, b) => {
         const key = sortConfig.key as keyof typeof a;
         const aValue = a[key];
         const bValue = b[key];
 
         if (aValue === undefined || bValue === undefined) {
-          return 0; // Handle undefined values by treating them as equal
+          return 0; 
         }
 
         if (aValue !== null && bValue !== null && aValue < bValue) {
@@ -154,8 +183,8 @@ const ChildTable: React.FC<TableProps> = ({ children, onSort, sortConfig, onEdit
         return 0;
       });
     }
-    return childrens;
-  }, [childrens, sortConfig]);
+    return filteredChildren;
+  }, [filteredChildren, sortConfig]);
 
   const paginatedChildren = React.useMemo(() => {
     const startIndex = (currentPage - 1) * itemsPerPage;
@@ -164,11 +193,18 @@ const ChildTable: React.FC<TableProps> = ({ children, onSort, sortConfig, onEdit
   }, [sortedChildren, currentPage]);
 
   const handleArchiveClick = async (child: Child) => {
-    const confirmArchive = await SweetAlert.showConfirm(
-      `<p>Are you sure you want to archive this child with ID: <span class="font-bold">${child.child_id}</span>?</p>`
-    );
-    if (confirmArchive) {
-      try {
+    console.log("Archiving child:", child);
+    if (!child.child_id) {
+      console.error("Child ID is undefined");
+      return;
+    }
+
+    try {
+      const confirmArchive = await SweetAlert.showConfirm(
+        `<p>Are you sure you want to archive this child with ID: <span class="font-bold">${child.child_id}</span>?</p>`
+      );
+
+      if (confirmArchive) {
         const response = await fetch(
           `http://localhost:3001/api/children/${child.child_id}`,
           {
@@ -176,22 +212,36 @@ const ChildTable: React.FC<TableProps> = ({ children, onSort, sortConfig, onEdit
             headers: {
               "Content-Type": "application/json",
             },
-            body: JSON.stringify({ status: "Archive" }),
+            body: JSON.stringify({ 
+              status: "Archive",
+            }),
           }
         );
 
         if (response.ok) {
+          console.log("Child archived successfully:", child.child_id);
           setArchivedChildren((prevArchived) => [
             ...prevArchived,
             child.child_id,
           ]);
-          onArchive(child); // Call the onArchive prop function
+
+          setChildrens((prevChildren) =>
+            prevChildren.map((c) =>
+              c.child_id === child.child_id ? { ...c, status: "Archive" } : c
+            )
+          );
+
+          onArchive(child);
+
+          await SweetAlert.showSuccess(
+            `<p>You successfully archived child with ID: <span class="font-bold">${child.child_id}</span>.</p>`
+          );
         } else {
-          console.error("Failed to archive child.");
+          console.error("Failed to archive child. Response status:", response.status);
         }
-      } catch (error) {
-        console.error("Error archiving child:", error);
       }
+    } catch (error) {
+      console.error("Error archiving child:", error);
     }
   };
 
@@ -199,8 +249,121 @@ const ChildTable: React.FC<TableProps> = ({ children, onSort, sortConfig, onEdit
     onEdit(child);
   };
 
+  const handleFilterChange = (key: string, value: string | boolean) => {
+    console.log(`Filtering by ${key} with value: ${value}`);
+
+    setFilterCriteria((prev) => ({ ...prev, [key]: value }));
+
+    const filteredChildren = childrens.filter((child) => {
+      switch (key) {
+        case "age":
+          return parseFloat(child.age.toString()) === parseFloat(value.toString());
+        case "gender":
+          return child.sex.toLowerCase() === value.toString().toLowerCase();
+        case "birthdate":
+          const birthMonth = new Date(child.birthdate).getMonth() + 1; // getMonth() is zero-based
+          return birthMonth === parseInt(value.toString());
+        case "nutritionalStatus":
+          return child.nutritional_status.toLowerCase() === value.toString().toLowerCase();
+        case "archived":
+          return child.status.toLowerCase() === (value ? "archive" : "active");
+        default:
+          return true;
+      }
+    });
+
+    console.log("Filtered children:", filteredChildren);
+    setChildrens(filteredChildren);
+  };
+
   return (
     <div className="w-full px-[1.5rem]">
+      <div className="w-full flex items-center justify-between mb-4">
+        <input
+          type="text"
+          placeholder="Search .............."
+          value={searchQuery}
+          onChange={(e) => setSearchQuery(e.target.value)}
+          className="border border-gray-300 rounded-md p-2 w-full outline-none"
+        />
+        <div className="flex items-center space-x-4 ml-4">
+          <Image
+            src="/svg/filter.svg"
+            alt="Nutritional Status"
+            width={30}
+            height={50}
+            onClick={() => setIsFilterDropdownOpen(!isFilterDropdownOpen)}
+            className="cursor-pointer"
+          />
+          <button
+            className="flex items-center space-x-2 text-blue-500 hover:underline"
+            onClick={() => router.push("/main/health/nutriReport")}
+          >
+            <Image
+              src="/svg/report.svg"
+              alt="Nutritional Status"
+              width={30}
+              height={50}
+            />
+          </button>
+        </div>
+      </div>
+      {isFilterDropdownOpen && (
+        <div className="absolute right-[1rem] bg-white border border-gray-300 rounded-md shadow-lg z-10">
+          <ul className="py-1">
+            <li
+              className="px-4 py-2 hover:bg-gray-100 cursor-pointer"
+              onClick={() => handleFilterChange("age", "specificAge")}
+            >
+              Filter by Age
+            </li>
+            <li
+              className="px-4 py-2 hover:bg-gray-100 cursor-pointer"
+              onClick={() => handleFilterChange("gender", "male")}
+            >
+              Filter by Male
+            </li>
+            <li
+              className="px-4 py-2 hover:bg-gray-100 cursor-pointer"
+              onClick={() => handleFilterChange("gender", "female")}
+            >
+              Filter by Female
+            </li>
+            <li
+              className="px-4 py-2 hover:bg-gray-100 cursor-pointer"
+              onClick={() => handleFilterChange("birthdate", "specificDate")}
+            >
+              Filter by Birthdate
+            </li>
+            <li
+              className="px-4 py-2 hover:bg-gray-100 cursor-pointer"
+              onClick={() => handleFilterChange("height", "specificHeight")}
+            >
+              Filter by Height
+            </li>
+            <li
+              className="px-4 py-2 hover:bg-gray-100 cursor-pointer"
+              onClick={() => handleFilterChange("weight", "specificWeight")}
+            >
+              Filter by Weight
+            </li>
+            <li
+              className="px-4 py-2 hover:bg-gray-100 cursor-pointer"
+              onClick={() => handleFilterChange("nutritionalStatus", "Normal")}
+            >
+              Filter by Nutritional Status
+            </li>
+            <li
+              className="px-4 py-2 hover:bg-gray-100 cursor-pointer"
+              onClick={() =>
+                setFilterCriteria((prev) => ({ ...prev, archived: !prev.archived }))
+              }
+            >
+              {filterCriteria.archived ? "Show Active" : "Show Archived"}
+            </li>
+          </ul>
+        </div>
+      )}
       <table className="min-w-full border-collapse border border-[#CCCCCC] bg-white text-sm rounded-lg">
         <thead>
           <tr>
@@ -263,7 +426,7 @@ const ChildTable: React.FC<TableProps> = ({ children, onSort, sortConfig, onEdit
       </table>
       <Pagination
         currentPage={currentPage}
-        totalPages={Math.ceil(childrens.length / itemsPerPage)}
+        totalPages={Math.ceil(filteredChildren.length / itemsPerPage)}
         onPageChange={handlePageChange}
       />
     </div>

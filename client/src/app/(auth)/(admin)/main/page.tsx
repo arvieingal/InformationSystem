@@ -3,15 +3,18 @@ import AdminHeader from "@/components/AdminHeader";
 import React from "react";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
+import { logNavigation } from '@/utils/logNavigation';
 
 export default function page() {
   const router = useRouter();
 
   const handleResidentClick = () => {
+    logNavigation('Navigated to Resident Profiling');
     router.push("/main/profiling");
   };
 
   const handleHealthClick = () => {
+    logNavigation('Navigated to Health');
     router.push("/main/health");
   };
 

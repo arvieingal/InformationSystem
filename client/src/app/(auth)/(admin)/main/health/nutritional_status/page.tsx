@@ -77,7 +77,7 @@ interface ChildFormData {
   status: string;
 }
 
-// Function to calculate nutritional status based on age, weight, and height
+
 const calculateNutritionalStatus = (
   age: number,
   weight: number,
@@ -160,6 +160,29 @@ const NutritionalStatus: React.FC = () => {
 
   const handleFilterChange = (key: string, value: string | boolean) => {
     setFilterCriteria((prev) => ({ ...prev, [key]: value }));
+
+    const filteredChildren = originalChildren.filter((child) => {
+      switch (key) {
+        case "age":
+          return child.age.toString() === value;
+        case "gender":
+          return child.sex.toLowerCase() === value.toString().toLowerCase();
+        case "birthdate":
+          return formatDate(child.birthdate) === value;
+        case "height":
+          return child.height_cm.toString() === value;
+        case "weight":
+          return child.weight_kg.toString() === value;
+        case "nutritionalStatus":
+          return child.nutritional_status.toLowerCase() === value.toString().toLowerCase();
+        case "archived":
+          return child.status.toLowerCase() === (value ? "archive" : "active");
+        default:
+          return true;
+      }
+    });
+
+    setChildren(filteredChildren);
   };
 
   const handleClickOutsideAddModal = (event: MouseEvent) => {
@@ -189,7 +212,8 @@ const NutritionalStatus: React.FC = () => {
         const response = await fetch("http://localhost:3001/api/residents");
         if (response.ok) {
           const data: Child[] = await response.json();
-          setResidents(data[0]);
+          setOriginalChildren(data);
+          setChildren(data);
         } else {
           throw new Error("Failed to fetch residents data.");
         }
@@ -199,7 +223,6 @@ const NutritionalStatus: React.FC = () => {
     };
 
     fetchResidents();
-
   }, []);
 
   console.log(residents, "Resident Data");
@@ -299,34 +322,6 @@ const NutritionalStatus: React.FC = () => {
     }
   }
 
-  async function handleArchiveClick(child: Child): Promise<void> {
-    const confirmArchive = await SweetAlert.showConfirm(
-      `<p>Are you sure you want to archive this child with ID: <span class="font-bold">${residents?.resident_id}</span>?</p>`
-    );
-    if (confirmArchive) {
-      try {
-        const response = await fetch(
-          `http://localhost:3001/api/children/${child.child_id}`,
-          {
-            method: "PUT",
-            headers: {
-              "Content-Type": "application/json",
-            },
-            body: JSON.stringify({ status: "Archive" }),
-          }
-        );
-
-        if (response.ok) {
-          setArchivedChildren((prevArchived) => [
-            ...prevArchived,
-            child.child_id,
-          ]);
-        } else {
-        }
-      } catch (error) {}
-    }
-  }
-
   const handleClickOutside = (event: MouseEvent) => {
     if (modalRef.current && !modalRef.current.contains(event.target as Node)) {
       setIsModalOpen(false);
@@ -391,46 +386,19 @@ const NutritionalStatus: React.FC = () => {
   const handleSearch = (query: string) => {
     const lowerCaseQuery = query.toLowerCase();
     const filteredChildren = originalChildren.filter((child) => {
-      const fullName = `${child.full_name}`.toLowerCase();
-
-      // Check if the query matches any of the child's properties
-      const matchesQuery =
-        child.child_id.toString().includes(lowerCaseQuery) ||
+      const fullName = child.full_name.toLowerCase();
+      return (
+        child.resident_id.toString().includes(lowerCaseQuery) ||
         fullName.includes(lowerCaseQuery) ||
         child.age.toString().includes(lowerCaseQuery) ||
-        child.sex.toLowerCase() === lowerCaseQuery || // Ensure exact match for gender
-        child.birthdate.includes(lowerCaseQuery) ||
+        child.sex.toLowerCase().includes(lowerCaseQuery) ||
+        child.birthdate.toLowerCase().includes(lowerCaseQuery) ||
         child.height_cm.toString().includes(lowerCaseQuery) ||
         child.weight_kg.toString().includes(lowerCaseQuery) ||
         child.nutritional_status.toLowerCase().includes(lowerCaseQuery) ||
-        (child.address &&
-          child.address.toLowerCase().includes(lowerCaseQuery)) ||
-        (child.weight_at_birth &&
-          child.weight_at_birth.toString().includes(lowerCaseQuery)) ||
-        (child.height_at_birth &&
-          child.height_at_birth.toString().includes(lowerCaseQuery)) ||
-      
-        (child.barangay &&
-          child.barangay.toLowerCase().includes(lowerCaseQuery)) ||
-        (child.city && child.city.toLowerCase().includes(lowerCaseQuery)) ||
-        (child.place_of_birth &&
-          child.place_of_birth.toLowerCase().includes(lowerCaseQuery));
-
-      const matchesFilter =
-        (!filterCriteria.age || child.age.toString() === filterCriteria.age) &&
-        (!filterCriteria.gender ||
-          child.sex.toLowerCase() === filterCriteria.gender.toLowerCase()) &&
-        (!filterCriteria.birthdate ||
-          child.birthdate === filterCriteria.birthdate) &&
-        (!filterCriteria.height ||
-          child.height_cm.toString() === filterCriteria.height) &&
-        (!filterCriteria.weight ||
-          child.weight_kg.toString() === filterCriteria.weight) &&
-        (!filterCriteria.nutritionalStatus ||
-          child.nutritional_status === filterCriteria.nutritionalStatus) &&
-        filterCriteria.archived === archivedChildren.includes(child.child_id);
-
-      return matchesQuery && matchesFilter;
+        (child.measurement_date &&
+          child.measurement_date.toLowerCase().includes(lowerCaseQuery))
+      );
     });
     setChildren(filteredChildren);
   };
@@ -644,93 +612,22 @@ const NutritionalStatus: React.FC = () => {
     return (weight / height).toString(); 
   }
 
+  function handleArchiveClick(arg0: any): void {
+    throw new Error("Function not implemented.");
+  }
+
   return (
     <>
       <div className="flex flex-row md:flex md:flex-row justify-center gap-[3rem] mt-[2rem] "></div>
-      <div className="w-full flex flex-row pr-[3rem]  items-center justify-between gap-4 ">
-        <div className="w-full pl-2">
-          <SearchBar onSearch={handleSearch} />
-        </div>
-        <Image
-          src="/svg/filter.svg"
-          alt="Nutritional Status"
-          width={30}
-          height={50}
-          onClick={() => setIsFilterDropdownOpen(!isFilterDropdownOpen)}
-          className="cursor-pointer"
-        />
-        <button
-          className="flex items-center space-x-2 text-blue-500 hover:underline"
-          onClick={() => router.push("/main/health/nutriReport")}
-        >
-          <Image
-            src="/svg/report.svg"
-            alt="Nutritional Status"
-            width={30}
-            height={50}
-          />
-        </button>
-        {isFilterDropdownOpen && (
-          <div className="absolute right-[1rem]  md:mt-[48%] lg:mt-[36%] xl:mt-[28%] 2xl:mt-[20%] bg-white border border-gray-300 rounded-md shadow-lg z-10">
-            <ul className="py-1">
-              <li
-                className="px-4 py-2 hover:bg-gray-100 cursor-pointer"
-                onClick={() => handleFilterChange("age", "specificAge")}
-              >
-                Filter by Age
-              </li>
-              <li
-                className="px-4 py-2 hover:bg-gray-100 cursor-pointer"
-                onClick={() => handleFilterChange("gender", "male")}
-              >
-                Filter by gender
-              </li>
-              <li
-                className="px-4 py-2 hover:bg-gray-100 cursor-pointer"
-                onClick={() => handleFilterChange("birthdate", "specificDate")}
-              >
-                Filter by Birthdate
-              </li>
-              <li
-                className="px-4 py-2 hover:bg-gray-100 cursor-pointer"
-                onClick={() => handleFilterChange("height", "specificHeight")}
-              >
-                Filter by Height
-              </li>
-              <li
-                className="px-4 py-2 hover:bg-gray-100 cursor-pointer"
-                onClick={() => handleFilterChange("weight", "specificWeight")}
-              >
-                Filter by Weight
-              </li>
-              <li
-                className="px-4 py-2 hover:bg-gray-100 cursor-pointer"
-                onClick={() =>
-                  handleFilterChange("nutritionalStatus", "Normal")
-                }
-              >
-                Filter by Nutritional Status
-              </li>
-              <li
-                className="px-4 py-2 hover:bg-gray-100 cursor-pointer"
-                onClick={() =>
-                  handleFilterChange("archived", !filterCriteria.archived)
-                }
-              >
-                {filterCriteria.archived ? "Show Active" : "Show Archived"}
-              </li>
-            </ul>
-          </div>
-        )}
-      </div>
+      
       <div className="w-full mt-[1rem] ">
         <ChildTable
           children={paginatedChildren as unknown as ChildTableChild[]}
           onSort={handleSort}
           sortConfig={sortConfig}
           onEdit={(child) => handleEditClick(child as any)}
-          onArchive={(child) => handleArchiveClick(child as any)}
           onRowClick={(child) => handleRowClick(child as any)}
+          onArchive={(child) => handleArchiveClick(child as any)}
         />
       </div>
 

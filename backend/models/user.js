@@ -44,6 +44,15 @@ const User = {
       throw error;
     }
   },
+  updatePassword: async (userId, hashedPassword) => {
+    try {
+      const [result] = await pool.execute(userQueries.updatePassword, [hashedPassword, userId]);
+      return result;
+    } catch (error) {
+      console.error("Error executing updatePassword query:", error);
+      throw error;
+    }
+  }
 };
 
 module.exports = User;

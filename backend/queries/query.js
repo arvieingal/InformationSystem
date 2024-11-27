@@ -7,6 +7,7 @@ const userQueries = {
   update:
     "UPDATE users SET username = ?, email = ?, password = ?, role = ?, status = ? WHERE user_id = ?",
   delete: "UPDATE users SET status = 'Inactive' WHERE user_id = ?",
+  updatePassword: "UPDATE users SET password = ? WHERE id = ?",
 };
 
 //resident queries
