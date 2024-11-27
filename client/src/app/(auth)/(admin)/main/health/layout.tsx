@@ -2,13 +2,13 @@ import HealthHeader from "@/components/HealthHeader";
 import HealthSidebar from "@/components/HealthSidebar";
 
 export default function ProfilingLayout({
-    children,
-  }: Readonly<{
-    children: React.ReactNode;
-  }>) {
-    return (
-      <html lang="en">
-        <body>
+  children,
+}: Readonly<{
+  children: React.ReactNode;
+}>) {
+  return (
+    <html lang="en">
+      <body>
         <div className="w-screen flex h-screen">
           <div className="w-[6%]">
             <HealthSidebar />
@@ -19,7 +19,6 @@ export default function ProfilingLayout({
           </div>
         </div>
       </body>
-      </html>
-    );
-  }
-  
+    </html>
+  );
+}

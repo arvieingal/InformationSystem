@@ -1,13 +1,28 @@
 'use client'
 import React, { useState } from 'react';
 import Image from 'next/image';
-import { useRouter } from 'next/navigation';
+import { useRouter, usePathname } from 'next/navigation';
 import SweetAlert from './SweetAlert';
 import { signOut } from 'next-auth/react';
 
 const HealthSidebar = () => {
   const [clickedImage, setClickedImage] = useState<string | null>(null);
   const router = useRouter();
+  const pathname = usePathname();
+
+  React.useEffect(() => {
+    if (pathname === "/main") {
+      setClickedImage("home");
+    } else if (pathname === "/main/health") {
+      setClickedImage("health_dashboard");
+    } else if (pathname === "/main/health/nutritional_status") {
+      setClickedImage("nutritional_status");
+    } else if (pathname === "/main/health/immunization_record") {
+      setClickedImage("immunization_record");
+    } else if (pathname === "/main/health/settings") {
+      setClickedImage("settings");
+    }
+  }, [pathname]);
 
   const handleImageClick = (imageName: string, route: string) => {
     setClickedImage(imageName);
@@ -35,59 +50,52 @@ const HealthSidebar = () => {
       </div>
       <div className="flex flex-col w-full h-full">
         <div className="flex flex-col gap-[30px] items-center justify-center h-full">
-          <Image
-            src={clickedImage === "home" ? "/svg/active_home.svg" : "/svg/home.svg"}
-            width={50}
-            height={50}
-            alt="Home"
-            className={`w-[30px] h-[30px] cursor-pointer ${clickedImage === "home" ? "filter-green" : ""}`}
-            onClick={() => handleImageClick("home", "/main")}
-          />
-            <Image
-            src={clickedImage === "health_dashboard" ? "/svg/active_dashboard.svg" : "/svg/health_dashboard.svg"}
-            width={50}
-            height={50}
-            alt="Health Dashboard"
-            className={`w-[30px] h-[30px] cursor-pointer ${clickedImage === "health_dashboard" ? "filter-green" : ""}`}
-            onClick={() => handleImageClick("health_dashboard", "/main/health")}
-          />
-
-          <Image
-            src={clickedImage === "nutritional_status" ? "/svg/active_status.svg" : "/svg/health_nutritionalstatus.svg"}
-            width={50}
-            height={50}
-            alt="Nutritional Status"
-            className={`w-[30px] h-[30px] cursor-pointer ${clickedImage === "nutritional_status" ? "filter-green" : ""}`}
-            onClick={() => handleImageClick("nutritional_status", "/main/health/nutritional_status")}
-          />
-
-          <Image
-            src={clickedImage === "immunization_record" ? "/svg/active_immunization.svg" : "/svg/health_immunization.svg"}
-            width={50}
-            height={50}
-            alt="Immunization Record"
-            className={`w-[30px] h-[30px] cursor-pointer ${clickedImage === "immunization_record" ? "filter-green" : ""}`}
-            onClick={() => handleImageClick("immunization_record", "/main/health/immunization_record")}
-          />
-
-          <Image
-            src={clickedImage === "settings" ? "/svg/active_settings.svg" : "/svg/settings.svg"}
-            width={50}
-            height={50}
-            alt="Settings"
-            className={`w-[30px] h-[30px] cursor-pointer ${clickedImage === "settings" ? "filter-green" : ""}`}
-            onClick={() => handleImageClick("settings", "/main/health/settings")}
-          />
+          {[
+            { name: "home", route: "/main", activeIcon: "/svg/active_home.svg", defaultIcon: "/svg/home.svg" },
+            { name: "health_dashboard", route: "/main/health", activeIcon: "/svg/active_dashboard.svg", defaultIcon: "/svg/health_dashboard.svg" },
+            { name: "nutritional_status", route: "/main/health/nutritional_status", activeIcon: "/svg/active_status.svg", defaultIcon: "/svg/health_nutritionalstatus.svg" },
+            { name: "immunization_record", route: "/main/health/immunization_record", activeIcon: "/svg/active_immunization.svg", defaultIcon: "/svg/health_immunization.svg" },
+            { name: "settings", route: "/main/health/settings", activeIcon: "/svg/active_settings.svg", defaultIcon: "/svg/settings.svg" },
+          ].map(({ name, route, activeIcon, defaultIcon }) => (
+            <div
+              key={name}
+              className="group w-[30px] h-[30px] cursor-pointer"
+              onClick={() => handleImageClick(name, route)}
+            >
+              <Image
+                src={clickedImage === name ? activeIcon : defaultIcon}
+                width={30}
+                height={30}
+                alt={name}
+                className={`w-[30px] h-[30px] absolute group-hover:hidden ${clickedImage === name ? "filter-green" : ""}`}
+              />
+              <Image
+                src={activeIcon}
+                width={30}
+                height={30}
+                alt={`${name}-hover`}
+                className="hidden group-hover:block w-[30px] h-[30px]"
+              />
+            </div>
+          ))}
         </div>
         <div className="flex items-center justify-center">
-          <Image
-            src="/svg/logout.svg"
-            width={50}
-            height={50}
-            alt="Logout"
-            className={`w-[30px] h-[30px] cursor-pointer ${clickedImage === "logout" ? "filter-green" : ""}`}
-            onClick={handleSignOut}
-          />
+          <div className="group w-[30px] h-[30px] cursor-pointer" onClick={handleSignOut}>
+            <Image
+              src="/svg/logout.svg"
+              width={30}
+              height={30}
+              alt="Logout"
+              className="absolute group-hover:hidden w-[30px] h-[30px]"
+            />
+            <Image
+              src="/svg/active_logout.svg"
+              width={30}
+              height={30}
+              alt="Logout-hover"
+              className="hidden group-hover:block w-[30px] h-[30px]"
+            />
+          </div>
         </div>
       </div>
     </div>

@@ -40,13 +40,13 @@ const HealthHeader = () => {
         </div>
         <div>
           <div className="text-[12px] md:text-[16px] cursor-pointer flex items-center justify-center py-1 px-3 rounded-md bg-[#007F73] text-white" onClick={toggleDropdown}>
-            <p>{session?.user?.firstname}</p>
+            <p>{session?.user?.username}</p>
             <Image src="/svg/down-arrow.svg" width={20} height={20} alt="down-arrow" className="w-3 ml-2 text-white" />
           </div>
           {showDropdown && (
             <div className="bg-white z-50 absolute top-[75px] right-0 rounded-lg shadow-lg p-4 px-4">
               <p className="font-semibold flex items-center justify-center">
-                Hi, {session?.user?.firstname}!
+                Hi, {session?.user?.username}!
               </p>
               <p className="text-sm flex items-center justify-center">
                 {session?.user?.email}
