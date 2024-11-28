@@ -195,6 +195,18 @@ const childrenQueries = {
   delete: "UPDATE children SET status = 'Inactive' WHERE child_id = ?",
 };
 
+const childImmunizationQueries = {
+  findAllChildImmunizationRecord:
+    "SELECT * FROM child_immunization_record WHERE status = 'Active'",
+  findById: "SELECT * FROM child_immunization_record WHERE child_id = ?",
+  insert:
+    "INSERT INTO child_immunization_record (name, age, address) VALUES (?, ?, ?)",
+  update:
+    "UPDATE child_immunization_record SET name = ?, age = ?, address = ? WHERE child_id = ?",
+  delete:
+    "UPDATE child_immunization_record SET status = 'Inactive' WHERE child_id = ?",
+};
+
 module.exports = {
   userQueries,
   renterQueries,
@@ -202,4 +214,5 @@ module.exports = {
   getAllCharts,
   purokQueries,
   childrenQueries,
+  childImmunizationQueries,
 };

@@ -17,6 +17,7 @@ const PORT = process.env.PORT || 3001;
 
 app.use(express.json());
 app.use(cors());
+app.use("/api", logRoutes);
 app.use("/api", otpRoutes);
 app.use("/api", userRoutes);
 app.use('/api', childrenRoutes);
@@ -26,7 +27,7 @@ app.use("/api", rentOwnerRoutes);
 app.use("/api", renterRoutes);
 app.use("/api", chartRoutes);
 app.use("/api", purokRoutes);
-app.use("/api", logRoutes);
+
 
 const initApp = async () => {
   console.log("Testing the database connection...");

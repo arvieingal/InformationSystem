@@ -27,7 +27,7 @@ export interface Resident {
   barangay: string;
   city: string;
   age: number;
-  children: Child[]; 
+  children: Child[];
 }
 
 export interface Child {
@@ -171,7 +171,7 @@ const ChildTable: React.FC<TableProps> = ({ children, onSort, sortConfig, onEdit
         const bValue = b[key];
 
         if (aValue === undefined || bValue === undefined) {
-          return 0; 
+          return 0;
         }
 
         if (aValue !== null && bValue !== null && aValue < bValue) {
@@ -212,7 +212,7 @@ const ChildTable: React.FC<TableProps> = ({ children, onSort, sortConfig, onEdit
             headers: {
               "Content-Type": "application/json",
             },
-            body: JSON.stringify({ 
+            body: JSON.stringify({
               status: "Archive",
             }),
           }
@@ -277,8 +277,8 @@ const ChildTable: React.FC<TableProps> = ({ children, onSort, sortConfig, onEdit
   };
 
   return (
-    <div className="w-full px-[1.5rem]">
-      <div className="w-full flex items-center justify-between mb-4">
+    <div className="w-full h-full px-[1.5rem]">
+      <div className="w-full h-[10%] flex items-center justify-between pb-4">
         <input
           type="text"
           placeholder="Search .............."
@@ -364,71 +364,77 @@ const ChildTable: React.FC<TableProps> = ({ children, onSort, sortConfig, onEdit
           </ul>
         </div>
       )}
-      <table className="min-w-full border-collapse border border-[#CCCCCC] bg-white text-sm rounded-lg">
-        <thead>
-          <tr>
-            {['id', 'name', 'age', 'sex', 'birthdate', 'weightKg', 'heightCm', 'nutritionalStatus', 'measurement date'].map((key) => (
-              <th
-                key={key}
-                className="border border-black bg-gray-300 py-2 cursor-pointer"
-                onClick={() => handleSort(key as keyof Child)}
-              >
-                {key.charAt(0).toUpperCase() + key.slice(1).replace(/([A-Z])/g, ' $1')}
-                {sortConfig?.key === key && (
-                  <span>
-                    {sortConfig.direction === 'ascending' ? ' ▲' : ' ▼'}
-                  </span>
-                )}
-              </th>
-            ))}
-            <th className="border border-black bg-gray-300 py-2">Option</th>
-          </tr>
-        </thead>
-        <tbody className="text-center">
-          {paginatedChildren.map((child) => (
-            <tr key={child.child_id} className="border-b hover:bg-gray-50" onClick={() => onRowClick(child as unknown as Child)}>
-              <td className="text-center border border-black py-2">{child.child_id}</td>
-              <td className="text-center border border-black py-2">{child.full_name}</td>
-              <td className="text-center border border-black py-2">{child.age}</td>
-              <td className="text-center border border-black py-2">{child.sex}</td>
-              <td className="text-center border border-black py-2">{formatDate(child.birthdate)}</td>
-              <td className="text-center border border-black py-2">{child.weight_kg}</td>
-              <td className="text-center border border-black py-2">{child.height_cm}</td>
-              <td className="text-center border border-black py-2">{child.nutritional_status}</td>
-              <td className="text-center border border-black py-2">{formatDate(child.measurement_date)}</td>
-              <td className="text-center justify-center py-2 flex items-center border border-black">
-                <Image
-                  src={"/svg/edit_pencil.svg"}
-                  alt="Edit"
-                  height={100}
-                  width={100}
-                  className="w-5 h-5 mr-2 cursor-pointer"
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    handleEditClick(child as unknown as Child);
-                  }}
-                />
-                <Image
-                  src={"/svg/archive.svg"}
-                  alt="Archive"
-                  height={100}
-                  width={100}
-                  className="w-6 h-6 cursor-pointer"
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    handleArchiveClick(child as unknown as Child);
-                  }}
-                />
-              </td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
-      <Pagination
-        currentPage={currentPage}
-        totalPages={Math.ceil(filteredChildren.length / itemsPerPage)}
-        onPageChange={handlePageChange}
-      />
+      <div className='h-[90%]'>
+        <div className='bg-white h-[90%] rounded-[5px] overflow-y-auto'>
+          <table className="w-full border-collapse text-[14px]">
+            <thead className='text-[#6C6C6C] text-center'>
+              <tr className='sticky top-0 bg-white shadow-gray-300 shadow-sm'>
+                {['id', 'name', 'age', 'sex', 'birthdate', 'weightKg', 'heightCm', 'nutritionalStatus', 'measurement date'].map((key) => (
+                  <th
+                    key={key}
+                    className="py-2 px-6 text-left font-semibold"
+                    onClick={() => handleSort(key as keyof Child)}
+                  >
+                    {key.charAt(0).toUpperCase() + key.slice(1).replace(/([A-Z])/g, ' $1')}
+                    {sortConfig?.key === key && (
+                      <span>
+                        {sortConfig.direction === 'ascending' ? ' ▲' : ' ▼'}
+                      </span>
+                    )}
+                  </th>
+                ))}
+                <th className="py-4 pr-6 text-left font-semibold">Option</th>
+              </tr>
+            </thead>
+            <tbody>
+              {paginatedChildren.map((child) => (
+                <tr key={child.child_id} className="border-b hover:bg-gray-50" onClick={() => onRowClick(child as unknown as Child)}>
+                  <td className="py-2 px-6 text-left">{child.child_id}</td>
+                  <td className="py-2 px-6 text-left">{child.full_name}</td>
+                  <td className="py-2 px-6 text-left">{child.age}</td>
+                  <td className="py-2 px-6 text-left">{child.sex}</td>
+                  <td className="py-2 px-6 text-left">{formatDate(child.birthdate)}</td>
+                  <td className="py-2 px-6 text-left">{child.weight_kg}</td>
+                  <td className="py-2 px-6 text-left">{child.height_cm}</td>
+                  <td className="py-2 px-6 text-left">{child.nutritional_status}</td>
+                  <td className="py-2 px-6 text-left">{formatDate(child.measurement_date)}</td>
+                  <td className="py-2 pr-6 text-left flex justify-center items-center">
+                    <Image
+                      src={"/svg/edit_pencil.svg"}
+                      alt="Edit"
+                      height={100}
+                      width={100}
+                      className="w-5 h-5 mr-2 cursor-pointer"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleEditClick(child as unknown as Child);
+                      }}
+                    />
+                    <Image
+                      src={"/svg/archive.svg"}
+                      alt="Archive"
+                      height={100}
+                      width={100}
+                      className="w-6 h-6 cursor-pointer"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleArchiveClick(child as unknown as Child);
+                      }}
+                    />
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+        <div className='h-[10%]'>
+          <Pagination
+            currentPage={currentPage}
+            totalPages={Math.ceil(filteredChildren.length / itemsPerPage)}
+            onPageChange={handlePageChange}
+          />
+        </div>
+      </div>
     </div>
   );
 };
