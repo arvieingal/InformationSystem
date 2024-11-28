@@ -35,15 +35,15 @@ const ImmunizationTable: React.FC<TableProps> = ({ immunizations, onSort, sortCo
   console.log(immunizations);
 
   return (
-    <div className='w-full px-[1.5rem] h-[90%]'>
+    <div className='w-full px-[1.5rem] h-full'>
       <div className='bg-white h-full rounded-[5px] overflow-y-auto'>
         <table className="w-full border-collapse text-[14px]">
-          <thead className='text-[#6C6C6C] text-center'>
+          <thead className='text-center'>
             <tr className='sticky top-0 bg-white shadow-gray-300 shadow-sm'>
               {['id', 'name', 'sex', 'date of birth', 'health center', 'barangay', 'family no.'].map((key) => (
                 <th
                   key={key}
-                  className="py-2 px-6 text-left font-bold text-[16px]"
+                  className="py-2 px-6 text-left font-semibold text-[16px]"
                   onClick={() => onSort(key as keyof Immunization)}
                 >
                   {key.charAt(0).toUpperCase() + key.slice(1).replace(/([A-Z])/g, ' $1')}
@@ -54,12 +54,12 @@ const ImmunizationTable: React.FC<TableProps> = ({ immunizations, onSort, sortCo
                   )}
                 </th>
               ))}
-              <th className="py-4 pr-6 text-left font-bold text-[16px]">Option</th>
+              <th className="py-4 pr-6 text-left font-semibold text-[16px]">Option</th>
             </tr>
           </thead>
           <tbody className="text-center">
             {immunizations.map((immunization, index) => (
-              <tr key={index} className="border-b hover:bg-gray-50">
+              <tr key={index} className="border-b hover:bg-gray-50 cursor-pointer">
                 <td className="py-2 px-6 text-left" onClick={() => onViewDetails(immunization)}>{immunization.child_id}</td>
                 <td className="py-2 px-6 text-left" onClick={() => onViewDetails(immunization)}>{`${immunization.full_name || ''}`.trim()}</td>
                 <td className="py-2 px-6 text-left" onClick={() => onViewDetails(immunization)}>{immunization.sex}</td>
@@ -67,12 +67,13 @@ const ImmunizationTable: React.FC<TableProps> = ({ immunizations, onSort, sortCo
                 <td className="py-2 px-6 text-left" onClick={() => onViewDetails(immunization)}>{immunization.health_center}</td>
                 <td className="py-2 px-6 text-left" onClick={() => onViewDetails(immunization)}>{immunization.address}</td>
                 <td className="py-2 px-6 text-left" onClick={() => onViewDetails(immunization)}>{immunization.household_number}</td>
-                <td className="py-2 pr-6 text-left flex justify-center items-center">
+                <td className="py-2 pr-6 text-left flex items-center">
                   <Image
                     src="/svg/edit.svg"
                     alt="Edit"
-                    width={20}
-                    height={20}
+                    height={100}
+                    width={100}
+                    className="w-5 h-5 mr-2 cursor-pointer"
                     onClick={(e) => {
                       e.stopPropagation();
                       handleEditClick(immunization);
@@ -81,8 +82,9 @@ const ImmunizationTable: React.FC<TableProps> = ({ immunizations, onSort, sortCo
                   <Image
                     src="/svg/archive.svg"
                     alt="Archive"
-                    width={20}
-                    height={20}
+                    height={100}
+                    width={100}
+                    className="w-5 h-5 mr-2 cursor-pointer"
                     onClick={(e) => {
                       e.stopPropagation();
                       onArchive(immunization);

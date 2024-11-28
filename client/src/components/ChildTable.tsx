@@ -278,7 +278,7 @@ const ChildTable: React.FC<TableProps> = ({ children, onSort, sortConfig, onEdit
 
   return (
     <div className="w-full h-full px-[1.5rem]">
-      <div className="w-full h-[10%] flex items-center justify-between pb-4">
+      <div className="w-full h-[10%] flex items-center justify-between">
         <input
           type="text"
           placeholder="Search .............."
@@ -367,12 +367,12 @@ const ChildTable: React.FC<TableProps> = ({ children, onSort, sortConfig, onEdit
       <div className='h-[90%]'>
         <div className='bg-white h-[90%] rounded-[5px] overflow-y-auto'>
           <table className="w-full border-collapse text-[14px]">
-            <thead className='text-[#6C6C6C] text-center'>
+            <thead className='text-center'>
               <tr className='sticky top-0 bg-white shadow-gray-300 shadow-sm'>
                 {['id', 'name', 'age', 'sex', 'birthdate', 'weightKg', 'heightCm', 'nutritionalStatus', 'measurement date'].map((key) => (
                   <th
                     key={key}
-                    className="py-2 px-6 text-left font-bold text-[16px]"
+                    className="py-2 px-6 text-left font-semibold text-[16px]"
                     onClick={() => handleSort(key as keyof Child)}
                   >
                     {key.charAt(0).toUpperCase() + key.slice(1).replace(/([A-Z])/g, ' $1')}
@@ -383,12 +383,12 @@ const ChildTable: React.FC<TableProps> = ({ children, onSort, sortConfig, onEdit
                     )}
                   </th>
                 ))}
-                <th className="py-4 pr-6 text-left font-bold text-[16px]">Option</th>
+                <th className="py-4 pr-6 text-left font-semibold text-[16px]">Option</th>
               </tr>
             </thead>
-            <tbody>
+            <tbody className="text-center">
               {paginatedChildren.map((child) => (
-                <tr key={child.child_id} className="border-b hover:bg-gray-50" onClick={() => onRowClick(child as unknown as Child)}>
+                <tr key={child.child_id} className="border-b hover:bg-gray-50 cursor-pointer" onClick={() => onRowClick(child as unknown as Child)}>
                   <td className="py-2 px-6 text-left">{child.child_id}</td>
                   <td className="py-2 px-6 text-left">{child.full_name}</td>
                   <td className="py-2 px-6 text-left">{child.age}</td>
@@ -398,9 +398,9 @@ const ChildTable: React.FC<TableProps> = ({ children, onSort, sortConfig, onEdit
                   <td className="py-2 px-6 text-left">{child.height_cm}</td>
                   <td className="py-2 px-6 text-left">{child.nutritional_status}</td>
                   <td className="py-2 px-6 text-left">{formatDate(child.measurement_date)}</td>
-                  <td className="py-2 pr-6 text-left flex justify-center items-center">
+                  <td className="py-2 pr-6 text-left flex items-center">
                     <Image
-                      src={"/svg/edit_pencil.svg"}
+                      src="/svg/edit.svg"
                       alt="Edit"
                       height={100}
                       width={100}
@@ -411,7 +411,7 @@ const ChildTable: React.FC<TableProps> = ({ children, onSort, sortConfig, onEdit
                       }}
                     />
                     <Image
-                      src={"/svg/archive.svg"}
+                      src="/svg/archive.svg"
                       alt="Archive"
                       height={100}
                       width={100}
