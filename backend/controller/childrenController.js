@@ -1,5 +1,5 @@
 const Children = require("../models/childrenModel");
-const Log = require("../models/Log");
+const { logUserAction } = require("../controller/logController");
 
 // Function to categorize children
 const categorizeChildren = (children) => {
@@ -71,11 +71,11 @@ const childrenController = {
       const updatedChild = await Children.updateChild(req.params.child_id, req.body);
       
       // Log the action
-      await logUserAction({
-        username: req.user.username, // Assuming you have user info in req.user
-        action: `User ${req.user.username} updated child_no ${req.params.child_id}`,
-        timestamp: new Date().toISOString()
-      });
+      // await logUserAction({
+      //   username: req.user.username, // Assuming you have user info in req.user
+      //   action: `User ${req.user.username} updated child_no ${req.params.child_id}`,
+      //   timestamp: new Date().toISOString()
+      // });
 
       res.json(updatedChild);
     } catch (error) {
