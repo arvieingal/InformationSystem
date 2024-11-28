@@ -43,7 +43,7 @@ const ImmunizationTable: React.FC<TableProps> = ({ immunizations, onSort, sortCo
               {['id', 'name', 'sex', 'date of birth', 'health center', 'barangay', 'family no.'].map((key) => (
                 <th
                   key={key}
-                  className="py-2 px-6 text-left font-semibold"
+                  className="py-2 px-6 text-left font-bold text-[16px]"
                   onClick={() => onSort(key as keyof Immunization)}
                 >
                   {key.charAt(0).toUpperCase() + key.slice(1).replace(/([A-Z])/g, ' $1')}
@@ -54,7 +54,7 @@ const ImmunizationTable: React.FC<TableProps> = ({ immunizations, onSort, sortCo
                   )}
                 </th>
               ))}
-              <th className="py-4 pr-6 text-left font-semibold">Option</th>
+              <th className="py-4 pr-6 text-left font-bold text-[16px]">Option</th>
             </tr>
           </thead>
           <tbody className="text-center">
