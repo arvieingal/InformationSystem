@@ -372,7 +372,7 @@ const ChildTable: React.FC<TableProps> = ({ children, onSort, sortConfig, onEdit
                 {['id', 'name', 'age', 'sex', 'birthdate', 'weightKg', 'heightCm', 'nutritionalStatus', 'measurement date'].map((key) => (
                   <th
                     key={key}
-                    className="py-2 px-6 text-left font-semibold"
+                    className="py-2 px-6 text-left font-bold text-[16px]"
                     onClick={() => handleSort(key as keyof Child)}
                   >
                     {key.charAt(0).toUpperCase() + key.slice(1).replace(/([A-Z])/g, ' $1')}
@@ -383,7 +383,7 @@ const ChildTable: React.FC<TableProps> = ({ children, onSort, sortConfig, onEdit
                     )}
                   </th>
                 ))}
-                <th className="py-4 pr-6 text-left font-semibold">Option</th>
+                <th className="py-4 pr-6 text-left font-bold text-[16px]">Option</th>
               </tr>
             </thead>
             <tbody>
