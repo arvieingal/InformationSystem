@@ -3,6 +3,30 @@ import React, { useState, useEffect } from 'react';
 import AgeCategoryChart from '@/components/AgeCategoryChart';
 import NutritionalStatusChart from '@/components/NutritionalStatusChart';
 import api from '@/lib/axios';
+import {
+  Chart as ChartJS,
+  CategoryScale,
+  LinearScale,
+  BarElement,
+  Title,
+  Tooltip,
+  Legend,
+  ChartOptions,
+  ArcElement,
+} from "chart.js";
+import { Doughnut } from 'react-chartjs-2';
+import { populationDonutData, sectorDonutData } from '@/constants/chartDummyData';
+import { DoughnutLegend } from '@/components/DoughnutLegend';
+
+ChartJS.register(
+  CategoryScale,
+  LinearScale,
+  BarElement,
+  Title,
+  Tooltip,
+  Legend,
+  ArcElement
+);
 
 interface Child {
   age: number;
@@ -50,11 +74,51 @@ const HealthPage = () => {
 
   const filteredData = filterNutritionalData(selectedAgeCategory);
 
-  return (
-    <div className="p-4 bg-gray-50 min-h-screen overflow-hidden">
-      <h1 className="text-center text-2xl font-semibold mb-4">Number of Children Vaccinated by Vaccine Type and Gender</h1>
+  const donutOption: ChartOptions<"doughnut"> = {
+    responsive: true,
+    cutout: "50%",
+    plugins: {
+      legend: {
+        display: false,
+      },
+      datalabels: {
+        color: "#000",
+        formatter: (value: number) => `${value}%`,
+        font: {
+          size: 14,
+          weight: "bold",
+        },
+        anchor: "center",
+        align: "center",
+      },
+      tooltip: {
+        enabled: true,
+      },
+    },
+    layout: {
+      padding: {
+        bottom: 20,
+      },
+    },
+  };
 
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+  const populationDonutOptions: ChartOptions<"doughnut"> = {
+    responsive: true,
+    cutout: "50%", // Doughnut cutout
+    plugins: {
+      legend: {
+        display: false, // Disable default legend
+      },
+    },
+  };
+
+  return (
+    <div className="h-full px-4 pb-4 overflow-hidden">
+      <div className='h-[8%] flex justify-center items-center'>
+        <h1 className="text-center text-2xl font-semibold">Number of Children Vaccinated by Vaccine Type and Gender</h1>
+      </div>
+
+      <div className="h-[46%] grid grid-cols-1 md:grid-cols-3 gap-4">
         {/* Age Category List */}
         <div className="w-full bg-white p-4 shadow rounded overflow-hidden">
           <h2 className="text-center font-bold mb-4">AGE CATEGORY BY MONTH</h2>
@@ -74,10 +138,34 @@ const HealthPage = () => {
           <AgeCategoryChart ageCategory={selectedAgeCategory} />
         </div>
       </div>
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-4">
-        <NutritionalStatusChart title="Weight for Age" nutritionalData={filteredData} />
+      <div className="h-[46%] grid grid-cols-1 md:grid-cols-3 gap-4 pt-4">
+        <div className="flex justify-center items-center w-full relative bg-white">
+          <div className="w-[50%]">
+            <Doughnut data={sectorDonutData} options={donutOption} />
+          </div>
+          <div className="absolute right-[5%] top-[34%]">
+            <DoughnutLegend data={sectorDonutData} />
+          </div>
+        </div>
+        <div className="flex justify-center items-center w-full relative bg-white">
+          <div className="w-[50%]">
+            <Doughnut data={sectorDonutData} options={donutOption} />
+          </div>
+          <div className="absolute right-[5%] top-[34%]">
+            <DoughnutLegend data={sectorDonutData} />
+          </div>
+        </div>
+        <div className="flex justify-center items-center w-full relative bg-white">
+          <div className="w-[50%]">
+            <Doughnut data={sectorDonutData} options={donutOption} />
+          </div>
+          <div className="absolute right-[5%] top-[34%]">
+            <DoughnutLegend data={sectorDonutData} />
+          </div>
+        </div>
+        {/* <NutritionalStatusChart title="Weight for Age" nutritionalData={filteredData} />
         <NutritionalStatusChart title="Height/Length for Age" nutritionalData={filteredData} />
-        <NutritionalStatusChart title="Weight for Length/Height" nutritionalData={filteredData} />
+        <NutritionalStatusChart title="Weight for Length/Height" nutritionalData={filteredData} /> */}
       </div>
     </div>
   );

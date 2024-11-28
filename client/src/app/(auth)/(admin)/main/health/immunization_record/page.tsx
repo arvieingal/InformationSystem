@@ -10,6 +10,7 @@ import Pagination from '@/components/Pagination';
 import PersonModal from '@/components/PersonModal';
 import { Immunization } from '@/types/Immunization';
 import { formatDate } from '@/components/formatDate';
+import api from '@/lib/axios';
 
 const ImmunizationRecord: React.FC = () => {
   const router = useRouter();
@@ -45,23 +46,15 @@ const ImmunizationRecord: React.FC = () => {
   useEffect(() => {
     const fetchImmunizations = async () => {
       try {
-        const response = await fetch('http://localhost:3001/api/childImmunizationRecord');
-  
-        if (response.ok) {
-          const data = await response.json();
-       
-          const dataArray = Array.isArray(data) ? data : [];
+        const response = await api.get('/api/child-immunization-record');
 
-          setImmunizations(dataArray );
-          console.log("data:", data);
-        } else {
-          console.error("Failed to fetch immunization data.");
-        }
+        const data = response.data;
+        setImmunizations(data);
       } catch (error) {
         console.error("Error fetching immunization data:", error);
       }
     };
-  
+
     fetchImmunizations();
   }, []);
 
@@ -172,41 +165,39 @@ const ImmunizationRecord: React.FC = () => {
   };
 
   return (
-    <>
-      <div className="flex flex-row md:flex md:flex-row justify-center gap-[3rem] mt-[2rem]">
-       
-      </div>
-      
-      <div className="w-full flex flex-row pr-[3rem] items-center justify-between gap-4">
-        <div className="w-full pl-2">
-          <SearchBar onSearch={handleSearch} />
-        </div>
-        <button className="flex items-center space-x-2 text-blue-500 hover:underline">
-          <Image
-            src="/svg/filter.svg"
-            alt="Nutritional Status"
-            width={30}
-            height={50}
-            onClick={() => setIsFilterDropdownOpen(!isFilterDropdownOpen)}
-          />
-          <Image
-            src="/svg/add_nutritional.svg"
-            alt="Nutritional Status"
-            width={30}
-            height={50}
-            onClick={() => {
-              const selectedImmunization = paginatedImmunizations[0]; // Example: Select the first immunization
-              handleAddModalOpen(selectedImmunization);
-            }}
-          />
+    <div className='h-full'>
+      <div className="h-[10%] pt-[1rem] pr-[3rem]">
+        <div className='w-full flex flex-row items-center justify-between gap-4'>
+          <div className="w-full pl-2">
+            <SearchBar onSearch={handleSearch} />
+          </div>
+          <button className="flex items-center space-x-2 text-blue-500 hover:underline">
             <Image
-            src="/svg/report.svg"
-            alt="Nutritional Status"
-            width={30}
-            height={50}
-            onClick={() => router.push('/main/health/immuniReport')}
-          />
-        </button>
+              src="/svg/filter.svg"
+              alt="Nutritional Status"
+              width={30}
+              height={50}
+              onClick={() => setIsFilterDropdownOpen(!isFilterDropdownOpen)}
+            />
+            <Image
+              src="/svg/add_nutritional.svg"
+              alt="Nutritional Status"
+              width={30}
+              height={50}
+              onClick={() => {
+                const selectedImmunization = paginatedImmunizations[0]; // Example: Select the first immunization
+                handleAddModalOpen(selectedImmunization);
+              }}
+            />
+            <Image
+              src="/svg/report.svg"
+              alt="Nutritional Status"
+              width={30}
+              height={50}
+              onClick={() => router.push('/main/health/immuniReport')}
+            />
+          </button>
+        </div>
         {isFilterDropdownOpen && (
           <div className="absolute right-[1rem] mt-[16%] bg-white border border-gray-300 rounded-md shadow-lg z-10">
             <ul className="py-1">
@@ -221,22 +212,23 @@ const ImmunizationRecord: React.FC = () => {
         )}
       </div>
 
-      <div className="w-full mt-[1rem]">
+      <div className="w-full h-[90%]">
         <ImmunizationTable
           immunizations={paginatedImmunizations as Immunization[]}
           onSort={handleSort as (key: keyof Immunization) => void}
           sortConfig={sortConfig as { key: keyof Immunization; direction: string } | null}
-          onEdit={() => {/* handle edit logic here */}}
-          onArchive={() => {/* handle archive logic here */}}
+          onEdit={() => {/* handle edit logic here */ }}
+          onArchive={() => {/* handle archive logic here */ }}
           onRowClick={handleRowClick}
           onViewDetails={handleViewDetails}
         />
+        <Pagination
+          currentPage={currentPage}
+          totalPages={Math.ceil(immunizations.length / itemsPerPage)}
+          onPageChange={handlePageChange}
+        />
       </div>
-      <Pagination
-        currentPage={currentPage}
-        totalPages={Math.ceil(immunizations.length / itemsPerPage)}
-        onPageChange={handlePageChange}
-      />
+
 
       {isAddModalOpen && selectedImmunization && (
         <PersonModal onClose={() => setIsAddModalOpen(false)}>
@@ -447,24 +439,24 @@ const ImmunizationRecord: React.FC = () => {
             <h2 className="text-lg font-semibold">Child Immunization Record</h2>
             <div className="grid grid-cols-3 gap-4">
               <div className="col-span-3">
-                <p>Child's Name: {`${selectedImmunization.child.family_name} ${selectedImmunization.child.given_name} ${selectedImmunization.child.middle_name} ${selectedImmunization.child.extension}`}</p>
-                <p>Mother's Name: {selectedImmunization.child.mother_name}</p>
-                <p>Sex: {selectedImmunization.child.sex}</p>
+                <p>Child's Name: {`${selectedImmunization.full_name}`}</p>
+                <p>Mother's Name: {selectedImmunization.mother_name}</p>
+                <p>Sex: {selectedImmunization.sex}</p>
               </div>
               <div>
-                <p>Date of Birth: {selectedImmunization.child.birthdate}</p>
-                <p>Father's Name: {selectedImmunization.child.father_name}</p>
+                <p>Date of Birth: {selectedImmunization.birthdate}</p>
+                <p>Father's Name: {selectedImmunization.father_name}</p>
                 <p>Health Center: {selectedImmunization.health_center}</p>
               </div>
               <div>
-                <p>Place of Birth: {selectedImmunization.child.birthplace}</p>
-                <p>Birth Height: {selectedImmunization.child.heightAtBirth}</p>
-                <p>Barangay: {selectedImmunization.barangay}</p>
+                {/* <p>Place of Birth: {selectedImmunization.}</p> */}
+                <p>Birth Height: {selectedImmunization.height_at_birth}</p>
+                <p>Barangay: {selectedImmunization.address}</p>
               </div>
               <div>
-                <p>Address: {selectedImmunization.child.address}</p>
-                <p>Birth Weight: {selectedImmunization.child.heightAtBirth}</p>
-                <p>Family Number: {selectedImmunization.family_number}</p>
+                <p>Address: {selectedImmunization.address}</p>
+                <p>Birth Weight: {selectedImmunization.weight_at_birth}</p>
+                <p>Family Number: {selectedImmunization.household_number}</p>
               </div>
             </div>
             <table className="w-full mt-4 border-collapse border border-gray-300">
@@ -496,7 +488,7 @@ const ImmunizationRecord: React.FC = () => {
           </div>
         </PersonModal>
       )}
-    </>
+    </div>
   );
 };
 

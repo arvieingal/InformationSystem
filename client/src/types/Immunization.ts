@@ -9,40 +9,22 @@ export interface VaccineDose {
 }
 
 export interface Immunization {
-  records: any;
-  record_id: number;
-  first_name: string;
-  last_name: string;
-  middle_name: string;
-  suffix: string;
-  date_of_birth: string;
-  place_of_birth: string;
-  address: string;
-  mother_name: string;
-  father_name: string;
-  birth_height: number;
-  birth_weight: number;
-  sex: string;
-  health_center: string;
-  barangay: string;
-  family_number: string;
-  vaccineDoses: VaccineDose[];
-  child: {
-    address: ReactNode;
-    heightAtBirth: ReactNode;
-    birthplace: ReactNode;
-    father_name: ReactNode;
-    birthdate: ReactNode;
-    mother_name: ReactNode;
-    extension: any;
-    given_name: any;
-    family_name: any;
-    age: any;
-    first_name: string;
-    middle_name: string;
-    last_name: string;
-    suffix: string;
-    sex: string;
-    dateOfBirth: string;
-  };
+  child_immunization_id: number;
+  child_id: number;
+  resident_id: number;
+  full_name: string;
+  birthdate: string; // Stored as 'date' in the database, represented as a string in ISO format
+  age: number | null; // `decimal(4,1)` can represent fractional years
+  sex: "Male" | "Female"; // Enum type based on database definition
+  vaccine_type: string | null; // Nullable VARCHAR
+  health_center: string | null; // Nullable VARCHAR
+  address: string | null; // Nullable VARCHAR
+  height_at_birth: number | null; // `decimal(5,2)` for height
+  weight_at_birth: number | null; // `decimal(5,2)` for weight
+  mother_name: string | null; // Nullable VARCHAR
+  father_name: string | null; // Nullable VARCHAR
+  household_number: number | null; // Nullable INT
+  status: "Active" | "Inactive"; // Enum type based on database definition
+  created_at: string; // Stored as 'timestamp', represented as a string in ISO format
+  updated_at: string; // Stored as 'timestamp', represented as a string in ISO format
 } 
