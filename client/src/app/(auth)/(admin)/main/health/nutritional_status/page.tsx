@@ -619,7 +619,7 @@ const NutritionalStatus: React.FC = () => {
   return (
     <div className="h-full">
 
-      <div className="w-full h-full pt-[1rem] ">
+      <div className="w-full h-full">
         <ChildTable
           children={paginatedChildren as unknown as ChildTableChild[]}
           onSort={handleSort}

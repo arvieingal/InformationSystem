@@ -213,20 +213,24 @@ const ImmunizationRecord: React.FC = () => {
       </div>
 
       <div className="w-full h-[90%]">
-        <ImmunizationTable
-          immunizations={paginatedImmunizations as Immunization[]}
-          onSort={handleSort as (key: keyof Immunization) => void}
-          sortConfig={sortConfig as { key: keyof Immunization; direction: string } | null}
-          onEdit={() => {/* handle edit logic here */ }}
-          onArchive={() => {/* handle archive logic here */ }}
-          onRowClick={handleRowClick}
-          onViewDetails={handleViewDetails}
-        />
-        <Pagination
-          currentPage={currentPage}
-          totalPages={Math.ceil(immunizations.length / itemsPerPage)}
-          onPageChange={handlePageChange}
-        />
+        <div className='h-[90%]'>
+          <ImmunizationTable
+            immunizations={paginatedImmunizations as Immunization[]}
+            onSort={handleSort as (key: keyof Immunization) => void}
+            sortConfig={sortConfig as { key: keyof Immunization; direction: string } | null}
+            onEdit={() => {/* handle edit logic here */ }}
+            onArchive={() => {/* handle archive logic here */ }}
+            onRowClick={handleRowClick}
+            onViewDetails={handleViewDetails}
+          />
+        </div>
+        <div className='h-[10]'>
+          <Pagination
+            currentPage={currentPage}
+            totalPages={Math.ceil(immunizations.length / itemsPerPage)}
+            onPageChange={handlePageChange}
+          />
+        </div>
       </div>
 
 
