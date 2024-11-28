@@ -21,10 +21,10 @@ const Settings: React.FC = () => {
             const contentType = response.headers.get("content-type");
             if (contentType && contentType.includes("application/json")) {
                 const text = await response.text();
-                console.log('Response text:', text); // Log the raw response text
+                console.log('Response text:', text); 
                 if (text) {
                     const data = JSON.parse(text);
-                    console.log('Parsed logs:', data); // Log the parsed data
+                    console.log('Parsed logs:', data); 
                     setLogs(data);
                 } else {
                     console.warn('Response is empty');
