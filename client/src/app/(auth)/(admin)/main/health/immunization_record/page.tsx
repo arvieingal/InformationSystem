@@ -184,16 +184,6 @@ const ImmunizationRecord: React.FC = () => {
               onClick={() => setIsFilterDropdownOpen(!isFilterDropdownOpen)}
             />
             <Image
-              src="/svg/add_nutritional.svg"
-              alt="Nutritional Status"
-              width={30}
-              height={50}
-              onClick={() => {
-                const selectedImmunization = paginatedImmunizations[0]; // Example: Select the first immunization
-                handleAddModalOpen(selectedImmunization);
-              }}
-            />
-            <Image
               src="/svg/report.svg"
               alt="Nutritional Status"
               width={30}
@@ -439,32 +429,30 @@ const ImmunizationRecord: React.FC = () => {
         <PersonModal onClose={() => setIsViewModalOpen(false)}>
           <div className="p-4 relative">
             <button
-              className="absolute top-[-4.7rem] right-[-3.4rem] text-gray-500 hover:text-gray-700 p-4 text-[4rem]"
+              className="absolute top-[-4.7rem] right-[-3.4rem] text-gray-500 hover:text-gray-700 p-4 text-[4rem] "
               onClick={() => setIsViewModalOpen(false)}
             >
               &times;
             </button>
             <h2 className="text-lg font-semibold">Child Immunization Record</h2>
-            <div className="grid grid-cols-3 gap-4">
-              <div className="col-span-3">
-                <p>Child's Name: {`${selectedImmunization.full_name}`}</p>
-                <p>Mother's Name: {selectedImmunization.mother_name}</p>
-                <p>Sex: {selectedImmunization.sex}</p>
+            <div className="grid grid-cols-3 gap-[2rem]">
+              <div className="col-span-1">
+                <p>Child's Name: <span className="inline-block w-48 border-b-2 border-gray-400 text-right">{`${selectedImmunization.full_name}`}</span></p>
+                <p>Date of Birth: <span className="inline-block w-48 border-b-2 border-gray-400 text-right">{formatDate(selectedImmunization.birthdate)}</span></p>
+                <p>Place of Birth: <span className="inline-block w-48 border-b-2 border-gray-400 text-right">{formatDate(selectedImmunization.birthdate)}</span></p>
+                <p>Address: <span className="inline-block w-48 border-b-2 border-gray-400 text-right">{selectedImmunization.address}</span></p>
               </div>
-              <div>
-                <p>Date of Birth: {selectedImmunization.birthdate}</p>
-                <p>Father's Name: {selectedImmunization.father_name}</p>
-                <p>Health Center: {selectedImmunization.health_center}</p>
+              <div className="col-span-1">
+                <p>Mother's Name: <span className="inline-block w-48 border-b-2 border-gray-400 text-right">{selectedImmunization.mother_name}</span></p>
+                <p>Father's Name: <span className="inline-block w-48 border-b-2 border-gray-400 text-right truncate">{selectedImmunization.father_name}</span></p>
+                <p>Birth Height: <span className="inline-block w-48 border-b-2 border-gray-400 text-right">{selectedImmunization.height_at_birth}</span></p>
+                <p>Birth Weight: <span className="inline-block w-48 border-b-2 border-gray-400 text-right">{selectedImmunization.weight_at_birth}</span></p>
               </div>
-              <div>
-                {/* <p>Place of Birth: {selectedImmunization.}</p> */}
-                <p>Birth Height: {selectedImmunization.height_at_birth}</p>
-                <p>Barangay: {selectedImmunization.address}</p>
-              </div>
-              <div>
-                <p>Address: {selectedImmunization.address}</p>
-                <p>Birth Weight: {selectedImmunization.weight_at_birth}</p>
-                <p>Family Number: {selectedImmunization.household_number}</p>
+              <div className="col-span-1">
+                <p>Sex: <span className="inline-block w-48 border-b-2 border-gray-400 text-right">{selectedImmunization.sex}</span></p>
+                <p>Health Center: <span className="inline-block w-48 border-b-2 border-gray-400 text-right">{selectedImmunization.health_center}</span></p>
+                <p>Barangay: <span className="inline-block w-48 border-b-2 border-gray-400 text-right">{selectedImmunization.barangay}</span></p>
+                <p>Family Number: <span className="inline-block w-48 border-b-2 border-gray-400 text-right">{selectedImmunization.household_number}</span></p>
               </div>
             </div>
             <table className="w-full mt-4 border-collapse border border-gray-300">
@@ -487,12 +475,14 @@ const ImmunizationRecord: React.FC = () => {
                 {/* Add more rows as needed */}
               </tbody>
             </table>
+            <div className='flex justify-center'>
             <button
-              className="mt-4 bg-[#007F73] text-white px-4 py-2 rounded "
+              className="mt-4 bg-[#007F73] text-white px-4 py-2 rounded items-center justify-center flex"
               onClick={() => setIsViewModalOpen(false)}
             >
               OK
             </button>
+            </div>
           </div>
         </PersonModal>
       )}

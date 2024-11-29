@@ -16,7 +16,7 @@ const HealthSidebar = () => {
     } else if (pathname === "/main/health") {
       setClickedImage("health_dashboard");
     } else if (pathname === "/main/health/nutritional_status") {
-      setClickedImage("nutritional_status");
+      setClickedImage("nutrition");
     } else if (pathname === "/main/health/immunization_record") {
       setClickedImage("immunization_record");
     } else if (pathname === "/main/health/settings") {
@@ -53,7 +53,7 @@ const HealthSidebar = () => {
           {[
             { name: "home", route: "/main", activeIcon: "/svg/active_home.svg", defaultIcon: "/svg/home.svg" },
             { name: "health_dashboard", route: "/main/health", activeIcon: "/svg/active_dashboard.svg", defaultIcon: "/svg/health_dashboard.svg" },
-            { name: "nutritional_status", route: "/main/health/nutritional_status", activeIcon: "/svg/active_status.svg", defaultIcon: "/svg/health_nutritionalstatus.svg" },
+            { name: "nutritional_status", route: "/main/health/nutritional_status", activeIcon: "/image/nutrition.png", defaultIcon: "/image/nutrition.png" },
             { name: "immunization_record", route: "/main/health/immunization_record", activeIcon: "/svg/active_immunization.svg", defaultIcon: "/svg/health_immunization.svg" },
             { name: "settings", route: "/main/health/settings", activeIcon: "/svg/active_settings.svg", defaultIcon: "/svg/settings.svg" },
           ].map(({ name, route, activeIcon, defaultIcon }) => (
