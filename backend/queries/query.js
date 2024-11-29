@@ -8,6 +8,8 @@ const userQueries = {
     "UPDATE users SET username = ?, email = ?, password = ?, role = ?, status = ? WHERE user_id = ?",
   delete: "UPDATE users SET status = 'Inactive' WHERE user_id = ?",
   updatePassword: "UPDATE users SET password = ? WHERE id = ?",
+  findUserByEmail: "SELECT * FROM users WHERE email = ?",
+  otpUpdatePassword: "UPDATE users SET password = ? WHERE email = ?",
 };
 
 //resident queries
@@ -21,7 +23,7 @@ const residentQueries = {
     status
   ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
 `,
-updateHouseholdMember: `UPDATE resident
+  updateHouseholdMember: `UPDATE resident
 SET
   household_number = ?,
   family_name = ?,
@@ -47,6 +49,8 @@ SET
   updated_at = CURRENT_TIMESTAMP
 WHERE resident_id = ?;
 `,
+  archiveHouseholdMember:
+    "UPDATE resident SET status = 'Inactive' WHERE resident_id = ?",
   insertHouseholdHead: `INSERT INTO resident (
   household_number, 
   family_name, 
@@ -69,7 +73,6 @@ VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'Yes');
 `,
   update:
     "UPDATE resident SET given_name = ?, family_name = ?, is_household_head = ? WHERE resident_id = ?",
-  delete: "UPDATE resident SET status = 'Inactive' WHERE resident_id = ?",
   findHouseholdHead: `SELECT 
         household_number,
         family_name,

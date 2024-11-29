@@ -9,7 +9,7 @@ import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { SubmitHandler, useForm } from "react-hook-form";
 
-type Household = {
+type Resident = {
     resident_id: number | null;
     household_number: number | null;
     family_name: string;
@@ -89,22 +89,22 @@ const HouseholdMembers = ({ params }: { params: { household_number: string } }) 
         handleSubmit,
         getValues,
         formState: { errors },
-    } = useForm<Household>();
+    } = useForm<Resident>();
 
     const householdNumber = params.household_number;
 
-    const [households, setHouseholds] = useState<Household[]>([]);
-    const [householdHead, setHouseholdHead] = useState<Household[]>([]);
-    const [filteredMembers, setFilteredMembers] = useState<Household[]>([]);
+    const [households, setHouseholds] = useState<Resident[]>([]);
+    const [householdHead, setHouseholdHead] = useState<Resident[]>([]);
+    const [filteredMembers, setFilteredMembers] = useState<Resident[]>([]);
 
-    const [selectedResident, setSelectedResident] = useState<Household | null>(null);
-    const [infoResident, setInfoResident] = useState<Household | null>(null);
+    const [selectedResident, setSelectedResident] = useState<Resident | null>(null);
+    const [infoResident, setInfoResident] = useState<Resident | null>(null);
 
     const [isInfoModal, setIsInfoModal] = useState(false)
     const [addResidentModal, setAddResidentModal] = useState(false)
     const [editResidentModal, setEditResidentModal] = useState(false)
 
-    const [residentData, setResidentData] = useState<Household>({
+    const [residentData, setResidentData] = useState<Resident>({
         resident_id: null,
         household_number: null,
         lot_number: null,
@@ -126,7 +126,7 @@ const HouseholdMembers = ({ params }: { params: { household_number: string } }) 
         monthly_income: null,
         sectoral: "",
         birthplace: "",
-        religion: "", // Added missing property
+        religion: "",
         is_registered_voter: "",
         is_business_owner: "",
         is_household_head: "",
@@ -135,7 +135,7 @@ const HouseholdMembers = ({ params }: { params: { household_number: string } }) 
 
     useEffect(() => {
         if (addResidentModal) {
-            setResidentData({ // Reset residentData when addResidentModal is open
+            setResidentData({
                 resident_id: null,
                 household_number: null,
                 lot_number: null,
@@ -226,17 +226,17 @@ const HouseholdMembers = ({ params }: { params: { household_number: string } }) 
         }
     }, [households, householdNumber]);
 
-    const onEditResident = (resident: Household) => {
+    const onEditResident = (resident: Resident) => {
         setSelectedResident(resident);
         setEditResidentModal(true);
     };
 
-    const onResidentClick = (resident: Household) => {
+    const onResidentClick = (resident: Resident) => {
         setInfoResident(resident);
         setIsInfoModal(true);
     };
 
-    const onSubmit: SubmitHandler<Household> = async (data) => {
+    const onSubmit: SubmitHandler<Resident> = async (data) => {
         try {
             const household = householdHead.find(head => head.household_number === Number(householdNumber));
             if (!household) {
@@ -244,7 +244,7 @@ const HouseholdMembers = ({ params }: { params: { household_number: string } }) 
                 return;
             }
 
-            const formData: Household = {
+            const formData: Resident = {
                 ...data,
                 household_number: Number(householdNumber),
                 age: household.age || null,
@@ -256,27 +256,24 @@ const HouseholdMembers = ({ params }: { params: { household_number: string } }) 
                 occupation: data.occupation || "",
                 monthly_income: data.monthly_income || null,
                 status: "Active",
-                barangay: household?.barangay || "",   // Ensure this is added
-                city: household?.city || "",           // Ensure this is added
-                birthplace: data.birthplace || "",     // Ensure this value exists in formData
-                is_business_owner: data.is_business_owner || "No",  // Ensure this is added
-                is_household_head: data.is_household_head || "No", // Ensure this is added
-                religion: data.religion || "",         // Ensure this is included
-                sectoral: data.sectoral || "",         // Ensure this is included
-                is_registered_voter: data.is_registered_voter || "No",  // Ensure this is included
+                barangay: household?.barangay || "",
+                city: household?.city || "",
+                birthplace: data.birthplace || "",
+                is_business_owner: data.is_business_owner || "No",
+                is_household_head: data.is_household_head || "No",
+                religion: data.religion || "",
+                sectoral: data.sectoral || "",
+                is_registered_voter: data.is_registered_voter || "No",
             };
 
-            // Log the formData to verify the values
             console.log("Submitting Form Data:", formData);
 
-            // Determine the correct API endpoint and method based on the presence of resident_id
             const endpoint = selectedResident?.resident_id
-                ? '/api/update-household-member'  // Use PUT for update
-                : '/api/insert-household-member';  // Use POST for insert
+                ? '/api/update-household-member'
+                : '/api/insert-household-member';
 
-            const method = selectedResident?.resident_id ? 'put' : 'post'; // Choose PUT or POST
+            const method = selectedResident?.resident_id ? 'put' : 'post';
 
-            // Send the data to the backend using the appropriate method
             const response = await api[method](endpoint, formData);
 
             console.log("Submission success:", response.data);
@@ -287,6 +284,22 @@ const HouseholdMembers = ({ params }: { params: { household_number: string } }) 
             console.error("Error submitting data:", error);
         }
     };
+
+    const handleArchiveResident = async () => {
+        try {
+            const response = await api.put('/api/archive-household-member', { resident_id: selectedResident?.resident_id });
+
+            if (response.status === 200) {
+                alert('Resident archived successfully!');
+            } else {
+                alert('Failed to archive resident.');
+            }
+        } catch (error) {
+            console.error('Error archiving resident:', error);
+            alert('An error occurred while archiving the resident.');
+        }
+    };
+
 
 
     const onSearch = () => { };
@@ -317,7 +330,7 @@ const HouseholdMembers = ({ params }: { params: { household_number: string } }) 
                             </tr>
                         </thead>
                         <tbody>
-                            {filteredMembers.map((household: Household) => (
+                            {filteredMembers.map((household: Resident) => (
                                 <tr key={household.resident_id} className="border-b hover:bg-gray-50" onClick={() => onResidentClick(household)}>
                                     <td className="py-2 px-3 text-center">{household.given_name} {household.middle_name} {household.family_name} {household.extension}</td>
                                     <td className="py-2 px-3 text-center">{household.relationship}</td>
@@ -626,7 +639,7 @@ const HouseholdMembers = ({ params }: { params: { household_number: string } }) 
                                         <option value="Others">Others</option>
                                     </select>
                                 </div>
-                                {editResidentModal &&
+                                {addResidentModal &&
                                     <div className="flex flex-col">
                                         <label htmlFor="">Status</label>
                                         <input
@@ -639,17 +652,10 @@ const HouseholdMembers = ({ params }: { params: { household_number: string } }) 
                                         />
                                     </div>}
                             </div>
-                            {addResidentModal &&
-                                <div className="flex justify-center items-center font-semibold pt-16">
-                                    <button className={`bg-[#338A80] text-white rounded-[5px] py-1 w-[50%] ${isInfoModal ? "hidden" : ""}`}>
-                                        Add
-                                    </button>
-                                </div>
-                            }
                             {isInfoModal ? null : (
                                 !addResidentModal && (
                                     <div className="grid grid-cols-2 gap-2 font-semibold pt-16">
-                                        <button className="border-[1px] border-[#969696] rounded-[5px] py-1" type="button">Archive</button>
+                                        <button className="border-[1px] border-[#969696] rounded-[5px] py-1" type="button" onClick={() => handleArchiveResident()}>Archive</button>
                                         <button className={`bg-[#338A80] text-white rounded-[5px] py-1 ${isInfoModal ? "hidden" : ""}`}>
                                             Update
                                         </button>

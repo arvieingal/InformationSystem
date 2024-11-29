@@ -88,6 +88,33 @@ const residentController = {
       });
     }
   },
+
+  archiveHouseholdMember: async (req, res) => {
+    try {
+      // Get the household member data from the request body
+      const householdMemberData = req.body;
+
+      // Call the updateHouseholdMember function from the model
+      const result = await Resident.archiveHouseholdMember(householdMemberData);
+
+      // Check if the update was successful and send response
+      if (result && result.affectedRows > 0) {
+        res
+          .status(200)
+          .json({ message: "Household member updated successfully", result });
+      } else {
+        res
+          .status(404)
+          .json({ message: "Household member not found or no changes made" });
+      }
+    } catch (error) {
+      console.error("Error in updateHouseholdMember controller:", error);
+      res.status(500).json({
+        message: "Internal server error while updating household member",
+        error: error.message,
+      });
+    }
+  },
 };
 
 module.exports = residentController;

@@ -39,6 +39,7 @@ const SweetAlert = {
     });
     return result.isConfirmed;
   },
+
   showConfirm: async (message: string) => {
     const result = await MySwal.fire({
       title: "<span class='text text-[20px] flex justify-center font-bold tracking-widest'>CONFIRM</span>",
@@ -58,6 +59,7 @@ const SweetAlert = {
     });
     return result.isConfirmed;
   },
+
   showSuccess: async (message: string) => {
     const result = await MySwal.fire({
       title: "<span class='text text-[20px] flex justify-center font-bold tracking-widest '>SUCCESS</span>",
@@ -73,6 +75,7 @@ const SweetAlert = {
     });
     return result.isConfirmed;
   },
+
   showTheSuccess: async (message: string) => {
     const result = await MySwal.fire({
       title: "<span class='text text-[20px] flex justify-center font-bold tracking-widest '>SUCCESS</span>",
@@ -88,9 +91,11 @@ const SweetAlert = {
     });
     return result.isConfirmed;
   },
+
   checkInternetConnection: () => {
     return navigator.onLine;
   },
+
   displayAlertIfNoInternet: () => {
     if (!SweetAlert.checkInternetConnection()) {
       MySwal.fire({

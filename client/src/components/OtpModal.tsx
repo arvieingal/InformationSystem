@@ -7,16 +7,16 @@ import api from "@/lib/axios";
 import { useRouter } from "next/navigation";
 
 interface OtpModalProps {
-  isOpen: boolean;
-  onClose: () => void;
+  isEmailModalOpen: boolean;
+  setIsEmailModalOpen: React.Dispatch<React.SetStateAction<boolean>>;
 }
 
 interface FormData {
   email: string;
-  userId?: string;
+  user_id?: string;
 }
 
-export default function OtpModal({ isOpen, onClose }: OtpModalProps) {
+export default function OtpModal({ isEmailModalOpen, setIsEmailModalOpen }: OtpModalProps) {
   const router = useRouter();
   const {
     register,
@@ -24,8 +24,6 @@ export default function OtpModal({ isOpen, onClose }: OtpModalProps) {
     getValues,
     formState: { errors },
   } = useForm<FormData>();
-
-  const modalRef = useRef<HTMLDivElement | null>(null);
 
   const [loading, setLoading] = useState(false);
   const [resendLoading, setResendLoading] = useState(false);
@@ -39,29 +37,8 @@ export default function OtpModal({ isOpen, onClose }: OtpModalProps) {
   const [passwordError, setPasswordError] = useState<string>("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [isResetPasswordSuccess, setIsResetPasswordSuccess] = useState<boolean>(false);
-  const [resendTimer, setResendTimer] = useState<number>(30); // Add this state
+  const [resendTimer, setResendTimer] = useState<number>(30);
   const [canResend, setCanResend] = useState<boolean>(false);
-
-  useEffect(() => {
-    const handleClickOutside = (event: MouseEvent) => {
-      if (
-        modalRef.current &&
-        !modalRef.current.contains(event.target as Node)
-      ) {
-        onClose();
-      }
-    };
-
-    if (isOpen) {
-      document.addEventListener("mousedown", handleClickOutside);
-    } else {
-      document.removeEventListener("mousedown", handleClickOutside);
-    }
-
-    return () => {
-      document.removeEventListener("mousedown", handleClickOutside);
-    };
-  }, [isOpen, onClose]);
 
   useEffect(() => {
     if (isOtpModalOpen) {
@@ -82,9 +59,8 @@ export default function OtpModal({ isOpen, onClose }: OtpModalProps) {
     }
   }, [isOtpModalOpen]);
 
-  if (!isOpen) return null;
-
   const handleEmailSubmit = async (data: FormData) => {
+    setIsEmailModalOpen(true)
     setLoading(true);
     setMessage("");
 
@@ -117,6 +93,7 @@ export default function OtpModal({ isOpen, onClose }: OtpModalProps) {
       if (result.success) {
         setMessage("OTP sent successfully");
         setIsOtpModalOpen(true);
+        setIsEmailModalOpen(false)
       } else {
         setMessage(`Failed to send OTP: ${result.message || "Unknown error"}`);
         console.error("OTP sending failed:", result);
@@ -133,7 +110,7 @@ export default function OtpModal({ isOpen, onClose }: OtpModalProps) {
     if (!canResend) return;
     setCanResend(false);
     setResendTimer(30);
-  
+
     // Start the timer again
     const timer = setInterval(() => {
       setResendTimer((prev) => {
@@ -145,16 +122,16 @@ export default function OtpModal({ isOpen, onClose }: OtpModalProps) {
         return prev - 1;
       });
     }, 1000);
-  
+
     setResendLoading(true);
     setOtpError('');
-  
+
     try {
       const email = getValues('email');
       const response = await api.post("/api/send-otp", {
         email: email,
       });
-  
+
       const result = response.data;
       if (result.success) {
         setMessage("New OTP sent successfully");
@@ -208,6 +185,7 @@ export default function OtpModal({ isOpen, onClose }: OtpModalProps) {
       if (response.data.success) {
         setMessage('OTP verified successfully');
         setIsPasswordResetModalOpen(true);
+        setIsOtpModalOpen(false)
       } else {
         setOtpError(response.data.message || 'Invalid OTP. Please try again.');
         setOtp(['', '', '', '']);
@@ -237,8 +215,8 @@ export default function OtpModal({ isOpen, onClose }: OtpModalProps) {
 
       if (response.data.success) {
         setMessage('Password reset successfully');
-        setIsPasswordResetModalOpen(false);
         setIsResetPasswordSuccess(true);
+        setIsPasswordResetModalOpen(false);
       }
     } catch (error) {
       setMessage('Failed to reset password');
@@ -250,10 +228,10 @@ export default function OtpModal({ isOpen, onClose }: OtpModalProps) {
     <div>
       <div className="h-full">
         <form action="" onSubmit={handleSubmit(handleEmailSubmit)}>
-          {isOpen && (
+          {isEmailModalOpen && (
             <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-60">
-              <div className="bg-white w-[533px] h-[471px] p-4 rounded-[10px] shadow-lg">
-                <div className="flex items-end justify-center">
+              <div className="bg-white w-[533px] p-4 rounded-[10px] shadow-lg">
+                <div className="flex items-end justify-center pt-4">
                   <Image src="/svg/logo.svg" width={92} height={61} alt="" />
                 </div>
                 <div className="flex items-center justify-center flex-col pt-[1rem]">
@@ -288,9 +266,9 @@ export default function OtpModal({ isOpen, onClose }: OtpModalProps) {
                     {loading ? "Sending..." : "Reset Password"}
                   </button>
                 </div>
-                <div className="flex items-center justify-center mt-[2rem]">
+                <div className="flex items-center justify-center pt-[2rem] pb-[3rem]">
                   <Image src="/svg/arrow.svg" width={20} height={20} alt="Back Icon" />
-                  <p className="ml-2 text-[#777777] cursor-pointer" onClick={onClose}>
+                  <p className="ml-2 text-[#777777] cursor-pointer" onClick={() => setIsEmailModalOpen(false)}>
                     Back to log in
                   </p>
                 </div>
@@ -440,24 +418,21 @@ export default function OtpModal({ isOpen, onClose }: OtpModalProps) {
         {isResetPasswordSuccess && (
           <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-60">
             <div
-              className="bg-white w-[533px] h-[471px] p-4 rounded-[10px] shadow-lg"
+              className="bg-white w-[533px] p-4 rounded-[10px] shadow-lg"
             >
               <div className="flex items-end justify-center">
-                <Image src="/svg./logo.svg" width={92} height={61} alt="" />
+                <Image src="/svg/logo.svg" width={92} height={61} alt="" />
               </div>
               <div className="flex items-center justify-center flex-col pt-[2rem] gap-4">
                 <h2 className="text-[30px] font-medium">All Done!</h2>
                 <p>Your password has been successfully reset.</p>
               </div>
-              <p className="flex items-center justify-center pt-[1rem]">
-                Continue as Niknik123?
-              </p>
-              <div className="w-full mt-4 px-[2rem]">
+              <div className="w-full pt-6 px-[2rem] pb-12">
                 <button
                   className="bg-[#24968B] w-full text-white py-2 rounded-[5px]"
-                  onClick={() => router.push('/')}
+                  onClick={(() => { setIsResetPasswordSuccess(false); router.push('/'); })}
                 >
-                  Continue
+                  Back to Login
                 </button>
               </div>
             </div>

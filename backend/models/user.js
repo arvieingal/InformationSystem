@@ -46,13 +46,39 @@ const User = {
   },
   updatePassword: async (userId, hashedPassword) => {
     try {
-      const [result] = await pool.execute(userQueries.updatePassword, [hashedPassword, userId]);
+      const [result] = await pool.execute(userQueries.updatePassword, [
+        hashedPassword,
+        userId,
+      ]);
       return result;
     } catch (error) {
       console.error("Error executing updatePassword query:", error);
       throw error;
     }
-  }
+  },
+  findUserByEmail: async (email) => {
+    try {
+      const [rows] = await pool.execute(userQueries.findUserByEmail, [email]);
+      console.log("Rows retrieved from database:", rows);
+      return rows[0] || null;
+    } catch (error) {
+      console.error("Error executing query:", error);
+      throw error;
+    }
+  },
+  otpUpdatePassword: async (email, password) => {
+    try {
+      const [result] = await pool.execute(userQueries.otpUpdatePassword, [
+        password,
+        email,
+      ]);
+      console.log("Update result:", result);
+      return result.affectedRows > 0; // Return true if a row was updated
+    } catch (error) {
+      console.error("Error executing query:", error);
+      throw error;
+    }
+  },
 };
 
 module.exports = User;
