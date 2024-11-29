@@ -44,6 +44,7 @@ const Resident = {
         data.birthplace,
         data.religion,
         data.sectoral,
+        data.other_sectoral,
         data.is_registered_voter || "No",
         data.is_business_owner || "No",
         data.is_household_head || "No",
@@ -77,6 +78,7 @@ const Resident = {
         data.birthplace,
         data.religion,
         data.sectoral,
+        data.other_sectoral,
         data.is_registered_voter || "No",
         data.is_business_owner || "No",
         data.is_household_head || "No",
@@ -95,9 +97,7 @@ const Resident = {
     try {
       const [rows] = await pool.execute(
         residentQueries.archiveHouseholdMember,
-        [
-          data.resident_id,
-        ]
+        [data.resident_id]
       );
       console.log("Rows updated in the database:", rows);
       return rows || [];

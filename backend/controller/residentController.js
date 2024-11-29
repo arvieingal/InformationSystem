@@ -39,13 +39,10 @@ const residentController = {
 
   insertHouseholdMember: async (req, res) => {
     try {
-      // Get the household member data from the request body
       const householdMemberData = req.body;
 
-      // Call the insertHouseholdMember function from the model
       const result = await Resident.insertHouseholdMember(householdMemberData);
 
-      // Check if insertion was successful and send response
       if (result && result.affectedRows > 0) {
         res
           .status(200)
@@ -64,13 +61,10 @@ const residentController = {
 
   updateHouseholdMember: async (req, res) => {
     try {
-      // Get the household member data from the request body
       const householdMemberData = req.body;
 
-      // Call the updateHouseholdMember function from the model
       const result = await Resident.updateHouseholdMember(householdMemberData);
 
-      // Check if the update was successful and send response
       if (result && result.affectedRows > 0) {
         res
           .status(200)
@@ -91,13 +85,10 @@ const residentController = {
 
   archiveHouseholdMember: async (req, res) => {
     try {
-      // Get the household member data from the request body
       const householdMemberData = req.body;
 
-      // Call the updateHouseholdMember function from the model
       const result = await Resident.archiveHouseholdMember(householdMemberData);
 
-      // Check if the update was successful and send response
       if (result && result.affectedRows > 0) {
         res
           .status(200)

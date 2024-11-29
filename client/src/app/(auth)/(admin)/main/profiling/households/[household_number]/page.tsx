@@ -73,6 +73,7 @@ type Resident = {
     | "Erpat"
     | "Others"
     | "";
+    other_sectoral?: string;
     is_registered_voter: "Yes" | "No" | "";
     is_business_owner: "Yes" | "No" | "";
     is_household_head: "Yes" | "No" | "";
@@ -125,6 +126,7 @@ const HouseholdMembers = ({ params }: { params: { household_number: string } }) 
         occupation: "",
         monthly_income: null,
         sectoral: "",
+        other_sectoral: "",
         birthplace: "",
         religion: "",
         is_registered_voter: "",
@@ -156,6 +158,7 @@ const HouseholdMembers = ({ params }: { params: { household_number: string } }) 
                 occupation: "",
                 monthly_income: null,
                 sectoral: "",
+                other_sectoral: "",
                 birthplace: "",
                 religion: "",
                 is_registered_voter: "",
@@ -386,7 +389,7 @@ const HouseholdMembers = ({ params }: { params: { household_number: string } }) 
                                         type="text"
                                         className="border-[#969696] border-[1px] rounded-[5px]"
                                         {...register("family_name", {
-                                            validate: (value) => !isInfoModal && !value ? "This field is required" : true // Custom validation
+                                            validate: (value) => !isInfoModal && (!value && !residentData.family_name) ? "This field is required" : true // Validate only if there's no existing data
                                         })}
                                         value={residentData.family_name}
                                         onChange={handleChange}
@@ -634,29 +637,40 @@ const HouseholdMembers = ({ params }: { params: { household_number: string } }) 
                                         <option value="PWD">PWD</option>
                                         <option value="Senior Citizen">Senior Citizen</option>
                                         <option value="Solo Parent">Solo Parent</option>
-                                        <option value="Habal - habal">Habal - habal</option>
+                                        <option value="Habal - Habal">Habal - Habal</option>
                                         <option value="Erpat">Erpat</option>
                                         <option value="Others">Others</option>
                                     </select>
                                 </div>
-                                {addResidentModal &&
+                                {residentData.sectoral === "Others" && (
                                     <div className="flex flex-col">
-                                        <label htmlFor="">Status</label>
+                                        <label htmlFor="">Specify Other Sectoral{!isInfoModal && <span className="text-red-500">*</span>}</label>
                                         <input
                                             type="text"
                                             className="border-[#969696] border-[1px] rounded-[5px]"
-                                            {...register("status", { required: false })}
-                                            value={residentData.status}
+                                            {...register("other_sectoral", {
+                                                validate: (value) => !isInfoModal && (!value && !residentData.other_sectoral) ? "This field is required" : true // Validate only if there's no existing data
+                                            })}
+                                            value={residentData.other_sectoral}
                                             onChange={handleChange}
                                             disabled={isInfoModal}
+                                            required={residentData.sectoral === "Others"}
                                         />
-                                    </div>}
+                                    </div>
+                                )}
                             </div>
+                            {addResidentModal &&
+                                <div className="flex justify-center items-center font-semibold pt-16">
+                                    <button type="submit" className={`bg-[#338A80] text-white rounded-[5px] py-1 w-[50%] ${isInfoModal ? "hidden" : ""}`}>
+                                        Add
+                                    </button>
+                                </div>
+                            }
                             {isInfoModal ? null : (
                                 !addResidentModal && (
                                     <div className="grid grid-cols-2 gap-2 font-semibold pt-16">
                                         <button className="border-[1px] border-[#969696] rounded-[5px] py-1" type="button" onClick={() => handleArchiveResident()}>Archive</button>
-                                        <button className={`bg-[#338A80] text-white rounded-[5px] py-1 ${isInfoModal ? "hidden" : ""}`}>
+                                        <button type="submit" className={`bg-[#338A80] text-white rounded-[5px] py-1 ${isInfoModal ? "hidden" : ""}`}>
                                             Update
                                         </button>
                                     </div>
