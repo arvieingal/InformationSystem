@@ -278,7 +278,7 @@ const ChildTable: React.FC<TableProps> = ({ children, onSort, sortConfig, onEdit
 
   return (
     <div className="w-full h-full px-[1.5rem]">
-      <div className="w-full h-[10%] flex items-center justify-between">
+      <div className="w-full h-[10%] flex items-center justify-between  ">
         <input
           type="text"
           placeholder="Search .............."
@@ -286,7 +286,7 @@ const ChildTable: React.FC<TableProps> = ({ children, onSort, sortConfig, onEdit
           onChange={(e) => setSearchQuery(e.target.value)}
           className="border border-gray-300 rounded-md p-2 w-full outline-none"
         />
-        <div className="flex items-center space-x-4 ml-4">
+        <div className="flex items-center space-x-4 ml-4 ">
           <Image
             src="/svg/filter.svg"
             alt="Nutritional Status"
@@ -365,8 +365,8 @@ const ChildTable: React.FC<TableProps> = ({ children, onSort, sortConfig, onEdit
         </div>
       )}
       <div className='h-[90%]'>
-        <div className='bg-white h-[90%] rounded-[5px] overflow-y-auto'>
-          <table className="w-full border-collapse text-[14px]">
+        <div className='bg-white h-[90%] rounded-[5px] overflow-y-auto mt-[1rem]'>
+          <table className="w-full border-collapse text-[14px] ">
             <thead className='text-center'>
               <tr className='sticky top-0 bg-white shadow-gray-300 shadow-sm'>
                 {['id', 'name', 'age', 'sex', 'birthdate', 'weightKg', 'heightCm', 'nutritionalStatus', 'measurement date'].map((key) => (
