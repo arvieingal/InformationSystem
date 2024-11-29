@@ -13,6 +13,7 @@ import { FaCalendarAlt } from "react-icons/fa";
 import { Child as ChildTableChild } from "@/components/ChildTable";
 import { formatDate } from "@/components/formatDate";
 import api from "@/lib/axios";
+import { useSession } from "next-auth/react";
 
 export interface Resident {
   resident_id: number;
@@ -102,6 +103,7 @@ const calculateNutritionalStatus = (
 };
 const NutritionalStatus: React.FC = () => {
   const router = useRouter();
+  const { data: session } = useSession();
   const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
   const [selectedChild, setSelectedChild] = useState<ChildFormData>({
     resident_id: 0,
@@ -280,17 +282,28 @@ const NutritionalStatus: React.FC = () => {
     });
     setIsModalOpen(true);
   };
+
   async function handleEditClick(child: ChildTableChild): Promise<void> {
     if (!child) {
       console.error("Child object is undefined");
       return;
     }
 
+    if (!session) {
+      console.error("User is not logged in");
+      await SweetAlert.showError("You must be logged in to edit a child.");
+      return;
+    }
+
+    const username = session.user?.name || session.user?.email || "Unknown User"; // Get username or fallback
+
     const confirmEdit = await SweetAlert.showConfirm(
       `<p> Are you sure you want to edit this child with ID: <span class="font-bold">${child.child_id}</span>?</p>`
     );
 
     if (confirmEdit) {
+      console.log(`Editing child with ID: ${child.child_id} by user: ${username}`);
+
       setSelectedChild({
         resident_id: child.resident_id,
         full_name: child.full_name || "",
@@ -314,10 +327,14 @@ const NutritionalStatus: React.FC = () => {
         nutritional_status: child.nutritional_status || "",
         heightAgeZ: child.heightAtAgeZ ? child.heightAtAgeZ.toString() : "",
         weightAgeZ: child.weightAtAgeZ ? child.weightAtAgeZ.toString() : "",
-        weight_for_length:child.weight_for_length ? child.weight_for_length.toString() : "",
+        weight_for_length: child.weight_for_length
+          ? child.weight_for_length.toString()
+          : "",
         measurement_date: child.measurement_date || "",
         status: child.status || "",
+        // updated_by: username, // Include the username
       });
+
       setIsEditModalOpen(true);
     }
   }
@@ -509,7 +526,10 @@ const NutritionalStatus: React.FC = () => {
         weight_for_length: selectedChild.weight_for_length ?? null,
         nutritional_status: selectedChild.nutritional_status ?? null,
         measurement_date: selectedChild.measurement_date ?? null,
+        updated_by: session?.user.username || "Unknown User", // Add username here
       };
+
+      console.log('username', session?.user.username)
 
       const response = await fetch(
         `http://localhost:3001/api/children/${selectedChild.child_id}`,

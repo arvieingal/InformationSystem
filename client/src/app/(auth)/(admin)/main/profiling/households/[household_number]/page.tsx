@@ -10,59 +10,75 @@ import { useRouter } from "next/navigation";
 import { SubmitHandler, useForm } from "react-hook-form";
 
 type Household = {
-    resident_id: number;
-    given_name: string;
+    resident_id: number | null;
+    household_number: number | null;
     family_name: string;
-    relationship: string;
-    sitio_purok: string;
-    gender: string;
-    household_number: any;
-    middle_name: string;
-    extension: string;
-    civil_status: string;
+    given_name: string;
+    middle_name?: string;
+    extension?: string;
+    relationship:
+    | "Husband"
+    | "Wife"
+    | "Son"
+    | "Daughter"
+    | "Grandmother"
+    | "Grandfather"
+    | "Son in law"
+    | "Daughter in law"
+    | "Others"
+    | "";
+    gender: "Male" | "Female" | "";
+    civil_status: "Married" | "Separated" | "Single" | "Widowed" | "";
     birthdate: string;
-    age: number;
-    highest_educational_attainment: string;
-    occupation: string;
-    monthly_income: any;
-    block_number: any;
-    lot_number: any;
+    age: number | null;
+    highest_educational_attainment?:
+    | "Elementary Level"
+    | "Elementary Graduate"
+    | "High School Level"
+    | "High School Graduate"
+    | "College Level"
+    | "College Graduate"
+    | "";
+    occupation?: string;
+    monthly_income: number | null;
+    block_number: number | null;
+    lot_number: number | null;
+    sitio_purok:
+    | "Abellana"
+    | "City Central"
+    | "Kalinao"
+    | "Lubi"
+    | "Mabuhay"
+    | "Nangka"
+    | "Regla"
+    | "San Antonio"
+    | "San Roque"
+    | "San Vicente"
+    | "Sta. Cruz"
+    | "Sto. Nino 1"
+    | "Sto. Nino 2"
+    | "Sto. Nino 3"
+    | "Zapatera"
+    | "";
     barangay: string;
     city: string;
     birthplace: string;
     religion: string;
-    sectoral: string;
-    is_registered_voter: "Yes" | "No";
-    is_business_owner: "Yes" | "No";
-    is_household_head: "Yes" | "No";
-    status: string;
-};
-
-type FormData = {
-    household_number: string;
-    lot_number: string;
-    block_number: string;
-    sitio_purok: string;
-    barangay: string;
-    city: string;
-    family_name: string;
-    middle_name: string;
-    given_name: string;
-    extension: string;
-    gender: string;
-    relationship: string;
-    civil_status: string;
-    birthdate: string;
-    is_registered_voter: string;
-    religion: string;
-    sectoral: string;
-    birthplace: string;
-    is_business_owner: string;
-    is_household_head: string;
-    highest_educational_attainment: string; // Added
-    occupation: string;
-    monthly_income: any;
-    status: string; // Added
+    sectoral:
+    | "LGBT"
+    | "PWD"
+    | "Senior Citizen"
+    | "Solo Parent"
+    | "Habal - Habal"
+    | "Erpat"
+    | "Others"
+    | "";
+    is_registered_voter: "Yes" | "No" | "";
+    is_business_owner: "Yes" | "No" | "";
+    is_household_head: "Yes" | "No" | "";
+    status: "Active" | "Inactive" | "";
+    created_at?: string;
+    updated_at?: string;
 };
 
 
@@ -73,7 +89,7 @@ const HouseholdMembers = ({ params }: { params: { household_number: string } }) 
         handleSubmit,
         getValues,
         formState: { errors },
-    } = useForm<FormData>();
+    } = useForm<Household>();
 
     const householdNumber = params.household_number;
 
@@ -88,10 +104,11 @@ const HouseholdMembers = ({ params }: { params: { household_number: string } }) 
     const [addResidentModal, setAddResidentModal] = useState(false)
     const [editResidentModal, setEditResidentModal] = useState(false)
 
-    const [residentData, setResidentData] = useState({
-        household_number: "",
-        lot_number: "",
-        block_number: "",
+    const [residentData, setResidentData] = useState<Household>({
+        resident_id: null,
+        household_number: null,
+        lot_number: null,
+        block_number: null,
         sitio_purok: "",
         barangay: "",
         city: "",
@@ -103,79 +120,77 @@ const HouseholdMembers = ({ params }: { params: { household_number: string } }) 
         relationship: "",
         civil_status: "",
         birthdate: "",
-        is_registered_voter: "",
-        religion: "",
+        age: null,
         highest_educational_attainment: "",
         occupation: "",
-        monthly_income: "",
+        monthly_income: null,
         sectoral: "",
         birthplace: "",
+        religion: "", // Added missing property
+        is_registered_voter: "",
         is_business_owner: "",
         is_household_head: "",
-        status: "",
+        status: "Active",
     });
 
     useEffect(() => {
-        if (editResidentModal || isInfoModal) {
-            setResidentData({
-                highest_educational_attainment: selectedResident?.highest_educational_attainment || "",
-                occupation: selectedResident?.occupation || "",
-                monthly_income: selectedResident?.monthly_income || "",
-                household_number: selectedResident?.household_number || "",
-                lot_number: selectedResident?.lot_number || "",
-                block_number: selectedResident?.block_number || "",
-                sitio_purok: selectedResident?.sitio_purok || "",
-                barangay: selectedResident?.barangay || "",
-                city: selectedResident?.city || "",
-                family_name: selectedResident?.family_name || "",
-                middle_name: selectedResident?.middle_name || "",
-                given_name: selectedResident?.given_name || "",
-                extension: selectedResident?.extension || "",
-                gender: selectedResident?.gender || "",
-                relationship: selectedResident?.relationship || "",
-                civil_status: selectedResident?.civil_status || "",
-                birthdate: selectedResident?.birthdate || "",
-                is_registered_voter: selectedResident?.is_registered_voter || "",
-                religion: selectedResident?.religion || "",
-                sectoral: selectedResident?.sectoral || "",
-                birthplace: selectedResident?.birthplace || "",
-                is_business_owner: selectedResident?.is_business_owner || "No",
-                is_household_head: selectedResident?.is_household_head || "No",
-                status: selectedResident?.status || "Active",
+        if (addResidentModal) {
+            setResidentData({ // Reset residentData when addResidentModal is open
+                resident_id: null,
+                household_number: null,
+                lot_number: null,
+                block_number: null,
+                sitio_purok: "",
+                barangay: "",
+                city: "",
+                family_name: householdHead.find(head => head.household_number === Number(householdNumber))?.family_name || "",
+                middle_name: "",
+                given_name: "",
+                extension: "",
+                gender: "",
+                relationship: "",
+                civil_status: "",
+                birthdate: "",
+                age: null,
+                highest_educational_attainment: "",
+                occupation: "",
+                monthly_income: null,
+                sectoral: "",
+                birthplace: "",
+                religion: "",
+                is_registered_voter: "",
+                is_business_owner: "",
+                is_household_head: "",
+                status: "Active",
             });
-        } else if (addResidentModal) {
-            setResidentData({
-                household_number: selectedResident?.household_number || "",
-                lot_number: selectedResident?.lot_number || "",
-                block_number: selectedResident?.block_number || "",
-                sitio_purok: selectedResident?.sitio_purok || "",
-                barangay: selectedResident?.barangay || "",
-                city: selectedResident?.city || "",
-                family_name: selectedResident?.family_name || "",
-                middle_name: selectedResident?.middle_name || "",
-                given_name: selectedResident?.given_name || "",
-                extension: selectedResident?.extension || "",
-                gender: selectedResident?.gender || "",
-                relationship: selectedResident?.relationship || "",
-                civil_status: selectedResident?.civil_status || "",
-                birthdate: selectedResident?.birthdate || "",
-                is_registered_voter: selectedResident?.is_registered_voter || "",
-                religion: selectedResident?.religion || "",
-                highest_educational_attainment: selectedResident?.highest_educational_attainment || "",
-                occupation: selectedResident?.occupation || "",
-                monthly_income: selectedResident?.monthly_income || "",
-                sectoral: selectedResident?.sectoral || "",
-                birthplace: selectedResident?.birthplace || "", // Added
-                is_business_owner: selectedResident?.is_business_owner || "No", // Added
-                is_household_head: selectedResident?.is_household_head || "No", // Added
-                status: selectedResident?.status || "Active",
-            });
+        } else {
+            const modalResident = editResidentModal
+                ? selectedResident
+                : isInfoModal
+                    ? infoResident
+                    : null;
+
+            if (modalResident) {
+                setResidentData({
+                    ...residentData,
+                    ...modalResident,
+                    monthly_income: modalResident.monthly_income || null,
+                    age: modalResident.age ?? null,
+                    status: modalResident.status === "Active" || modalResident.status === "Inactive"
+                        ? modalResident.status
+                        : "Active",
+                });
+            }
         }
-    }, [addResidentModal, editResidentModal, isInfoModal, selectedResident]);
+    }, [editResidentModal, isInfoModal, addResidentModal, selectedResident, infoResident]);
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
         const { name, value } = e.target;
-        setResidentData((prev) => ({ ...prev, [name]: value }));
+
+        setResidentData((prev) => ({
+            ...prev,
+            [name]: name === "monthly_income" ? parseFloat(value) || "" : value,
+        }));
     };
 
     useEffect(() => {
@@ -221,7 +236,7 @@ const HouseholdMembers = ({ params }: { params: { household_number: string } }) 
         setIsInfoModal(true);
     };
 
-    const onSubmit: SubmitHandler<FormData> = async (data) => {
+    const onSubmit: SubmitHandler<Household> = async (data) => {
         try {
             const household = householdHead.find(head => head.household_number === Number(householdNumber));
             if (!household) {
@@ -229,22 +244,23 @@ const HouseholdMembers = ({ params }: { params: { household_number: string } }) 
                 return;
             }
 
-            const formData: FormData = {
+            const formData: Household = {
                 ...data,
-                household_number: householdNumber,
-                lot_number: household?.lot_number || "",
-                block_number: household?.block_number || "",
+                household_number: Number(householdNumber),
+                age: household.age || null,
+                resident_id: selectedResident?.resident_id || null,
+                lot_number: Number(household?.lot_number),
+                block_number: household?.block_number,
                 sitio_purok: household?.sitio_purok || "",
                 highest_educational_attainment: data.highest_educational_attainment || "",
                 occupation: data.occupation || "",
                 monthly_income: data.monthly_income || null,
                 status: "Active",
-                // Ensure all required fields are included
-                barangay: household?.barangay || "",   // Make sure this is added
-                city: household?.city || "",           // Make sure this is added
+                barangay: household?.barangay || "",   // Ensure this is added
+                city: household?.city || "",           // Ensure this is added
                 birthplace: data.birthplace || "",     // Ensure this value exists in formData
-                is_business_owner: data.is_business_owner || "No",  // Make sure this is added
-                is_household_head: data.is_household_head || "No", // Make sure this is added
+                is_business_owner: data.is_business_owner || "No",  // Ensure this is added
+                is_household_head: data.is_household_head || "No", // Ensure this is added
                 religion: data.religion || "",         // Ensure this is included
                 sectoral: data.sectoral || "",         // Ensure this is included
                 is_registered_voter: data.is_registered_voter || "No",  // Ensure this is included
@@ -253,8 +269,15 @@ const HouseholdMembers = ({ params }: { params: { household_number: string } }) 
             // Log the formData to verify the values
             console.log("Submitting Form Data:", formData);
 
-            // Send the data to the backend
-            const response = await api.post('/api/insert-household-member', formData);
+            // Determine the correct API endpoint and method based on the presence of resident_id
+            const endpoint = selectedResident?.resident_id
+                ? '/api/update-household-member'  // Use PUT for update
+                : '/api/insert-household-member';  // Use POST for insert
+
+            const method = selectedResident?.resident_id ? 'put' : 'post'; // Choose PUT or POST
+
+            // Send the data to the backend using the appropriate method
+            const response = await api[method](endpoint, formData);
 
             console.log("Submission success:", response.data);
             setAddResidentModal(false);
@@ -295,15 +318,15 @@ const HouseholdMembers = ({ params }: { params: { household_number: string } }) 
                         </thead>
                         <tbody>
                             {filteredMembers.map((household: Household) => (
-                                <tr key={household.resident_id} className="border-b hover:bg-gray-50">
-                                    <td className="py-2 px-3 text-center" onClick={() => onResidentClick(household)}>{household.given_name} {household.middle_name} {household.family_name}</td>
+                                <tr key={household.resident_id} className="border-b hover:bg-gray-50" onClick={() => onResidentClick(household)}>
+                                    <td className="py-2 px-3 text-center">{household.given_name} {household.middle_name} {household.family_name} {household.extension}</td>
                                     <td className="py-2 px-3 text-center">{household.relationship}</td>
                                     <td className="py-2 px-3 text-center">{household.sitio_purok}</td>
                                     <td className="py-2 px-3 text-center">{household.gender}</td>
                                     <td className="py-2 px-3 text-center">{household.birthdate}</td>
                                     <td className="py-2 px-3 text-center">{household.age}</td>
                                     <td className="text-center py-2 flex items-center">
-                                        <button onClick={() => onEditResident(household)}>
+                                        <button onClick={(e) => { e.stopPropagation(); onEditResident(household) }}>
                                             <Image
                                                 src={"/svg/edit_pencil.svg"}
                                                 alt="Edit"
@@ -345,15 +368,16 @@ const HouseholdMembers = ({ params }: { params: { household_number: string } }) 
                         <form action="" onSubmit={handleSubmit(onSubmit)}>
                             <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
                                 <div className="flex flex-col">
-                                    <label htmlFor="">Family Name<span className="text-red-500">*</span></label>
+                                    <label htmlFor="">Family Name{!isInfoModal && <span className="text-red-500">*</span>}</label>
                                     <input
                                         type="text"
                                         className="border-[#969696] border-[1px] rounded-[5px]"
-                                        {...register("family_name", { required: true })}
+                                        {...register("family_name", {
+                                            validate: (value) => !isInfoModal && !value ? "This field is required" : true // Custom validation
+                                        })}
                                         value={residentData.family_name}
                                         onChange={handleChange}
                                         disabled={isInfoModal}
-                                        required
                                     />
                                 </div>
                                 <div className="flex flex-col">
@@ -368,15 +392,16 @@ const HouseholdMembers = ({ params }: { params: { household_number: string } }) 
                                     />
                                 </div>
                                 <div className="flex flex-col">
-                                    <label htmlFor="">First Name<span className="text-red-500">*</span></label>
+                                    <label htmlFor="">First Name{!isInfoModal && <span className="text-red-500">*</span>}</label>
                                     <input
                                         type="text"
                                         className="border-[#969696] border-[1px] rounded-[5px]"
-                                        {...register("given_name", { required: true })}
+                                        {...register("given_name", {
+                                            validate: (value) => !isInfoModal && (!value && !residentData.given_name) ? "This field is required" : true // Validate only if there's no existing data
+                                        })}
                                         value={residentData.given_name}
                                         onChange={handleChange}
                                         disabled={isInfoModal}
-                                        required
                                     />
                                 </div>
                                 <div className="flex flex-col">
@@ -391,40 +416,50 @@ const HouseholdMembers = ({ params }: { params: { household_number: string } }) 
                                     />
                                 </div>
                                 <div className="flex flex-col">
-                                    <label htmlFor="">Gender<span className="text-red-500">*</span></label>
+                                    <label htmlFor="">Gender{!isInfoModal && <span className="text-red-500">*</span>}</label>
                                     <div>
-                                        <input
-                                            type="radio"
-                                            {...register("gender", { required: true })}
-                                            value="Female"
-                                            className="border-[#969696]"
-                                            checked={residentData.gender === "Female"}
-                                            onChange={handleChange}
-                                            disabled={isInfoModal}
-                                            required
-                                        />
-                                        Female
-                                        <input
-                                            type="radio"
-                                            {...register("gender", { required: true })}
-                                            value="Male"
-                                            className="border-[#969696]"
-                                            checked={residentData.gender === "Male"}
-                                            onChange={handleChange}
-                                            disabled={isInfoModal}
-                                        />
-                                        Male
+                                        {isInfoModal ? ( // Conditional rendering based on isInfoModal
+                                            <span>{residentData.gender || "N/A"}</span> // Display gender or "N/A" if not set
+                                        ) : (
+                                            <>
+                                                <input
+                                                    type="radio"
+                                                    {...register("gender", {
+                                                        validate: (value) => !isInfoModal && (!value && !residentData.family_name) ? "This field is required" : true
+                                                    })}
+                                                    value="Female"
+                                                    className="border-[#969696]"
+                                                    checked={residentData.gender === "Female"}
+                                                    onChange={handleChange}
+                                                    disabled={isInfoModal}
+                                                />
+                                                Female
+                                                <input
+                                                    type="radio"
+                                                    {...register("gender", {
+                                                        validate: (value) => !isInfoModal && (!value && !residentData.family_name) ? "This field is required" : true
+                                                    })}
+                                                    value="Male"
+                                                    className="border-[#969696]"
+                                                    checked={residentData.gender === "Male"}
+                                                    onChange={handleChange}
+                                                    disabled={isInfoModal}
+                                                />
+                                                Male
+                                            </>
+                                        )}
                                     </div>
                                 </div>
                                 <div className="flex flex-col">
-                                    <label htmlFor="">Relationship<span className="text-red-500">*</span></label>
+                                    <label htmlFor="">Relationship{!isInfoModal && <span className="text-red-500">*</span>}</label>
                                     <select
                                         className="border-[#969696] border-[1px] rounded-[5px]"
-                                        {...register("relationship", { required: true })}
+                                        {...register("relationship", {
+                                            validate: (value) => !isInfoModal && (!value && !residentData.family_name) ? "This field is required" : true // Ensure validation only when the field is empty
+                                        })}
                                         value={residentData.relationship}
                                         onChange={handleChange}
                                         disabled={isInfoModal}
-                                        required
                                     >
                                         <option value=""></option>
                                         <option value="Husband">Husband</option>
@@ -439,14 +474,15 @@ const HouseholdMembers = ({ params }: { params: { household_number: string } }) 
                                     </select>
                                 </div>
                                 <div className="flex flex-col">
-                                    <label htmlFor="">Civil Status<span className="text-red-500">*</span></label>
+                                    <label htmlFor="">Civil Status{!isInfoModal && <span className="text-red-500">*</span>}</label>
                                     <select
                                         className="border-[#969696] border-[1px] rounded-[5px]"
-                                        {...register("civil_status", { required: true })}
+                                        {...register("civil_status", {
+                                            validate: (value) => !isInfoModal && (!value && !residentData.family_name) ? "This field is required" : true // Ensure validation only when the field is empty
+                                        })}
                                         value={residentData.civil_status}
                                         onChange={handleChange}
                                         disabled={isInfoModal}
-                                        required
                                     >
                                         <option value=""></option>
                                         <option value="Married">Married</option>
@@ -456,61 +492,74 @@ const HouseholdMembers = ({ params }: { params: { household_number: string } }) 
                                     </select>
                                 </div>
                                 <div className="flex flex-col">
-                                    <label htmlFor="">Birthdate<span className="text-red-500">*</span></label>
+                                    <label htmlFor="">Birthdate{!isInfoModal && <span className="text-red-500">*</span>}</label>
                                     <input
                                         type="date"
                                         className="border-[#969696] border-[1px] rounded-[5px]"
-                                        {...register("birthdate", { required: true })}
+                                        {...register("birthdate", {
+                                            validate: (value) => !isInfoModal && (!value && !residentData.family_name) ? "This field is required" : true // Ensure validation only when the field is empty
+                                        })}
                                         value={residentData.birthdate}
                                         onChange={handleChange}
                                         disabled={isInfoModal}
-                                        required
                                     />
                                 </div>
                                 <div className="flex flex-col">
-                                    <label htmlFor="">Birthplace<span className="text-red-500">*</span></label>
+                                    <label htmlFor="">Birthplace{!isInfoModal && <span className="text-red-500">*</span>}</label>
                                     <input
                                         type="text"
                                         className="border-[#969696] border-[1px] rounded-[5px]"
-                                        {...register("birthplace", { required: true })}
+                                        {...register("birthplace", {
+                                            validate: (value) => !isInfoModal && (!value && !residentData.family_name) ? "This field is required" : true // Ensure validation only when the field is empty
+                                        })}
                                         value={residentData.birthplace}
                                         onChange={handleChange}
                                         disabled={isInfoModal}
                                     />
                                 </div>
                                 <div className="flex flex-col">
-                                    <label htmlFor="">Registered Voter?<span className="text-red-500">*</span></label>
+                                    <label htmlFor="">Registered Voter?{!isInfoModal && <span className="text-red-500">*</span>}</label>
                                     <div>
-                                        <input
-                                            type="radio"
-                                            {...register("is_registered_voter", { required: true })}
-                                            value="Yes"
-                                            className="border-[#969696]"
-                                            checked={residentData.is_registered_voter === "Yes"}
-                                            onChange={handleChange}
-                                            disabled={isInfoModal}
-                                            required
-                                        />
-                                        Yes
-                                        <input
-                                            type="radio"
-                                            {...register("is_registered_voter", { required: true })}
-                                            value="No"
-                                            className="border-[#969696]"
-                                            checked={residentData.is_registered_voter === "No"}
-                                            onChange={handleChange}
-                                            disabled={isInfoModal}
-                                            required
-                                        />
-                                        No
+                                        {isInfoModal ? ( // Conditional rendering based on isInfoModal
+                                            <span>{residentData.is_registered_voter || "N/A"}</span> // Display registered voter status or "N/A" if not set
+                                        ) : (
+                                            <>
+                                                <input
+                                                    type="radio"
+                                                    {...register("is_registered_voter", {
+                                                        validate: (value) => !isInfoModal && (!value && !residentData.family_name) ? "This field is required" : true
+                                                    })}
+                                                    value="Yes"
+                                                    className="border-[#969696]"
+                                                    checked={residentData.is_registered_voter === "Yes"}
+                                                    onChange={handleChange}
+                                                    disabled={isInfoModal}
+                                                />
+                                                Yes
+                                                <input
+                                                    type="radio"
+                                                    {...register("is_registered_voter", {
+                                                        validate: (value) => !isInfoModal && (!value && !residentData.family_name) ? "This field is required" : true
+                                                    })}
+                                                    value="No"
+                                                    className="border-[#969696]"
+                                                    checked={residentData.is_registered_voter === "No"}
+                                                    onChange={handleChange}
+                                                    disabled={isInfoModal}
+                                                />
+                                                No
+                                            </>
+                                        )}
                                     </div>
                                 </div>
                                 <div className="flex flex-col">
-                                    <label htmlFor="">Religion<span className="text-red-500">*</span></label>
+                                    <label htmlFor="">Religion{!isInfoModal && <span className="text-red-500">*</span>}</label>
                                     <input
                                         type="text"
                                         className="border-[#969696] border-[1px] rounded-[5px]"
-                                        {...register("religion", { required: true })}
+                                        {...register("religion", {
+                                            validate: (value) => !isInfoModal && (!value && !residentData.family_name) ? "This field is required" : true // Ensure validation only when the field is empty
+                                        })}
                                         value={residentData.religion}
                                         onChange={handleChange}
                                         disabled={isInfoModal}
@@ -551,16 +600,18 @@ const HouseholdMembers = ({ params }: { params: { household_number: string } }) 
                                         type="number"
                                         className="border-[#969696] border-[1px] rounded-[5px]"
                                         {...register("monthly_income", { required: false })}
-                                        value={residentData.monthly_income}
+                                        value={residentData.monthly_income !== null ? residentData.monthly_income : ""}
                                         onChange={handleChange}
                                         disabled={isInfoModal}
                                     />
                                 </div>
                                 <div className="flex flex-col">
-                                    <label htmlFor="">Sectoral<span className="text-red-500">*</span></label>
+                                    <label htmlFor="">Sectoral{!isInfoModal && <span className="text-red-500">*</span>}</label>
                                     <select
                                         className="border-[#969696] border-[1px] rounded-[5px]"
-                                        {...register("sectoral", { required: true })}
+                                        {...register("sectoral", {
+                                            validate: (value) => !isInfoModal && (!value && !residentData.family_name) ? "This field is required" : true // Ensure validation only when the field is empty
+                                        })}
                                         value={residentData.sectoral}
                                         onChange={handleChange}
                                         disabled={isInfoModal}
@@ -581,7 +632,7 @@ const HouseholdMembers = ({ params }: { params: { household_number: string } }) 
                                         <input
                                             type="text"
                                             className="border-[#969696] border-[1px] rounded-[5px]"
-                                            {...register("status", { required: true })}
+                                            {...register("status", { required: false })}
                                             value={residentData.status}
                                             onChange={handleChange}
                                             disabled={isInfoModal}
@@ -598,12 +649,10 @@ const HouseholdMembers = ({ params }: { params: { household_number: string } }) 
                             {isInfoModal ? null : (
                                 !addResidentModal && (
                                     <div className="grid grid-cols-2 gap-2 font-semibold pt-16">
-                                        <>
-                                            <button className="border-[1px] border-[#969696] rounded-[5px] py-1" type="button">Archive</button>
-                                            <button className={`bg-[#338A80] text-white rounded-[5px] py-1 ${isInfoModal ? "hidden" : ""}`}>
-                                                Update
-                                            </button>
-                                        </>
+                                        <button className="border-[1px] border-[#969696] rounded-[5px] py-1" type="button">Archive</button>
+                                        <button className={`bg-[#338A80] text-white rounded-[5px] py-1 ${isInfoModal ? "hidden" : ""}`}>
+                                            Update
+                                        </button>
                                     </div>
                                 )
                             )}

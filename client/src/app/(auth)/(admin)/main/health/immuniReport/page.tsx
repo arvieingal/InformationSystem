@@ -165,4 +165,3 @@ export default ImmuniReport;
 function fetchImmunizationData() {
     throw new Error('Function not implemented.');
 }
-

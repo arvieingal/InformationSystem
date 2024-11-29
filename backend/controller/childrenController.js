@@ -3,17 +3,18 @@ const { logUserAction } = require("../controller/logController");
 
 // Function to categorize children
 const categorizeChildren = (children) => {
-  return children.map(child => {
-    const ageInMonths = Math.floor(child.age) * 12 + (child.age - Math.floor(child.age)) * 10;
-    let ageGroup = 'Other';
+  return children.map((child) => {
+    const ageInMonths =
+      Math.floor(child.age) * 12 + (child.age - Math.floor(child.age)) * 10;
+    let ageGroup = "Other";
 
-    if (ageInMonths >= 0 && ageInMonths <= 5) ageGroup = '0-5 Months';
-    else if (ageInMonths >= 6 && ageInMonths <= 11) ageGroup = '6-11 Months';
-    else if (ageInMonths >= 12 && ageInMonths <= 23) ageGroup = '12-23 Months';
-    else if (ageInMonths >= 24 && ageInMonths <= 35) ageGroup = '24-35 Months';
-    else if (ageInMonths >= 36 && ageInMonths <= 47) ageGroup = '36-47 Months';
-    else if (ageInMonths >= 48 && ageInMonths <= 59) ageGroup = '48-59 Months';
-    else if (ageInMonths >= 60 && ageInMonths <= 71) ageGroup = '60-71 Months';
+    if (ageInMonths >= 0 && ageInMonths <= 5) ageGroup = "0-5 Months";
+    else if (ageInMonths >= 6 && ageInMonths <= 11) ageGroup = "6-11 Months";
+    else if (ageInMonths >= 12 && ageInMonths <= 23) ageGroup = "12-23 Months";
+    else if (ageInMonths >= 24 && ageInMonths <= 35) ageGroup = "24-35 Months";
+    else if (ageInMonths >= 36 && ageInMonths <= 47) ageGroup = "36-47 Months";
+    else if (ageInMonths >= 48 && ageInMonths <= 59) ageGroup = "48-59 Months";
+    else if (ageInMonths >= 60 && ageInMonths <= 71) ageGroup = "60-71 Months";
 
     return { ...child, age_group: ageGroup };
   });
@@ -65,22 +66,31 @@ const childrenController = {
     }
   },
   updateChild: async (req, res) => {
-    console.log("Request body:", req.body); // Log incoming request data
-    console.log("Child ID:", req.params.child_id); // Log child ID
+    console.log("Request body:", req.body);
+    console.log("Child ID:", req.params.child_id);
+
     try {
-      const updatedChild = await Children.updateChild(req.params.child_id, req.body);
-      
+      const updatedChild = await Children.updateChild(
+        req.params.child_id,
+        req.body
+      );
+
+      // Extract the `updated_by` field from the request
+      const username = req.body.updated_by || "Unknown User";
+
       // Log the action
-      // await logUserAction({
-      //   username: req.user.username, // Assuming you have user info in req.user
-      //   action: `User ${req.user.username} updated child_no ${req.params.child_id}`,
-      //   timestamp: new Date().toISOString()
-      // });
+      await Log.create(
+        username,
+        `User ${username} updated child_no ${req.params.child_id}`,
+        new Date().toISOString()
+      );
 
       res.json(updatedChild);
     } catch (error) {
       console.error("Error updating child:", error);
-      res.status(500).json({ error: "An error occurred while updating child data." });
+      res
+        .status(500)
+        .json({ error: "An error occurred while updating child data." });
     }
   },
 

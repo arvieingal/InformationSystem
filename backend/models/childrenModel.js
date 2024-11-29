@@ -45,7 +45,7 @@ const Children = {
   
     try {
       await db.execute(
-        "UPDATE children SET height_at_birth = ?, weight_at_birth = ?, height_cm = ?, weight_kg = ?, heightAgeZ = ?, weightAgeZ = ?, weight_for_length = ?, nutritional_status = ?, measurement_date = ? WHERE child_id = ?",
+        "UPDATE children SET height_at_birth = ?, weight_at_birth = ?, height_cm = ?, weight_kg = ?, height_age_Z = ?, weight_age_Z = ?, weight_height_Z = ?, nutritional_status = ?, measurement_date = ? WHERE child_id = ?",
         [
           height_at_birth ?? null,
           weight_at_birth ?? null,

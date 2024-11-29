@@ -19,7 +19,33 @@ const residentQueries = {
     gender, civil_status, birthdate, block_number, lot_number, sitio_purok, barangay, city,
     birthplace, religion, sectoral, is_registered_voter, is_business_owner, is_household_head,
     status
-  ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+  ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+`,
+updateHouseholdMember: `UPDATE resident
+SET
+  household_number = ?,
+  family_name = ?,
+  given_name = ?,
+  middle_name = ?,
+  extension = ?,
+  relationship = ?,
+  gender = ?,
+  civil_status = ?,
+  birthdate = ?,
+  block_number = ?,
+  lot_number = ?,
+  sitio_purok = ?,
+  barangay = ?,
+  city = ?,
+  birthplace = ?,
+  religion = ?,
+  sectoral = ?,
+  is_registered_voter = ?,
+  is_business_owner = ?,
+  is_household_head = ?,
+  status = ?,
+  updated_at = CURRENT_TIMESTAMP
+WHERE resident_id = ?;
 `,
   insertHouseholdHead: `INSERT INTO resident (
   household_number, 
