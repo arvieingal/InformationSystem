@@ -26,7 +26,7 @@ export default function page() {
 
       <div className="w-full mt-20 mb-20">
         <p className="text-[#06C46C] text-[24px] md:text-[32px] font-semibold text-center">
-        Luz Profiling and Health Information System
+          Barangay Resident Profiling and Health Records
         </p>
       </div>
       <div className="flex items-center justify-center w-full gap-14 pb-16 mt-16 flex-col md:flex-row">
@@ -53,10 +53,10 @@ export default function page() {
             onClick={handleHealthClick}
           >
             <Image
-              src="/svg/pre_school.svg"
+              src="/svg/health2.svg"
               alt="resident"
-              width={534}
-              height={304}
+              width={230}
+              height={204}
               priority
             />
           </button>
