@@ -17,6 +17,7 @@ import { Bar, Doughnut } from "react-chartjs-2";
 import { DoughnutLegend } from "@/components/DoughnutLegend";
 import api from "@/lib/axios";
 import { useSession } from "next-auth/react";
+import ChartDataLabels from "chartjs-plugin-datalabels";
 
 ChartJS.register(
   CategoryScale,
@@ -25,7 +26,8 @@ ChartJS.register(
   Title,
   Tooltip,
   Legend,
-  ArcElement
+  ArcElement,
+  ChartDataLabels
 );
 
 const labels = [
@@ -143,7 +145,7 @@ export default function page() {
               data: counts,
               backgroundColor: "#00C0A9",
               borderRadius: 5,
-              barThickness: 10,
+              barThickness: 18,
             },
           ],
         });
@@ -231,13 +233,20 @@ export default function page() {
         },
         ticks: {
           font: {
-            size: 10,
+            size: 12,
           },
           color: "#000000",
         },
       },
     },
     plugins: {
+      datalabels: {
+        color: 'black',
+        font: {
+          weight: 'bold',
+          size: 12,
+        }
+      },
       legend: {
         display: false,
       },
@@ -248,6 +257,13 @@ export default function page() {
     responsive: true,
     cutout: "50%",
     plugins: {
+      datalabels: {
+        color: 'black',
+        font: {
+          weight: 'bold',
+          size: 12,
+        }
+      },
       legend: {
         display: false,
       },
@@ -405,7 +421,7 @@ export default function page() {
                 <p className="text-[12px]">
                   *Barangay Luz, Mabolo City*
                   <br />
-                  *Population Percentage displayed in a pie chart, this data relies
+                  *Population Number displayed in a pie chart, this data relies
                   on the last updated document records.
                 </p>
               </>

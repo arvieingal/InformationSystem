@@ -19,8 +19,7 @@ const Card: React.FC<CardProps> = ({ src, alt, description, value, width, height
   return (
     <Link href={link} className='cursor-default'>
       <button
-        className={`relative p-2 rounded-lg shadow-md my-2 mx-5 transition-all duration-300 ${selected ? 'bg-[#007F73] text-white' : 'bg-white'
-          }`}
+        className={`relative p-2 rounded-lg shadow-md my-2 mx-5 transition-all duration-300 ${selected ? 'bg-[#007F73] text-white' : 'bg-white'} hover:bg-[#007F73] hover:text-white`}
         onClick={onClick}
       >
         <div className='flex items-center justify-center pt-2'>
