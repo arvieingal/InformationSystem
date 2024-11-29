@@ -732,23 +732,65 @@ const NutritionalStatus: React.FC = () => {
                   </p>
                   <div className="w-full flex flex-row gap-4 mt-1">
                     <p>Age in Months:</p>
-                    <p className="border-b border-black w-[4rem] h-[2rem] text-center p-1 ">
-                      {selectedChild.age}
-                    </p>
-                    <p>Height (cm):</p>
-                    <p className="border-b border-black w-[4rem] h-[2rem] text-center p-1 ">
-                      {selectedChild.height_cm}
-                    </p>
+                    <div className="border border-gray-300 rounded-md p-1 w-[3rem] h-[2.5rem] ">
+                      <input
+                        className="w-full outline-none flex text-center justify-center"
+                        type="number"
+                        value={selectedChild.age}
+                        readOnly
+                      />
+                    </div>
                     <p>Weight (kg):</p>
-                    <p className="border-b border-black w-[4rem] h-[2rem] text-center p-1 ">
-                      {selectedChild.weight_kg}
-                    </p>
-                    <p className="font-medium">Measurement Date:</p>
-                    <p className="border-b border-black w-[12rem] h-[2rem] text-center p-1 ">
-                      {selectedChild.measurement_date
-                        ? formatDate(selectedChild.measurement_date)
-                        : ""}
-                    </p>
+                    <div className="border border-gray-300 rounded-md p-1 w-[3rem] h-[2.5rem]">
+                      <input
+                        className="w-full outline-none"
+                        type="text"
+                        value={selectedChild.weight_kg}
+                        onChange={(e) => handleInputChange("weight_kg", e.target.value)}
+                      />
+                    </div>
+                    <p>Height (cm):</p>
+                    <div className="border border-gray-300 rounded-md p-1 w-[3rem] h-[2.5rem]">
+                      <input
+                        className="w-full outline-none"
+                        type="text"
+                        value={selectedChild.height_cm}
+                        onChange={(e) => handleInputChange("height_cm", e.target.value)}
+                      />
+                    </div>
+                    <div className="flex flex-row gap-[10px]">
+                      <p>Measurement Date:</p>
+                      <DatePicker
+                        selected={
+                          selectedChild.measurement_date
+                            ? parseDate(selectedChild.measurement_date)
+                            : null
+                        }
+                        onChange={(date: Date | null) =>
+                          setSelectedChild({
+                            ...selectedChild,
+                            measurement_date: date
+                              ? date.toISOString().split("T")[0]
+                              : "",
+                          })
+                        }
+                        dateFormat="MMMM d, yyyy"
+                        className=" border-b  border-black w-[12rem] h-[2rem] p-1 text-center"
+                        customInput={
+                          <div className="flex items-center p-1 text-black">
+                            <input
+                              className="w-full outline-none"
+                              value={
+                                selectedChild.measurement_date
+                                  ? formatDate(selectedChild.measurement_date)
+                                  : ""
+                              }
+                            />
+                            <FaCalendarAlt className="ml-2 text-black" />
+                          </div>
+                        }
+                      />
+                    </div>
                   </div>
                   <div className="w-full flex flex-row gap-[1rem]">
                     <div className="w-full flex flex-row mt-[2rem]">
@@ -939,12 +981,7 @@ const NutritionalStatus: React.FC = () => {
                       className="w-full outline-none flex text-center justify-center"
                       type="number"
                       value={selectedChild.age}
-                      onChange={(e) =>
-                        setSelectedChild({
-                          ...selectedChild,
-                          age: e.target.value,
-                        })
-                      }
+                      readOnly
                     />
                   </div>
                   <p>Weight (kg):</p>

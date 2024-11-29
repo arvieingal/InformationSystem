@@ -9,6 +9,10 @@ export interface VaccineDose {
 }
 
 export interface Immunization {
+  remarks: string;
+  doses(doses: any): import("react").ReactNode;
+  date_vaccinated(date_vaccinated: any): import("react").ReactNode;
+  barangay: ReactNode;
   child_immunization_id: number;
   child_id: number;
   resident_id: number;

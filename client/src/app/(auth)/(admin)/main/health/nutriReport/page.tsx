@@ -45,18 +45,18 @@
       const input = document.getElementById("report-form");
       if (input) {
         html2canvas(input, {
-          scale: 3,
+          scale: 2,
           useCORS: true,
         }).then((canvas) => {
           const imgData = canvas.toDataURL("image/png");
           const pdf = new jsPDF({
-            orientation: "portrait",
+            orientation: "landscape",
             unit: "mm",
             format: "a4",
           });
 
-          const imgWidth = 210;
-          const pageHeight = 297;
+          const imgWidth = 297;
+          const pageHeight = 210;
           const imgHeight = (canvas.height * imgWidth) / canvas.width;
           let heightLeft = imgHeight;
           let position = 0;

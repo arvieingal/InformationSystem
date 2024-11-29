@@ -94,6 +94,7 @@ const childrenController = {
     }
   },
 
+  
   getAllResidents: async (req, res) => {
     // Implementation
   },

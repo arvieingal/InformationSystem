@@ -26,15 +26,59 @@ const ImmunizationModal: React.FC<ModalProps> = ({ onClose, immunization, onSave
         <div>
           <h2 className="text-lg font-semibold">Edit Immunization Record</h2>
           <div className="mt-4">
+            <label>Name:</label>
+            <input
+              type="text"
+              value={`${editedImmunization.full_name || ''}`.trim()}
+              onChange={(e) => handleChange("full_name", e.target.value)}
+              className="border border-gray-300 rounded-md p-1 w-full"
+            />
+          </div>
+          <div className="mt-4">
+            <label>Vaccine:</label>
+            <input
+              type="text"
+              value={`${editedImmunization.vaccine_type || ''}`.trim()}
+              onChange={(e) => handleChange("vaccine_type", e.target.value)}
+              className="border border-gray-300 rounded-md p-1 w-full"
+            />
+          </div>
+          <div className="mt-4">
+            <label>Dose:</label>
+            <input
+              type="text"
+              value={`${editedImmunization.doses || ''}`.trim()}
+              onChange={(e) => handleChange("doses", e.target.value)}
+              className="border border-gray-300 rounded-md p-1 w-full"
+            />
+          </div>
+          <div className="mt-4">
+            <label>Date of Vaccination:</label>
+            <input
+              type="date"
+              value={`${editedImmunization.date_vaccinated || ''}`.trim()}
+              onChange={(e) => handleChange("date_vaccinated", e.target.value)}
+              className="border border-gray-300 rounded-md p-1 w-full"
+            />
+          </div>
+          <div className="mt-4">
+            <label>Remarks:</label>
+            <input
+              type="text"
+              value={`${editedImmunization.remarks || ''}`.trim()}
+              onChange={(e) => handleChange("remarks", e.target.value)}
+              className="border border-gray-300 rounded-md p-1 w-full"
+            />
+          </div>
+          <div className="mt-4">
             <label>Health Center:</label>
             <input
               type="text"
-              value={editedImmunization.health_center}
+              value={`${editedImmunization.health_center || ''}`.trim()}
               onChange={(e) => handleChange("health_center", e.target.value)}
               className="border border-gray-300 rounded-md p-1 w-full"
             />
           </div>
-          {/* Add more fields as needed */}
           <button
             className="mt-4 bg-blue-500 text-white px-4 py-2 rounded-md"
             onClick={() => onSave(editedImmunization)}
