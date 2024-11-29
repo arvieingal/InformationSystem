@@ -1,5 +1,5 @@
 const Children = require("../models/childrenModel");
-const Log = require("../models/Log");
+const { logUserAction } = require("../controller/logController");
 
 // Function to categorize children
 const categorizeChildren = (children) => {
@@ -94,6 +94,7 @@ const childrenController = {
     }
   },
 
+  
   getAllResidents: async (req, res) => {
     // Implementation
   },

@@ -1,8 +1,7 @@
-
 "use client";
 import React, { useState } from "react";
 import Image from "next/image";
-import { useRouter } from "next/navigation";
+import { useRouter, usePathname } from "next/navigation";
 import SweetAlert from "./SweetAlert";
 import { signOut, useSession } from "next-auth/react";
 
@@ -17,6 +16,7 @@ const HealthHeader = () => {
     },
   });
   console.log("session", session);
+  const pathname = usePathname();
 
   const toggleDropdown = () => {
     setShowDropdown(!showDropdown);
@@ -30,12 +30,22 @@ const HealthHeader = () => {
     }
   };
 
+  const getHeaderText = () => {
+    const path = pathname || "";
+    if (path.includes("nutritional_status")) {
+      return "Nutritional Status";
+    } else if (path.includes("immunization_record")) {
+      return "Immunization Record";
+    }
+    return "Health Dashboard";
+  };
+
   return (
     <div className="h-full w-full pt-4">
       <div className="flex items-center justify-between px-6 md:px-[3rem] background-image rounded-xl md:rounded-3xl mx-4 md:mx-4 h-full">
         <div>
           <p className="text-inter font-semibold text-[14px] md:text-[30px] text-black">
-            Community Health
+            {getHeaderText()}
           </p>
         </div>
         <div>

@@ -78,7 +78,7 @@ const Login = () => {
         <div className="hidden  items-center justify-center w-[70%] md:hidden lg:block ">
           <Image
             className="h-screen w-full object-cover rounded-l-[5px]"
-            src="/image/register.png"
+            src="/svg/login2.svg"
             width={1000}
             height={800}
             alt="Login Image"
@@ -180,10 +180,13 @@ const Login = () => {
               <div className="w-full pt-[6rem] flex justify-center">
                 <button
                   type="submit"
-                  className="w-[84%] h-[36px] bg-[#24968B] text-white rounded-[25px]"
+                  className={`w-[96%] h-[45px] rounded-[5px] text-white ${
+                    username && password ? "bg-[#24968B]" : "bg-gray-400"
+                  }`}
+                  disabled={!username || !password}
                 >
-                  <span className="text-[16px] flex items-center justify-center">
-                    Log in
+                  <span className="text-[18px] flex items-center justify-center">
+                    LOG IN
                   </span>
                 </button>
               </div>
