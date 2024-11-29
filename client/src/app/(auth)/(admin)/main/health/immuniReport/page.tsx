@@ -28,17 +28,32 @@ const ImmuniReport: React.FC = () => {
     const input = document.getElementById("immuni-report");
     if (input) {
       html2canvas(input, {
-        scale: 2,
+        scale: 3,
         useCORS: true,
       }).then((canvas) => {
         const imgData = canvas.toDataURL("image/png");
         const pdf = new jsPDF({
           orientation: "portrait",
-          unit: "px",
-          format: [canvas.width, canvas.height],
+          unit: "mm",
+          format: "a4",
         });
 
-        pdf.addImage(imgData, "PNG", 0, 0, canvas.width, canvas.height);
+        const imgWidth = 210;
+        const pageHeight = 297;
+        const imgHeight = (canvas.height * imgWidth) / canvas.width;
+        let heightLeft = imgHeight;
+        let position = 0;
+
+        pdf.addImage(imgData, "PNG", 0, position, imgWidth, imgHeight);
+        heightLeft -= pageHeight;
+
+        while (heightLeft >= 0) {
+          position = heightLeft - imgHeight;
+          pdf.addPage();
+          pdf.addImage(imgData, "PNG", 0, position, imgWidth, imgHeight);
+          heightLeft -= pageHeight;
+        }
+
         pdf.save("immunization_report.pdf");
       }).catch((error) => {
         console.error("Error generating PDF:", error);
@@ -150,4 +165,3 @@ export default ImmuniReport;
 function fetchImmunizationData() {
     throw new Error('Function not implemented.');
 }
-
