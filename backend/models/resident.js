@@ -30,21 +30,21 @@ const Resident = {
         data.household_number,
         data.family_name,
         data.given_name,
-        data.middle_name || null, // Handle optional fields
+        data.middle_name || null,
         data.extension || null,
         data.relationship,
         data.gender,
         data.civil_status,
         data.birthdate,
-        data.block_number || 0, // Default to 0 if not provided
-        data.lot_number || 0, // Default to 0 if not provided
+        data.block_number || 0,
+        data.lot_number || 0,
         data.sitio_purok,
         data.barangay,
         data.city,
         data.birthplace,
         data.religion,
         data.sectoral,
-        data.is_registered_voter || "No", // Default to 'No' if not provided
+        data.is_registered_voter || "No",
         data.is_business_owner || "No",
         data.is_household_head || "No",
         data.status,
@@ -81,8 +81,24 @@ const Resident = {
         data.is_business_owner || "No",
         data.is_household_head || "No",
         data.status,
-        data.resident_id, // Make sure to pass the resident_id to target the correct row
+        data.resident_id,
       ]);
+      console.log("Rows updated in the database:", rows);
+      return rows || [];
+    } catch (error) {
+      console.error("Error executing update query:", error);
+      throw error;
+    }
+  },
+
+  archiveHouseholdMember: async (data) => {
+    try {
+      const [rows] = await pool.execute(
+        residentQueries.archiveHouseholdMember,
+        [
+          data.resident_id,
+        ]
+      );
       console.log("Rows updated in the database:", rows);
       return rows || [];
     } catch (error) {

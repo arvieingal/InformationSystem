@@ -1,5 +1,5 @@
 const User = require("../models/user");
-const bcrypt = require('bcrypt');
+const bcrypt = require("bcrypt");
 
 const userController = {
   getAllUser: async (req, res) => {
@@ -53,7 +53,9 @@ const userController = {
 
       const isMatch = await bcrypt.compare(currentPassword, user.password);
       if (!isMatch) {
-        return res.status(400).json({ message: "Current password is incorrect" });
+        return res
+          .status(400)
+          .json({ message: "Current password is incorrect" });
       }
 
       const hashedPassword = await bcrypt.hash(newPassword, 10);
@@ -67,7 +69,45 @@ const userController = {
         error: error.message,
       });
     }
-  }
+  },
+
+  checkEmail: async (req, res) => {
+    try {
+      const email = req.params.email;
+
+      const user = await User.findUserByEmail(email);
+      res.status(200).json({
+        exists: !!user,
+        message: user ? "Email found" : "Email not found",
+      });
+    } catch (error) {
+      res.status(500).json({ error: error.message });
+    }
+  },
+
+  otpResetPassword: async (req, res) => {
+    try {
+      const { email, password } = req.body;
+
+      const user = await User.findUserByEmail(email);
+
+      if (!user) {
+        return res.status(404).json({ error: "User not found" });
+      }
+      
+      const updated = await User.otpUpdatePassword(email, password);
+
+      if (updated) {
+        res
+          .status(200)
+          .json({ success: true, message: "Password reset successfully" });
+      } else {
+        res.status(400).json({ error: "Failed to reset password" });
+      }
+    } catch (error) {
+      res.status(500).json({ error: error.message });
+    }
+  },
 };
 
 module.exports = userController;

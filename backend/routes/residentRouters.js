@@ -12,5 +12,9 @@ router.put(
   "/update-household-member",
   residentController.updateHouseholdMember
 );
+router.put(
+  "/archive-household-member",
+  residentController.archiveHouseholdMember
+);
 
 module.exports = router;

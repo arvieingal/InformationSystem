@@ -10,7 +10,7 @@ const Login = () => {
 
   const [username, setusername] = useState<string>("");
   const [password, setPassword] = useState<string>("");
-  const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
+  const [isEmailModalOpen, setIsEmailModalOpen] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [submitted, setSubmitted] = useState<boolean>(false);
   const [passwordVisible, setPasswordVisible] = useState<boolean>(false);
@@ -53,7 +53,7 @@ const Login = () => {
   };
 
   const handleForgotPasswordClick = () => {
-    setIsModalOpen(true);
+    setIsEmailModalOpen(true);
   };
 
   const handleFieldChange = (
@@ -111,9 +111,8 @@ const Login = () => {
               className=" w-full space-y-4 mt-[3rem]"
             >
               <div
-                className={`relative text-[#000000] h-[50px]  ${
-                  submitted && fieldError.username ? "border-red-500" : ""
-                }`}
+                className={`relative text-[#000000] h-[50px]  ${submitted && fieldError.username ? "border-red-500" : ""
+                  }`}
               >
                 <input
                   type="text"
@@ -192,7 +191,8 @@ const Login = () => {
           </div>
         </div>
       </div>
-      <OtpModal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} />
+      <OtpModal isEmailModalOpen={isEmailModalOpen}
+        setIsEmailModalOpen={setIsEmailModalOpen} />
     </div>
   );
 };
