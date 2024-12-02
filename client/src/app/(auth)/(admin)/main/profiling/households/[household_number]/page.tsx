@@ -200,10 +200,9 @@ const HouseholdMembers = ({ params }: { params: { household_number: string } }) 
                 }
                 : {
                     ...data,
-                    other_relationship: data.other_relationship || "",
+                    other_relationship: data.relationship === 'Others' ? data.other_relationship || "" : "",
                     household_number: Number(householdNumber),
                     age: household.age || null,
-                    resident_id: selectedResident?.resident_id || null,
                     lot_number: Number(household?.lot_number),
                     block_number: household?.block_number,
                     sitio_purok: household?.sitio_purok || "",
@@ -218,7 +217,7 @@ const HouseholdMembers = ({ params }: { params: { household_number: string } }) 
                     is_household_head: data.is_household_head || "No",
                     religion: data.religion || "",
                     sectoral: data.sectoral || "",
-                    other_sectoral: data.other_sectoral || "",
+                    other_sectoral: data.sectoral === "Others" ? data.other_sectoral || "" : "",
                     is_registered_voter: data.is_registered_voter || "No",
                 };
 
@@ -474,6 +473,7 @@ const HouseholdMembers = ({ params }: { params: { household_number: string } }) 
                                         <option value="Separated">Separated</option>
                                         <option value="Single">Single</option>
                                         <option value="Widowed">Widowed</option>
+                                        <option value="Divorced">Divorced</option>
                                     </select>
                                 </div>
                                 <div className="flex flex-col">

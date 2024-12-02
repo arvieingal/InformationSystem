@@ -18,7 +18,7 @@ export type Resident = {
     | "";
     other_relationship?: string;
     gender: "Male" | "Female" | "";
-    civil_status: "Married" | "Separated" | "Single" | "Widowed" | "";
+    civil_status: "Married" | "Separated" | "Single" | "Widowed" | "Divorced" | "";
     birthdate: string;
     age: number | null;
     highest_educational_attainment?:
@@ -68,6 +68,57 @@ export type Resident = {
     is_business_owner: "Yes" | "No" | "";
     is_household_head: "Yes" | "No" | "";
     status: "Active" | "Inactive" | "";
-    created_at?: string;
-    updated_at?: string;
 };
+
+export type Renter = {
+    renter_id: number | null;
+    rent_number: number;
+    family_name: string;
+    given_name: string;
+    middle_name?: string;
+    extension?: string;
+    civil_status: "Married" | "Separated" | "Single" | "Widowed" | "Divorced" | "";
+    gender: "Male" | "Female" | "";
+    birthdate: string;
+    months_year_of_stay: number;
+    work: string;
+    sitio_purok:
+    | "Abellana"
+    | "City Central"
+    | "Kalinao"
+    | "Lubi"
+    | "Mabuhay"
+    | "Nangka"
+    | "Regla"
+    | "San Antonio"
+    | "San Roque"
+    | "San Vicente"
+    | "Sta. Cruz"
+    | "Sto. Nino 1"
+    | "Sto. Nino 2"
+    | "Sto. Nino 3"
+    | "Zapatera"
+    | "";
+    status: "Active" | "Inactive" | "";
+};
+
+export type RentOwner = {
+    rent_number: number,
+    rent_owner: string,
+    sitio_purok: | "Abellana"
+    | "City Central"
+    | "Kalinao"
+    | "Lubi"
+    | "Mabuhay"
+    | "Nangka"
+    | "Regla"
+    | "San Antonio"
+    | "San Roque"
+    | "San Vicente"
+    | "Sta. Cruz"
+    | "Sto. Nino 1"
+    | "Sto. Nino 2"
+    | "Sto. Nino 3"
+    | "Zapatera"
+    | "";
+}

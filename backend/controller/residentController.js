@@ -1,4 +1,5 @@
 const Resident = require("../models/resident");
+const pool = require("../config/db");
 
 const residentController = {
   getAllResident: async (req, res) => {
@@ -40,6 +41,8 @@ const residentController = {
   insertHouseholdMember: async (req, res) => {
     try {
       const householdMemberData = req.body;
+
+      console.log("household member data",householdMemberData)
 
       const result = await Resident.insertHouseholdMember(householdMemberData);
 
@@ -85,9 +88,32 @@ const residentController = {
 
   insertHouseholdHead: async (req, res) => {
     try {
-      const householdHeadData = req.body;
+      const { household_number } = req.body;
+      console.log("Incoming data:", req.body);
 
-      const result = await Resident.insertHouseholdHead(householdHeadData);
+      // Check if the request body is valid
+      if (!req.body || Object.keys(req.body).length === 0) {
+        return res.status(400).json({ message: "Request body is empty" });
+      }
+
+      // Check if household_number with is_household_head = 'Yes' exists
+      const [existingHousehold] = await pool.query(
+        "SELECT * FROM resident WHERE household_number = ? AND is_household_head = 'Yes'",
+        [household_number]
+      );
+
+      console.log("Existing household head check result:", existingHousehold);
+
+      if (existingHousehold.length > 0) {
+        return res
+          .status(400)
+          .json({ message: "Household number is already taken by a head" });
+      }
+
+      // Proceed with the insertion
+      const result = await Resident.insertHouseholdHead(req.body);
+
+      console.log("Insert result:", result);
 
       if (result && result.affectedRows > 0) {
         res

@@ -18,6 +18,7 @@ type Household = {
   extension: string;
   sitio_purok: string;
   is_business_owner: string;
+  is_household_head: string;
 };
 
 const Households = () => {
@@ -86,7 +87,7 @@ const Households = () => {
         household_number: Number(data.household_number),
         age: data.age || null,
         lot_number: Number(data.lot_number),
-        block_number: data.block_number,
+        block_number: Number(data.block_number),
         sitio_purok: data.sitio_purok || "",
         highest_educational_attainment: data.highest_educational_attainment || "",
         occupation: data.occupation || "",
@@ -216,8 +217,18 @@ const Households = () => {
                   <input
                     type="text"
                     className="border-[#969696] border-[1px] rounded-[5px]"
-                    {...register("household_number", { required: true })}
+                    {...register("household_number", {
+                      required: true,
+                      validate: (value) => {
+                        const exists = households.some(household =>
+                          household.household_number === Number(value) &&
+                          household.is_household_head === 'Yes'
+                        );
+                        return !exists || "Household number is already taken";
+                      }
+                    })}
                   />
+                  {errors.household_number && <span className="text-red-500">{errors.household_number.message}</span>} {/* Display error message */}
                 </div>
                 <div className="flex flex-col">
                   <label htmlFor="">Block Number<span className="text-red-500">*</span></label>
@@ -307,6 +318,7 @@ const Households = () => {
                     <option value="Separated">Separated</option>
                     <option value="Single">Single</option>
                     <option value="Widowed">Widowed</option>
+                    <option value="Divorced">Divorced</option>
                   </select>
                 </div>
                 <div className="flex flex-col">

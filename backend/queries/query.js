@@ -71,6 +71,7 @@ WHERE resident_id = ?;
         extension,
         sitio_purok,
         is_business_owner,
+        is_household_head,
         block_number,
         lot_number,
         barangay,
@@ -83,12 +84,31 @@ WHERE resident_id = ?;
 
 //renter queries
 const renterQueries = {
-  findAllRenter: "SELECT * FROM renter",
+  findAllRenter: "SELECT * FROM renter WHERE status = 'Active'",
   findById: "SELECT * FROM renter WHERE renter_id = ?",
-  insert: "INSERT INTO renter (name, age, address) VALUES (?, ?, ?)",
-  update:
-    "UPDATE renter SET name = ?, age = ?, address = ? WHERE renter_id = ?",
-  delete: "UPDATE renter SET status = 'Inactive' WHERE renter_id = ?",
+  insertRenter: `INSERT INTO renter (
+    rent_number, family_name, given_name, middle_name, extension, civil_status, gender,
+    birthdate, months_year_of_stay, work, sitio_purok, status
+  ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+`,
+  updateRenter: `UPDATE renter
+SET
+  rent_number = ?,
+  family_name = ?,
+  given_name = ?,
+  middle_name = ?,
+  extension = ?,
+  civil_status = ?,
+  gender = ?,
+  birthdate = ?,
+  months_year_of_stay = ?,
+  work = ?,
+  sitio_purok = ?,
+  status = ?,
+  updated_at = CURRENT_TIMESTAMP
+WHERE renter_id = ?;
+`,
+  archiveRenter: "UPDATE renter SET status = 'Inactive' WHERE renter_id = ?",
 };
 
 const getAllCharts = {
