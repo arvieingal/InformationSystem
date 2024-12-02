@@ -25,7 +25,6 @@ const HouseholdMembers = ({ params }: { params: { household_number: string } }) 
     const [filteredMembers, setFilteredMembers] = useState<Resident[]>([]);
 
     const [selectedResident, setSelectedResident] = useState<Resident | null>(null);
-    const [infoResident, setInfoResident] = useState<Resident | null>(null);
 
     const [isInfoModal, setIsInfoModal] = useState(false)
     const [addResidentModal, setAddResidentModal] = useState(false)
@@ -94,26 +93,18 @@ const HouseholdMembers = ({ params }: { params: { household_number: string } }) 
                 is_household_head: "",
                 status: "Active",
             });
-        } else {
-            const modalResident = editResidentModal
-                ? selectedResident
-                : isInfoModal
-                    ? infoResident
-                    : null;
-
-            if (modalResident) {
-                setResidentData({
-                    ...residentData,
-                    ...modalResident,
-                    monthly_income: modalResident.monthly_income || null,
-                    age: modalResident.age ?? null,
-                    status: modalResident.status === "Active" || modalResident.status === "Inactive"
-                        ? modalResident.status
-                        : "Active",
-                });
-            }
+        } else if (selectedResident) {
+            setResidentData({
+                ...residentData,
+                ...selectedResident,
+                monthly_income: selectedResident.monthly_income || null,
+                age: selectedResident.age ?? null,
+                status: selectedResident.status === "Active" || selectedResident.status === "Inactive"
+                    ? selectedResident.status
+                    : "Active",
+            });
         }
-    }, [editResidentModal, isInfoModal, addResidentModal, selectedResident, infoResident]);
+    }, [editResidentModal, isInfoModal, addResidentModal, selectedResident]);
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
         const { name, value } = e.target;
@@ -163,7 +154,7 @@ const HouseholdMembers = ({ params }: { params: { household_number: string } }) 
     };
 
     const onResidentClick = (resident: Resident) => {
-        setInfoResident(resident);
+        setSelectedResident(resident);
         setIsInfoModal(true);
     };
 
@@ -386,8 +377,8 @@ const HouseholdMembers = ({ params }: { params: { household_number: string } }) 
                                 <div className="flex flex-col">
                                     <label htmlFor="">Gender{!isInfoModal && <span className="text-red-500">*</span>}</label>
                                     <div>
-                                        {isInfoModal ? ( // Conditional rendering based on isInfoModal
-                                            <span>{residentData.gender || "N/A"}</span> // Display gender or "N/A" if not set
+                                        {isInfoModal ? (
+                                            <span>{residentData.gender || "N/A"}</span>
                                         ) : (
                                             <>
                                                 <input
