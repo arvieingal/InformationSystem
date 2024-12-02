@@ -56,7 +56,6 @@ const HealthSidebar = () => {
             { name: "nutritional_status", route: "/main/health/nutritional_status", activeIcon: "/svg/active_nutritional_status.svg", defaultIcon: "/svg/nutritional_status.svg" },
             { name: "immunization_record", route: "/main/health/immunization_record", activeIcon: "/svg/active_immunization_record.svg", defaultIcon: "/svg/immunization_record.svg" },
             { name: "child_history", route: "/main/health/child_history", activeIcon: "/svg/active_child_history.svg", defaultIcon: "/svg/child_history.svg" },
-            { name: "settings", route: "/main/health/settings", activeIcon: "/svg/active_settings.svg", defaultIcon: "/svg/settings.svg" },
           ].map(({ name, route, activeIcon, defaultIcon }) => (
             <div
               key={name}
@@ -81,22 +80,6 @@ const HealthSidebar = () => {
           ))}
         </div>
         <div className="flex items-center justify-center">
-          <div className="group w-[30px] h-[30px] cursor-pointer" onClick={handleSignOut}>
-            <Image
-              src="/svg/logout.svg"
-              width={30}
-              height={30}
-              alt="Logout"
-              className="absolute group-hover:hidden w-[30px] h-[30px]"
-            />
-            <Image
-              src="/svg/active_logout.svg"
-              width={30}
-              height={30}
-              alt="Logout-hover"
-              className="hidden group-hover:block w-[30px] h-[30px]"
-            />
-          </div>
         </div>
       </div>
     </div>

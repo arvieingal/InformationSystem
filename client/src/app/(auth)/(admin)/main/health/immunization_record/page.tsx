@@ -435,24 +435,24 @@ const ImmunizationRecord: React.FC = () => {
               &times;
             </button>
             <h2 className="text-lg font-semibold">Child Immunization Record</h2>
-            <div className="grid grid-cols-3 gap-[2rem]">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
               <div className="col-span-1">
-                <p>Child's Name: <span className="inline-block w-48 border-b-2 border-gray-400 text-right">{`${selectedImmunization.full_name}`}</span></p>
-                <p>Date of Birth: <span className="inline-block w-48 border-b-2 border-gray-400 text-right">{formatDate(selectedImmunization.birthdate)}</span></p>
-                <p>Place of Birth: <span className="inline-block w-48 border-b-2 border-gray-400 text-right">{formatDate(selectedImmunization.birthdate)}</span></p>
-                <p>Address: <span className="inline-block w-48 border-b-2 border-gray-400 text-right">{selectedImmunization.address}</span></p>
+                <p>Child's Name: <span className="inline-block w-full md:w-48 border-b-2 border-gray-400 text-right">{`${selectedImmunization.full_name}`}</span></p>
+                <p>Date of Birth: <span className="inline-block w-full md:w-48 border-b-2 border-gray-400 text-right">{formatDate(selectedImmunization.birthdate)}</span></p>
+                <p>Place of Birth: <span className="inline-block w-full md:w-48 border-b-2 border-gray-400 text-right">{formatDate(selectedImmunization.birthdate)}</span></p>
+                <p>Address: <span className="inline-block w-full md:w-48 border-b-2 border-gray-400 text-right">{selectedImmunization.address}</span></p>
               </div>
               <div className="col-span-1">
-                <p>Mother's Name: <span className="inline-block w-48 border-b-2 border-gray-400 text-right">{selectedImmunization.mother_name}</span></p>
-                <p>Father's Name: <span className="inline-block w-48 border-b-2 border-gray-400 text-right truncate">{selectedImmunization.father_name}</span></p>
-                <p>Birth Height: <span className="inline-block w-48 border-b-2 border-gray-400 text-right">{selectedImmunization.height_at_birth}</span></p>
-                <p>Birth Weight: <span className="inline-block w-48 border-b-2 border-gray-400 text-right">{selectedImmunization.weight_at_birth}</span></p>
+                <p>Mother's Name: <span className="inline-block w-full md:w-48 border-b-2 border-gray-400 text-right">{selectedImmunization.mother_name}</span></p>
+                <p>Father's Name: <span className="inline-block w-full md:w-48 border-b-2 border-gray-400 text-right truncate">{selectedImmunization.father_name}</span></p>
+                <p>Birth Height: <span className="inline-block w-full md:w-48 border-b-2 border-gray-400 text-right">{selectedImmunization.height_at_birth}</span></p>
+                <p>Birth Weight: <span className="inline-block w-full md:w-48 border-b-2 border-gray-400 text-right">{selectedImmunization.weight_at_birth}</span></p>
               </div>
               <div className="col-span-1">
-                <p>Sex: <span className="inline-block w-48 border-b-2 border-gray-400 text-right">{selectedImmunization.sex}</span></p>
-                <p>Health Center: <span className="inline-block w-48 border-b-2 border-gray-400 text-right">{selectedImmunization.health_center}</span></p>
-                <p>Barangay: <span className="inline-block w-48 border-b-2 border-gray-400 text-right">{selectedImmunization.barangay}</span></p>
-                <p>Family Number: <span className="inline-block w-48 border-b-2 border-gray-400 text-right">{selectedImmunization.household_number}</span></p>
+                <p>Sex: <span className="inline-block w-full md:w-48 border-b-2 border-gray-400 text-right">{selectedImmunization.sex}</span></p>
+                <p>Health Center: <span className="inline-block w-full md:w-48 border-b-2 border-gray-400 text-right">{selectedImmunization.health_center}</span></p>
+                <p>Barangay: <span className="inline-block w-full md:w-48 border-b-2 border-gray-400 text-right">{selectedImmunization.barangay}</span></p>
+                <p>Family Number: <span className="inline-block w-full md:w-48 border-b-2 border-gray-400 text-right">{selectedImmunization.household_number}</span></p>
               </div>
             </div>
             <table className="w-full mt-4 border-collapse border border-gray-300">

@@ -14,8 +14,8 @@ import {
   ChartOptions,
   ArcElement,
 } from "chart.js";
-import { Doughnut } from 'react-chartjs-2';
-import { populationDonutData, sectorDonutData } from '@/constants/chartDummyData';
+import { Doughnut, Bar } from 'react-chartjs-2';
+import { populationDonutData, sectorDonutData, genderDistribution } from '@/constants/chartDummyData';
 import { DoughnutLegend } from '@/components/DoughnutLegend';
 
 ChartJS.register(
@@ -112,60 +112,166 @@ const HealthPage = () => {
     },
   };
 
-  return (
-    <div className="h-full px-4 pb-4 overflow-hidden">
-      <div className='h-[8%] flex justify-center items-center'>
-        <h1 className="text-center text-2xl font-semibold">Number of Children Vaccinated by Vaccine Type and Gender</h1>
-      </div>
+  const genderData = {
+    labels: ['Male', 'Female'],
+    datasets: [
+      {
+        label: 'Gender Distribution',
+        data: [genderDistribution.male, genderDistribution.female],
+        backgroundColor: ['#338A80', '#85D0C8'],
+      },
+    ],
+  };
 
-      <div className="h-[46%] grid grid-cols-1 md:grid-cols-3 gap-4">
+  return (
+    <div className="h-full px-4 pb-4 overflow-hidden bg-gray-100">
+      <div className="h-[46%] grid grid-cols-1 md:grid-cols-3 gap-4 mt-4">
         {/* Age Category List */}
-        <div className="w-full bg-white p-4 shadow rounded overflow-hidden">
-          <h2 className="text-center font-bold mb-4">AGE CATEGORY BY MONTH</h2>
+        <div className="w-full relative bg-gray-100 p-6 shadow-lg rounded-lg overflow-hidden">
+          <h2 className="text-center font-bold mb-6 text-gray-800 text-lg">AGE CATEGORY BY MONTH</h2>
           {['0-6 Months', '7-12 Months', '12-24 Months', '24-32 Months', '32-48 Months', '48-60 Months', '60-72 Months'].map((age) => (
             <div
               key={age}
-              className={`p-2 cursor-pointer ${age === selectedAgeCategory ? 'bg-blue-100' : ''}`}
+              className={`p-3 cursor-pointer transition-colors duration-300 rounded-md ${
+                age === selectedAgeCategory ? 'bg-blue-200' : 'hover:bg-blue-100'
+              }`}
               onClick={() => setSelectedAgeCategory(age)}
             >
-              {age}
+              <span className="block text-center text-gray-700 font-medium">{age}</span>
             </div>
           ))}
         </div>
 
         {/* Age Category Chart */}
-        <div className="col-span-1 md:col-span-2 bg-white p-4 shadow rounded overflow-hidden">
+        <div className="col-span-1 md:col-span-2 bg-gray-100 p-4 shadow rounded overflow-hidden">
+          <p className='text-center text-xl font-semibold'>Number of Children Vaccinated by Vaccine Type and Gender</p>
           <AgeCategoryChart ageCategory={selectedAgeCategory} />
         </div>
       </div>
-      <div className="h-[46%] grid grid-cols-1 md:grid-cols-3 gap-4 pt-4">
-        <div className="flex justify-center items-center w-full relative bg-white">
-          <div className="w-[50%]">
+
+      <div className="h-[46%] grid grid-cols-1 md:grid-cols-3 gap-4 pt-4">  
+        <div className="grid grid-cols-2 justify-center items-center w-full relative bg-gray-100  shadow rounded">
+          <p className='col-span-2 text-center text-2xl font-semibold text-gray-700'>Gender-Based Nutritional Status Distribution</p>
+          <div className="w-full flex justify-center">
+            <Bar 
+              data={genderData} 
+              options={{
+                responsive: true,
+                plugins: {
+                  legend: {
+                    display: true,
+                    position: 'top',
+                    labels: {
+                      color: '#333',
+                      font: {
+                        size: 14,
+                      },
+                    },
+                  },
+                  tooltip: {
+                    enabled: true,
+                    backgroundColor: '#f5f5f5',
+                    titleColor: '#333',
+                    bodyColor: '#666',
+                    borderColor: '#ddd',
+                    borderWidth: 1,
+                  },
+                },
+                scales: {
+                  x: {
+                    grid: {
+                      display: false,
+                    },
+                    ticks: {
+                      color: '#666',
+                      font: {
+                        size: 12,
+                      },
+                    },
+                  },
+                  y: {
+                    min: 100,
+                    max: 10000,
+                    grid: {
+                      color: '#eee',
+                    },
+                    ticks: {
+                      color: '#666',
+                      font: {
+                        size: 12,
+                      },
+                      stepSize: 1000, // Adjust step size for better readability
+                    },
+                  },
+                },
+              }}
+            />
+          </div>
+        </div>
+        <div className="grid grid-cols-2 gap-4 justify-center items-center w-full relative bg-gray-100 p-4 shadow rounded">
+          <p className='col-span-2 text-center text-2xl font-semibold text-gray-700'>Proportion of Nutritional Status Categories</p>
+          <div className="w-full flex justify-center">
             <Doughnut data={sectorDonutData} options={donutOption} />
           </div>
-          <div className="absolute right-[5%] top-[34%]">
+          <div className="w-full flex justify-center">
             <DoughnutLegend data={sectorDonutData} />
           </div>
         </div>
-        <div className="flex justify-center items-center w-full relative bg-white">
-          <div className="w-[50%]">
-            <Doughnut data={sectorDonutData} options={donutOption} />
-          </div>
-          <div className="absolute right-[5%] top-[34%]">
-            <DoughnutLegend data={sectorDonutData} />
+        <div className="grid grid-cols-1 gap-4 justify-center items-center w-full relative bg-gray-100 p-4 shadow-lg rounded-lg">
+          <p className='text-center text-2xl font-semibold text-gray-700 mb-4'>Nutritional Status by Purok</p>
+          <div className="w-full flex justify-center" style={{ height: '300px' }}>
+            <Bar 
+              data={populationDonutData} 
+              options={{
+                responsive: true,
+                plugins: {
+                  legend: {
+                    display: true,
+                    position: 'top',
+                    labels: {
+                      color: '#333',
+                      font: {
+                        size: 14,
+                      },
+                    },
+                  },
+                  tooltip: {
+                    enabled: true,
+                    backgroundColor: '#f5f5f5',
+                    titleColor: '#333',
+                    bodyColor: '#666',
+                    borderColor: '#ddd',
+                    borderWidth: 1,
+                  },
+                },
+                scales: {
+                  x: {
+                    grid: {
+                      display: false,
+                    },
+                    ticks: {
+                      color: '#666',
+                      font: {
+                        size: 12,
+                      },
+                    },
+                  },
+                  y: {
+                    grid: {
+                      color: '#eee',
+                    },
+                    ticks: {
+                      color: '#666',
+                      font: {
+                        size: 12,
+                      },
+                    },
+                  },
+                },
+              }}
+            />
           </div>
         </div>
-        <div className="flex justify-center items-center w-full relative bg-white">
-          <div className="w-[50%]">
-            <Doughnut data={sectorDonutData} options={donutOption} />
-          </div>
-          <div className="absolute right-[5%] top-[34%]">
-            <DoughnutLegend data={sectorDonutData} />
-          </div>
-        </div>
-        {/* <NutritionalStatusChart title="Weight for Age" nutritionalData={filteredData} />
-        <NutritionalStatusChart title="Height/Length for Age" nutritionalData={filteredData} />
-        <NutritionalStatusChart title="Weight for Length/Height" nutritionalData={filteredData} /> */}
       </div>
     </div>
   );
