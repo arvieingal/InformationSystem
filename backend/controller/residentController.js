@@ -83,6 +83,28 @@ const residentController = {
     }
   },
 
+  insertHouseholdHead: async (req, res) => {
+    try {
+      const householdHeadData = req.body;
+
+      const result = await Resident.insertHouseholdHead(householdHeadData);
+
+      if (result && result.affectedRows > 0) {
+        res
+          .status(200)
+          .json({ message: "Household head added successfully", result });
+      } else {
+        res.status(400).json({ message: "Failed to add household head" });
+      }
+    } catch (error) {
+      console.error("Error in insertHouseholdHead controller:", error);
+      res.status(500).json({
+        message: "Internal server error while adding household head",
+        error: error.message,
+      });
+    }
+  },
+
   archiveHouseholdMember: async (req, res) => {
     try {
       const householdMemberData = req.body;

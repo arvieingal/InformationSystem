@@ -17,11 +17,11 @@ const residentQueries = {
   findAllResident: "SELECT * FROM resident WHERE status = 'Active'",
   findById: "SELECT * FROM resident WHERE resident_id = ?",
   insertHouseholdMember: `INSERT INTO resident (
-    household_number, family_name, given_name, middle_name, extension, relationship,
+    household_number, family_name, given_name, middle_name, extension, relationship, other_relationship,
     gender, civil_status, birthdate, block_number, lot_number, sitio_purok, barangay, city,
-    birthplace, religion, sectoral, other_sectoral, is_registered_voter, is_business_owner, is_household_head,
+    birthplace, religion, highest_educational_attainment, occupation, monthly_income, sectoral, other_sectoral, is_registered_voter, is_business_owner, is_household_head,
     status
-  ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+  ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
 `,
   updateHouseholdMember: `UPDATE resident
 SET
@@ -31,6 +31,7 @@ SET
   middle_name = ?,
   extension = ?,
   relationship = ?,
+  other_relationship = ?,
   gender = ?,
   civil_status = ?,
   birthdate = ?,
@@ -41,6 +42,9 @@ SET
   city = ?,
   birthplace = ?,
   religion = ?,
+  highest_educational_attainment = ?,
+  occupation = ?,
+  monthly_income = ?,
   sectoral = ?,
   other_sectoral = ?,
   is_registered_voter = ?,
@@ -53,32 +57,18 @@ WHERE resident_id = ?;
   archiveHouseholdMember:
     "UPDATE resident SET status = 'Inactive' WHERE resident_id = ?",
   insertHouseholdHead: `INSERT INTO resident (
-  household_number, 
-  family_name, 
-  given_name, 
-  relationship, 
-  gender, 
-  civil_status, 
-  birthdate, 
-  block_number, 
-  lot_number, 
-  sitio_purok, 
-  barangay, 
-  city, 
-  birthplace, 
-  religion, 
-  sectoral, 
-  is_household_head
-) 
-VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'Yes');
+    household_number, family_name, given_name, middle_name, extension, relationship, other_relationship,
+    gender, civil_status, birthdate, block_number, lot_number, sitio_purok, barangay, city,
+    birthplace, religion, highest_educational_attainment, occupation, monthly_income, sectoral, other_sectoral, is_registered_voter, is_business_owner, is_household_head,
+    status
+  ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
 `,
-  update:
-    "UPDATE resident SET given_name = ?, family_name = ?, is_household_head = ? WHERE resident_id = ?",
   findHouseholdHead: `SELECT 
         household_number,
         family_name,
         given_name,
         middle_name,
+        extension,
         sitio_purok,
         is_business_owner,
         block_number,

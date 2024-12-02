@@ -8,6 +8,7 @@ router.post(
   "/insert-household-member",
   residentController.insertHouseholdMember
 );
+router.post("/insert-household-head", residentController.insertHouseholdHead);
 router.put(
   "/update-household-member",
   residentController.updateHouseholdMember
