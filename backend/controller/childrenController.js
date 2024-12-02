@@ -1,4 +1,5 @@
 const Children = require("../models/childrenModel");
+const Log = require("../models/log");
 const { logUserAction } = require("../controller/logController");
 
 // Function to categorize children

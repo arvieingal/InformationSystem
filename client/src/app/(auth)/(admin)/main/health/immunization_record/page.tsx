@@ -1,4 +1,5 @@
 'use client'
+
 import React, { useState, useEffect, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import Image from 'next/image';
@@ -10,6 +11,7 @@ import Pagination from '@/components/Pagination';
 import PersonModal from '@/components/PersonModal';
 import { Immunization } from '@/types/Immunization';
 import { formatDate } from '@/components/formatDate';
+import debounce from 'lodash.debounce';
 import api from '@/lib/axios';
 
 const ImmunizationRecord: React.FC = () => {
@@ -22,6 +24,7 @@ const ImmunizationRecord: React.FC = () => {
   const [selectedImmunization, setSelectedImmunization] = useState<Immunization | null>(null);
   const [isViewModalOpen, setIsViewModalOpen] = useState<boolean>(false);
   const itemsPerPage = 15;
+  const [filterCriteria, setFilterCriteria] = useState<string | null>(null);
 
   const addModalRef = useRef<HTMLDivElement>(null);
 
@@ -35,6 +38,7 @@ const ImmunizationRecord: React.FC = () => {
     address: '',
     vaccine_type: '',
     doses: '',
+    other_doses:'',
     date_vaccinated: '',
     remarks: '',
     mother_name: '',
@@ -47,18 +51,17 @@ const ImmunizationRecord: React.FC = () => {
     family_number: '',
   });
 
+  const fetchImmunizations = async () => {
+    try {
+      const response = await api.get('/api/child-immunization-record');
+      const data = response.data;
+      setImmunizations(data);
+    } catch (error) {
+      console.error("Error fetching immunization data:", error);
+    }
+  };
+
   useEffect(() => {
-    const fetchImmunizations = async () => {
-      try {
-        const response = await api.get('/api/child-immunization-record');
-
-        const data = response.data;
-        setImmunizations(data);
-      } catch (error) {
-        console.error("Error fetching immunization data:", error);
-      }
-    };
-
     fetchImmunizations();
   }, []);
 
@@ -119,9 +122,35 @@ const ImmunizationRecord: React.FC = () => {
     return sortedImmunizations.slice(startIndex, endIndex);
   }, [sortedImmunizations, currentPage]);
 
-  const handleSearch = (query: string) => {
-    // Implement search logic here
-  };
+  const handleSearch = React.useCallback(
+    debounce((query: string) => {
+      if (query.trim() === '') {
+        // If the search query is empty, reset to the original immunizations
+        fetchImmunizations(); // Assuming fetchImmunizations is accessible here
+        return;
+      }
+
+      const lowerCaseQuery = query.toLowerCase();
+      const filteredImmunizations = immunizations.filter((immunization) => {
+        const fullName = immunization.full_name ? immunization.full_name.toLowerCase() : '';
+        const vaccineType = immunization.vaccine_type ? immunization.vaccine_type.toLowerCase() : '';
+        const healthCenter = immunization.health_center ? immunization.health_center.toLowerCase() : '';
+        const remarks = immunization.remarks ? immunization.remarks.toLowerCase() : '';
+        const dateVaccinated = immunization.date_vaccinated ? formatDate(immunization.date_vaccinated.toString()).toLowerCase() : '';
+
+        return (
+          fullName.includes(lowerCaseQuery) ||
+          vaccineType.includes(lowerCaseQuery) ||
+          (immunization.doses ? immunization.doses.toString().includes(lowerCaseQuery) : false) ||
+          dateVaccinated.includes(lowerCaseQuery) ||
+          healthCenter.includes(lowerCaseQuery) ||
+          remarks.includes(lowerCaseQuery)
+        );
+      });
+      setImmunizations(filteredImmunizations);
+    }, 300), // Adjust the debounce delay as needed
+    [immunizations]
+  );
 
   const handlePageChange = (page: number) => {
     setCurrentPage(page);
@@ -168,6 +197,39 @@ const ImmunizationRecord: React.FC = () => {
     setIsViewModalOpen(true);
   };
 
+  const handleFilterClick = (criteria: string) => {
+    setFilterCriteria(criteria);
+  };
+
+  // Define desiredVaccineTypes, desiredDoses, and desiredMonths at the top of the component
+  const desiredVaccineTypes = ['Polio', 'DPT', 'Measles']; // Replace with actual vaccine types
+  const desiredDoses = ['1', '2', '3']; // Replace with actual dose numbers
+  const desiredMonths = [0, 1, 2]; // Replace with actual months
+
+  const filteredImmunizations = React.useMemo(() => {
+    if (!filterCriteria) return immunizations;
+
+    return immunizations.filter((immunization) => {
+      switch (filterCriteria) {
+        case 'vaccineType':
+          return desiredVaccineTypes.includes(immunization.vaccine_type);
+        case 'doseNumber':
+          return immunization.doses != null && desiredDoses.includes(immunization.doses.toString());
+        case 'scheduledDate':
+          const vaccinatedDate = new Date(immunization.date_vaccinated);
+          if (isNaN(vaccinatedDate.getTime())) {
+            return false; // Handle invalid date
+          }
+          const vaccinatedMonth = vaccinatedDate.getMonth();
+          return desiredMonths.includes(vaccinatedMonth);
+        case 'healthCenter':
+          return immunization.health_center === 'Barangay Luz';
+        default:
+          return true;
+      }
+    });
+  }, [immunizations, filterCriteria]);
+
   return (
     <div className='h-full'>
       <div className="h-[10%] pt-[1rem] pr-[3rem]">
@@ -193,14 +255,12 @@ const ImmunizationRecord: React.FC = () => {
           </button>
         </div>
         {isFilterDropdownOpen && (
-          <div className="absolute right-[1rem] mt-[16%] bg-white border border-gray-300 rounded-md shadow-lg z-10">
+          <div className="absolute right-[2rem] mt-[1%] bg-white border border-gray-300 rounded-md shadow-lg z-10">
             <ul className="py-1">
-              <li className="px-4 py-2 hover:bg-gray-100 cursor-pointer">Filter by Age</li>
-              <li className="px-4 py-2 hover:bg-gray-100 cursor-pointer">Filter by Sex</li>
-              <li className="px-4 py-2 hover:bg-gray-100 cursor-pointer">Filter by Vaccine Type</li>
-              <li className="px-4 py-2 hover:bg-gray-100 cursor-pointer">Filter by Dose Number</li>
-              <li className="px-4 py-2 hover:bg-gray-100 cursor-pointer">Filter by Scheduled Date</li>
-              {/* Add more filter options as needed */}
+              <li className="px-4 py-2 hover:bg-gray-100 cursor-pointer" onClick={() => handleFilterClick('vaccineType')}>Filter by Vaccine Type</li>
+              <li className="px-4 py-2 hover:bg-gray-100 cursor-pointer" onClick={() => handleFilterClick('doseNumber')}>Filter by Dose Number</li>
+              <li className="px-4 py-2 hover:bg-gray-100 cursor-pointer" onClick={() => handleFilterClick('scheduledDate')}>Filter by Scheduled Date</li>
+              <li className="px-4 py-2 hover:bg-gray-100 cursor-pointer" onClick={() => handleFilterClick('healthCenter')}>Filter by Health Center</li>
             </ul>
           </div>
         )}
@@ -209,7 +269,7 @@ const ImmunizationRecord: React.FC = () => {
       <div className="w-full h-[90%]">
         <div className='h-[90%]'>
           <ImmunizationTable
-            immunizations={paginatedImmunizations as Immunization[]}
+            immunizations={filteredImmunizations as Immunization[]}
             onSort={handleSort as (key: keyof Immunization) => void}
             sortConfig={sortConfig as { key: keyof Immunization; direction: string } | null}
             onEdit={() => {/* handle edit logic here */ }}
@@ -221,7 +281,7 @@ const ImmunizationRecord: React.FC = () => {
         <div className='h-[10]'>
           <Pagination
             currentPage={currentPage}
-            totalPages={Math.ceil(immunizations.length / itemsPerPage)}
+            totalPages={Math.ceil(filteredImmunizations.length / itemsPerPage)}
             onPageChange={handlePageChange}
           />
         </div>
@@ -467,10 +527,14 @@ const ImmunizationRecord: React.FC = () => {
               <tbody>
                 {/* Example row, replace with actual data */}
                 <tr>
-                  <td className="border border-gray-300 p-2">Example Vaccine</td>
-                  <td className="border border-gray-300 p-2">1</td>
-                  <td className="border border-gray-300 p-2">2023-01-01</td>
-                  <td className="border border-gray-300 p-2">No remarks</td>
+                  <td className="border border-gray-300 p-2">{selectedImmunization.vaccine_type}</td>
+                  <td className="border border-gray-300 p-2">
+                    {selectedImmunization.doses ? selectedImmunization.doses.toString() : ''}
+                  </td>
+                  <td className="border border-gray-300 p-2">
+                    {selectedImmunization.date_vaccinated ? formatDate(selectedImmunization.date_vaccinated.toString()) : ''}
+                  </td>
+                  <td className="border border-gray-300 p-2">{selectedImmunization.remarks}</td>
                 </tr>
                 {/* Add more rows as needed */}
               </tbody>

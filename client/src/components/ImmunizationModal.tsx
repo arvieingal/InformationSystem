@@ -2,6 +2,8 @@ import React from "react";
 import { Immunization } from "@/types/Immunization";
 import { formatDate } from "@/components/formatDate";
 import Image from "next/image";
+import SweetAlert from "@/components/SweetAlert";
+
 interface ModalProps {
   onClose: () => void;
   immunization: Immunization;
@@ -20,6 +22,33 @@ const ImmunizationModal: React.FC<ModalProps> = ({
     setEditedImmunization((prev) => ({ ...prev, [key]: value }));
   };
 
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    try {
+      const response = await fetch(`http://localhost:3001/api/child-immunization-record/${editedImmunization.child_immunization_id}`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(editedImmunization),
+      });
+
+      if (response.ok) {
+        const result = await response.json();
+        console.log('Record updated successfully:', result);
+        onSave(editedImmunization);
+        await SweetAlert.showSuccess('Record updated successfully!');
+        window.location.reload();
+      } else {
+        console.error('Failed to update record:', response.statusText);
+        await SweetAlert.showError('Failed to update record.');
+      }
+    } catch (error) {
+      console.error('Error updating record:', error);
+      await SweetAlert.showError('An error occurred while updating the record.');
+    }
+  };
+
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center scrollbar-hidden">
       <div className="bg-white rounded-lg shadow-lg p-6 w-[50%] h-[60%] overflow-y-auto relative">
@@ -29,7 +58,7 @@ const ImmunizationModal: React.FC<ModalProps> = ({
         >
           &times;
         </button>
-        <form>
+        <form onSubmit={handleSubmit}>
           <Image
             src="/image/nutrition.png"
             alt="immunization"
@@ -64,7 +93,7 @@ const ImmunizationModal: React.FC<ModalProps> = ({
               <label>Date of Birth:</label>
               <input
                 type="date"
-                value={formatDate(editedImmunization.birthdate)}
+                value={formatDate(editedImmunization.birthdate).toString()}
                 onChange={(e) => handleChange("birthdate", e.target.value)}
                 className="border border-gray-300 rounded-md p-1 w-full outline-none"
                 readOnly
@@ -111,12 +140,19 @@ const ImmunizationModal: React.FC<ModalProps> = ({
             </div>
             <div>
               <label>Dose:</label>
-              <input
-                type="text"
-                value={`${editedImmunization.doses || ""}`.trim()}
+              <select
+                value={String(editedImmunization.doses) || ""}
                 onChange={(e) => handleChange("doses", e.target.value)}
                 className="border border-gray-300 rounded-md p-1 w-full"
-              />
+              >
+                <option value="">Select Dose</option>
+                <option value="1">1</option>
+                <option value="2">2</option>
+                <option value="3">3</option>
+                <option value="4">4</option>
+                <option value="5">5</option>
+                <option value="others">Others</option>
+              </select>
             </div>
             <div>
               <label>Date of Vaccination:</label>
@@ -150,16 +186,17 @@ const ImmunizationModal: React.FC<ModalProps> = ({
           </div>
           <div className="flex justify-between">
             <button
+              type="button"
               className="mt-4 border border-gray-900 text-gray-500 px-4 py-2 rounded-md w-[25rem]"
               onClick={onClose}
             >
               Cancel
             </button>
             <button
+              type="submit"
               className="mt-4 bg-[#007F73] text-white px-4 py-2 rounded-md w-[30rem]"
-              onClick={() => onSave(editedImmunization)}
             >
-              Save
+              Update
             </button>
           </div>
         </form>
