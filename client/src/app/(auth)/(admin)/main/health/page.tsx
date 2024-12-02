@@ -152,7 +152,7 @@ const HealthPage = () => {
       <div className="h-[46%] grid grid-cols-1 md:grid-cols-3 gap-6 pt-6">  
         <div className="grid grid-cols-2 justify-center items-center w-full relative bg-white shadow rounded">
           <p className='col-span-2 text-center text-2xl font-semibold text-gray-900'>Gender-Based Nutritional Status Distribution</p>
-          <div className="w-full flex justify-center mt-4" style={{ width: '200%', height: '400px' }}>
+          <div className="w-full flex justify-center " style={{ width: '200%', height: '400px' }}>
             <Bar 
               data={genderData} 
               options={{
@@ -208,13 +208,13 @@ const HealthPage = () => {
             />
           </div>
         </div>
-        <div className="grid grid-cols-2 gap-4 justify-center items-center w-full relative bg-white p-6 shadow rounded">
-          <p className='col-span-2 text-center text-2xl font-semibold text-gray-900'>Proportion of Nutritional Status Categories</p>
+        <div className="justify-center items-center w-full relative bg-white shadow rounded">
+          <p className='col-span-2 text-center text-2xl font-semibold text-gray-900 mb-2'>Proportion of Nutritional Status Categories</p>
           <div className="w-full flex justify-center">
-            <Doughnut data={sectorDonutData} options={donutOption} />
-          </div>
-          <div className="w-full flex justify-center">
-            <DoughnutLegend data={sectorDonutData} />
+            <div className="flex" style={{ width: '300px', height: '200px' }}>
+              <Doughnut data={sectorDonutData} options={donutOption} />
+              <DoughnutLegend data={sectorDonutData} />
+            </div>
           </div>
         </div>
         <div className="grid grid-cols-1 gap-4 justify-center items-center w-full relative bg-white p-6 shadow-lg rounded-lg">
