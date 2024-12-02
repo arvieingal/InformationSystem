@@ -145,7 +145,7 @@ const HouseholdMembers = ({ params }: { params: { household_number: string } }) 
                 sitio_purok: "",
                 barangay: "",
                 city: "",
-                family_name: householdHead.find(head => head.household_number === Number(householdNumber))?.family_name || "",
+                family_name: "",
                 middle_name: "",
                 given_name: "",
                 extension: "",
@@ -247,27 +247,50 @@ const HouseholdMembers = ({ params }: { params: { household_number: string } }) 
                 return;
             }
 
-            const formData: Resident = {
-                ...data,
-                household_number: Number(householdNumber),
-                age: household.age || null,
-                resident_id: selectedResident?.resident_id || null,
-                lot_number: Number(household?.lot_number),
-                block_number: household?.block_number,
-                sitio_purok: household?.sitio_purok || "",
-                highest_educational_attainment: data.highest_educational_attainment || "",
-                occupation: data.occupation || "",
-                monthly_income: data.monthly_income || null,
-                status: "Active",
-                barangay: household?.barangay || "",
-                city: household?.city || "",
-                birthplace: data.birthplace || "",
-                is_business_owner: data.is_business_owner || "No",
-                is_household_head: data.is_household_head || "No",
-                religion: data.religion || "",
-                sectoral: data.sectoral || "",
-                is_registered_voter: data.is_registered_voter || "No",
-            };
+            const formData: Resident = editResidentModal
+                ? {
+                    ...residentData,
+                    household_number: Number(householdNumber),
+                    age: residentData?.age || null,
+                    lot_number: Number(residentData?.lot_number),
+                    block_number: residentData?.block_number || null,
+                    sitio_purok: residentData?.sitio_purok || "",
+                    highest_educational_attainment: residentData?.highest_educational_attainment || "",
+                    occupation: residentData?.occupation || "",
+                    monthly_income: residentData?.monthly_income || null,
+                    status: "Active",
+                    barangay: residentData?.barangay || "",
+                    city: residentData?.city || "",
+                    birthplace: residentData?.birthplace || "",
+                    is_business_owner: residentData?.is_business_owner || "No",
+                    is_household_head: residentData?.is_household_head || "No",
+                    religion: residentData?.religion || "",
+                    sectoral: residentData?.sectoral || "",
+                    other_sectoral: residentData?.sectoral === "Others" ? residentData?.other_sectoral || "" : "",
+                    is_registered_voter: residentData?.is_registered_voter || "No",
+                }
+                : {
+                    ...data,
+                    household_number: Number(householdNumber),
+                    age: household.age || null,
+                    resident_id: selectedResident?.resident_id || null,
+                    lot_number: Number(household?.lot_number),
+                    block_number: household?.block_number,
+                    sitio_purok: household?.sitio_purok || "",
+                    highest_educational_attainment: data.highest_educational_attainment || "",
+                    occupation: data.occupation || "",
+                    monthly_income: data.monthly_income || null,
+                    status: "Active",
+                    barangay: household?.barangay || "",
+                    city: household?.city || "",
+                    birthplace: data.birthplace || "",
+                    is_business_owner: data.is_business_owner || "No",
+                    is_household_head: data.is_household_head || "No",
+                    religion: data.religion || "",
+                    sectoral: data.sectoral || "",
+                    other_sectoral: data.other_sectoral || "",
+                    is_registered_voter: data.is_registered_voter || "No",
+                };
 
             console.log("Submitting Form Data:", formData);
 
@@ -391,7 +414,7 @@ const HouseholdMembers = ({ params }: { params: { household_number: string } }) 
                                         {...register("family_name", {
                                             validate: (value) => !isInfoModal && (!value && !residentData.family_name) ? "This field is required" : true // Validate only if there's no existing data
                                         })}
-                                        value={residentData.family_name}
+                                        value={residentData.family_name || ""}
                                         onChange={handleChange}
                                         disabled={isInfoModal}
                                     />
@@ -402,7 +425,7 @@ const HouseholdMembers = ({ params }: { params: { household_number: string } }) 
                                         type="text"
                                         className="border-[#969696] border-[1px] rounded-[5px]"
                                         {...register("middle_name", { required: false })}
-                                        value={residentData.middle_name}
+                                        value={residentData.middle_name || ""}
                                         onChange={handleChange}
                                         disabled={isInfoModal}
                                     />
@@ -415,7 +438,7 @@ const HouseholdMembers = ({ params }: { params: { household_number: string } }) 
                                         {...register("given_name", {
                                             validate: (value) => !isInfoModal && (!value && !residentData.given_name) ? "This field is required" : true // Validate only if there's no existing data
                                         })}
-                                        value={residentData.given_name}
+                                        value={residentData.given_name || ""}
                                         onChange={handleChange}
                                         disabled={isInfoModal}
                                     />
@@ -426,7 +449,7 @@ const HouseholdMembers = ({ params }: { params: { household_number: string } }) 
                                         type="text"
                                         className="border-[#969696] border-[1px] rounded-[5px]"
                                         {...register("extension", { required: false })}
-                                        value={residentData.extension}
+                                        value={residentData.extension || ""}
                                         onChange={handleChange}
                                         disabled={isInfoModal}
                                     />
@@ -441,7 +464,7 @@ const HouseholdMembers = ({ params }: { params: { household_number: string } }) 
                                                 <input
                                                     type="radio"
                                                     {...register("gender", {
-                                                        validate: (value) => !isInfoModal && (!value && !residentData.family_name) ? "This field is required" : true
+                                                        validate: (value) => !isInfoModal && (!value && !residentData.gender) ? "This field is required" : true
                                                     })}
                                                     value="Female"
                                                     className="border-[#969696]"
@@ -453,7 +476,7 @@ const HouseholdMembers = ({ params }: { params: { household_number: string } }) 
                                                 <input
                                                     type="radio"
                                                     {...register("gender", {
-                                                        validate: (value) => !isInfoModal && (!value && !residentData.family_name) ? "This field is required" : true
+                                                        validate: (value) => !isInfoModal && (!value && !residentData.gender) ? "This field is required" : true
                                                     })}
                                                     value="Male"
                                                     className="border-[#969696]"
@@ -471,9 +494,9 @@ const HouseholdMembers = ({ params }: { params: { household_number: string } }) 
                                     <select
                                         className="border-[#969696] border-[1px] rounded-[5px]"
                                         {...register("relationship", {
-                                            validate: (value) => !isInfoModal && (!value && !residentData.family_name) ? "This field is required" : true // Ensure validation only when the field is empty
+                                            validate: (value) => !isInfoModal && (!value && !residentData.relationship) ? "This field is required" : true // Ensure validation only when the field is empty
                                         })}
-                                        value={residentData.relationship}
+                                        value={residentData.relationship || ""}
                                         onChange={handleChange}
                                         disabled={isInfoModal}
                                     >
@@ -494,9 +517,9 @@ const HouseholdMembers = ({ params }: { params: { household_number: string } }) 
                                     <select
                                         className="border-[#969696] border-[1px] rounded-[5px]"
                                         {...register("civil_status", {
-                                            validate: (value) => !isInfoModal && (!value && !residentData.family_name) ? "This field is required" : true // Ensure validation only when the field is empty
+                                            validate: (value) => !isInfoModal && (!value && !residentData.civil_status) ? "This field is required" : true // Ensure validation only when the field is empty
                                         })}
-                                        value={residentData.civil_status}
+                                        value={residentData.civil_status || ""}
                                         onChange={handleChange}
                                         disabled={isInfoModal}
                                     >
@@ -513,9 +536,9 @@ const HouseholdMembers = ({ params }: { params: { household_number: string } }) 
                                         type="date"
                                         className="border-[#969696] border-[1px] rounded-[5px]"
                                         {...register("birthdate", {
-                                            validate: (value) => !isInfoModal && (!value && !residentData.family_name) ? "This field is required" : true // Ensure validation only when the field is empty
+                                            validate: (value) => !isInfoModal && (!value && !residentData.birthdate) ? "This field is required" : true // Ensure validation only when the field is empty
                                         })}
-                                        value={residentData.birthdate}
+                                        value={residentData.birthdate || ""}
                                         onChange={handleChange}
                                         disabled={isInfoModal}
                                     />
@@ -526,9 +549,9 @@ const HouseholdMembers = ({ params }: { params: { household_number: string } }) 
                                         type="text"
                                         className="border-[#969696] border-[1px] rounded-[5px]"
                                         {...register("birthplace", {
-                                            validate: (value) => !isInfoModal && (!value && !residentData.family_name) ? "This field is required" : true // Ensure validation only when the field is empty
+                                            validate: (value) => !isInfoModal && (!value && !residentData.birthplace) ? "This field is required" : true // Ensure validation only when the field is empty
                                         })}
-                                        value={residentData.birthplace}
+                                        value={residentData.birthplace || ""}
                                         onChange={handleChange}
                                         disabled={isInfoModal}
                                     />
@@ -543,7 +566,7 @@ const HouseholdMembers = ({ params }: { params: { household_number: string } }) 
                                                 <input
                                                     type="radio"
                                                     {...register("is_registered_voter", {
-                                                        validate: (value) => !isInfoModal && (!value && !residentData.family_name) ? "This field is required" : true
+                                                        validate: (value) => !isInfoModal && (!value && !residentData.is_registered_voter) ? "This field is required" : true
                                                     })}
                                                     value="Yes"
                                                     className="border-[#969696]"
@@ -555,7 +578,7 @@ const HouseholdMembers = ({ params }: { params: { household_number: string } }) 
                                                 <input
                                                     type="radio"
                                                     {...register("is_registered_voter", {
-                                                        validate: (value) => !isInfoModal && (!value && !residentData.family_name) ? "This field is required" : true
+                                                        validate: (value) => !isInfoModal && (!value && !residentData.is_registered_voter) ? "This field is required" : true
                                                     })}
                                                     value="No"
                                                     className="border-[#969696]"
@@ -574,9 +597,9 @@ const HouseholdMembers = ({ params }: { params: { household_number: string } }) 
                                         type="text"
                                         className="border-[#969696] border-[1px] rounded-[5px]"
                                         {...register("religion", {
-                                            validate: (value) => !isInfoModal && (!value && !residentData.family_name) ? "This field is required" : true // Ensure validation only when the field is empty
+                                            validate: (value) => !isInfoModal && (!value && !residentData.religion) ? "This field is required" : true // Ensure validation only when the field is empty
                                         })}
-                                        value={residentData.religion}
+                                        value={residentData.religion || ""}
                                         onChange={handleChange}
                                         disabled={isInfoModal}
                                     />
@@ -586,7 +609,7 @@ const HouseholdMembers = ({ params }: { params: { household_number: string } }) 
                                     <select
                                         className="border-[#969696] border-[1px] rounded-[5px]"
                                         {...register("highest_educational_attainment", { required: false })}
-                                        value={residentData.highest_educational_attainment}
+                                        value={residentData.highest_educational_attainment || ""}
                                         onChange={handleChange}
                                         disabled={isInfoModal}
                                     >
@@ -605,7 +628,7 @@ const HouseholdMembers = ({ params }: { params: { household_number: string } }) 
                                         type="text"
                                         className="border-[#969696] border-[1px] rounded-[5px]"
                                         {...register("occupation", { required: false })}
-                                        value={residentData.occupation}
+                                        value={residentData.occupation || ""}
                                         onChange={handleChange}
                                         disabled={isInfoModal}
                                     />
@@ -626,9 +649,9 @@ const HouseholdMembers = ({ params }: { params: { household_number: string } }) 
                                     <select
                                         className="border-[#969696] border-[1px] rounded-[5px]"
                                         {...register("sectoral", {
-                                            validate: (value) => !isInfoModal && (!value && !residentData.family_name) ? "This field is required" : true // Ensure validation only when the field is empty
+                                            validate: (value) => !isInfoModal && (!value && !residentData.sectoral) ? "This field is required" : true // Ensure validation only when the field is empty
                                         })}
-                                        value={residentData.sectoral}
+                                        value={residentData.sectoral || ""}
                                         onChange={handleChange}
                                         disabled={isInfoModal}
                                     >
@@ -651,7 +674,7 @@ const HouseholdMembers = ({ params }: { params: { household_number: string } }) 
                                             {...register("other_sectoral", {
                                                 validate: (value) => !isInfoModal && (!value && !residentData.other_sectoral) ? "This field is required" : true // Validate only if there's no existing data
                                             })}
-                                            value={residentData.other_sectoral}
+                                            value={residentData.other_sectoral || ""}
                                             onChange={handleChange}
                                             disabled={isInfoModal}
                                             required={residentData.sectoral === "Others"}
