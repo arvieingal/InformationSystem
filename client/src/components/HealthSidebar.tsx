@@ -67,14 +67,7 @@ const HealthSidebar = () => {
                 width={30}
                 height={30}
                 alt={name}
-                className={`w-[30px] h-[30px] absolute group-hover:hidden ${clickedImage === name ? "filter-green" : ""}`}
-              />
-              <Image
-                src={activeIcon}
-                width={30}
-                height={30}
-                alt={`${name}-hover`}
-                className="hidden group-hover:block w-[30px] h-[30px]"
+                className={`w-[30px] h-[30px] ${clickedImage === name ? "filter-green" : ""}`}
               />
             </div>
           ))}

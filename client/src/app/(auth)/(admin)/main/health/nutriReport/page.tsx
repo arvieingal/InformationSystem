@@ -45,7 +45,7 @@
       const input = document.getElementById("report-form");
       if (input) {
         html2canvas(input, {
-          scale: 2,
+          scale: 1,
           useCORS: true,
         }).then((canvas) => {
           const imgData = canvas.toDataURL("image/png");
@@ -56,21 +56,16 @@
           });
 
           const imgWidth = 297;
-          const pageHeight = 210;
-          const imgHeight = (canvas.height * imgWidth) / canvas.width;
-          let heightLeft = imgHeight;
-          let position = 0;
+          const imgHeight = 210;
 
-          pdf.addImage(imgData, "PNG", 0, position, imgWidth, imgHeight);
-          heightLeft -= pageHeight;
+          const canvasWidth = canvas.width;
+          const canvasHeight = canvas.height;
+          const ratio = Math.min(imgWidth / canvasWidth, imgHeight / canvasHeight);
 
-          while (heightLeft >= 0) {
-            position = heightLeft - imgHeight;
-            pdf.addPage();
-            pdf.addImage(imgData, "PNG", 0, position, imgWidth, imgHeight);
-            heightLeft -= pageHeight;
-          }
+          const finalWidth = canvasWidth * ratio;
+          const finalHeight = canvasHeight * ratio;
 
+          pdf.addImage(imgData, "PNG", 0, 0, finalWidth, finalHeight);
           pdf.save("report.pdf");
         }).catch((error) => {
           console.error("Error generating PDF:", error);
@@ -253,17 +248,17 @@
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-20 mt-6 px-[8rem]">
           <div className="flex flex-col">
             <label>Prepared By:</label>
-            <div className="border-b border-[#cccccc] bg-transparent outline-none p-[1rem] w-full"></div>
+            <input type="text" className="border-b border-[#cccccc] bg-transparent outline-none p-[1rem] w-full" />
             <p className="mt-2">Name & Signature of Nutritional Coordinator</p>
           </div>
           <div className="flex flex-col">
             <label>Checked By:</label>
-            <div className="border-b border-[#cccccc] bg-transparent outline-none p-[1rem] w-full"></div>
+            <input type="text" className="border-b border-[#cccccc] bg-transparent outline-none p-[1rem] w-full" />
             <p className="mt-2">Name & Signature of City/Municipal Health</p>
           </div>
           <div className="flex flex-col">
             <label>Approved By:</label>
-            <div className="border-b border-[#cccccc] bg-transparent outline-none p-[1rem] w-full"></div>
+            <input type="text" className="border-b border-[#cccccc] bg-transparent outline-none p-[1rem] w-full" />
             <p className="mt-2">Name & Signature of Mayor</p>
           </div>
         </div>

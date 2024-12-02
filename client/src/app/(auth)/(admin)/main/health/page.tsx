@@ -151,7 +151,7 @@ const HealthPage = () => {
 
       <div className="h-[46%] grid grid-cols-1 md:grid-cols-3 gap-6 pt-6">  
         <div className="grid grid-cols-2 justify-center items-center w-full relative bg-white shadow rounded">
-          <p className='col-span-2 text-center text-2xl font-semibold text-gray-900'>Gender-Based Nutritional Status Distribution</p>
+          <p className='col-span-2 text-center text-2xl font-semibold text-gray-900 mt-4'>Gender-Based Nutritional Status Distribution</p>
           <div className="w-full flex justify-center " style={{ width: '200%', height: '400px' }}>
             <Bar 
               data={genderData} 
@@ -208,12 +208,16 @@ const HealthPage = () => {
             />
           </div>
         </div>
-        <div className="justify-center items-center w-full relative bg-white shadow rounded">
-          <p className='col-span-2 text-center text-2xl font-semibold text-gray-900 mb-2'>Proportion of Nutritional Status Categories</p>
+        <div className="justify-center items-center w-full relative bg-white shadow rounded-lg p-6">
+          <p className='col-span-2 text-center text-2xl font-semibold text-gray-900 mb-4'>Proportion of Nutritional Status Categories</p>
           <div className="w-full flex justify-center">
-            <div className="flex" style={{ width: '300px', height: '200px' }}>
-              <Doughnut data={sectorDonutData} options={donutOption} />
-              <DoughnutLegend data={sectorDonutData} />
+            <div className="flex flex-col md:flex-row items-center mt-4" style={{ width: '100%', maxWidth: '800px' }}>
+              <div className="flex-1" style={{ minWidth: '300px', height: '300px' }}>
+                <Doughnut data={sectorDonutData} options={donutOption} />
+              </div>
+              <div className="flex-1" style={{ minWidth: '200px' }}>
+                <DoughnutLegend data={sectorDonutData} />
+              </div>
             </div>
           </div>
         </div>
@@ -221,7 +225,17 @@ const HealthPage = () => {
           <p className='text-center text-2xl font-semibold text-gray-900 mb-4'>Nutritional Status by Purok</p>
           <div className="w-full flex justify-center" style={{ height: '300px' }}>
             <Bar 
-              data={populationDonutData} 
+              data={{
+                ...populationDonutData,
+                datasets: populationDonutData.datasets.map(dataset => ({
+                  ...dataset,
+                  backgroundColor: [
+                    '#FF5733', '#33FF57', '#3357FF', '#FF33A1', '#33FFF5',
+                    '#FF8C33', '#8C33FF', '#33FF8C', '#FF3333', '#33FF33',
+                    '#3333FF', '#FF33FF', '#33FFFF', '#FFFF33', '#FF9933'
+                  ],
+                })),
+              }} 
               options={{
                 responsive: true,
                 plugins: {

@@ -1,5 +1,5 @@
 "use client";
-import React, { useState, useEffect, useRef, ReactNode } from "react";
+import React, { useState, useEffect, useRef, } from "react";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
 import Modal from "@/components/PersonModal";
@@ -47,9 +47,9 @@ export interface Child {
   height_cm: string;
   weight_kg: string;
   nutritional_status: string;
-  heightAgeZ: string;
-  weightAgeZ: string;
-  weight_for_length: string;
+  height_age_Z: string;
+  weight_age_Z: string;
+  weight_height_Z: string;
   measurement_date: string;
   status: string;
 }
@@ -71,9 +71,9 @@ interface ChildFormData {
   height_cm: string;
   weight_kg: string;
   nutritional_status: string;
-  heightAgeZ: string;
-  weightAgeZ: string;
-  weight_for_length: string;
+  height_age_Z: string;
+  weight_age_Z: string;
+  weight_height_Z: string;
   measurement_date: string;
   status: string;
 }
@@ -84,23 +84,26 @@ const calculateNutritionalStatus = (
   weight: number,
   height: number
 ): string => {
-  if (height < 20) {
-    return "Error: Height value seems incorrect. Please verify.";
+  if (height < 20 || weight <= 0) {
+    return "Error: Invalid height or weight. Please verify.";
   }
 
-  // Placeholder logic for WFL-Z calculation
-  const wflZ = (weight / height) - 1; // Simplified example, replace with actual calculation
+  const heightInMeters = height / 100; // Convert height from cm to meters
+  const bmi = weight / (heightInMeters * heightInMeters); // BMI calculation
 
-  if (wflZ < -2) {
+  if (bmi < 16) {
+    return "Severely Underweight";
+  } else if (bmi < 18.5) {
     return "Underweight";
-  } else if (wflZ <= 1) {
+  } else if (bmi <= 24.9) {
     return "Normal";
-  } else if (wflZ <= 2) {
+  } else if (bmi <= 29.9) {
     return "Overweight";
-  } else {
+  } else { 
     return "Obese";
   }
 };
+
 const NutritionalStatus: React.FC = () => {
   const router = useRouter();
   const { data: session } = useSession();
@@ -122,9 +125,9 @@ const NutritionalStatus: React.FC = () => {
     height_cm: "",
     weight_kg: "",
     nutritional_status: "",
-    heightAgeZ: "",
-    weightAgeZ: "",
-    weight_for_length: "",
+    height_age_Z: "",
+    weight_age_Z: "",
+    weight_height_Z: "",
     measurement_date: new Date().toISOString().split("T")[0],
     status: "",
   });
@@ -159,6 +162,27 @@ const NutritionalStatus: React.FC = () => {
   });
 
   const [residents, setResidents] = useState<Child | null>(null);
+
+
+  const calculateNutritionalStatus = (
+    age: number,
+    weight: number,
+    height: number
+  ): string => {
+    if (!weight || !height) return "N/A";
+  
+    const heightInMeters = height / 100; // Convert cm to meters
+    const bmi = weight / (heightInMeters * heightInMeters);
+  
+    // Determine nutritional status based on BMI thresholds
+    if (bmi < 16) return "Severely Underweight";
+    if (bmi >= 16 && bmi < 18.5) return "Underweight";
+    if (bmi >= 18.5 && bmi <= 24.9) return "Normal";
+    if (bmi >= 25 && bmi <= 29.9) return "Overweight";
+    return "Obese";
+  };
+  
+
 
   const handleFilterChange = (key: string, value: string | boolean) => {
     setFilterCriteria((prev) => ({ ...prev, [key]: value }));
@@ -274,9 +298,9 @@ const NutritionalStatus: React.FC = () => {
       height_cm: child.height_cm,
       weight_kg: child.weight_kg,
       nutritional_status: child.nutritional_status,
-      heightAgeZ: child.heightAgeZ,
-      weightAgeZ: child.weightAgeZ,
-      weight_for_length: child.weight_for_length,
+      height_age_Z: child.height_age_Z,
+      weight_age_Z: child.weight_age_Z,
+      weight_height_Z: child.weight_height_Z,
       measurement_date: child.measurement_date,
       status: child.status,
     });
@@ -295,7 +319,7 @@ const NutritionalStatus: React.FC = () => {
       return;
     }
 
-    const username = session.user?.name || session.user?.email || "Unknown User"; // Get username or fallback
+    const username = session.user?.name || session.user?.email || "Unknown User"; 
 
     const confirmEdit = await SweetAlert.showConfirm(
       `<p> Are you sure you want to edit this child with ID: <span class="font-bold">${child.child_id}</span>?</p>`
@@ -325,10 +349,10 @@ const NutritionalStatus: React.FC = () => {
         height_cm: child.height_cm ? child.height_cm.toString() : "",
         weight_kg: child.weight_kg ? child.weight_kg.toString() : "",
         nutritional_status: child.nutritional_status || "",
-        heightAgeZ: child.heightAtAgeZ ? child.heightAtAgeZ.toString() : "",
-        weightAgeZ: child.weightAtAgeZ ? child.weightAtAgeZ.toString() : "",
-        weight_for_length: child.weight_for_length
-          ? child.weight_for_length.toString()
+        height_age_Z: child.height_age_Z ? child.height_age_Z.toString() : "",
+        weight_age_Z: child.weight_age_Z ? child.weight_age_Z.toString() : "",
+        weight_height_Z: child.weight_height_Z
+          ? child.weight_height_Z.toString()
           : "",
         measurement_date: child.measurement_date || "",
         status: child.status || "",
@@ -446,7 +470,6 @@ const NutritionalStatus: React.FC = () => {
     }
   };
 
-  // Update nutritional status when age, weight, or height changes
   useEffect(() => {
     if (
       selectedChild.age &&
@@ -466,9 +489,8 @@ const NutritionalStatus: React.FC = () => {
     selectedChild.height_cm,
   ]);
 
-  // Utility function to safely parse date strings
   const parseDate = (dateString: string) => {
-    if (!dateString) return null; // Return null if the date string is empty
+    if (!dateString) return null; 
     const date = new Date(dateString);
     return isNaN(date.getTime()) ? null : date;
   };
@@ -521,10 +543,10 @@ const NutritionalStatus: React.FC = () => {
         weight_at_birth: selectedChild.weight_at_birth ?? null,
         height_cm: selectedChild.height_cm ?? null,
         weight_kg: selectedChild.weight_kg ?? null,
-        heightAgeZ: selectedChild.heightAgeZ ?? null,
-        weightAgeZ: selectedChild.weightAgeZ ?? null,
-        weight_for_length: selectedChild.weight_for_length ?? null,
-        nutritional_status: selectedChild.nutritional_status ?? null,
+        height_age_Z: selectedChild.height_age_Z ?? null,
+        weight_age_Z: selectedChild.weight_age_Z ?? null,
+        weight_height_Z: selectedChild.weight_height_Z ?? null,
+        nutritional_status: selectedChild.nutritional_status ?? null, 
         measurement_date: selectedChild.measurement_date ?? null,
         updated_by: session?.user.username || "Unknown User", // Add username here
       };
@@ -600,36 +622,49 @@ const NutritionalStatus: React.FC = () => {
       ...prev,
       [field]: value,
     }));
+  
     if (field === "weight_kg" || field === "height_cm") {
-      const weight = parseFloat(value);
-      const height = parseInt(selectedChild.height_cm || "0");
-      const age = parseInt(selectedChild.age || "0");
-
-      if (!isNaN(weight) && !isNaN(height) && !isNaN(age)) {
-        const status = calculateNutritionalStatus(age, weight, height);
-        setSelectedChild((prev) => ({
-          ...prev,
-          nutritional_status: status,
-          weightAgeZ: calculateWeightForAge(age, weight),
-          heightAgeZ: calculateLengthForAge(age, height),
-          weight_for_length: calculateWeightForLength(weight, height),
-        }));
+      const weight = parseFloat(field === "weight_kg" ? value : selectedChild.weight_kg || "0");
+      const height = parseFloat(field === "height_cm" ? value : selectedChild.height_cm || "0");
+      const age = parseFloat(selectedChild.age || "0");
+  
+      if (isNaN(weight) || isNaN(height) || isNaN(age)) {
+        setError("Please enter valid numbers for age, weight, and height.");
+        return;
       }
+  
+      if (weight <= 0 || height <= 0) {
+        setError("Weight and height must be greater than zero.");
+        return;
+      }
+  
+      setError(null); // Clear previous errors
+  
+      const status = calculateNutritionalStatus(age, weight, height);
+      setSelectedChild((prev) => ({
+        ...prev,
+        nutritional_status: status,
+        weight_age_Z: calculateWeightForAge(age, weight),
+        height_age_Z: calculateLengthForAge(age, height),
+        weight_height_Z: calculateWeightForLength(weight, height),
+      }));
     }
   };
+  
 
   function calculateWeightForAge(age: number, weight: number): string {
-    return weight.toString();
+    // Implement the logic to calculate the weight-for-age Z-score or other metric
+    return weight.toString(); // Placeholder
   }
 
   function calculateLengthForAge(age: number, height: number): string {
-   
-    return height.toString();
+    // Implement the logic to calculate the length/height-for-age Z-score or other metric
+    return height.toString(); // Placeholder
   }
 
   function calculateWeightForLength(weight: number, height: number): string {
-   
-    return (weight / height).toString(); 
+    // Implement the logic to calculate the weight-for-length/height Z-score or other metric
+    return (weight / height).toString(); // Placeholder
   }
 
   function handleArchiveClick(arg0: any): void {
@@ -745,7 +780,7 @@ const NutritionalStatus: React.FC = () => {
                         className="w-full outline-none"
                         type="text"
                         value={selectedChild.weight_kg}
-                        onChange={(e) => handleInputChange("weight_kg", e.target.value)}
+                        readOnly
                       />
                     </div>
                     <p>Height (cm):</p>
@@ -754,7 +789,7 @@ const NutritionalStatus: React.FC = () => {
                         className="w-full outline-none"
                         type="text"
                         value={selectedChild.height_cm}
-                        onChange={(e) => handleInputChange("height_cm", e.target.value)}
+                        readOnly
                       />
                     </div>
                     <div className="flex flex-row gap-[10px]">
@@ -774,28 +809,16 @@ const NutritionalStatus: React.FC = () => {
                           })
                         }
                         dateFormat="MMMM d, yyyy"
-                        className=" border-b  border-black w-[12rem] h-[2rem] p-1 text-center"
-                        customInput={
-                          <div className="flex items-center p-1 text-black">
-                            <input
-                              className="w-full outline-none"
-                              value={
-                                selectedChild.measurement_date
-                                  ? formatDate(selectedChild.measurement_date)
-                                  : ""
-                              }
-                            />
-                            <FaCalendarAlt className="ml-2 text-black" />
-                          </div>
-                        }
+                        className="border-b border-black w-[12rem] h-[2rem] p-1 text-center"
                       />
+                      <FaCalendarAlt className="ml-2 text-black" />
                     </div>
                   </div>
                   <div className="w-full flex flex-row gap-[1rem]">
                     <div className="w-full flex flex-row mt-[2rem]">
                       <p className="font-medium">Current Address:</p>
                       <p className="border-b border-black w-[12rem] h-[2rem] p-1 text-center">
-                        {selectedChild.barangay + ", " + selectedChild.city}
+                        {selectedChild.address}
                       </p>
                     </div>
                     <div className="w-full flex flex-row gap-[2rem] mt-[2rem]">
@@ -813,19 +836,19 @@ const NutritionalStatus: React.FC = () => {
                   <div className="flex flex-row gap-[.5rem items-center mt-[1rem]">
                     <p>Weight for Age:</p>
                     <p className="border-b border-black w-[4rem] h-[2rem] text-center p-1 ">
-                      {selectedChild.weightAgeZ}
+                      {selectedChild.weight_age_Z}
                     </p>
                   </div>
                   <div className="flex flex-row gap-[.5rem] items-center">
                     <p>Length/Height for Age:</p>
                     <p className="border-b border-black w-[4rem] h-[2rem] text-center p-1 ">
-                      {selectedChild.heightAgeZ}
+                      {selectedChild.height_age_Z}
                     </p>
                   </div>
                   <div className="flex flex-row gap-[.5rem] items-center">
                     <p>Weight for Length/Height:</p>
                     <p className="border-b border-black w-[4rem] h-[2rem] text-center p-1 ">
-                      {selectedChild.weight_for_length}
+                      {selectedChild.weight_height_Z}
                     </p>
                   </div>
                   <div className="flex flex-row gap-[.5rem] items-center">
@@ -989,7 +1012,9 @@ const NutritionalStatus: React.FC = () => {
                       className="w-full outline-none"
                       type="text"
                       value={selectedChild.weight_kg}
-                      onChange={(e) => handleInputChange("weight_kg", e.target.value)}
+                      onChange={(e) =>
+                        handleInputChange("weight_kg", e.target.value)
+                      }
                     />
                   </div>
                   <p>Height (cm):</p>
@@ -998,7 +1023,9 @@ const NutritionalStatus: React.FC = () => {
                       className="w-full outline-none"
                       type="text"
                       value={selectedChild.height_cm}
-                      onChange={(e) => handleInputChange("height_cm", e.target.value)}
+                      onChange={(e) =>
+                        handleInputChange("height_cm", e.target.value)
+                      }
                     />
                   </div>
                   <div className="flex flex-row gap-[10px]">
@@ -1018,20 +1045,7 @@ const NutritionalStatus: React.FC = () => {
                         })
                       }
                       dateFormat="MMMM d, yyyy"
-                      className=" border-b  border-black w-[12rem] h-[2rem] p-1 text-center"
-                      customInput={
-                        <div className="flex items-center p-1 text-black">
-                          <input
-                            className="w-full outline-none"
-                            value={
-                              selectedChild.measurement_date
-                                ? formatDate(selectedChild.measurement_date)
-                                : ""
-                            }
-                          />
-                          <FaCalendarAlt className="ml-2 text-black" />
-                        </div>
-                      }
+                      className="border-b border-black w-[12rem] h-[2rem] p-1 text-center"
                     />
                   </div>
                 </div>
@@ -1046,9 +1060,9 @@ const NutritionalStatus: React.FC = () => {
                     <input
                       className="w-full outline-none flex text-center justify-center"
                       type="number"
-                      value={selectedChild.weightAgeZ}
+                      value={selectedChild.weight_age_Z}
                       onChange={(e) =>
-                        handleInputChange("weightAgeZ", e.target.value)
+                          handleInputChange("weight_age_Z", e.target.value)
                       }
                     />
                   </div>
@@ -1057,9 +1071,9 @@ const NutritionalStatus: React.FC = () => {
                     <input
                       className="w-full outline-none flex text-center justify-center"
                       type="number"
-                      value={selectedChild.heightAgeZ}
+                      value={selectedChild.height_age_Z}
                       onChange={(e) =>
-                        handleInputChange("heightAgeZ", e.target.value)
+                        handleInputChange("height_age_Z", e.target.value)
                       }
                     />
                   </div>
@@ -1068,9 +1082,9 @@ const NutritionalStatus: React.FC = () => {
                     <input
                       className="w-full outline-none flex text-center justify-center"
                       type="number"
-                      value={selectedChild.weight_for_length}
+                      value={selectedChild.weight_height_Z}
                       onChange={(e) =>
-                        handleInputChange("weight_for_length", e.target.value)
+                        handleInputChange("weight_height_Z", e.target.value)
                       }
                     />
                   </div>
@@ -1088,6 +1102,7 @@ const NutritionalStatus: React.FC = () => {
                         }
                       >
                         <option value="">Select Nutritional Status</option>
+                        <option value="Severly Underweight">Severly Underweight</option>
                         <option value="Normal">Normal</option>
                         <option value="Underweight">Underweight</option>
                         <option value="Overweight">Overweight</option>
@@ -1144,6 +1159,7 @@ const NutritionalStatus: React.FC = () => {
           </div>
         </Modal>
       )}
+      {error && <div className="error-message">{error}</div>}
     </>
   );
 };

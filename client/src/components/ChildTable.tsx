@@ -47,10 +47,11 @@ export interface Child {
   child_id: number;
   height_at_birth: number;
   weight_at_birth: number;
-  heightAgeZ: number;
+  height_age_z: number;
   nutritional_status: string;
-  heightAtAgeZ: number;
-  weightAtAgeZ: number;
+  height_age_Z: number;
+  weight_age_Z: number;
+  weight_height_Z: number;
   measurement_date: string;
   status: string;
 }
@@ -80,9 +81,9 @@ type ChildData = {
   weight_at_birth: number | null;
   height_cm: number | null;
   weight_kg: number | null;
-  heightAgeZ: number | null;
-  weightAgeZ: number | null;
-  weightHeightZ: number | null;
+  height_age_z: number | null;
+  weight_age_z: number | null;
+  weight_height_z: number | null;
   measurement_date: string | null;
   nutritional_status: string | null;
   status: string | null;

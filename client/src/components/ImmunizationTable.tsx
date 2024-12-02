@@ -40,7 +40,7 @@ const ImmunizationTable: React.FC<TableProps> = ({ immunizations, onSort, sortCo
         <table className="w-full border-collapse text-[14px]">
           <thead className='text-center'>
             <tr className='sticky top-0 bg-white shadow-gray-300 shadow-sm'>
-              {['id', 'name', 'vaccine', 'dose', 'date of vaccination', 'health center', 'barangay'].map((key) => (
+              {['id', 'name', 'vaccine', 'dose', 'date of vaccination', 'remarks', 'health center',].map((key) => (
                 <th
                   key={key}
                   className="py-2 px-6 text-left font-semibold text-[16px]"
@@ -64,9 +64,11 @@ const ImmunizationTable: React.FC<TableProps> = ({ immunizations, onSort, sortCo
                 <td className="py-2 px-6 text-left" onClick={() => onViewDetails(immunization)}>{`${immunization.full_name || ''}`.trim()}</td>
                 <td className="py-2 px-6 text-left" onClick={() => onViewDetails(immunization)}>{immunization.vaccine_type}</td>
                 <td className="py-2 px-6 text-left" onClick={() => onViewDetails(immunization)}>{`${immunization.doses || ''}`.trim()}</td>
-                <td className="py-2 px-6 text-left" onClick={() => onViewDetails(immunization)}>{formatDate(`${immunization.date_vaccinated || ''}`.trim())}</td>
+                <td className="py-2 px-6 text-left" onClick={() => onViewDetails(immunization)}>
+                  {immunization.date_vaccinated ? formatDate(immunization.date_vaccinated.toString()).trim() : ''}
+                </td>
+                <td className="py-2 px-6 text-left" onClick={() => onViewDetails(immunization)}>{immunization.remarks}</td>
                 <td className="py-2 px-6 text-left" onClick={() => onViewDetails(immunization)}>{immunization.health_center}</td>
-                <td className="py-2 px-6 text-left" onClick={() => onViewDetails(immunization)}>{immunization.barangay}</td>
                 <td className="py-2 pr-6 text-left flex items-center">
                   <Image
                     src="/svg/edit.svg"
