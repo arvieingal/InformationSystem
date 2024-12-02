@@ -118,41 +118,41 @@ const HealthPage = () => {
       {
         label: 'Gender Distribution',
         data: [genderDistribution.male, genderDistribution.female],
-        backgroundColor: ['#338A80', '#85D0C8'],
+        backgroundColor: ['#4A90E2', '#50E3C2'],
       },
     ],
   };
 
   return (
-    <div className="h-full px-4 pb-4 overflow-hidden bg-gray-100">
-      <div className="h-[46%] grid grid-cols-1 md:grid-cols-3 gap-4 mt-4">
+    <div className="h-full px-6 pb-6 overflow-hidden bg-white">
+      <div className="h-[46%] grid grid-cols-1 md:grid-cols-3 gap-6 mt-6">
         {/* Age Category List */}
-        <div className="w-full relative bg-gray-100 p-6 shadow-lg rounded-lg overflow-hidden">
-          <h2 className="text-center font-bold mb-6 text-gray-800 text-lg">AGE CATEGORY BY MONTH</h2>
+        <div className="w-full relative bg-white p-8 shadow-lg rounded-lg overflow-hidden">
+          <h2 className="text-center font-bold mb-6 text-gray-900 text-lg">AGE CATEGORY BY MONTH</h2>
           {['0-6 Months', '7-12 Months', '12-24 Months', '24-32 Months', '32-48 Months', '48-60 Months', '60-72 Months'].map((age) => (
             <div
               key={age}
               className={`p-3 cursor-pointer transition-colors duration-300 rounded-md ${
-                age === selectedAgeCategory ? 'bg-blue-200' : 'hover:bg-blue-100'
+                age === selectedAgeCategory ? 'bg-blue-300' : 'hover:bg-blue-200'
               }`}
               onClick={() => setSelectedAgeCategory(age)}
             >
-              <span className="block text-center text-gray-700 font-medium">{age}</span>
+              <span className="block text-center text-gray-800 font-medium">{age}</span>
             </div>
           ))}
         </div>
 
         {/* Age Category Chart */}
-        <div className="col-span-1 md:col-span-2 bg-gray-100 p-4 shadow rounded overflow-hidden">
-          <p className='text-center text-xl font-semibold'>Number of Children Vaccinated by Vaccine Type and Gender</p>
+        <div className="col-span-1 md:col-span-2 bg-white p-6 shadow rounded overflow-hidden">
+          <p className='text-center text-xl font-semibold text-gray-900'>Number of Children Vaccinated by Vaccine Type and Gender</p>
           <AgeCategoryChart ageCategory={selectedAgeCategory} />
         </div>
       </div>
 
-      <div className="h-[46%] grid grid-cols-1 md:grid-cols-3 gap-4 pt-4">  
-        <div className="grid grid-cols-2 justify-center items-center w-full relative bg-gray-100  shadow rounded">
-          <p className='col-span-2 text-center text-2xl font-semibold text-gray-700'>Gender-Based Nutritional Status Distribution</p>
-          <div className="w-full flex justify-center">
+      <div className="h-[46%] grid grid-cols-1 md:grid-cols-3 gap-6 pt-6">  
+        <div className="grid grid-cols-2 justify-center items-center w-full relative bg-white shadow rounded">
+          <p className='col-span-2 text-center text-2xl font-semibold text-gray-900'>Gender-Based Nutritional Status Distribution</p>
+          <div className="w-full flex justify-center mt-4" style={{ width: '200%', height: '400px' }}>
             <Bar 
               data={genderData} 
               options={{
@@ -200,7 +200,7 @@ const HealthPage = () => {
                       font: {
                         size: 12,
                       },
-                      stepSize: 1000, // Adjust step size for better readability
+                      stepSize: 1000,
                     },
                   },
                 },
@@ -208,8 +208,8 @@ const HealthPage = () => {
             />
           </div>
         </div>
-        <div className="grid grid-cols-2 gap-4 justify-center items-center w-full relative bg-gray-100 p-4 shadow rounded">
-          <p className='col-span-2 text-center text-2xl font-semibold text-gray-700'>Proportion of Nutritional Status Categories</p>
+        <div className="grid grid-cols-2 gap-4 justify-center items-center w-full relative bg-white p-6 shadow rounded">
+          <p className='col-span-2 text-center text-2xl font-semibold text-gray-900'>Proportion of Nutritional Status Categories</p>
           <div className="w-full flex justify-center">
             <Doughnut data={sectorDonutData} options={donutOption} />
           </div>
@@ -217,8 +217,8 @@ const HealthPage = () => {
             <DoughnutLegend data={sectorDonutData} />
           </div>
         </div>
-        <div className="grid grid-cols-1 gap-4 justify-center items-center w-full relative bg-gray-100 p-4 shadow-lg rounded-lg">
-          <p className='text-center text-2xl font-semibold text-gray-700 mb-4'>Nutritional Status by Purok</p>
+        <div className="grid grid-cols-1 gap-4 justify-center items-center w-full relative bg-white p-6 shadow-lg rounded-lg">
+          <p className='text-center text-2xl font-semibold text-gray-900 mb-4'>Nutritional Status by Purok</p>
           <div className="w-full flex justify-center" style={{ height: '300px' }}>
             <Bar 
               data={populationDonutData} 
