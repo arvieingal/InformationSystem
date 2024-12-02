@@ -33,6 +33,7 @@ const Resident = {
         data.middle_name || null,
         data.extension || null,
         data.relationship,
+        data.other_relationship,
         data.gender,
         data.civil_status,
         data.birthdate,
@@ -44,6 +45,9 @@ const Resident = {
         data.birthplace,
         data.religion,
         data.sectoral,
+        data.highest_educational_attainment,
+        data.occupation,
+        data.monthly_income,
         data.other_sectoral,
         data.is_registered_voter || "No",
         data.is_business_owner || "No",
@@ -67,6 +71,7 @@ const Resident = {
         data.middle_name || null,
         data.extension || null,
         data.relationship,
+        data.other_relationship,
         data.gender,
         data.civil_status,
         data.birthdate,
@@ -77,6 +82,9 @@ const Resident = {
         data.city,
         data.birthplace,
         data.religion,
+        data.highest_educational_attainment,
+        data.occupation,
+        data.monthly_income,
         data.sectoral,
         data.other_sectoral,
         data.is_registered_voter || "No",
@@ -89,6 +97,44 @@ const Resident = {
       return rows || [];
     } catch (error) {
       console.error("Error executing update query:", error);
+      throw error;
+    }
+  },
+
+  insertHouseholdHead: async (data) => {
+    try {
+      const [rows] = await pool.execute(residentQueries.insertHouseholdHead, [
+        data.household_number,
+        data.family_name,
+        data.given_name,
+        data.middle_name || null,
+        data.extension || null,
+        data.relationship,
+        data.other_relationship,
+        data.gender,
+        data.civil_status,
+        data.birthdate,
+        data.block_number || 0,
+        data.lot_number || 0,
+        data.sitio_purok,
+        data.barangay,
+        data.city,
+        data.birthplace,
+        data.religion,
+        data.highest_educational_attainment,
+        data.occupation,
+        data.monthly_income,
+        data.sectoral,
+        data.other_sectoral,
+        data.is_registered_voter || "No",
+        data.is_business_owner || "No",
+        data.is_household_head || "No",
+        data.status,
+      ]);
+      console.log("Rows inserted into the database:", rows);
+      return rows || [];
+    } catch (error) {
+      console.error("Error executing insert query:", error);
       throw error;
     }
   },

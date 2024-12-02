@@ -8,87 +8,13 @@ import api from "@/lib/axios";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { SubmitHandler, useForm } from "react-hook-form";
-
-type Resident = {
-    resident_id: number | null;
-    household_number: number | null;
-    family_name: string;
-    given_name: string;
-    middle_name?: string;
-    extension?: string;
-    relationship:
-    | "Husband"
-    | "Wife"
-    | "Son"
-    | "Daughter"
-    | "Grandmother"
-    | "Grandfather"
-    | "Son in law"
-    | "Daughter in law"
-    | "Others"
-    | "";
-    gender: "Male" | "Female" | "";
-    civil_status: "Married" | "Separated" | "Single" | "Widowed" | "";
-    birthdate: string;
-    age: number | null;
-    highest_educational_attainment?:
-    | "Elementary Level"
-    | "Elementary Graduate"
-    | "High School Level"
-    | "High School Graduate"
-    | "College Level"
-    | "College Graduate"
-    | "";
-    occupation?: string;
-    monthly_income: number | null;
-    block_number: number | null;
-    lot_number: number | null;
-    sitio_purok:
-    | "Abellana"
-    | "City Central"
-    | "Kalinao"
-    | "Lubi"
-    | "Mabuhay"
-    | "Nangka"
-    | "Regla"
-    | "San Antonio"
-    | "San Roque"
-    | "San Vicente"
-    | "Sta. Cruz"
-    | "Sto. Nino 1"
-    | "Sto. Nino 2"
-    | "Sto. Nino 3"
-    | "Zapatera"
-    | "";
-    barangay: string;
-    city: string;
-    birthplace: string;
-    religion: string;
-    sectoral:
-    | "LGBT"
-    | "PWD"
-    | "Senior Citizen"
-    | "Solo Parent"
-    | "Habal - Habal"
-    | "Erpat"
-    | "Others"
-    | "";
-    other_sectoral?: string;
-    is_registered_voter: "Yes" | "No" | "";
-    is_business_owner: "Yes" | "No" | "";
-    is_household_head: "Yes" | "No" | "";
-    status: "Active" | "Inactive" | "";
-    created_at?: string;
-    updated_at?: string;
-};
-
+import { Resident } from "@/types/profilingTypes";
 
 const HouseholdMembers = ({ params }: { params: { household_number: string } }) => {
     const router = useRouter()
     const {
         register,
         handleSubmit,
-        getValues,
         formState: { errors },
     } = useForm<Resident>();
 
@@ -119,6 +45,7 @@ const HouseholdMembers = ({ params }: { params: { household_number: string } }) 
         extension: "",
         gender: "",
         relationship: "",
+        other_relationship: "",
         civil_status: "",
         birthdate: "",
         age: null,
@@ -151,6 +78,7 @@ const HouseholdMembers = ({ params }: { params: { household_number: string } }) 
                 extension: "",
                 gender: "",
                 relationship: "",
+                other_relationship: "",
                 civil_status: "",
                 birthdate: "",
                 age: null,
@@ -250,27 +178,29 @@ const HouseholdMembers = ({ params }: { params: { household_number: string } }) 
             const formData: Resident = editResidentModal
                 ? {
                     ...residentData,
+                    other_relationship: residentData.relationship === 'Others' ? residentData.other_relationship || "" : "",
                     household_number: Number(householdNumber),
-                    age: residentData?.age || null,
-                    lot_number: Number(residentData?.lot_number),
-                    block_number: residentData?.block_number || null,
-                    sitio_purok: residentData?.sitio_purok || "",
-                    highest_educational_attainment: residentData?.highest_educational_attainment || "",
-                    occupation: residentData?.occupation || "",
-                    monthly_income: residentData?.monthly_income || null,
+                    age: residentData.age || null,
+                    lot_number: Number(residentData.lot_number),
+                    block_number: residentData.block_number || null,
+                    sitio_purok: residentData.sitio_purok || "",
+                    highest_educational_attainment: residentData.highest_educational_attainment || "",
+                    occupation: residentData.occupation || "",
+                    monthly_income: residentData.monthly_income || null,
                     status: "Active",
-                    barangay: residentData?.barangay || "",
-                    city: residentData?.city || "",
-                    birthplace: residentData?.birthplace || "",
-                    is_business_owner: residentData?.is_business_owner || "No",
-                    is_household_head: residentData?.is_household_head || "No",
-                    religion: residentData?.religion || "",
-                    sectoral: residentData?.sectoral || "",
-                    other_sectoral: residentData?.sectoral === "Others" ? residentData?.other_sectoral || "" : "",
-                    is_registered_voter: residentData?.is_registered_voter || "No",
+                    barangay: residentData.barangay || "",
+                    city: residentData.city || "",
+                    birthplace: residentData.birthplace || "",
+                    is_business_owner: residentData.is_business_owner || "No",
+                    is_household_head: residentData.is_household_head || "No",
+                    religion: residentData.religion || "",
+                    sectoral: residentData.sectoral || "",
+                    other_sectoral: residentData.sectoral === "Others" ? residentData.other_sectoral || "" : "",
+                    is_registered_voter: residentData.is_registered_voter || "No",
                 }
                 : {
                     ...data,
+                    other_relationship: data.other_relationship || "",
                     household_number: Number(householdNumber),
                     age: household.age || null,
                     resident_id: selectedResident?.resident_id || null,
@@ -359,7 +289,7 @@ const HouseholdMembers = ({ params }: { params: { household_number: string } }) 
                             {filteredMembers.map((household: Resident) => (
                                 <tr key={household.resident_id} className="border-b hover:bg-gray-50" onClick={() => onResidentClick(household)}>
                                     <td className="py-2 px-3 text-center">{household.given_name} {household.middle_name} {household.family_name} {household.extension}</td>
-                                    <td className="py-2 px-3 text-center">{household.relationship}</td>
+                                    <td className="py-2 px-3 text-center">{household.relationship === 'Others' ? household.other_relationship : household.relationship}</td>
                                     <td className="py-2 px-3 text-center">{household.sitio_purok}</td>
                                     <td className="py-2 px-3 text-center">{household.gender}</td>
                                     <td className="py-2 px-3 text-center">{household.birthdate}</td>
@@ -402,7 +332,7 @@ const HouseholdMembers = ({ params }: { params: { household_number: string } }) 
                                     <span>Lot number: {selectedResident?.lot_number}</span>
                                     <span>Block number: {selectedResident?.block_number}</span>
                                 </>}
-                            <span>Head of the Household: {householdHead.filter(head => head.household_number === Number(householdNumber)).map(head => `${head.given_name} ${head.middle_name} ${head.family_name}`).join(", ")}</span>
+                            <span>Head of the Household: {householdHead.filter(head => head.household_number === Number(householdNumber)).map(head => `${head.given_name || ''} ${head.middle_name || ''} ${head.family_name || ''} ${head.extension || ''}`.trim()).join(", ")}</span>
                         </div>
                         <form action="" onSubmit={handleSubmit(onSubmit)}>
                             <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
@@ -512,6 +442,22 @@ const HouseholdMembers = ({ params }: { params: { household_number: string } }) 
                                         <option value="Others">Others</option>
                                     </select>
                                 </div>
+                                {residentData.relationship === "Others" && (
+                                    <div className="flex flex-col">
+                                        <label htmlFor="">Specify Other Relationship{!isInfoModal && <span className="text-red-500">*</span>}</label>
+                                        <input
+                                            type="text"
+                                            className="border-[#969696] border-[1px] rounded-[5px]"
+                                            {...register("other_relationship", {
+                                                validate: (value) => !isInfoModal && (!value && !residentData.other_relationship) ? "This field is required" : true // Validate only if there's no existing data
+                                            })}
+                                            value={residentData.other_relationship || ""}
+                                            onChange={handleChange}
+                                            disabled={isInfoModal}
+                                            required={residentData.other_relationship === "Others"}
+                                        />
+                                    </div>
+                                )}
                                 <div className="flex flex-col">
                                     <label htmlFor="">Civil Status{!isInfoModal && <span className="text-red-500">*</span>}</label>
                                     <select
