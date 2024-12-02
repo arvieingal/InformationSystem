@@ -54,7 +54,6 @@ const AdminSidebar = () => {
           {[
             { name: "home", route: "/main", activeIcon: "/svg/active_home.svg", defaultIcon: "/svg/home.svg" },
             { name: "people", route: "/main/profiling", activeIcon: "/svg/active_people.svg", defaultIcon: "/svg/people.svg" },
-            { name: "people2", route: "/main/profiling/add-resident", activeIcon: "/svg/active_people2.svg", defaultIcon: "/svg/people2.svg" },
             { name: "settings", route: "/main/profiling/settings", activeIcon: "/svg/active_settings.svg", defaultIcon: "/svg/settings.svg" },
           ].map(({ name, route, activeIcon, defaultIcon }) => (
             <div
@@ -82,22 +81,6 @@ const AdminSidebar = () => {
           ))}
         </div>
         <div className="flex items-center justify-center">
-          <div className="group w-[30px] h-[30px] cursor-pointer" onClick={handleSignOut}>
-            <Image
-              src="/svg/logout.svg"
-              width={30}
-              height={30}
-              alt="Logout"
-              className="absolute group-hover:hidden w-[30px] h-[30px]"
-            />
-            <Image
-              src="/svg/active_logout.svg"
-              width={30}
-              height={30}
-              alt="Logout-hover"
-              className="hidden group-hover:block w-[30px] h-[30px]"
-            />
-          </div>
         </div>
       </div>
     </div>

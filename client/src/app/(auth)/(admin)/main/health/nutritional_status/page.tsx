@@ -696,7 +696,6 @@ const NutritionalStatus: React.FC = () => {
                   <span className="font-medium">Age:</span>
                   <div className="border-b border-black text-center p-1 flex flex-row gap-2 items-center">
                     {selectedChild.age}
-                    <p>months</p>
                   </div>
                 </p>
                 <p className="text flex flex-row gap-[2rem] items-center">
@@ -731,7 +730,7 @@ const NutritionalStatus: React.FC = () => {
                     Current Information:
                   </p>
                   <div className="w-full flex flex-row gap-4 mt-1">
-                    <p>Age in Months:</p>
+                    <p>Age:</p>
                     <div className="border border-gray-300 rounded-md p-1 w-[3rem] h-[2.5rem] ">
                       <input
                         className="w-full outline-none flex text-center justify-center"
@@ -975,7 +974,7 @@ const NutritionalStatus: React.FC = () => {
               <div className="w-full">
                 <h1 className="text-lg font-semibold">Current :</h1>
                 <div className="w-full flex gap-[20px]">
-                  <p>Age in Months :</p>
+                  <p>Age:</p>
                   <div className="border border-gray-300 rounded-md p-1 w-[3rem] h-[2.5rem] ">
                     <input
                       className="w-full outline-none flex text-center justify-center"

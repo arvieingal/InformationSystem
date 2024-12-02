@@ -1,5 +1,5 @@
 "use client";
-import React, { useState } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import SweetAlert from "./SweetAlert";
@@ -7,6 +7,8 @@ import { signOut, useSession } from "next-auth/react";
 
 const AdminHeader = () => {
   const [showDropdown, setShowDropdown] = useState(false);
+  const dropdownRef = useRef<HTMLDivElement>(null);
+
   const router = useRouter();
   const { data: session, status } = useSession({
     required: true,
@@ -18,6 +20,24 @@ const AdminHeader = () => {
   const toggleDropdown = () => {
     setShowDropdown(!showDropdown);
   };
+
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
+        setShowDropdown(false);
+      }
+    };
+
+    if (showDropdown) {
+      document.addEventListener("mousedown", handleClickOutside);
+    } else {
+      document.removeEventListener("mousedown", handleClickOutside);
+    }
+
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, [showDropdown]);
 
   const handleSignOut = async () => {
     const confirmed = await SweetAlert.showConfirm("Are you sure you want to sign out?");
@@ -36,9 +56,9 @@ const AdminHeader = () => {
           </p>
         </div>
        
-        <div className="relative">
-            <button
-              className="text-[12px] md:text-[16px] cursor-pointer flex items-center justify-center py-1 px-3 rounded-md bg-[#007F73] text-white hover:bg-[#005f5a] transition duration-300"
+        <div className="relative" ref={dropdownRef}>
+          <button
+            className="text-[12px] md:text-[16px] cursor-pointer flex items-center justify-center py-1 px-3 rounded-md bg-[#007F73] text-white hover:bg-[#005f5a] transition duration-300"
             onClick={toggleDropdown}
           >
             <p>{session?.user?.username}</p>

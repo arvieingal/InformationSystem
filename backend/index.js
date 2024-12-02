@@ -5,7 +5,7 @@ const pool = require("./config/db");
 const otpRoutes = require("./routes/otp");
 const userRoutes = require("./routes/userRouters");
 const childrenRoutes = require('./routes/childrenRoutes');
-const childImmunizationRecordRoutes = require('./routes/childImmunizationRecordRoutes')
+const childImmunizationRecordRoutes = require('./routes/childImmunizationRecordRoutes');
 const residentRoutes = require("./routes/residentRouters");
 const rentOwnerRoutes = require("./routes/rentOwnerRoutes");
 const renterRoutes = require("./routes/renterRoutes");
@@ -27,7 +27,6 @@ app.use("/api", rentOwnerRoutes);
 app.use("/api", renterRoutes);
 app.use("/api", chartRoutes);
 app.use("/api", purokRoutes);
-
 
 const initApp = async () => {
   console.log("Testing the database connection...");
