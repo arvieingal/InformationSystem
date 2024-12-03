@@ -22,6 +22,8 @@ const categorizeChildren = (children) => {
 };
 
 const childrenController = {
+
+  // Get all children that are not inactive
   getAllChildren: async (req, res) => {
     try {
       const resident = await Children.getAllChildren();
@@ -38,6 +40,26 @@ const childrenController = {
       });
     }
   },
+
+
+  // Get all children that are inactive
+  getAllChildrenInactive: async (req, res) => {
+    try {
+      const resident = await Children.getAllChildrenInactive();
+      if (resident.length > 0) {
+        res.status(200).json(resident);
+      } else {
+        res.status(404).json({ message: "No resident found in the database" });
+      }
+    } catch (error) {
+      console.error("Error in resident controller:", error);
+      res.status(500).json({
+        message: "Internal server error while retrieving resident",
+        error: error.message,
+      });
+    }
+  },
+
 
   getChildById: async (req, res) => {
     try {
@@ -120,6 +142,18 @@ const childrenController = {
       res.status(500).json({ error: "Internal server error" });
     }
   },
+   archiveChildController: async (req, res) => {
+    const { childId } = req.params;
+  
+    try {
+      await Children.archiveChild(childId);
+      res.status(200).json({ message: `Child with ID ${childId} archived successfully.` });
+    } catch (error) {
+      console.error("Error in archiving child:", error);
+      res.status(500).json({ error: "An error occurred while archiving the child." });
+    }
+  }
+  
 };
 
 module.exports = childrenController;

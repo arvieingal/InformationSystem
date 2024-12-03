@@ -2,12 +2,37 @@ const db = require("../config/db");
 const { childrenQueries } = require("../queries/query");
 
 const Children = {
+  // getAllChildren: async () => {
+  //   try {
+  //     const [members] = await db.execute(childrenQueries.findAllChildren);
+  //     return members || [];
+  //   } catch (error) {
+  //     console.error("Error fetching residents:", error);
+  //     throw error;
+  //   }
+  // },
+
+
   getAllChildren: async () => {
     try {
-      const [members] = await db.execute(childrenQueries.findAllChildren);
-      return members || [];
+      const [rows] = await db.execute(
+        "SELECT * FROM children WHERE status != 'Inactive'"
+      );
+      return rows;
     } catch (error) {
-      console.error("Error fetching residents:", error);
+      console.error("Error fetching inactive children:", error);
+      throw error;
+    }
+  },
+
+  getAllChildrenInactive: async () => {
+    try {
+      const [rows] = await db.execute(
+        "SELECT * FROM children WHERE status = 'Inactive'"
+      );
+      return rows;
+    } catch (error) {
+      console.error("Error fetching inactive children:", error);
       throw error;
     }
   },
@@ -28,6 +53,23 @@ const Children = {
       [first_name, last_name, middle_name, gender, birthdate, address]
     );
     return { child_id: result.insertId, ...childData };
+  },
+
+  archiveChild: async (childId) => {
+    try {
+      const [result] = await db.execute(
+        "UPDATE children SET status = 'Inactive' WHERE child_id = ?",
+        [childId]
+      );
+      if (result.affectedRows > 0) {
+        console.log(`Child with ID ${childId} archived successfully.`);
+      } else {
+        console.warn(`No child found with ID ${childId}.`);
+      }
+    } catch (error) {
+      console.error("Error archiving child:", error);
+      throw error;
+    }
   },
 
   updateChild: async (childId, childData) => {

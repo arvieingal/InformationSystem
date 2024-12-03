@@ -211,11 +211,15 @@ const ImmunizationRecord: React.FC = () => {
     return immunizations.filter((immunization) => {
       switch (filterCriteria) {
         case 'vaccineType':
-          return desiredVaccineTypes.includes(immunization.vaccine_type);
+          return desiredVaccineTypes.includes(immunization.vaccine_type || '');
         case 'doseNumber':
-          return immunization.doses != null && desiredDoses.includes(immunization.doses.toString());
+          return immunization.doses != null && desiredDoses.includes(immunization.doses.toString() || '');
         case 'scheduledDate':
-          const vaccinatedDate = new Date(immunization.date_vaccinated);
+          const dateValue = immunization.date_vaccinated;
+          if (typeof dateValue !== 'string' && typeof dateValue !== 'number') {
+            return false;
+          }
+          const vaccinatedDate = new Date(dateValue);
           if (isNaN(vaccinatedDate.getTime())) {
             return false; // Handle invalid date
           }
@@ -491,33 +495,33 @@ const ImmunizationRecord: React.FC = () => {
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
               <div className="col-span-1">
                 <p className="font-semibold text-gray-600">Child's Name:</p>
-                <span className="block text-gray-800">{selectedImmunization.full_name || 'N/A'}</span>
+                <span className="block text-gray-800">{selectedImmunization.full_name || ''}</span>
                 <p className="font-semibold text-gray-600 mt-4">Date of Birth:</p>
-                <span className="block text-gray-800">{formatDate(selectedImmunization.birthdate) || 'N/A'}</span>
+                <span className="block text-gray-800">{formatDate(selectedImmunization.birthdate) || ''}</span>
                 <p className="font-semibold text-gray-600 mt-4">Place of Birth:</p>
-                <span className="block text-gray-800">{selectedImmunization.birthplace || 'N/A'}</span>
+                <span className="block text-gray-800">{selectedImmunization.birthplace || ''}</span>
                 <p className="font-semibold text-gray-600 mt-4">Address:</p>
-                <span className="block text-gray-800">{selectedImmunization.address || 'N/A'}</span>
+                <span className="block text-gray-800">{selectedImmunization.address || ''}</span>
               </div>
               <div className="col-span-1">
                 <p className="font-semibold text-gray-600">Mother's Name:</p>
-                <span className="block text-gray-800">{selectedImmunization.mother_name || 'N/A'}</span>
+                <span className="block text-gray-800">{selectedImmunization.mother_name || ''}</span>
                 <p className="font-semibold text-gray-600 mt-4">Father's Name:</p>
-                <span className="block text-gray-800">{selectedImmunization.father_name || 'N/A'}</span>
+                <span className="block text-gray-800">{selectedImmunization.father_name || ''}</span>
                 <p className="font-semibold text-gray-600 mt-4">Birth Height:</p>
-                <span className="block text-gray-800">{selectedImmunization.height_at_birth || 'N/A'}</span>
+                <span className="block text-gray-800">{selectedImmunization.height_at_birth || ''}</span>
                 <p className="font-semibold text-gray-600 mt-4">Birth Weight:</p>
-                <span className="block text-gray-800">{selectedImmunization.weight_at_birth || 'N/A'}</span>
+                <span className="block text-gray-800">{selectedImmunization.weight_at_birth || ''}</span>
               </div>
               <div className="col-span-1">
                 <p className="font-semibold text-gray-600">Sex:</p>
-                <span className="block text-gray-800">{selectedImmunization.sex || 'N/A'}</span>
+                <span className="block text-gray-800">{selectedImmunization.sex || ''}</span>
                 <p className="font-semibold text-gray-600 mt-4">Health Center:</p>
-                <span className="block text-gray-800">{selectedImmunization.health_center || 'N/A'}</span>
+                <span className="block text-gray-800">{selectedImmunization.health_center || ''}</span>
                 <p className="font-semibold text-gray-600 mt-4">Barangay:</p>
-                <span className="block text-gray-800">{selectedImmunization.barangay || 'N/A'}</span>
+                <span className="block text-gray-800">{selectedImmunization.barangay || ''}</span>
                 <p className="font-semibold text-gray-600 mt-4">Family Number:</p>
-                <span className="block text-gray-800">{selectedImmunization.household_number || 'N/A'}</span>
+                <span className="block text-gray-800">{selectedImmunization.household_number || ''}</span>
               </div>
             </div>
             <table className="w-full mt-8 border border-gray-300 rounded-lg border-collapse">
@@ -531,14 +535,14 @@ const ImmunizationRecord: React.FC = () => {
               </thead>
               <tbody>
                 <tr className="hover:bg-gray-50 transition-colors">
-                  <td className="border border-gray-300 p-4">{selectedImmunization.vaccine_type || 'N/A'}</td>
+                  <td className="border border-gray-300 p-4">{selectedImmunization.vaccine_type || ''}</td>
                   <td className="border border-gray-300 p-4">
-                    {selectedImmunization.doses ? selectedImmunization.doses.toString() : 'N/A'}
+                    {selectedImmunization.doses ? selectedImmunization.doses.toString() : ''}
                   </td>
                   <td className="border border-gray-300 p-4">
-                    {selectedImmunization.date_vaccinated ? formatDate(selectedImmunization.date_vaccinated.toString()) : 'N/A'}
+                    {selectedImmunization.date_vaccinated ? formatDate(selectedImmunization.date_vaccinated.toString()) : ''}
                   </td>
-                  <td className="border border-gray-300 p-4">{selectedImmunization.remarks || 'N/A'}</td>
+                  <td className="border border-gray-300 p-4">{selectedImmunization.remarks || ''}</td>
                 </tr>
               </tbody>
             </table>

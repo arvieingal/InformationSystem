@@ -12,7 +12,8 @@ const Settings: React.FC = () => {
   const [searchTerm, setSearchTerm] = useState<string>("");
   const [logs, setLogs] = useState<any[]>([]);
   const [users, setUsers] = useState<any[]>([]);
-  const [displayedLogsCount, setDisplayedLogsCount] = useState<number>(15);
+  const [currentPage, setCurrentPage] = useState<number>(0);
+  const logsPerPage = 13;
 
   const fetchLogs = async () => {
     console.log("fetchLogs function called");
@@ -71,12 +72,24 @@ const Settings: React.FC = () => {
     setModalContent(null);
   };
 
-  const loadMoreLogs = () => {
-    setDisplayedLogsCount((prevCount) => prevCount + 15);
+  const handleNextPage = () => {
+    if ((currentPage + 1) * logsPerPage < logs.length) {
+      setCurrentPage(currentPage + 1);
+    }
   };
 
+  const handlePreviousPage = () => {
+    if (currentPage > 0) {
+      setCurrentPage(currentPage - 1);
+    }
+  };
+
+  const filteredLogs = logs.filter(log =>
+    log.username?.toLowerCase().includes(searchTerm.toLowerCase()) || 
+    log.action?.toLowerCase().includes(searchTerm.toLowerCase())
+  );
+
   return (
-    
     <>
     <div className="w-full h-screen bg-gray-100">
       <div className="w-full h-[10vh]">
@@ -114,7 +127,7 @@ const Settings: React.FC = () => {
               />
               <Card
                 title="Update User"
-                description="Edit an existing user’s profile, role, or permissions to reflect changes in access or information."
+                description="Edit an existing user's profile, role, or permissions to reflect changes in access or information."
                 imageSrc="/svg/update.svg"
                 onClick={() => handleCardClick("Update User")}
               />
@@ -130,26 +143,37 @@ const Settings: React.FC = () => {
           {/* Log Management Section */}
           <div className="col-span-1 lg:col-span-2">
             <h2 className="text-2xl font-bold mb-4 text-gray-700">Log Management</h2>
-            <div className="bg-white p-6 rounded-lg shadow-lg grid grid-cols-2 gap-4">
-              {logs.length > 0 ? (
-                logs
-                  .filter(log => log.username && log.action && log.timestamp)
-                  .slice(0, displayedLogsCount)
-                  .map((log) => (
-                    <div key={log.id} className="mb-2">
-                      {`${log.username} - ${log.action} - ${formatDate(log.timestamp)}`}
-                    </div>
-                  ))
+            <div className="bg-white p-6 rounded-lg shadow-lg">
+              {filteredLogs.length > 0 ? (
+                <>
+                  <div className="grid grid-cols-2 gap-4 mb-4">
+                    {filteredLogs
+                      .slice(currentPage * logsPerPage, (currentPage + 1) * logsPerPage)
+                      .map((log) => (
+                        <div key={log.id} className="mb-2">
+                          {`${log.username} - ${log.action} - ${formatDate(log.timestamp)}`}
+                        </div>
+                      ))}
+                  </div>
+                  <div className="flex justify-center gap-4 mt-4">
+                    <button
+                      onClick={handlePreviousPage}
+                      disabled={currentPage === 0}
+                      className="bg-[#007F73] text-white px-4 py-2 rounded hover:bg-[#005f5a] transition disabled:opacity-50"
+                    >
+                      Previous
+                    </button>
+                    <button
+                      onClick={handleNextPage}
+                      disabled={(currentPage + 1) * logsPerPage >= filteredLogs.length}
+                      className="bg-[#007F73] text-white px-4 py-2 rounded hover:bg-[#005f5a] transition w-[6rem] disabled:opacity-50"
+                    >
+                      Next
+                    </button>
+                  </div>
+                </>
               ) : (
                 <div>No logs available</div>
-              )}
-              {logs.length > displayedLogsCount && (
-                <button
-                  onClick={loadMoreLogs}
-                  className="mt-4 bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 transition"
-                >
-                  Load More
-                </button>
               )}
             </div>
           </div>
