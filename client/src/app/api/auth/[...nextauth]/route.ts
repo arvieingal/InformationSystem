@@ -24,14 +24,14 @@ export const authOptions = {
           const response = await api.get('/api/users');
           const users = response.data;
 
-          console.log("users",users);
-          
-          const user = users.find((user: any) => 
-            user.username === credentials.username && 
+          console.log("users", users);
+
+          const user = users.find((user: any) =>
+            user.username === credentials.username &&
             user.password === credentials.password
           );
 
-          console.log("find user",user);
+          console.log("find user", user);
 
           if (user) {
             return user;
@@ -50,6 +50,7 @@ export const authOptions = {
     async jwt({ token, user }: { token: any, user: any }) {
       if (user) {
         token.username = user.username;
+        token.role = user.role;
         token.name = user.name;
         token.email = user.email;
         token.image = user.image;
@@ -59,6 +60,7 @@ export const authOptions = {
     async session({ session, token }: { session: any, token: any }) {
       if (token) {
         session.user.username = token.username;
+        session.user.role = token.role;
         session.user.name = token.name;
         session.user.email = token.email;
         session.user.image = token.image;

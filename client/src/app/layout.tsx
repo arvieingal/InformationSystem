@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import "./globals.css";
 import ProvidersWrappers from "@/components/ProvidersWrappers";
+import IdleTimer from "@/components/IdleTimer";
 
 export const metadata: Metadata = {
   title: "Brgy.Luz Information System",
@@ -21,6 +22,7 @@ export default function RootLayout({
     <ProvidersWrappers>
       <html lang="en">
         <body>
+          <IdleTimer />
           {children}
         </body>
       </html>

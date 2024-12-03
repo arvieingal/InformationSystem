@@ -124,17 +124,16 @@ const HealthPage = () => {
   };
 
   return (
-    <div className="h-full px-6 pb-6 overflow-hidden bg-white">
-      <div className="h-[46%] grid grid-cols-1 md:grid-cols-3 gap-6 mt-6">
+    <div className="h-full px-6 pb-6 overflow-hidden">
+      <div className="h-[50%] grid grid-cols-1 md:grid-cols-3 gap-6 pt-6">
         {/* Age Category List */}
-        <div className="w-full relative bg-white p-8 shadow-lg rounded-lg overflow-hidden">
+        <div className="w-full bg-white p-8 shadow-lg rounded-lg overflow-hidden">
           <h2 className="text-center font-bold mb-6 text-gray-900 text-lg">AGE CATEGORY BY MONTH</h2>
           {['0-6 Months', '7-12 Months', '12-24 Months', '24-32 Months', '32-48 Months', '48-60 Months', '60-72 Months'].map((age) => (
             <div
               key={age}
-              className={`p-3 cursor-pointer transition-colors duration-300 rounded-md ${
-                age === selectedAgeCategory ? 'bg-blue-300' : 'hover:bg-blue-200'
-              }`}
+              className={`p-3 cursor-pointer transition-colors duration-300 rounded-md ${age === selectedAgeCategory ? 'bg-blue-300' : 'hover:bg-blue-200'
+                }`}
               onClick={() => setSelectedAgeCategory(age)}
             >
               <span className="block text-center text-gray-800 font-medium">{age}</span>
@@ -149,141 +148,153 @@ const HealthPage = () => {
         </div>
       </div>
 
-      <div className="h-[46%] grid grid-cols-1 md:grid-cols-3 gap-6 pt-6">  
-        <div className="grid grid-cols-2 justify-center items-center w-full relative bg-white shadow rounded">
-          <p className='col-span-2 text-center text-2xl font-semibold text-gray-900 mt-4'>Gender-Based Nutritional Status Distribution</p>
-          <div className="w-full flex justify-center " style={{ width: '200%', height: '400px' }}>
-            <Bar 
-              data={genderData} 
-              options={{
-                responsive: true,
-                plugins: {
-                  legend: {
-                    display: true,
-                    position: 'top',
-                    labels: {
-                      color: '#333',
-                      font: {
-                        size: 14,
+      <div className="h-[50%] grid grid-cols-3 gap-6 pt-6">
+        <div className="h-full flex flex-col justify-center items-center w-full bg-white shadow rounded">
+          <p className='text-center text-2xl font-semibold text-gray-900 mt-4'>Gender-Based Nutritional Status Distribution</p>
+          <div className='w-full h-full'>
+            <div className="w-[90%] flex justify-center items-center h-[90%]">
+              <Bar
+                data={genderData}
+                options={{
+                  responsive: true,
+                  plugins: {
+                    legend: {
+                      display: true,
+                      position: 'top',
+                      labels: {
+                        color: '#333',
+                        font: {
+                          size: 14,
+                        },
+                      },
+                    },
+                    tooltip: {
+                      enabled: true,
+                      backgroundColor: '#f5f5f5',
+                      titleColor: '#333',
+                      bodyColor: '#666',
+                      borderColor: '#ddd',
+                      borderWidth: 1,
+                    },
+                  },
+                  scales: {
+                    x: {
+                      grid: {
+                        display: false,
+                      },
+                      ticks: {
+                        color: '#666',
+                        font: {
+                          size: 12,
+                        },
+                      },
+                    },
+                    y: {
+                      min: 100,
+                      max: 10000,
+                      grid: {
+                        color: '#eee',
+                      },
+                      ticks: {
+                        color: '#666',
+                        font: {
+                          size: 12,
+                        },
+                        stepSize: 1000,
                       },
                     },
                   },
-                  tooltip: {
-                    enabled: true,
-                    backgroundColor: '#f5f5f5',
-                    titleColor: '#333',
-                    bodyColor: '#666',
-                    borderColor: '#ddd',
-                    borderWidth: 1,
-                  },
-                },
-                scales: {
-                  x: {
-                    grid: {
-                      display: false,
-                    },
-                    ticks: {
-                      color: '#666',
-                      font: {
-                        size: 12,
-                      },
-                    },
-                  },
-                  y: {
-                    min: 100,
-                    max: 10000,
-                    grid: {
-                      color: '#eee',
-                    },
-                    ticks: {
-                      color: '#666',
-                      font: {
-                        size: 12,
-                      },
-                      stepSize: 1000,
-                    },
-                  },
-                },
-              }}
-            />
-          </div>
-        </div>
-        <div className="justify-center items-center w-full relative bg-white shadow rounded-lg p-6">
-          <p className='col-span-2 text-center text-2xl font-semibold text-gray-900 mb-4'>Proportion of Nutritional Status Categories</p>
-          <div className="w-full flex justify-center">
-            <div className="flex flex-col md:flex-row items-center mt-4" style={{ width: '100%', maxWidth: '800px' }}>
-              <div className="flex-1" style={{ minWidth: '300px', height: '300px' }}>
-                <Doughnut data={sectorDonutData} options={donutOption} />
-              </div>
-              <div className="flex-1" style={{ minWidth: '200px' }}>
-                <DoughnutLegend data={sectorDonutData} />
-              </div>
+                }}
+              />
             </div>
           </div>
         </div>
-        <div className="grid grid-cols-1 gap-4 justify-center items-center w-full relative bg-white p-6 shadow-lg rounded-lg">
-          <p className='text-center text-2xl font-semibold text-gray-900 mb-4'>Nutritional Status by Purok</p>
-          <div className="w-full flex justify-center" style={{ height: '300px' }}>
-            <Bar 
-              data={{
-                ...populationDonutData,
-                datasets: populationDonutData.datasets.map(dataset => ({
-                  ...dataset,
-                  backgroundColor: [
-                    '#FF5733', '#33FF57', '#3357FF', '#FF33A1', '#33FFF5',
-                    '#FF8C33', '#8C33FF', '#33FF8C', '#FF3333', '#33FF33',
-                    '#3333FF', '#FF33FF', '#33FFFF', '#FFFF33', '#FF9933'
-                  ],
-                })),
-              }} 
-              options={{
-                responsive: true,
-                plugins: {
-                  legend: {
-                    display: true,
-                    position: 'top',
-                    labels: {
-                      color: '#333',
-                      font: {
-                        size: 14,
+        <div className="justify-center items-center h-full w-full bg-white shadow rounded-lg p-6">
+          <p className='text-center text-2xl font-semibold text-gray-900 mb-4'>Proportion of Nutritional Status Categories</p>
+          <div className="w-full h-full">
+            <div className="h-[85%] flex justify-center items-center w-full relative">
+              <div className="w-[45%]">
+                <Doughnut data={sectorDonutData} options={donutOption} />
+              </div>
+              <div className="absolute right-0 top-[25%]">
+                <DoughnutLegend data={sectorDonutData} />
+              </div>
+            </div>
+            {/* <div className="flex justify-center items-center">
+              <div className="flex h-full w-full">
+                <Doughnut data={sectorDonutData} options={donutOption} />
+              </div>
+              <div className="flex">
+                <DoughnutLegend data={sectorDonutData} />
+              </div>
+            </div> */}
+          </div>
+        </div>
+        <div className="justify-center items-center h-full w-full bg-white p-6 shadow-lg rounded-lg">
+          <p className='text-center text-2xl font-semibold text-gray-900'>Nutritional Status by Purok</p>
+          <div className='w-full h-full'>
+            <div className="w-full flex justify-center items-center h-[90%]">
+              <Bar
+                data={{
+                  ...populationDonutData,
+                  datasets: populationDonutData.datasets.map(dataset => ({
+                    ...dataset,
+                    backgroundColor: [
+                      '#FF5733', '#33FF57', '#3357FF', '#FF33A1', '#33FFF5',
+                      '#FF8C33', '#8C33FF', '#33FF8C', '#FF3333', '#33FF33',
+                      '#3333FF', '#FF33FF', '#33FFFF', '#FFFF33', '#FF9933'
+                    ],
+                  })),
+                }}
+                options={{
+                  responsive: true,
+                  plugins: {
+                    legend: {
+                      display: true,
+                      position: 'top',
+                      labels: {
+                        color: '#333',
+                        font: {
+                          size: 14,
+                        },
+                      },
+                    },
+                    tooltip: {
+                      enabled: true,
+                      backgroundColor: '#f5f5f5',
+                      titleColor: '#333',
+                      bodyColor: '#666',
+                      borderColor: '#ddd',
+                      borderWidth: 1,
+                    },
+                  },
+                  scales: {
+                    x: {
+                      grid: {
+                        display: false,
+                      },
+                      ticks: {
+                        color: '#666',
+                        font: {
+                          size: 12,
+                        },
+                      },
+                    },
+                    y: {
+                      grid: {
+                        color: '#eee',
+                      },
+                      ticks: {
+                        color: '#666',
+                        font: {
+                          size: 12,
+                        },
                       },
                     },
                   },
-                  tooltip: {
-                    enabled: true,
-                    backgroundColor: '#f5f5f5',
-                    titleColor: '#333',
-                    bodyColor: '#666',
-                    borderColor: '#ddd',
-                    borderWidth: 1,
-                  },
-                },
-                scales: {
-                  x: {
-                    grid: {
-                      display: false,
-                    },
-                    ticks: {
-                      color: '#666',
-                      font: {
-                        size: 12,
-                      },
-                    },
-                  },
-                  y: {
-                    grid: {
-                      color: '#eee',
-                    },
-                    ticks: {
-                      color: '#666',
-                      font: {
-                        size: 12,
-                      },
-                    },
-                  },
-                },
-              }}
-            />
+                }}
+              />
+            </div>
           </div>
         </div>
       </div>

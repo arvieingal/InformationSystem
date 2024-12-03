@@ -9,9 +9,11 @@ import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { SubmitHandler, useForm } from "react-hook-form";
 import { Resident } from "@/types/profilingTypes";
+import { useSession } from "next-auth/react";
 
 const HouseholdMembers = ({ params }: { params: { household_number: string } }) => {
     const router = useRouter()
+    const { data: session } = useSession();
     const {
         register,
         handleSubmit,
@@ -285,15 +287,42 @@ const HouseholdMembers = ({ params }: { params: { household_number: string } }) 
                                     <td className="py-2 px-3 text-center">{household.birthdate}</td>
                                     <td className="py-2 px-3 text-center">{household.age}</td>
                                     <td className="text-center py-2 flex items-center">
-                                        <button onClick={(e) => { e.stopPropagation(); onEditResident(household) }}>
-                                            <Image
-                                                src={"/svg/edit_pencil.svg"}
-                                                alt="Edit"
-                                                height={100}
-                                                width={100}
-                                                className="w-5 h-5 mr-2 cursor-pointer"
-                                            />
-                                        </button>
+                                        {session?.user.role === "Admin" && (
+                                            <>
+                                                <button onClick={(e) => { e.stopPropagation(); onEditResident(household) }}>
+                                                    <Image
+                                                        src={"/svg/edit_pencil.svg"}
+                                                        alt="Edit"
+                                                        height={100}
+                                                        width={100}
+                                                        className="w-5 h-5 mr-2 cursor-pointer"
+                                                    />
+                                                </button>
+                                                <button onClick={(e) => { e.stopPropagation(); handleArchiveResident() }}>
+                                                    <Image
+                                                        src="/svg/archive.svg"
+                                                        alt="Archive"
+                                                        height={100}
+                                                        width={100}
+                                                        className="w-6 h-6 cursor-pointer"
+                                                    />
+                                                </button>
+                                            </>
+                                        )}
+
+                                        {session?.user.role === "Editor" && (
+                                            <button onClick={(e) => { e.stopPropagation(); onEditResident(household) }}>
+                                                <Image
+                                                    src={"/svg/edit_pencil.svg"}
+                                                    alt="Edit"
+                                                    height={100}
+                                                    width={100}
+                                                    className="w-5 h-5 mr-2 cursor-pointer"
+                                                />
+                                            </button>
+                                        )}
+
+                                        {/* If the role is "Viewer", nothing will be rendered */}
                                     </td>
                                 </tr>
                             ))}
@@ -619,23 +648,13 @@ const HouseholdMembers = ({ params }: { params: { household_number: string } }) 
                                     </div>
                                 )}
                             </div>
-                            {addResidentModal &&
+                            {isInfoModal ? null :
                                 <div className="flex justify-center items-center font-semibold pt-16">
                                     <button type="submit" className={`bg-[#338A80] text-white rounded-[5px] py-1 w-[50%] ${isInfoModal ? "hidden" : ""}`}>
-                                        Add
+                                        {addResidentModal ? 'Add' : 'Update'}
                                     </button>
                                 </div>
                             }
-                            {isInfoModal ? null : (
-                                !addResidentModal && (
-                                    <div className="grid grid-cols-2 gap-2 font-semibold pt-16">
-                                        <button className="border-[1px] border-[#969696] rounded-[5px] py-1" type="button" onClick={() => handleArchiveResident()}>Archive</button>
-                                        <button type="submit" className={`bg-[#338A80] text-white rounded-[5px] py-1 ${isInfoModal ? "hidden" : ""}`}>
-                                            Update
-                                        </button>
-                                    </div>
-                                )
-                            )}
                         </form>
                     </div>
                 </div>
