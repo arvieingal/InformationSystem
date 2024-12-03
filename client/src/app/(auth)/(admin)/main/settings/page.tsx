@@ -6,6 +6,7 @@ import { FaSearch, FaUser, FaClipboardList } from "react-icons/fa";
 import Image from "next/image";
 import { formatDate } from "@/components/formatDate";
 import AdminHeader from "@/components/AdminHeader";
+import SweetAlert from "@/components/SweetAlert";
 const Settings: React.FC = () => {
   const router = useRouter();
   const [modalContent, setModalContent] = useState<string | null>(null);
@@ -315,8 +316,8 @@ const Modal = ({
           <div className="flex gap-2">
             <button
               onClick={() => handleUpdateClick(user)}
-              className="bg-gradient-to-l from-green-500 to-yellow-500 text-white px-2 py-1 rounded hover:from-green-600 hover:to-yellow-600 transition"
-            >
+              className="bg-[#007F73] text-white px-2 py-1 rounded hover:bg-[#005f5a] transition"
+            >     
               Update
             </button>
             <button
@@ -355,23 +356,32 @@ const Modal = ({
       </div>
       <div>
         <label>Status:</label>
-        <input
-          type="text"
+        <select
           name="status"
           value={formData.status}
           onChange={handleChange}
           className="w-full mb-2 p-2 border rounded-md"
-        />
+        >
+          <option value="">Select Status</option>
+          <option value="active">Active</option>
+          <option value="not active">Not Active</option>
+        </select>
+        {errors.status && <p className="text-red-500">{errors.status}</p>}
       </div>
       <div>
         <label>Role:</label>
-        <input
-          type="text"
+        <select
           name="role"
           value={formData.role}
           onChange={handleChange}
           className="w-full mb-2 p-2 border rounded-md"
-        />
+        >
+          <option value="">Select Role</option>
+          <option value="1">Admin</option>
+          <option value="2">Editor</option>
+          <option value="3">Viewer</option>
+        </select>
+        {errors.role && <p className="text-red-500">{errors.role}</p>}
       </div>
       <div className="col-span-2 flex justify-end gap-2">
         <button
@@ -382,7 +392,7 @@ const Modal = ({
         </button>
         <button
           onClick={handleSubmit}
-          className=" bg-gradient-to-l from-green-500 to-yellow-500 text-white px-4 py-2 rounded hover:from-green-600 hover:to-yellow-600 transition"
+          className=" bg-[#007F73] text-white px-4 py-2 rounded hover:bg-[#005f5a] transition"
         >
           Save
         </button>
@@ -455,23 +465,32 @@ const Modal = ({
       </div>
       <div>
         <label>Status:</label>
-        <input
-          type="text"
+        <select
           name="status"
           value={formData.status}
           onChange={handleChange}
           className="w-full mb-2 p-2 border rounded-md"
-        />
+        >
+          <option value="">Select Status</option>
+          <option value="active">Active</option>
+          <option value="not active">Not Active</option>
+        </select>
+        {errors.status && <p className="text-red-500">{errors.status}</p>}
       </div>
       <div>
         <label>Role:</label>
-        <input
-          type="text"
+        <select
           name="role"
           value={formData.role}
           onChange={handleChange}
           className="w-full mb-2 p-2 border rounded-md"
-        />
+        >
+          <option value="">Select Role</option>
+          <option value="1">Admin</option>
+          <option value="2">Editor</option>
+          <option value="3">Viewer</option>
+        </select>
+        {errors.role && <p className="text-red-500">{errors.role}</p>}
       </div>
       <div className="flex justify-end col-span-2 gap-4">
         <button
@@ -482,7 +501,7 @@ const Modal = ({
         </button>
         <button
           onClick={handleSubmit}
-          className=" bg-gradient-to-l from-green-500 to-yellow-500 text-white px-4 py-2 rounded hover:from-green-600 hover:to-yellow-600 transition"
+          className=" bg-[#007F73] text-white px-4 py-2 rounded hover:bg-[#005f5a] transition"
         >
           Add User
         </button>
@@ -521,7 +540,7 @@ const Modal = ({
             </button>
             <button
               onClick={handleVerifyPassword}
-              className="bg-gradient-to-l from-green-500 to-yellow-500 text-white px-4 py-2 rounded hover:from-green-600 hover:to-yellow-600 transition"
+              className="bg-[#007F73] text-white px-4 py-2 rounded hover:bg-[#005f5a] transition"
             >
               Verify
             </button>
@@ -556,7 +575,7 @@ const Modal = ({
             </button>
             <button
               onClick={() => handlePasswordChangeSubmit(user.user_id)}
-              className="bg-gradient-to-l from-green-500 to-yellow-500 text-white px-4 py-2 rounded hover:from-green-600 hover:to-yellow-600 transition"
+              className="bg-[#007F73] text-white px-4 py-2 rounded hover:bg-[#005f5a] transition"
             >
               Change Password
             </button>
@@ -579,9 +598,9 @@ const Modal = ({
             </span>
             <button
               onClick={() => setFormData(user)}
-              className="bg-gradient-to-l from-green-500 to-yellow-500 text-white px-2 py-1 rounded hover:from-green-600 hover:to-yellow-600 transition"
+              className="bg-[#007F73] text-white px-2 py-1 rounded hover:bg-[#005f5a] transition"
             >
-              Change Password
+              Change Password   
             </button>
           </div>
         ))
@@ -591,7 +610,7 @@ const Modal = ({
     </div>
   );
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
     setFormData((prevState) => ({
       ...prevState,
@@ -600,6 +619,16 @@ const Modal = ({
   };
 
   const handleSubmit = async () => {
+    const newErrors: { [key: string]: string } = {};
+    if (!formData.status) newErrors.status = "Status is required.";
+    if (!formData.role) newErrors.role = "Role is required.";
+    setErrors(newErrors);
+
+    if (Object.keys(newErrors).length > 0) return;
+
+    const confirm = await SweetAlert.showConfirm("Are you sure you want to add this?");
+    if (!confirm) return;
+
     try {
       const response = await fetch("http://localhost:3001/api/users", {
         method: "POST",
@@ -608,21 +637,42 @@ const Modal = ({
       });
 
       if (response.ok) {
-        alert("User added successfully");
+        await SweetAlert.showSuccess("Successfully added");
         onClose();
       } else {
-        alert("Failed to add user");
+        SweetAlert.showError("Failed to add user");
       }
     } catch (error) {
       console.error("Error adding user:", error);
-      alert("An error occurred");
+      SweetAlert.showError("An error occurred");
     }
   };
 
-  const handleUpdateClick = (user: any) => {
+  const handleUpdateClick = async (user: any) => {
     console.log("Update user:", user);
     setFormData(user);
     setIsUpdateModal(true);
+
+    const confirm = await SweetAlert.showConfirm("Are you sure you want to update this?");
+    if (!confirm) return;
+
+    try {
+      const response = await fetch(`http://localhost:3001/api/users/${user.user_id}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(formData),
+      });
+
+      if (response.ok) {
+        await SweetAlert.showSuccess("Successfully updated");
+        onClose();
+      } else {
+        SweetAlert.showError("Failed to update user");
+      }
+    } catch (error) {
+      console.error("Error updating user:", error);
+      SweetAlert.showError("An error occurred");
+    }
   };
 
   const handleDeleteClick = async (userId: string) => {
