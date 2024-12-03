@@ -61,9 +61,11 @@ const HealthSidebar = () => {
               key={name}
               className="group w-[30px] h-[30px] cursor-pointer"
               onClick={() => handleImageClick(name, route)}
+              onMouseEnter={() => setClickedImage(name)}
+              onMouseLeave={() => setClickedImage(pathname === route ? name : null)}
             >
               <Image
-                src={clickedImage === name ? activeIcon : defaultIcon}
+                src={clickedImage === name || pathname === route ? activeIcon : defaultIcon}
                 width={30}
                 height={30}
                 alt={name}
