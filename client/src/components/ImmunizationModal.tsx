@@ -17,13 +17,36 @@ const ImmunizationModal: React.FC<ModalProps> = ({
 }) => {
   const [editedImmunization, setEditedImmunization] =
     React.useState(immunization);
+  const [isOtherSelected, setIsOtherSelected] = React.useState(false);
+  const [errors, setErrors] = React.useState<{ [key: string]: string }>({});
 
   const handleChange = (key: keyof Immunization, value: any) => {
     setEditedImmunization((prev) => ({ ...prev, [key]: value }));
+    setErrors((prev) => ({ ...prev, [key]: '' })); // Clear error on change
+  };
+
+  const handleVaccineChange = (value: string) => {
+    setIsOtherSelected(value === "others");
+    handleChange("vaccine_type", value);
+  };
+
+  const validateFields = () => {
+    const newErrors: { [key: string]: string } = {};
+    if (!editedImmunization.vaccine_type) newErrors.vaccine_type = "Vaccine type is required.";
+    if (!editedImmunization.doses) newErrors.doses = "Dose is required.";
+    if (!editedImmunization.date_vaccinated) newErrors.date_vaccinated = "Date of vaccination is required.";
+    if (!editedImmunization.health_center) newErrors.health_center = "Health center is required.";
+    return newErrors;
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    const validationErrors = validateFields();
+    if (Object.keys(validationErrors).length > 0) {
+      setErrors(validationErrors);
+      return;
+    }
+
     try {
       const response = await fetch(`http://localhost:3001/api/child-immunization-record/${editedImmunization.child_immunization_id}`, {
         method: 'PUT',
@@ -78,6 +101,7 @@ const ImmunizationModal: React.FC<ModalProps> = ({
                 className="border border-gray-300 rounded-md p-1 w-full outline-none"
                 readOnly
               />
+              {errors.full_name && <span className="text-red-500">{errors.full_name}</span>}
             </div>
             <div>
               <label>Sex:</label>
@@ -118,6 +142,7 @@ const ImmunizationModal: React.FC<ModalProps> = ({
                 className="border border-gray-300 rounded-md p-1 w-full outline-none"
                 readOnly
               />
+
             </div>
             <div>
               <label>Address:</label>
@@ -131,12 +156,33 @@ const ImmunizationModal: React.FC<ModalProps> = ({
             </div>
             <div>
               <label>Vaccine:</label>
-              <input
-                type="text"
-                value={`${editedImmunization.vaccine_type || ""}`.trim()}
-                onChange={(e) => handleChange("vaccine_type", e.target.value)}
+              <select
+                value={editedImmunization.vaccine_type || ""}
+                onChange={(e) => handleVaccineChange(e.target.value)}
                 className="border border-gray-300 rounded-md p-1 w-full"
-              />
+              >
+                <option value="">Select Vaccine</option>
+                <option value="BCG Vaccine">BCG Vaccine</option>
+                <option value="Hepatitis B Vaccine">Hepatitis B Vaccine</option>
+                <option value="Pentavalent Vaccine (DPT-Hep B-HIB)">Pentavalent Vaccine (DPT-Hep B-HIB)</option>
+                <option value="Inactivated Polio Vaccine (IPV)">Inactivated Polio Vaccine (IPV)</option>
+                <option value="Pneumococcal Conjugate Vaccine (PCV)">Pneumococcal Conjugate Vaccine (PCV)</option>
+                <option value="Measles, Mumps, Rubella Vaccine (MMR)">Measles, Mumps, Rubella Vaccine (MMR)</option>
+                <option value="Vitamin A">Vitamin A</option>
+                <option value="Deworming">Deworming</option>
+                <option value="Dental Check-up">Dental Check-up</option>
+                <option value="others">Others</option>
+              </select>
+              {isOtherSelected && (
+                <input
+                  type="text"
+                  placeholder="Enter custom vaccine"
+                  value={editedImmunization.vaccine_type || ""}
+                  onChange={(e) => handleChange("vaccine_type", e.target.value)}
+                  className="border border-gray-300 rounded-md p-1 w-full mt-2"
+                />
+              )}
+              {errors.vaccine_type && <span className="text-red-500">{errors.vaccine_type}</span>}
             </div>
             <div>
               <label>Dose:</label>
@@ -146,6 +192,11 @@ const ImmunizationModal: React.FC<ModalProps> = ({
                 className="border border-gray-300 rounded-md p-1 w-full"
               >
                 <option value="">Select Dose</option>
+                {editedImmunization.doses && (
+                  <option value={String(editedImmunization.doses)}>
+                    {String(editedImmunization.doses)}
+                  </option>
+                )}
                 <option value="1">1</option>
                 <option value="2">2</option>
                 <option value="3">3</option>
@@ -153,6 +204,7 @@ const ImmunizationModal: React.FC<ModalProps> = ({
                 <option value="5">5</option>
                 <option value="others">Others</option>
               </select>
+              {errors.doses && <span className="text-red-500">{errors.doses}</span>}
             </div>
             <div>
               <label>Date of Vaccination:</label>
@@ -164,6 +216,7 @@ const ImmunizationModal: React.FC<ModalProps> = ({
                 }
                 className="border border-gray-300 rounded-md p-1 w-full"
               />
+              {errors.date_vaccinated && <span className="text-red-500">{errors.date_vaccinated}</span>}
             </div>
             <div>
               <label>Remarks:</label>
@@ -182,6 +235,7 @@ const ImmunizationModal: React.FC<ModalProps> = ({
                 onChange={(e) => handleChange("health_center", e.target.value)}
                 className="border border-gray-300 rounded-md p-1 w-full"
               />
+              {errors.health_center && <span className="text-red-500">{errors.health_center}</span>}
             </div>
           </div>
           <div className="flex justify-between">

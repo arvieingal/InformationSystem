@@ -18,6 +18,8 @@ interface TableProps {
 const ImmunizationTable: React.FC<TableProps> = ({ immunizations, onSort, sortConfig, onEdit, onArchive, onRowClick, onViewDetails }) => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedImmunization, setSelectedImmunization] = useState<Immunization | null>(null);
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 15;
 
   const handleEditClick = async (immunization: Immunization) => {
     const isConfirmed = await SweetAlert.showConfirm("Do you want to edit this immunization?");
@@ -32,7 +34,20 @@ const ImmunizationTable: React.FC<TableProps> = ({ immunizations, onSort, sortCo
     setIsModalOpen(false);
   };
 
-  console.log(immunizations);
+  // Calculate the immunizations to display based on the current page
+  const paginatedImmunizations = React.useMemo(() => {
+    const startIndex = (currentPage - 1) * itemsPerPage;
+    const endIndex = startIndex + itemsPerPage;
+    return immunizations.slice(startIndex, endIndex);
+  }, [immunizations, currentPage]);
+
+  const handlePageChange = (newPage: number) => {
+    if (newPage > 0 && newPage <= Math.ceil(immunizations.length / itemsPerPage)) {
+      setCurrentPage(newPage);
+    }
+  };
+
+  const totalPages = Math.ceil(immunizations.length / itemsPerPage);
 
   return (
     <div className='w-full px-[1.5rem] h-full'>
@@ -58,7 +73,7 @@ const ImmunizationTable: React.FC<TableProps> = ({ immunizations, onSort, sortCo
             </tr>
           </thead>
           <tbody className="text-center">
-            {immunizations.map((immunization, index) => (
+            {paginatedImmunizations.map((immunization, index) => (
               <tr key={index} className="border-b hover:bg-gray-50 cursor-pointer">
                 <td className="py-2 px-6 text-left" onClick={() => onViewDetails(immunization)}>{immunization.child_id}</td>
                 <td className="py-2 px-6 text-left" onClick={() => onViewDetails(immunization)}>{`${immunization.full_name || ''}`.trim()}</td>
@@ -97,6 +112,25 @@ const ImmunizationTable: React.FC<TableProps> = ({ immunizations, onSort, sortCo
             ))}
           </tbody>
         </table>
+      </div>
+      <div className="flex justify-center mt-4">
+        <button
+          onClick={() => handlePageChange(currentPage - 1)}
+          disabled={currentPage === 1}
+          className="px-4 py-2 bg-[#007F73] text-white rounded disabled:opacity-50"
+        >
+          Previous
+        </button>
+        <span className="px-4 py-2">
+          Page {currentPage} of {totalPages}
+        </span>
+        <button
+          onClick={() => handlePageChange(currentPage + 1)}
+          disabled={currentPage === totalPages}
+          className="px-4 py-2 bg-[#007F73] text-white rounded disabled:opacity-50 ml-2 w-[5.5rem]"
+        >
+          Next
+        </button>
       </div>
       {isModalOpen && selectedImmunization && (
         <ImmunizationModal

@@ -7,7 +7,6 @@ import ImmunizationTable from '@/components/ImmunizationTable';
 import Modal from '@/components/PersonModal';
 import SweetAlert from '@/components/SweetAlert';
 import SearchBar from '@/components/SearchBar';
-import Pagination from '@/components/Pagination';
 import PersonModal from '@/components/PersonModal';
 import { Immunization } from '@/types/Immunization';
 import { formatDate } from '@/components/formatDate';
@@ -278,13 +277,6 @@ const ImmunizationRecord: React.FC = () => {
             onViewDetails={handleViewDetails}
           />
         </div>
-        <div className='h-[10]'>
-          <Pagination
-            currentPage={currentPage}
-            totalPages={Math.ceil(filteredImmunizations.length / itemsPerPage)}
-            onPageChange={handlePageChange}
-          />
-        </div>
       </div>
 
 
@@ -486,69 +478,80 @@ const ImmunizationRecord: React.FC = () => {
       )}
 
       {isViewModalOpen && selectedImmunization && (
-        <PersonModal onClose={() => setIsViewModalOpen(false)}>
-          <div className="p-4 relative">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
+          <div className="p-8 relative rounded-lg shadow-xl w-[45%] mx-auto bg-white">
             <button
-              className="absolute top-[-4.7rem] right-[-3.4rem] text-gray-500 hover:text-gray-700 p-4 text-[4rem] "
+              aria-label="Close"
+              className="absolute top-4 right-4 text-gray-500 hover:text-gray-700 p-2 text-2xl transition-transform transform hover:scale-110"
               onClick={() => setIsViewModalOpen(false)}
             >
               &times;
             </button>
-            <h2 className="text-lg font-semibold">Child Immunization Record</h2>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            <h2 className="text-3xl font-bold text-center mb-6 text-gray-800">Child Immunization Record</h2>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
               <div className="col-span-1">
-                <p>Child's Name: <span className="inline-block w-full md:w-48 border-b-2 border-gray-400 text-right">{`${selectedImmunization.full_name}`}</span></p>
-                <p>Date of Birth: <span className="inline-block w-full md:w-48 border-b-2 border-gray-400 text-right">{formatDate(selectedImmunization.birthdate)}</span></p>
-                <p>Place of Birth: <span className="inline-block w-full md:w-48 border-b-2 border-gray-400 text-right">{formatDate(selectedImmunization.birthdate)}</span></p>
-                <p>Address: <span className="inline-block w-full md:w-48 border-b-2 border-gray-400 text-right">{selectedImmunization.address}</span></p>
+                <p className="font-semibold text-gray-600">Child's Name:</p>
+                <span className="block text-gray-800">{selectedImmunization.full_name || 'N/A'}</span>
+                <p className="font-semibold text-gray-600 mt-4">Date of Birth:</p>
+                <span className="block text-gray-800">{formatDate(selectedImmunization.birthdate) || 'N/A'}</span>
+                <p className="font-semibold text-gray-600 mt-4">Place of Birth:</p>
+                <span className="block text-gray-800">{selectedImmunization.birthplace || 'N/A'}</span>
+                <p className="font-semibold text-gray-600 mt-4">Address:</p>
+                <span className="block text-gray-800">{selectedImmunization.address || 'N/A'}</span>
               </div>
               <div className="col-span-1">
-                <p>Mother's Name: <span className="inline-block w-full md:w-48 border-b-2 border-gray-400 text-right">{selectedImmunization.mother_name}</span></p>
-                <p>Father's Name: <span className="inline-block w-full md:w-48 border-b-2 border-gray-400 text-right truncate">{selectedImmunization.father_name}</span></p>
-                <p>Birth Height: <span className="inline-block w-full md:w-48 border-b-2 border-gray-400 text-right">{selectedImmunization.height_at_birth}</span></p>
-                <p>Birth Weight: <span className="inline-block w-full md:w-48 border-b-2 border-gray-400 text-right">{selectedImmunization.weight_at_birth}</span></p>
+                <p className="font-semibold text-gray-600">Mother's Name:</p>
+                <span className="block text-gray-800">{selectedImmunization.mother_name || 'N/A'}</span>
+                <p className="font-semibold text-gray-600 mt-4">Father's Name:</p>
+                <span className="block text-gray-800">{selectedImmunization.father_name || 'N/A'}</span>
+                <p className="font-semibold text-gray-600 mt-4">Birth Height:</p>
+                <span className="block text-gray-800">{selectedImmunization.height_at_birth || 'N/A'}</span>
+                <p className="font-semibold text-gray-600 mt-4">Birth Weight:</p>
+                <span className="block text-gray-800">{selectedImmunization.weight_at_birth || 'N/A'}</span>
               </div>
               <div className="col-span-1">
-                <p>Sex: <span className="inline-block w-full md:w-48 border-b-2 border-gray-400 text-right">{selectedImmunization.sex}</span></p>
-                <p>Health Center: <span className="inline-block w-full md:w-48 border-b-2 border-gray-400 text-right">{selectedImmunization.health_center}</span></p>
-                <p>Barangay: <span className="inline-block w-full md:w-48 border-b-2 border-gray-400 text-right">{selectedImmunization.barangay}</span></p>
-                <p>Family Number: <span className="inline-block w-full md:w-48 border-b-2 border-gray-400 text-right">{selectedImmunization.household_number}</span></p>
+                <p className="font-semibold text-gray-600">Sex:</p>
+                <span className="block text-gray-800">{selectedImmunization.sex || 'N/A'}</span>
+                <p className="font-semibold text-gray-600 mt-4">Health Center:</p>
+                <span className="block text-gray-800">{selectedImmunization.health_center || 'N/A'}</span>
+                <p className="font-semibold text-gray-600 mt-4">Barangay:</p>
+                <span className="block text-gray-800">{selectedImmunization.barangay || 'N/A'}</span>
+                <p className="font-semibold text-gray-600 mt-4">Family Number:</p>
+                <span className="block text-gray-800">{selectedImmunization.household_number || 'N/A'}</span>
               </div>
             </div>
-            <table className="w-full mt-4 border-collapse border border-gray-300">
+            <table className="w-full mt-8 border border-gray-300 rounded-lg border-collapse">
               <thead>
-                <tr>
-                  <th className="border border-gray-300 p-2">Bakuna</th>
-                  <th className="border border-gray-300 p-2">Doses</th>
-                  <th className="border border-gray-300 p-2">Petsa ng Bakuna</th>
-                  <th className="border border-gray-300 p-2">Remarks</th>
+                <tr className="bg-gray-100">
+                  <th className="border border-gray-300 p-4 text-left">Vaccine</th>
+                  <th className="border border-gray-300 p-4 text-left">Doses</th>
+                  <th className="border border-gray-300 p-4 text-left">Vaccination Date</th>
+                  <th className="border border-gray-300 p-4 text-left">Remarks</th>
                 </tr>
               </thead>
               <tbody>
-                {/* Example row, replace with actual data */}
-                <tr>
-                  <td className="border border-gray-300 p-2">{selectedImmunization.vaccine_type}</td>
-                  <td className="border border-gray-300 p-2">
-                    {selectedImmunization.doses ? selectedImmunization.doses.toString() : ''}
+                <tr className="hover:bg-gray-50 transition-colors">
+                  <td className="border border-gray-300 p-4">{selectedImmunization.vaccine_type || 'N/A'}</td>
+                  <td className="border border-gray-300 p-4">
+                    {selectedImmunization.doses ? selectedImmunization.doses.toString() : 'N/A'}
                   </td>
-                  <td className="border border-gray-300 p-2">
-                    {selectedImmunization.date_vaccinated ? formatDate(selectedImmunization.date_vaccinated.toString()) : ''}
+                  <td className="border border-gray-300 p-4">
+                    {selectedImmunization.date_vaccinated ? formatDate(selectedImmunization.date_vaccinated.toString()) : 'N/A'}
                   </td>
-                  <td className="border border-gray-300 p-2">{selectedImmunization.remarks}</td>
+                  <td className="border border-gray-300 p-4">{selectedImmunization.remarks || 'N/A'}</td>
                 </tr>
-                {/* Add more rows as needed */}
               </tbody>
             </table>
-            <div className='flex justify-center'>
-            <button
-              className="mt-4 bg-[#007F73] text-white px-4 py-2 rounded items-center justify-center flex"
-              onClick={() => setIsViewModalOpen(false)}
-            >
-              OK
-            </button>
+            <div className='flex justify-center mt-8'>
+              <button
+                className="bg-[#007F73] text-white px-8 py-3 rounded-lg shadow-md hover:bg-[#005f57] transition-colors"
+                onClick={() => setIsViewModalOpen(false)}
+              >
+                OK
+              </button>
             </div>
           </div>
-        </PersonModal>
+        </div>
       )}
     </div>
   );
