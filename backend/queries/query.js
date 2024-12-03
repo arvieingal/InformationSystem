@@ -247,6 +247,30 @@ const childImmunizationQueries = {
     "UPDATE child_immunization_record SET status = 'Inactive' WHERE child_id = ?",
 };
 
+const nutritionalStatusHistoryQueries = {
+  findAllNutritionalStatusHistory:
+    "SELECT * FROM nutritional_status_history WHERE status = 'Active'",
+  findById: "SELECT * FROM child_immunization_record WHERE child_id = ?",
+  insert:
+    "INSERT INTO child_immunization_record (name, age, address) VALUES (?, ?, ?)",
+  update:
+    "UPDATE child_immunization_record SET name = ?, age = ?, address = ? WHERE child_id = ?",
+  delete:
+    "UPDATE child_immunization_record SET status = 'Inactive' WHERE child_id = ?",
+};
+
+const immunizationRecordHistoryQueries = {
+  findAllImmunizationRecordHistory:
+    "SELECT * FROM immunization_record_history WHERE status = 'Active'",
+  findById: "SELECT * FROM child_immunization_record WHERE child_id = ?",
+  insert:
+    "INSERT INTO child_immunization_record (name, age, address) VALUES (?, ?, ?)",
+  update:
+    "UPDATE child_immunization_record SET name = ?, age = ?, address = ? WHERE child_id = ?",
+  delete:
+    "UPDATE child_immunization_record SET status = 'Inactive' WHERE child_id = ?",
+};
+
 module.exports = {
   userQueries,
   renterQueries,
@@ -255,4 +279,6 @@ module.exports = {
   purokQueries,
   childrenQueries,
   childImmunizationQueries,
+  nutritionalStatusHistoryQueries,
+  immunizationRecordHistoryQueries,
 };
