@@ -6,7 +6,10 @@ import { FaSearch, FaUser, FaClipboardList } from "react-icons/fa";
 import Image from "next/image";
 import { formatDate } from "@/components/formatDate";
 import AdminHeader from "@/components/AdminHeader";
+import { useSession } from "next-auth/react";
+
 const Settings: React.FC = () => {
+  const { data: session } = useSession();
   const router = useRouter();
   const [modalContent, setModalContent] = useState<string | null>(null);
   const [searchTerm, setSearchTerm] = useState<string>("");
@@ -76,94 +79,100 @@ const Settings: React.FC = () => {
   };
 
   return (
-    
+
     <>
-    <div className="w-full h-screen bg-gray-100">
-      <div className="w-full h-[10vh]">
-        <AdminHeader />
-      </div>
-      <div className="flex flex-col items-center mt-[3rem]">
-        <div className="flex space-x-4 mb-4">
-          <button
-            onClick={() => router.back()}
-            className="bg-[#007F73] text-white px-2 py-2 text-[16px] rounded hover:bg-[#005f5a] w-[10rem] h-[3rem] transition"
-          >
-            Back
-          </button>
-          <div className="flex items-center bg-white p-2 rounded-md shadow-md w-[70rem] h-[3rem] ">
-            <FaSearch className="mr-2 text-gray-600" />
-            <input
-              type="text"
-              placeholder="Search..........................."
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              className="p-2 border-none outline-none w-full "
-            />
-          </div>
+      <div className="w-full h-screen bg-gray-100">
+        <div className="w-full h-[10vh]">
+          <AdminHeader />
         </div>
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 w-full max-w-7xl">
-          {/* User Management Section */}
-          <div className="col-span-1 lg:col-span-1">
-            <h2 className="text-2xl font-bold mb-4 text-gray-700">User Management</h2>
-            <div className="space-y-4">
-              <Card
-                title="Add User"
-                description="Create a new user account with required details, roles, and access permissions."
-                imageSrc="/svg/people2.svg"
-                onClick={() => handleCardClick("Add User")}
-              />
-              <Card
-                title="Update User"
-                description="Edit an existing user’s profile, role, or permissions to reflect changes in access or information."
-                imageSrc="/svg/update.svg"
-                onClick={() => handleCardClick("Update User")}
-              />
-              <Card
-                title="Change my Password"
-                description="Change your current password to a new one."
-                imageSrc="/svg/reset-password.png"
-                onClick={() => handleCardClick("Change Password")}
+        <div className="flex flex-col items-center mt-[3rem]">
+          <div className="flex space-x-4 mb-4">
+            <button
+              onClick={() => router.back()}
+              className="bg-[#007F73] text-white px-2 py-2 text-[16px] rounded hover:bg-[#005f5a] w-[10rem] h-[3rem] transition"
+            >
+              Back
+            </button>
+            <div className="flex items-center bg-white p-2 rounded-md shadow-md w-[70rem] h-[3rem] ">
+              <FaSearch className="mr-2 text-gray-600" />
+              <input
+                type="text"
+                placeholder="Search..........................."
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                className="p-2 border-none outline-none w-full "
               />
             </div>
           </div>
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 w-full max-w-7xl">
+            {/* User Management Section */}
+            <div className="col-span-1 lg:col-span-1">
+              <h2 className="text-2xl font-bold mb-4 text-gray-700">User Management</h2>
+              <div className="space-y-4">
+                {session?.user.role === "Admin" &&
+                  <>
+                    <Card
+                      title="Add User"
+                      description="Create a new user account with required details, roles, and access permissions."
+                      imageSrc="/svg/people2.svg"
+                      onClick={() => handleCardClick("Add User")}
+                    />
+                    <Card
+                      title="Update User"
+                      description="Edit an existing user’s profile, role, or permissions to reflect changes in access or information."
+                      imageSrc="/svg/update.svg"
+                      onClick={() => handleCardClick("Update User")}
+                    />
+                  </>
+                }
+                <Card
+                  title="Change my Password"
+                  description="Change your current password to a new one."
+                  imageSrc="/svg/reset-password.png"
+                  onClick={() => handleCardClick("Change Password")}
+                />
+              </div>
 
-          {/* Log Management Section */}
-          <div className="col-span-1 lg:col-span-2">
-            <h2 className="text-2xl font-bold mb-4 text-gray-700">Log Management</h2>
-            <div className="bg-white p-6 rounded-lg shadow-lg grid grid-cols-2 gap-4">
-              {logs.length > 0 ? (
-                logs
-                  .filter(log => log.username && log.action && log.timestamp)
-                  .slice(0, displayedLogsCount)
-                  .map((log) => (
-                    <div key={log.id} className="mb-2">
-                      {`${log.username} - ${log.action} - ${formatDate(log.timestamp)}`}
-                    </div>
-                  ))
-              ) : (
-                <div>No logs available</div>
-              )}
-              {logs.length > displayedLogsCount && (
-                <button
-                  onClick={loadMoreLogs}
-                  className="mt-4 bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 transition"
-                >
-                  Load More
-                </button>
-              )}
             </div>
+
+            {/* Log Management Section */}
+            {session?.user.role === "Admin" &&
+              <div className="col-span-1 lg:col-span-2">
+                <h2 className="text-2xl font-bold mb-4 text-gray-700">Log Management</h2>
+                <div className="bg-white p-6 rounded-lg shadow-lg grid grid-cols-2 gap-4">
+                  {logs.length > 0 ? (
+                    logs
+                      .filter(log => log.username && log.action && log.timestamp)
+                      .slice(0, displayedLogsCount)
+                      .map((log) => (
+                        <div key={log.id} className="mb-2">
+                          {`${log.username} - ${log.action} - ${formatDate(log.timestamp)}`}
+                        </div>
+                      ))
+                  ) : (
+                    <div>No logs available</div>
+                  )}
+                  {logs.length > displayedLogsCount && (
+                    <button
+                      onClick={loadMoreLogs}
+                      className="mt-4 bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 transition"
+                    >
+                      Load More
+                    </button>
+                  )}
+                </div>
+              </div>}
           </div>
         </div>
-      </div>
 
-      {modalContent && (
-        <Modal
-          content={modalContent}
-          onClose={closeModal}
-          handleCardClick={handleCardClick}
-        />
-      )}
-    </div>
+        {modalContent && (
+          <Modal
+            content={modalContent}
+            onClose={closeModal}
+            handleCardClick={handleCardClick}
+          />
+        )}
+      </div>
     </>
   );
 };
@@ -636,10 +645,10 @@ const Modal = ({
         {content === "Add User"
           ? renderAddUserForm()
           : content === "Change Password"
-          ? renderChangePasswordForm(formData)
-          : isUpdateModal
-          ? renderUpdateForm()
-          : renderUserList()}
+            ? renderChangePasswordForm(formData)
+            : isUpdateModal
+              ? renderUpdateForm()
+              : renderUserList()}
       </div>
     </div>
   );

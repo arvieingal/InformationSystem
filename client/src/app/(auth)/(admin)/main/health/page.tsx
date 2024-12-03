@@ -17,6 +17,7 @@ import {
 import { Doughnut, Bar } from 'react-chartjs-2';
 import { populationDonutData, sectorDonutData, genderDistribution } from '@/constants/chartDummyData';
 import { DoughnutLegend } from '@/components/DoughnutLegend';
+import { useSession } from 'next-auth/react';
 
 ChartJS.register(
   CategoryScale,
@@ -33,6 +34,7 @@ interface Child {
 }
 
 const HealthPage = () => {
+  const { data: session } = useSession();
   const [selectedAgeCategory, setSelectedAgeCategory] = useState<string>('0-6 Months');
   const [nutritionalData, setNutritionalData] = useState<Child[]>([]);
 
