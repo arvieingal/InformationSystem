@@ -9,7 +9,7 @@ const ProfilingSearchBar = ({ onSearch }: Props) => {
   return (
     <div className="h-[11%] px-16">
       <div className="w-full flex h-[50%]">
-        <div className="flex bg-white h-full items-center w-[80%] rounded-l-[5px]">
+        <div className="flex bg-white h-full items-center w-[84%] rounded-l-[5px]">
           <Image
             src={"/svg/guidance_search.svg"}
             alt="Search"
@@ -38,15 +38,6 @@ const ProfilingSearchBar = ({ onSearch }: Props) => {
             height={100}
             width={100}
             className="h-3 w-3"
-          />
-        </div>
-        <div className="h-full flex justify-center items-center w-[4%]">
-          <Image
-            src={"/svg/box_box.svg"}
-            alt="Box"
-            height={100}
-            width={100}
-            className="h-6 w-6"
           />
         </div>
         <div className="flex bg-white h-full items-center justify-center w-[4%] rounded-r-[5px]">

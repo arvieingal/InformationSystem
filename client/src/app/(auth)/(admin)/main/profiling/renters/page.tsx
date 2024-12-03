@@ -9,9 +9,11 @@ import api from "@/lib/axios";
 import { useRouter } from "next/navigation";
 import { Renter, RentOwner } from "@/types/profilingTypes";
 import { SubmitHandler, useForm } from "react-hook-form";
+import { useSession } from "next-auth/react";
 
 const Renters = () => {
   const router = useRouter()
+  const { data: session } = useSession();
   const {
     register,
     handleSubmit,
@@ -187,7 +189,7 @@ const Renters = () => {
         <div className="flex justify-center items-center font-semibold"><Image src={'/svg/add-household.svg'} alt="add-household" width={100} height={100} className="w-5 h-5 mr-3" />Add</div>
       </button>
 
-      <div className="h-[63%] px-64 pb-2">
+      <div className="h-[66%] px-64 pb-2">
         <div className="bg-white h-full rounded-[10px] overflow-y-auto">
           <table className="w-full border-collapse text-[14px]">
             <thead>
@@ -212,15 +214,28 @@ const Renters = () => {
                     <td className="py-2 px-3 text-center">{renter.months_year_of_stay}</td>
                     <td className="py-2 px-3 text-center">{renter.work}</td>
                     <td className="text-center py-2 flex items-center">
-                      <button onClick={(e) => { e.stopPropagation(); onEditRenter(renter) }}>
-                        <Image
-                          src={"/svg/edit_pencil.svg"}
-                          alt="Edit"
-                          height={100}
-                          width={100}
-                          className="w-5 h-5 mr-2 cursor-pointer"
-                        />
-                      </button>
+                      {session?.user.role === "Admin" && (
+                        <>
+                          <button onClick={(e) => { e.stopPropagation(); onEditRenter(renter) }}>
+                            <Image
+                              src={"/svg/edit_pencil.svg"}
+                              alt="Edit"
+                              height={100}
+                              width={100}
+                              className="w-5 h-5 mr-2 cursor-pointer"
+                            />
+                          </button>
+                          <button onClick={(e) => { e.stopPropagation(); handleArchiveResident() }}>
+                            <Image
+                              src="/svg/archive.svg"
+                              alt="Archive"
+                              height={100}
+                              width={100}
+                              className="w-6 h-6 cursor-pointer"
+                            />
+                          </button>
+                        </>
+                      )}
                     </td>
                   </tr>
                 );
@@ -414,23 +429,13 @@ const Renters = () => {
                   />
                 </div>
               </div>
-              {addRenterModal &&
+              {isInfoModal ? null :
                 <div className="flex justify-center items-center font-semibold pt-16">
                   <button type="submit" className={`bg-[#338A80] text-white rounded-[5px] py-1 w-[50%] ${isInfoModal ? "hidden" : ""}`}>
-                    Add
+                    {addRenterModal ? 'Add' : 'Update'}
                   </button>
                 </div>
               }
-              {isInfoModal ? null : (
-                !addRenterModal && (
-                  <div className="grid grid-cols-2 gap-2 font-semibold pt-16">
-                    <button className="border-[1px] border-[#969696] rounded-[5px] py-1" type="button" onClick={() => handleArchiveResident()}>Archive</button>
-                    <button type="submit" className={`bg-[#338A80] text-white rounded-[5px] py-1 ${isInfoModal ? "hidden" : ""}`}>
-                      Update
-                    </button>
-                  </div>
-                )
-              )}
             </form>
           </div>
         </div>

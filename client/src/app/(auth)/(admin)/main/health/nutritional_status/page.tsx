@@ -28,7 +28,7 @@ export interface Resident {
   barangay: string;
   city: string;
   age: number;
-  children: Child[]; 
+  children: Child[];
 }
 export interface Child {
   resident_id: number;
@@ -99,7 +99,7 @@ const calculateNutritionalStatus = (
     return "Normal";
   } else if (bmi <= 29.9) {
     return "Overweight";
-  } else { 
+  } else {
     return "Obese";
   }
 };
@@ -170,10 +170,10 @@ const NutritionalStatus: React.FC = () => {
     height: number
   ): string => {
     if (!weight || !height) return "N/A";
-  
+
     const heightInMeters = height / 100; // Convert cm to meters
     const bmi = weight / (heightInMeters * heightInMeters);
-  
+
     // Determine nutritional status based on BMI thresholds
     if (bmi < 16) return "Severely Underweight";
     if (bmi >= 16 && bmi < 18.5) return "Underweight";
@@ -181,7 +181,7 @@ const NutritionalStatus: React.FC = () => {
     if (bmi >= 25 && bmi <= 29.9) return "Overweight";
     return "Obese";
   };
-  
+
 
 
   const handleFilterChange = (key: string, value: string | boolean) => {
@@ -253,7 +253,7 @@ const NutritionalStatus: React.FC = () => {
 
   console.log(residents, "Resident Data");
 
-  
+
 
   const fetchChildById = async (id: number) => {
     try {
@@ -319,7 +319,7 @@ const NutritionalStatus: React.FC = () => {
       return;
     }
 
-    const username = session.user?.name || session.user?.email || "Unknown User"; 
+    const username = session.user?.name || session.user?.email || "Unknown User";
 
     const confirmEdit = await SweetAlert.showConfirm(
       `<p> Are you sure you want to edit this child with ID: <span class="font-bold">${child.child_id}</span>?</p>`
@@ -490,7 +490,7 @@ const NutritionalStatus: React.FC = () => {
   ]);
 
   const parseDate = (dateString: string) => {
-    if (!dateString) return null; 
+    if (!dateString) return null;
     const date = new Date(dateString);
     return isNaN(date.getTime()) ? null : date;
   };
@@ -546,7 +546,7 @@ const NutritionalStatus: React.FC = () => {
         height_age_Z: selectedChild.height_age_Z ?? null,
         weight_age_Z: selectedChild.weight_age_Z ?? null,
         weight_height_Z: selectedChild.weight_height_Z ?? null,
-        nutritional_status: selectedChild.nutritional_status ?? null, 
+        nutritional_status: selectedChild.nutritional_status ?? null,
         measurement_date: selectedChild.measurement_date ?? null,
         updated_by: session?.user.username || "Unknown User", // Add username here
       };
@@ -569,7 +569,7 @@ const NutritionalStatus: React.FC = () => {
       let responseData = {};
       if (response.status !== 204) {
         try {
-          responseData = await response.json(); 
+          responseData = await response.json();
           console.log("Backend response data:", responseData);
         } catch (error) {
           console.warn("Failed to parse response as JSON", error);
@@ -579,7 +579,7 @@ const NutritionalStatus: React.FC = () => {
       if (response.ok) {
         let updatedChild;
         try {
-          updatedChild = responseData; 
+          updatedChild = responseData;
           console.log("Updated child data from server:", updatedChild);
         } catch (error) {
           console.warn("Response is not JSON or is empty. Using local data.");
@@ -598,7 +598,7 @@ const NutritionalStatus: React.FC = () => {
         await SweetAlert.showSuccess(`<p>Child with ID: <span class="font-bold">${selectedChild.child_id}</span> has been updated successfully.</p>`).then(() => {
           window.location.reload();
         });
-       
+
       } else {
         console.error(`Failed to update child. Status: ${response.status}`);
         await SweetAlert.showError(
@@ -622,24 +622,24 @@ const NutritionalStatus: React.FC = () => {
       ...prev,
       [field]: value,
     }));
-  
+
     if (field === "weight_kg" || field === "height_cm") {
       const weight = parseFloat(field === "weight_kg" ? value : selectedChild.weight_kg || "0");
       const height = parseFloat(field === "height_cm" ? value : selectedChild.height_cm || "0");
       const age = parseFloat(selectedChild.age || "0");
-  
+
       if (isNaN(weight) || isNaN(height) || isNaN(age)) {
         setError("Please enter valid numbers for age, weight, and height.");
         return;
       }
-  
+
       if (weight <= 0 || height <= 0) {
         setError("Weight and height must be greater than zero.");
         return;
       }
-  
+
       setError(null); // Clear previous errors
-  
+
       const status = calculateNutritionalStatus(age, weight, height);
       setSelectedChild((prev) => ({
         ...prev,
@@ -650,7 +650,7 @@ const NutritionalStatus: React.FC = () => {
       }));
     }
   };
-  
+
 
   function calculateWeightForAge(age: number, weight: number): string {
     // Implement the logic to calculate the weight-for-age Z-score or other metric
@@ -673,8 +673,8 @@ const NutritionalStatus: React.FC = () => {
 
   return (
     <>
-      <div className="flex flex-row md:flex md:flex-row justify-center gap-[3rem] mt-[2rem] "></div>
-      
+      <div className="flex flex-row md:flex md:flex-row justify-center gap-[3rem]"></div>
+
       <div className="w-full mt-[1rem] ">
         <ChildTable
           children={paginatedChildren as unknown as ChildTableChild[]}
@@ -1062,7 +1062,7 @@ const NutritionalStatus: React.FC = () => {
                       type="number"
                       value={selectedChild.weight_age_Z}
                       onChange={(e) =>
-                          handleInputChange("weight_age_Z", e.target.value)
+                        handleInputChange("weight_age_Z", e.target.value)
                       }
                     />
                   </div>
