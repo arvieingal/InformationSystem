@@ -190,15 +190,13 @@ const NutritionalStatus: React.FC = () => {
     const filteredChildren = originalChildren.filter((child) => {
       switch (key) {
         case "age":
-          return child.age.toString() === value;
+          const age = parseInt(child.age);
+          return age >= 1 && age <= 6 && age.toString() === value;
         case "gender":
           return child.sex.toLowerCase() === value.toString().toLowerCase();
         case "birthdate":
-          return formatDate(child.birthdate) === value;
-        case "height":
-          return child.height_cm.toString() === value;
-        case "weight":
-          return child.weight_kg.toString() === value;
+          const birthMonth = new Date(child.birthdate).getMonth() + 1; 
+          return birthMonth === parseInt(value.toString());
         case "nutritionalStatus":
           return child.nutritional_status.toLowerCase() === value.toString().toLowerCase();
         case "archived":
@@ -667,8 +665,38 @@ const NutritionalStatus: React.FC = () => {
     return (weight / height).toString(); // Placeholder
   }
 
-  function handleArchiveClick(arg0: any): void {
-    throw new Error("Function not implemented.");
+  async function handleArchiveClick(child: ChildTableChild): Promise<void> {
+    try {
+      const confirmArchive = await SweetAlert.showConfirm(
+        `<p>Are you sure you want to archive the child with ID: <span class="font-bold">${child.child_id}</span>?</p>`
+      );
+
+      if (!confirmArchive) {
+        console.log("Archiving canceled by user");
+        return;
+      }
+
+      const response = await fetch(`http://localhost:3001/api/children/${child.child_id}/archive`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      });
+
+      if (response.ok) {
+        console.log(`Child with ID ${child.child_id} archived successfully.`);
+        setChildren((prevChildren) =>
+          prevChildren.filter((c) => c.child_id !== child.child_id)
+        );
+        await SweetAlert.showSuccess(`Child with ID: ${child.child_id} has been archived successfully.`);
+      } else {
+        console.error('Failed to archive child:', response.statusText);
+        await SweetAlert.showError('Failed to archive child.');
+      }
+    } catch (error) {
+      console.error('Error archiving child:', error);
+      await SweetAlert.showError('An error occurred while archiving the child.');
+    }
   }
 
   return (

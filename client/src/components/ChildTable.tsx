@@ -103,9 +103,37 @@ const ChildTable: React.FC<TableProps> = ({ children, onSort, sortConfig, onEdit
   const [filterCriteria, setFilterCriteria] = useState<{ archived: boolean }>({ archived: false });
   const router = useRouter();
 
-  const fetchChildren = async () => {
+ // Fetch active children
+ const fetchChildren = async () => {
+  try {
+    const response = await api.get("/api/children");
+    setChildrens(response.data);
+  } catch (error) {
+    console.error("Error fetching children:", error);
+    setError("Failed to fetch children data.");
+  }
+};
+
+// Fetch archived (inactive) children
+const fetchChildrenInactive = async () => {
+  try {
+    const response = await api.get("/api/children/inactive");
+    if (response.data) {
+      setChildrens(response.data); // This updates the state with inactive children
+    }
+  } catch (error) {
+    console.error("Error fetching inactive children:", error);
+    setError("Failed to fetch inactive children data.");
+  }
+};
+
+
+useEffect(() => {
+  const fetchChildrenData = async () => {
     try {
-      const response = await api.get("/api/children");
+      const response = filterCriteria.archived
+        ? await api.get("/api/children/inactive")
+        : await api.get("/api/children");
       setChildrens(response.data);
     } catch (error) {
       console.error("Error fetching children:", error);
@@ -113,15 +141,17 @@ const ChildTable: React.FC<TableProps> = ({ children, onSort, sortConfig, onEdit
     }
   };
 
-  useEffect(() => {
-    fetchChildren();
+  fetchChildrenData();
 
-    const intervalId = setInterval(() => {
-      fetchChildren();
-    }, 30000);
+  // Optional: Periodic refresh
+  const intervalId = setInterval(() => {
+    fetchChildrenData();
+  }, 30000);
 
-    return () => clearInterval(intervalId);
-  }, []);
+  return () => clearInterval(intervalId);
+}, [filterCriteria.archived]);
+
+
 
   const handleSort = (key: keyof Child) => {
     onSort(key);
@@ -139,30 +169,58 @@ const ChildTable: React.FC<TableProps> = ({ children, onSort, sortConfig, onEdit
   const filteredChildren = React.useMemo(() => {
     if (!searchQuery) return childrens;
     const query = searchQuery.toLowerCase();
-
+  
     return childrens.filter((child) => {
-      console.log(`Checking child: ${child.full_name}, sex: ${child.sex}`);
-
       if (child.sex.toLowerCase() === query) {
         return true;
       }
-
+  
       return Object.entries(child).some(([key, value]) => {
         if (value === null || value === undefined) return false;
         const stringValue = value.toString().toLowerCase();
-
+  
         if (stringValue.includes(query)) return true;
-
+  
         if (key === 'birthdate' || key === 'measurement_date') {
           const date = new Date(value);
           const monthName = date.toLocaleString('default', { month: 'long' }).toLowerCase();
           return monthName.includes(query);
         }
-
+  
         return false;
       });
     });
   }, [childrens, searchQuery]);
+  
+  // const sortedChildren = React.useMemo(() => {
+  //   if (sortConfig && sortConfig.key) {
+  //     return [...filteredChildren].sort((a, b) => {
+  //       const key = sortConfig.key as keyof typeof a;
+  //       const aValue = a[key];
+  //       const bValue = b[key];
+  
+  //       if (aValue === undefined || bValue === undefined) {
+  //         return 0;
+  //       }
+  
+  //       if (aValue !== null && bValue !== null && aValue < bValue) {
+  //         return sortConfig.direction === "ascending" ? -1 : 1;
+  //       }
+  //       if (aValue !== null && bValue !== null && aValue > bValue) {
+  //         return sortConfig.direction === "ascending" ? 1 : -1;
+  //       }
+  //       return 0;
+  //     });
+  //   }
+  //   return filteredChildren;
+  // }, [filteredChildren, sortConfig]);
+  
+  // const paginatedChildren = React.useMemo(() => {
+  //   const startIndex = (currentPage - 1) * itemsPerPage;
+  //   const endIndex = startIndex + itemsPerPage;
+  //   return sortedChildren.slice(startIndex, endIndex);
+  // }, [sortedChildren, currentPage]);
+  
 
   const sortedChildren = React.useMemo(() => {
     if (sortConfig && sortConfig.key) {
@@ -207,15 +265,12 @@ const ChildTable: React.FC<TableProps> = ({ children, onSort, sortConfig, onEdit
 
       if (confirmArchive) {
         const response = await fetch(
-          `http://localhost:3001/api/children/${child.child_id}`,
+          `http://localhost:3001/api/children/${child.child_id}/archive`,
           {
             method: "PUT",
             headers: {
               "Content-Type": "application/json",
             },
-            body: JSON.stringify({
-              status: "Archive",
-            }),
           }
         );
 
@@ -228,7 +283,7 @@ const ChildTable: React.FC<TableProps> = ({ children, onSort, sortConfig, onEdit
 
           setChildrens((prevChildren) =>
             prevChildren.map((c) =>
-              c.child_id === child.child_id ? { ...c, status: "Archive" } : c
+              c.child_id === child.child_id ? { ...c, status: "archived" } : c
             )
           );
 
@@ -239,43 +294,32 @@ const ChildTable: React.FC<TableProps> = ({ children, onSort, sortConfig, onEdit
           );
         } else {
           console.error("Failed to archive child. Response status:", response.status);
+          await SweetAlert.showError('Failed to archive child.');
         }
       }
     } catch (error) {
       console.error("Error archiving child:", error);
+      await SweetAlert.showError('An error occurred while archiving the child.');
     }
   };
+
 
   const handleEditClick = (child: Child) => {
     onEdit(child);
   };
 
-  const handleFilterChange = (key: string, value: string | boolean) => {
-    console.log(`Filtering by ${key} with value: ${value}`);
-
-    setFilterCriteria((prev) => ({ ...prev, [key]: value }));
-
-    const filteredChildren = childrens.filter((child) => {
-      switch (key) {
-        case "age":
-          return parseFloat(child.age.toString()) === parseFloat(value.toString());
-        case "gender":
-          return child.sex.toLowerCase() === value.toString().toLowerCase();
-        case "birthdate":
-          const birthMonth = new Date(child.birthdate).getMonth() + 1; // getMonth() is zero-based
-          return birthMonth === parseInt(value.toString());
-        case "nutritionalStatus":
-          return child.nutritional_status.toLowerCase() === value.toString().toLowerCase();
-        case "archived":
-          return child.status.toLowerCase() === (value ? "archive" : "active");
-        default:
-          return true;
-      }
-    });
-
-    console.log("Filtered children:", filteredChildren);
-    setChildrens(filteredChildren);
+  const handleFilterChange = (key: string, value: boolean | string) => {
+    if (key === "archived") {
+      setFilterCriteria((prev) => ({ ...prev, archived: !prev.archived }));
+    } else if (key === "gender") {
+      const filteredChildren = childrens.filter(
+        (child) => child.sex.toLowerCase() === value.toString().toLowerCase()
+      );
+      setChildrens(filteredChildren);
+    }
   };
+  
+  
 
   return (
     <div className="w-full h-full px-[1.5rem]">
@@ -314,12 +358,6 @@ const ChildTable: React.FC<TableProps> = ({ children, onSort, sortConfig, onEdit
           <ul className="py-1">
             <li
               className="px-4 py-2 hover:bg-gray-100 cursor-pointer"
-              onClick={() => handleFilterChange("age", "specificAge")}
-            >
-              Filter by Age
-            </li>
-            <li
-              className="px-4 py-2 hover:bg-gray-100 cursor-pointer"
               onClick={() => handleFilterChange("gender", "male")}
             >
               Filter by Male
@@ -332,32 +370,8 @@ const ChildTable: React.FC<TableProps> = ({ children, onSort, sortConfig, onEdit
             </li>
             <li
               className="px-4 py-2 hover:bg-gray-100 cursor-pointer"
-              onClick={() => handleFilterChange("birthdate", "specificDate")}
-            >
-              Filter by Birthdate
-            </li>
-            <li
-              className="px-4 py-2 hover:bg-gray-100 cursor-pointer"
-              onClick={() => handleFilterChange("height", "specificHeight")}
-            >
-              Filter by Height
-            </li>
-            <li
-              className="px-4 py-2 hover:bg-gray-100 cursor-pointer"
-              onClick={() => handleFilterChange("weight", "specificWeight")}
-            >
-              Filter by Weight
-            </li>
-            <li
-              className="px-4 py-2 hover:bg-gray-100 cursor-pointer"
-              onClick={() => handleFilterChange("nutritionalStatus", "Normal")}
-            >
-              Filter by Nutritional Status
-            </li>
-            <li
-              className="px-4 py-2 hover:bg-gray-100 cursor-pointer"
               onClick={() =>
-                setFilterCriteria((prev) => ({ ...prev, archived: !prev.archived }))
+                handleFilterChange("archived", !filterCriteria.archived)
               }
             >
               {filterCriteria.archived ? "Show Active" : "Show Archived"}

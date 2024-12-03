@@ -9,6 +9,7 @@ export interface VaccineDose {
 }
 
 export interface Immunization {
+  birthplace: string;
   remarks: string;
   doses(doses: any): import("react").ReactNode;
   date_vaccinated(date_vaccinated: any): import("react").ReactNode;

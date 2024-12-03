@@ -54,7 +54,6 @@ const AdminSidebar = () => {
           {[
             { name: "home", route: "/main", activeIcon: "/svg/active_home.svg", defaultIcon: "/svg/home.svg" },
             { name: "people", route: "/main/profiling", activeIcon: "/svg/active_people.svg", defaultIcon: "/svg/people.svg" },
-            { name: "settings", route: "/main/profiling/settings", activeIcon: "/svg/active_settings.svg", defaultIcon: "/svg/settings.svg" },
           ].map(({ name, route, activeIcon, defaultIcon }) => (
             <div
               key={name}

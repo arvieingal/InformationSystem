@@ -1,4 +1,4 @@
-const Log = require('../models/Log');
+const Log = require('../models/log');
 
 const logUserAction = async (req, res) => {
     const { username, action, timestamp } = req.body;
