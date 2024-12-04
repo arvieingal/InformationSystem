@@ -135,14 +135,14 @@ const HealthPage = () => {
   const purokData = getPurokDistribution();
 
   return (
-    <div className="h-full px-6 pb-6 overflow-hidden">
-      <div className="h-[50%] grid grid-cols-1 md:grid-cols-3 gap-6 pt-6">
-        <div className="w-full bg-white p-8 shadow-lg rounded-lg overflow-hidden">
-          <h2 className="text-center font-bold mb-6 text-gray-900 text-lg">AGE CATEGORY BY MONTH</h2>
+    <div className=" px-4 pb-4 overflow-hidden">
+      <div className="h-[50%] grid grid-cols-1 md:grid-cols-3 gap-4 pt-4">
+        <div className="w-full bg-white p-4 shadow-lg rounded-lg overflow-hidden">
+          <h2 className="text-center font-bold mb-4 text-gray-900 text-lg">AGE CATEGORY BY MONTH</h2>
           {['0-6 Months', '7-12 Months', '12-24 Months', '24-32 Months', '32-48 Months', '48-60 Months', '60-72 Months'].map((age) => (
             <div
               key={age}
-              className={`p-3 cursor-pointer transition-colors duration-300 rounded-md ${age === selectedAgeCategory ? 'bg-blue-300' : 'hover:bg-blue-200'
+              className={`p-2 cursor-pointer transition-colors duration-300 rounded-md ${age === selectedAgeCategory ? 'bg-blue-300' : 'hover:bg-blue-200'
                 }`}
               onClick={() => setSelectedAgeCategory(age)}
             >
@@ -151,16 +151,16 @@ const HealthPage = () => {
           ))}
         </div>
 
-        <div className="col-span-1 md:col-span-2 bg-white p-6 shadow rounded overflow-hidden">
-          <p className='text-center text-xl font-semibold text-gray-900'>Number of Children Vaccinated by Vaccine Type and Gender</p>
+        <div className="col-span-1 md:col-span-2 bg-white p-4 shadow rounded overflow-hidden">
+          <p className='text-center text-lg font-semibold text-gray-900'>Number of Children Vaccinated by Vaccine Type and Gender</p>
           <AgeCategoryChart ageCategory={selectedAgeCategory} data={filteredData.map(child => ({...child, id: parseInt(child.id), name: child.name}))} />
         </div>
       </div>
 
-      <div className="h-[50%] grid grid-cols-3 gap-6 pt-6">
+      <div className="h-[25rem] grid grid-cols-3 gap-4 pt-4">
         <div className="h-full flex flex-col justify-center items-center w-full bg-white shadow rounded">
-          <p className="text-center text-2xl font-semibold text-gray-900">Gender-Based Nutritional Status Distribution</p>
-          <div className="w-[90%] flex justify-center items-center h-[60%]">
+          <p className="text-center text-xl font-semibold text-gray-900">Gender-Based Nutritional Status Distribution</p>
+          <div className="w-[85%] flex justify-center items-center h-[85%]">
             <Bar
               data={{
                 labels: ['Male', 'Female'],
@@ -174,22 +174,23 @@ const HealthPage = () => {
           </div>
         </div>
 
-        <div className="justify-center items-center w-full bg-white shadow rounded-lg p-6">
-          <p className="text-center text-2xl font-semibold text-gray-900 mb-4">Proportion of Nutritional Status Categories</p>
-          <Doughnut
-            data={{
-              labels: ['Severely Underweight', 'Underweight', 'Normal', 'Overweight', 'Obese'],
-              datasets: [{
-                data: sectorData,
-                backgroundColor: ['#FFD700', '#FF4500', '#00FF00', '#1E90FF', '#8A2BE2'],
-              }],
-            }}
-            options={{ responsive: true }}
-          />
+        <div className="justify-center items-center w-full bg-white shadow rounded-lg pb-10 p-4 h-[25rem]">
+          <p className="text-center text-xl font-semibold text-gray-900">Proportion of Nutritional Status Categories</p>
+          <div className='w-full flex justify-center items-center h-[85%]'>
+            <Doughnut
+              data={{
+                labels: ['Severely Underweight', 'Underweight', 'Normal', 'Overweight', 'Obese'],
+                datasets: [{
+                  data: sectorData,
+                  backgroundColor: ['#FFD700', '#FF4500', '#00FF00', '#1E90FF', '#8A2BE2'],
+                }],
+              }}
+            />
+          </div>
         </div>
 
-        <div className="justify-center items-center h-full w-full bg-white p-6 shadow-lg rounded-lg">
-          <p className="text-center text-2xl font-semibold text-gray-900">Nutritional Status by Purok</p>
+        <div className="justify-center items-center h-full w-full bg-white p-4 shadow-lg rounded-lg">
+          <p className="text-center text-xl font-semibold text-gray-900">Nutritional Status by Purok</p>
           <Bar
             data={{
               labels: purokNames,
