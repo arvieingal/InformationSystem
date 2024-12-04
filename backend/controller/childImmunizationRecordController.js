@@ -20,6 +20,8 @@ const childImmunizationRecordController = {
       });
     }
   },
+
+  
   updateChildImmunizationRecord: async (req, res) => {
     try {
       const { id } = req.params;
