@@ -12,7 +12,7 @@ const SearchBar: React.FC<SearchBarProps> = ({ onSearch }) => {
   };
 
   return (
-    <div className='w-full px-4'>
+    <div className='w-full'>
       <input
         type="text"
         placeholder="Search ......."
