@@ -110,7 +110,6 @@ const HealthPage = () => {
     setFilteredData(filterNutritionalData());
   }, [selectedAgeCategory, nutritionalData]);
 
-  // Helper functions to derive graph data from `filteredData`:
   const getGenderDistribution = (): { male: number; female: number } => {
     const male = filteredData.filter(child => child.sex === 'Male').length;
     const female = filteredData.filter(child => child.sex === 'Female').length;
@@ -174,7 +173,7 @@ const HealthPage = () => {
           </div>
         </div>
 
-        <div className="justify-center items-center w-full bg-white shadow rounded-lg pb-10 p-4 h-[25rem]">
+        <div className="justify-center items-center w-full bg-white shadow rounded-lg pb-10 pt-4 h-[25rem]">
           <p className="text-center text-xl font-semibold text-gray-900">Proportion of Nutritional Status Categories</p>
           <div className='w-full flex justify-center items-center h-[85%]'>
             <Doughnut
@@ -190,7 +189,7 @@ const HealthPage = () => {
         </div>
 
         <div className="justify-center items-center h-full w-full bg-white p-4 shadow-lg rounded-lg">
-          <p className="text-center text-xl font-semibold text-gray-900">Nutritional Status by Purok</p>
+          <p className="text-center text-xl font-semibold text-gray-900">Children Population by Purok</p>
           <Bar
             data={{
               labels: purokNames,

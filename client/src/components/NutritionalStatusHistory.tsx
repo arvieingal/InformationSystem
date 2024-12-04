@@ -4,26 +4,27 @@ import Image from 'next/image';
 import Pagination from './Pagination';
 import api from '@/lib/axios';
 import { formatDate } from './formatDate';
+import SearchBar from './SearchBar';
 
 type NutritionalStatusHistory = {
-    nutri_history_id: number; // Primary Key
-    child_id: number; // Foreign Key Candidate
+    nutri_history_id: number; 
+    child_id: number; 
     full_name: string;
-    age: number | null; // Age in years, nullable
+    age: number | null; 
     sex: "Male" | "Female";
-    birthdate: string; // ISO date string (YYYY-MM-DD)
+    birthdate: string; 
     place_of_birth: string;
-    height_at_birth: number | null; // Nullable, in cm
-    weight_at_birth: number | null; // Nullable, in kg
-    height_cm: number | null; // Nullable, in cm
-    weight_kg: number | null; // Nullable, in kg
-    height_age_Z: number | null; // Nullable, Z-score
-    weight_age_Z: number | null; // Nullable, Z-score
-    measurement_date: string | null; // Nullable, ISO date string
-    nutritional_status: string | null; // Nullable, e.g., "Normal", "Underweight", etc.
-    status: "Active" | "Inactive"; // Enum for status
-    created_at: string; // ISO timestamp string
-    updated_at: string; // ISO timestamp string
+    height_at_birth: number | null; 
+    weight_at_birth: number | null; 
+    height_cm: number | null;
+    weight_kg: number | null; 
+    height_age_Z: number | null; 
+    weight_age_Z: number | null; 
+    measurement_date: string | null; 
+    nutritional_status: string | null; 
+    status: "Active" | "Inactive";
+    created_at: string; 
+    updated_at: string; 
 }
 
 interface TableProps {
@@ -36,7 +37,8 @@ interface TableProps {
 }
 
 export default function NutritionalStatusHistory() {
-    const [childrenHistory, setChildrenHistory] = useState<NutritionalStatusHistory[]>([])
+    const [childrenHistory, setChildrenHistory] = useState<NutritionalStatusHistory[]>([]);
+    const [searchQuery, setSearchQuery] = useState<string>('');
 
     useEffect(() => {
         const fetchNutritionalStatusHistory = async () => {
@@ -51,42 +53,31 @@ export default function NutritionalStatusHistory() {
         fetchNutritionalStatusHistory();
     }, []);
 
-    // const filteredChildren = React.useMemo(() => {
-    //     if (!searchQuery) return childrens;
-    //     const query = searchQuery.toLowerCase();
+    const filteredChildren = React.useMemo(() => {
+        if (!searchQuery) return childrenHistory;
+        const query = searchQuery.toLowerCase();
 
-    //     return childrens.filter((child) => {
-    //         if (child.sex.toLowerCase() === query) {
-    //             return true;
-    //         }
+        return childrenHistory.filter((child) => 
+            child.full_name.toLowerCase().includes(query)
+        );
+    }, [childrenHistory, searchQuery]);
 
-    //         return Object.entries(child).some(([key, value]) => {
-    //             if (value === null || value === undefined) return false;
-    //             const stringValue = value.toString().toLowerCase();
-
-    //             if (stringValue.includes(query)) return true;
-
-    //             if (key === 'birthdate' || key === 'measurement_date') {
-    //                 const date = new Date(value);
-    //                 const monthName = date.toLocaleString('default', { month: 'long' }).toLowerCase();
-    //                 return monthName.includes(query);
-    //             }
-
-    //             return false;
-    //         });
-    //     });
-    // }, [childrens, searchQuery]);
+    console.log(filteredChildren);
 
     const HEADER = [
-        'id', 'full name', 'age', 'sex', 'birthdate', 'place_of_birth', 'height_at_birth', 'weight_at_birth', 'heightCm', 'weightKg', 'height_age_Z', 'weight_age_Z', 'measurement date', 'nutritional status'
+        'Childs Name', 'Birthdate', 'Age', 'Sex', 'Height (cm)', 'Weight (kg)', 'Measurement Date', 'Nutritional Status', 'Status'
     ]
+
+    function handleSearch(query: string): void {
+        setSearchQuery(query);
+    }
 
     return (
         <>
             <div className="h-[10%]">
                 <div className='w-full flex flex-row items-center justify-between gap-4'>
                     <div className="w-full">
-                        {/* <SearchBar onSearch={handleSearch} /> */}
+                        <SearchBar onSearch={handleSearch} />
                     </div>
                 </div>
             </div>
@@ -101,22 +92,18 @@ export default function NutritionalStatusHistory() {
                             </tr>
                         </thead>
                         <tbody className="text-center">
-                            {childrenHistory.map((child) => (
+                            {filteredChildren.map((child) => (
                                 <tr key={child.child_id} className="border-b hover:bg-gray-50 cursor-pointer">
-                                    <td className="py-2 px-6 text-left">{child.nutri_history_id}</td>
+                                    <td className="py-2 px-6 text-left hidden">{child.nutri_history_id}</td>
                                     <td className="py-2 px-6 text-left">{child.full_name}</td>
+                                    <td className="py-2 px-6 text-left">{formatDate(child.birthdate)}</td>
                                     <td className="py-2 px-6 text-left">{child.age}</td>
                                     <td className="py-2 px-6 text-left">{child.sex}</td>
-                                    <td className="py-2 px-6 text-left">{formatDate(child.birthdate)}</td>
-                                    <td className="py-2 px-6 text-left">{child.place_of_birth}</td>
-                                    <td className="py-2 px-6 text-left">{child.height_at_birth}</td>
-                                    <td className="py-2 px-6 text-left">{child.weight_at_birth}</td>
                                     <td className="py-2 px-6 text-left">{child.height_cm}</td>
                                     <td className="py-2 px-6 text-left">{child.weight_kg}</td>
-                                    <td className="py-2 px-6 text-left">{child.height_age_Z}</td>
-                                    <td className="py-2 px-6 text-left">{child.weight_age_Z}</td>
                                     <td className="py-2 px-6 text-left">{formatDate(child.measurement_date)}</td>
                                     <td className="py-2 px-6 text-left">{child.nutritional_status}</td>
+                                  
                                 </tr>
                             ))}
                         </tbody>
