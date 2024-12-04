@@ -51,32 +51,6 @@ export default function NutritionalStatusHistory() {
         fetchNutritionalStatusHistory();
     }, []);
 
-    // const filteredChildren = React.useMemo(() => {
-    //     if (!searchQuery) return childrens;
-    //     const query = searchQuery.toLowerCase();
-
-    //     return childrens.filter((child) => {
-    //         if (child.sex.toLowerCase() === query) {
-    //             return true;
-    //         }
-
-    //         return Object.entries(child).some(([key, value]) => {
-    //             if (value === null || value === undefined) return false;
-    //             const stringValue = value.toString().toLowerCase();
-
-    //             if (stringValue.includes(query)) return true;
-
-    //             if (key === 'birthdate' || key === 'measurement_date') {
-    //                 const date = new Date(value);
-    //                 const monthName = date.toLocaleString('default', { month: 'long' }).toLowerCase();
-    //                 return monthName.includes(query);
-    //             }
-
-    //             return false;
-    //         });
-    //     });
-    // }, [childrens, searchQuery]);
-
     const HEADER = [
         'id', 'full name', 'age', 'sex', 'birthdate', 'place_of_birth', 'height_at_birth', 'weight_at_birth', 'heightCm', 'weightKg', 'height_age_Z', 'weight_age_Z', 'measurement date', 'nutritional status'
     ]

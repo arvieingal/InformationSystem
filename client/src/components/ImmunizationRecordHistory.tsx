@@ -4,6 +4,8 @@ import Image from 'next/image';
 import Pagination from './Pagination';
 import api from '@/lib/axios';
 import { formatDate } from './formatDate';
+import SearchBar from './SearchBar';
+import { useRouter } from 'next/navigation';
 
 type ImmunizationRecordHistory = {
     immu_history_id: number; // Primary Key
@@ -33,6 +35,8 @@ interface TableProps {
 }
 
 export default function ImmunizationRecordHistory() {
+    const router = useRouter()
+
     const [childrenHistory, setChildrenHistory] = useState<ImmunizationRecordHistory[]>([])
 
     useEffect(() => {
@@ -47,6 +51,8 @@ export default function ImmunizationRecordHistory() {
 
         fetchImmunizationRecordHistory();
     }, []);
+
+    const handleSearch = () => { }
 
     // const filteredChildren = React.useMemo(() => {
     //     if (!searchQuery) return childrens;
@@ -81,9 +87,30 @@ export default function ImmunizationRecordHistory() {
     return (
         <>
             <div className="h-[10%]">
-                <div className='w-full flex flex-row items-center justify-between gap-4'>
+                <div className='w-full flex flex-row items-center justify-center'>
                     <div className="w-full">
-                        {/* <SearchBar onSearch={handleSearch} /> */}
+                        <SearchBar onSearch={handleSearch} />
+                    </div>
+                    <div className="flex items-center space-x-4 ml-4 ">
+                        <Image
+                            src="/svg/filter.svg"
+                            alt="Nutritional Status"
+                            width={30}
+                            height={50}
+                            // onClick={() => setIsFilterDropdownOpen(!isFilterDropdownOpen)}
+                            className="cursor-pointer"
+                        />
+                        <button
+                            className="flex items-center space-x-2 text-blue-500 hover:underline"
+                            onClick={() => router.push("/main/health/nutriReport")}
+                        >
+                            <Image
+                                src="/svg/report.svg"
+                                alt="Nutritional Status"
+                                width={30}
+                                height={50}
+                            />
+                        </button>
                     </div>
                 </div>
             </div>

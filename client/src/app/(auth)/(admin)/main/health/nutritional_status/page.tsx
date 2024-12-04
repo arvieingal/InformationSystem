@@ -30,6 +30,7 @@ export interface Resident {
   age: number;
   children: Child[];
 }
+
 export interface Child {
   resident_id: number;
   full_name: string;
@@ -195,7 +196,7 @@ const NutritionalStatus: React.FC = () => {
         case "gender":
           return child.sex.toLowerCase() === value.toString().toLowerCase();
         case "birthdate":
-          const birthMonth = new Date(child.birthdate).getMonth() + 1; 
+          const birthMonth = new Date(child.birthdate).getMonth() + 1;
           return birthMonth === parseInt(value.toString());
         case "nutritionalStatus":
           return child.nutritional_status.toLowerCase() === value.toString().toLowerCase();
