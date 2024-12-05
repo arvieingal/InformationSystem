@@ -152,6 +152,21 @@ const Resident = {
       throw error;
     }
   },
+
+  searchResident: async (term) => {
+    try {
+      const [rows] = await pool.execute(residentQueries.searchResident, [
+        `%${term}%`,
+        `%${term}%`,
+        `%${term}%`,
+      ]);
+      console.log("Rows retrieved from database:", rows);
+      return rows || [];
+    } catch (error) {
+      console.error("Error executing query:", error);
+      throw error;
+    }
+  },
 };
 
 module.exports = Resident;

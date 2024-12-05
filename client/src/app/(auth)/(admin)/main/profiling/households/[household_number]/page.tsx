@@ -20,6 +20,8 @@ const HouseholdMembers = ({ params }: { params: { household_number: string } }) 
         formState: { errors },
     } = useForm<Resident>();
 
+    const [loading, setLoading] = useState(true);
+
     const householdNumber = params.household_number;
 
     const [households, setHouseholds] = useState<Resident[]>([]);
@@ -120,10 +122,13 @@ const HouseholdMembers = ({ params }: { params: { household_number: string } }) 
     useEffect(() => {
         const fetchHouseholds = async () => {
             try {
+                setLoading(true)
                 const response = await api.get('/api/resident');
                 setHouseholds(response.data);
             } catch (error) {
                 console.error("Error fetching households:", error);
+            } finally {
+                setLoading(false)
             }
         };
 
@@ -277,18 +282,51 @@ const HouseholdMembers = ({ params }: { params: { household_number: string } }) 
                                 <th className="py-1 font-semibold px-3"></th>
                             </tr>
                         </thead>
-                        <tbody>
-                            {filteredMembers.map((household: Resident) => (
-                                <tr key={household.resident_id} className="border-b hover:bg-gray-50" onClick={() => onResidentClick(household)}>
-                                    <td className="py-2 px-3 text-center">{household.given_name} {household.middle_name} {household.family_name} {household.extension}</td>
-                                    <td className="py-2 px-3 text-center">{household.relationship === 'Others' ? household.other_relationship : household.relationship}</td>
-                                    <td className="py-2 px-3 text-center">{household.sitio_purok}</td>
-                                    <td className="py-2 px-3 text-center">{household.gender}</td>
-                                    <td className="py-2 px-3 text-center">{household.birthdate}</td>
-                                    <td className="py-2 px-3 text-center">{household.age}</td>
-                                    <td className="text-center py-2 flex items-center">
-                                        {session?.user.role === "Admin" && (
-                                            <>
+                        {loading ? (
+                            <tbody className="relative">
+                                <tr>
+                                    <td colSpan={4}>
+                                        <div className="absolute inset-0 flex justify-center items-center min-h-[400px]">
+                                            <div className="w-16 h-16 border-8 border-dashed rounded-full animate-spin border-[#B1E5BA]"></div>
+                                        </div>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        ) : (
+                            <tbody>
+                                {filteredMembers.map((household: Resident) => (
+                                    <tr key={household.resident_id} className="border-b hover:bg-gray-50 cursor-pointer" onClick={() => onResidentClick(household)}>
+                                        <td className="py-2 px-3 text-center">{household.given_name} {household.middle_name} {household.family_name} {household.extension}</td>
+                                        <td className="py-2 px-3 text-center">{household.relationship === 'Others' ? household.other_relationship : household.relationship}</td>
+                                        <td className="py-2 px-3 text-center">{household.sitio_purok}</td>
+                                        <td className="py-2 px-3 text-center">{household.gender}</td>
+                                        <td className="py-2 px-3 text-center">{household.birthdate}</td>
+                                        <td className="py-2 px-3 text-center">{household.age}</td>
+                                        <td className="text-center py-2 flex items-center">
+                                            {session?.user.role === "Admin" && (
+                                                <>
+                                                    <button onClick={(e) => { e.stopPropagation(); onEditResident(household) }}>
+                                                        <Image
+                                                            src={"/svg/edit_pencil.svg"}
+                                                            alt="Edit"
+                                                            height={100}
+                                                            width={100}
+                                                            className="w-5 h-5 mr-2 cursor-pointer"
+                                                        />
+                                                    </button>
+                                                    <button onClick={(e) => { e.stopPropagation(); handleArchiveResident() }}>
+                                                        <Image
+                                                            src="/svg/archive.svg"
+                                                            alt="Archive"
+                                                            height={100}
+                                                            width={100}
+                                                            className="w-6 h-6 cursor-pointer"
+                                                        />
+                                                    </button>
+                                                </>
+                                            )}
+
+                                            {session?.user.role === "Editor" && (
                                                 <button onClick={(e) => { e.stopPropagation(); onEditResident(household) }}>
                                                     <Image
                                                         src={"/svg/edit_pencil.svg"}
@@ -298,35 +336,14 @@ const HouseholdMembers = ({ params }: { params: { household_number: string } }) 
                                                         className="w-5 h-5 mr-2 cursor-pointer"
                                                     />
                                                 </button>
-                                                <button onClick={(e) => { e.stopPropagation(); handleArchiveResident() }}>
-                                                    <Image
-                                                        src="/svg/archive.svg"
-                                                        alt="Archive"
-                                                        height={100}
-                                                        width={100}
-                                                        className="w-6 h-6 cursor-pointer"
-                                                    />
-                                                </button>
-                                            </>
-                                        )}
+                                            )}
 
-                                        {session?.user.role === "Editor" && (
-                                            <button onClick={(e) => { e.stopPropagation(); onEditResident(household) }}>
-                                                <Image
-                                                    src={"/svg/edit_pencil.svg"}
-                                                    alt="Edit"
-                                                    height={100}
-                                                    width={100}
-                                                    className="w-5 h-5 mr-2 cursor-pointer"
-                                                />
-                                            </button>
-                                        )}
-
-                                        {/* If the role is "Viewer", nothing will be rendered */}
-                                    </td>
-                                </tr>
-                            ))}
-                        </tbody>
+                                            {/* If the role is "Viewer", nothing will be rendered */}
+                                        </td>
+                                    </tr>
+                                ))}
+                            </tbody>
+                        )}
                     </table>
                 </div>
                 <div className="h-[10%] flex justify-center items-center text-white text-[20px]">
