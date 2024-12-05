@@ -128,6 +128,23 @@ const Children = {
     console.log("Query results:", rows); 
     return rows;
   },
+
+  getStatusByPurok: async () => {
+    const query = `
+      SELECT 
+        sitio_purok,
+        nutritional_status,
+        COUNT(*) as count
+      FROM children
+      GROUP BY sitio_purok, nutritional_status;
+    `;
+    const [rows] = await db.execute(query);
+    console.log("Query results:", rows); 
+    return rows;
+  },
 };
+
+
+
 
 module.exports = Children;

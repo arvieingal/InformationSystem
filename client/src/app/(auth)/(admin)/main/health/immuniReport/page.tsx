@@ -76,7 +76,7 @@ const ImmuniReport: React.FC = () => {
       </div>
 
       {/* General Information */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 mb-6 w-full max-w-4xl">
+      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 mb-6 w-full max-w-4xl mt-[2rem]">
         <div className="flex flex-col">
           <label>Municipality/City:</label>
           <input type="text" className="border-b border-black bg-transparent outline-none p-1" />
@@ -96,7 +96,7 @@ const ImmuniReport: React.FC = () => {
       </div>
 
       {/* Table Section */}
-      <div className="overflow-x-auto mt-8 w-full max-w-4xl">
+      <div className="overflow-x-auto mt-2 w-full max-w-4xl">
         <table className="min-w-full border-2 border-black bg-white">
           <thead>
             <tr>
@@ -104,8 +104,8 @@ const ImmuniReport: React.FC = () => {
               <th className="py-2 px-4 border border-black text-medium">Dose</th>
               <th className="py-2 px-4 border border-black text-medium">Number of Vaccinated</th>
               <th className="py-2 px-4 border border-black text-medium">Date Given (mm/dd/yy)</th>
-              <th className="py-2 px-4 border border-black text-medium">Administered By</th>
-              <th className="py-2 px-4 border border-black text-medium">Next Dose Date</th>
+              <th className="py-2 px-4 border border-black text-medium">Health Center</th>
+              <th className="py-2 px-4 border border-black text-medium">Remarks</th>
             </tr>
           </thead>
           <tbody>

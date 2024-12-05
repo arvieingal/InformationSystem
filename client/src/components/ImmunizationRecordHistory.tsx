@@ -8,21 +8,21 @@ import SearchBar from './SearchBar';
 import { useRouter } from 'next/navigation';
 
 type ImmunizationRecordHistory = {
-    immu_history_id: number; // Primary Key
-    child_id: number; // Foreign Key Candidate
+    immu_history_id: number;
+    child_id: number; 
     full_name: string;
-    birthdate: string; // ISO date string (YYYY-MM-DD)
-    age: number | null; // Age in years, nullable
+    birthdate: string; 
+    age: number | null; 
     sex: "Male" | "Female";
     vaccine_type: string | null;
-    doses: string | null; // Nullable, in cm
-    other_doses: string | null; // Nullable, in kg
-    date_vaccinated: string | null; // Nullable, in cm
-    remarks: string | null; // Nullable, in kg
-    health_center: string | null; // Nullable, Z-score
-    status: "Active" | "Inactive"; // Enum for status
-    created_at: string; // ISO timestamp string
-    updated_at: string; // ISO timestamp string
+    doses: string | null; 
+    other_doses: string | null;
+    date_vaccinated: string | null; 
+    remarks: string | null;
+    health_center: string | null; 
+    status: "Active" | "Inactive"; 
+    created_at: string; 
+    updated_at: string; 
 }
 
 interface TableProps {
@@ -81,7 +81,7 @@ export default function ImmunizationRecordHistory() {
     // }, [childrens, searchQuery]);
 
     const HEADER = [
-        'id', 'full name', 'birthdate', 'age', 'sex', 'vaccine_type', 'doses', 'other_doses', 'date_vaccinated', 'remarks', 'health_center'
+         'Child Name', 'Birthdate', 'Age', 'Sex', 'Vaccine Type', 'Doses', 'Other Doses', 'Date Vaccinated', 'Remarks', 'Health Center'
     ]
 
     return (
@@ -104,12 +104,7 @@ export default function ImmunizationRecordHistory() {
                             className="flex items-center space-x-2 text-blue-500 hover:underline"
                             onClick={() => router.push("/main/health/nutriReport")}
                         >
-                            <Image
-                                src="/svg/report.svg"
-                                alt="Nutritional Status"
-                                width={30}
-                                height={50}
-                            />
+                          
                         </button>
                     </div>
                 </div>
@@ -127,7 +122,7 @@ export default function ImmunizationRecordHistory() {
                         <tbody className="text-center">
                             {childrenHistory.map((child) => (
                                 <tr key={child.child_id} className="border-b hover:bg-gray-50 cursor-pointer">
-                                    <td className="py-2 px-6 text-left">{child.immu_history_id}</td>
+                                    <td className="py-2 px-6 text-left hidden">{child.immu_history_id}</td>
                                     <td className="py-2 px-6 text-left">{child.full_name}</td>
                                     <td className="py-2 px-6 text-left">{formatDate(child.birthdate)}</td>
                                     <td className="py-2 px-6 text-left">{child.age}</td>

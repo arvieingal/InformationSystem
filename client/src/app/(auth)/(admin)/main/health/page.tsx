@@ -158,7 +158,7 @@ const HealthPage = () => {
 
       <div className="h-[25rem] grid grid-cols-3 gap-4 pt-4">
         <div className="h-full flex flex-col justify-center items-center w-full bg-white shadow rounded">
-          <p className="text-center text-xl font-semibold text-gray-900">Gender-Based Nutritional Status Distribution</p>
+          <p className="text-center text-xl font-semibold text-gray-900">Gender-Based Distribution</p>
           <div className="w-[85%] flex justify-center items-center h-[85%]">
             <Bar
               data={{

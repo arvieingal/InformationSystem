@@ -152,7 +152,21 @@ const childrenController = {
       console.error("Error in archiving child:", error);
       res.status(500).json({ error: "An error occurred while archiving the child." });
     }
-  }
+  },
+
+  getStatusByPurok: async (req, res) => {
+    try {
+      const statusByPurok = await Children.getStatusByPurok();
+      if (statusByPurok.length > 0) {
+        res.status(200).json(statusByPurok);
+      } else {
+        res.status(404).json({ message: "No data found for purok status." });
+      }
+    } catch (error) {
+      console.error("Error fetching status by purok:", error);
+      res.status(500).json({ error: "Internal server error" });
+    }
+  },
   
 };
 

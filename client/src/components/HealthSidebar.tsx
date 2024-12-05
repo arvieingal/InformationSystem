@@ -55,8 +55,8 @@ const HealthSidebar = () => {
             { name: "health_dashboard", route: "/main/health", activeIcon: "/svg/active_dashboard.svg", defaultIcon: "/svg/health_dashboard.svg" },
             { name: "nutritional_status", route: "/main/health/nutritional_status", activeIcon: "/svg/active_nutritional_status.svg", defaultIcon: "/svg/nutritional_status.svg" },
             { name: "immunization_record", route: "/main/health/immunization_record", activeIcon: "/svg/active_immunization_record.svg", defaultIcon: "/svg/immunization_record.svg" },
-            { name: "nutritional_status_history", route: "/main/health/nutritional_status_history", activeIcon: "/svg/active_child_history.svg", defaultIcon: "/svg/child_history.svg" },
-            { name: "immunization_record_history", route: "/main/health/immunization_record_history", activeIcon: "/svg/active_child_history.svg", defaultIcon: "/svg/child_history.svg" },
+            { name: "nutritional_status_history", route: "/main/health/nutritional_status_history", activeIcon: "/svg/active_childhistory.svg", defaultIcon: "/svg/child_history.svg" },
+            { name: "immunization_record_history", route: "/main/health/immunization_record_history", activeIcon: "/svg/active_immuhistory.svg", defaultIcon: "/svg/immunization_history.svg" },
           ].map(({ name, route, activeIcon, defaultIcon }) => (
             <div
               key={name}
