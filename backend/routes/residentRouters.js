@@ -17,5 +17,6 @@ router.put(
   "/archive-household-member",
   residentController.archiveHouseholdMember
 );
+router.get("/resident/search", residentController.searchResidents);
 
 module.exports = router;

@@ -15,6 +15,8 @@ const userQueries = {
 //resident queries
 const residentQueries = {
   findAllResident: "SELECT * FROM resident WHERE status = 'Active'",
+  searchResident:
+    "SELECT * FROM resident WHERE family_name LIKE ? OR given_name LIKE ? OR extension LIKE ?",
   findById: "SELECT * FROM resident WHERE resident_id = ?",
   insertHouseholdMember: `INSERT INTO resident (
     household_number, family_name, given_name, middle_name, extension, relationship, other_relationship,

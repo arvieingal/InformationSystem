@@ -42,7 +42,7 @@ const residentController = {
     try {
       const householdMemberData = req.body;
 
-      console.log("household member data",householdMemberData)
+      console.log("household member data", householdMemberData);
 
       const result = await Resident.insertHouseholdMember(householdMemberData);
 
@@ -150,6 +150,29 @@ const residentController = {
       console.error("Error in updateHouseholdMember controller:", error);
       res.status(500).json({
         message: "Internal server error while updating household member",
+        error: error.message,
+      });
+    }
+  },
+
+  searchResidents: async (req, res) => {
+    const { term } = req.query; // Get the search term from query parameters
+
+    if (!term) {
+      return res.status(400).json({ message: "Search term is required." });
+    }
+
+    try {
+      const resident = await Resident.searchResident(term); // Pass term to searchResident method
+      if (resident.length > 0) {
+        res.status(200).json(resident);
+      } else {
+        res.status(404).json({ message: "No resident found in the database" });
+      }
+    } catch (error) {
+      console.error("Error in resident controller:", error);
+      res.status(500).json({
+        message: "Internal server error while retrieving resident",
         error: error.message,
       });
     }

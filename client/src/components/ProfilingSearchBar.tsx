@@ -2,10 +2,22 @@ import React from "react";
 import Image from "next/image";
 
 interface Props {
-  onSearch: () => void;
+  onSearch: (searchTerm: string) => void;
+  setAddResidentModal: () => void;
+  isResident?: boolean;
 }
 
-const ProfilingSearchBar = ({ onSearch }: Props) => {
+const ProfilingSearchBar = ({ onSearch, setAddResidentModal, isResident = false }: Props) => {
+  const [searchTerm, setSearchTerm] = React.useState("");
+
+  const handleSearch = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value;
+    setSearchTerm(value);
+    onSearch(value);
+  };
+
+  const residentName = isResident ? "Household" : "Renter"
+
   return (
     <div className="h-[11%] px-16">
       <div className="w-full flex h-[50%]">
@@ -19,11 +31,13 @@ const ProfilingSearchBar = ({ onSearch }: Props) => {
           />
           <input
             type="text"
-            placeholder="Search by name, email or phone number"
+            value={searchTerm}
+            onChange={handleSearch}
+            placeholder={`Search by ${residentName} name`}
             className="w-full h-full text-[14px] px-4"
           />
         </div>
-        <div className="flex bg-white h-full justify-between items-center w-[12%] border-[1px] px-4">
+        <div className="flex bg-white h-full justify-between items-center w-[12%] border-[1px] px-4 cursor-pointer">
           <Image
             src={"/svg/filter-outline.svg"}
             alt="Filter"
@@ -40,15 +54,15 @@ const ProfilingSearchBar = ({ onSearch }: Props) => {
             className="h-3 w-3"
           />
         </div>
-        <div className="flex bg-white h-full items-center justify-center w-[4%] rounded-r-[5px]">
+        <button className="flex bg-white h-full items-center justify-center w-[4%] rounded-r-[5px]" onClick={() => setAddResidentModal()}>
           <Image
-            src={"/svg/burger.svg"}
+            src={'/svg/add-household.svg'}
             alt="Burger"
             height={100}
             width={100}
-            className="h-5 w-5"
+            className="h-8 w-8 cursor-pointer"
           />
-        </div>
+        </button>
       </div>
       <div className="h-[50%] text-[12px] flex items-center">
         <p className="text-[#799DAD]">

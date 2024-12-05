@@ -103,37 +103,10 @@ const ChildTable: React.FC<TableProps> = ({ children, onSort, sortConfig, onEdit
   const [filterCriteria, setFilterCriteria] = useState<{ archived: boolean }>({ archived: false });
   const router = useRouter();
 
- // Fetch active children
- const fetchChildren = async () => {
-  try {
-    const response = await api.get("/api/children");
-    setChildrens(response.data);
-  } catch (error) {
-    console.error("Error fetching children:", error);
-    setError("Failed to fetch children data.");
-  }
-};
-
-// Fetch archived (inactive) children
-const fetchChildrenInactive = async () => {
-  try {
-    const response = await api.get("/api/children/inactive");
-    if (response.data) {
-      setChildrens(response.data); // This updates the state with inactive children
-    }
-  } catch (error) {
-    console.error("Error fetching inactive children:", error);
-    setError("Failed to fetch inactive children data.");
-  }
-};
-
-
-useEffect(() => {
-  const fetchChildrenData = async () => {
+  // Fetch active children
+  const fetchChildren = async () => {
     try {
-      const response = filterCriteria.archived
-        ? await api.get("/api/children/inactive")
-        : await api.get("/api/children");
+      const response = await api.get("/api/children");
       setChildrens(response.data);
     } catch (error) {
       console.error("Error fetching children:", error);
@@ -141,15 +114,42 @@ useEffect(() => {
     }
   };
 
-  fetchChildrenData();
+  // Fetch archived (inactive) children
+  const fetchChildrenInactive = async () => {
+    try {
+      const response = await api.get("/api/children/inactive");
+      if (response.data) {
+        setChildrens(response.data); // This updates the state with inactive children
+      }
+    } catch (error) {
+      console.error("Error fetching inactive children:", error);
+      setError("Failed to fetch inactive children data.");
+    }
+  };
 
-  // Optional: Periodic refresh
-  const intervalId = setInterval(() => {
+
+  useEffect(() => {
+    const fetchChildrenData = async () => {
+      try {
+        const response = filterCriteria.archived
+          ? await api.get("/api/children/inactive")
+          : await api.get("/api/children");
+        setChildrens(response.data);
+      } catch (error) {
+        console.error("Error fetching children:", error);
+        setError("Failed to fetch children data.");
+      }
+    };
+
     fetchChildrenData();
-  }, 30000);
 
-  return () => clearInterval(intervalId);
-}, [filterCriteria.archived]);
+    // Optional: Periodic refresh
+    const intervalId = setInterval(() => {
+      fetchChildrenData();
+    }, 30000);
+
+    return () => clearInterval(intervalId);
+  }, [filterCriteria.archived]);
 
 
 
@@ -169,40 +169,40 @@ useEffect(() => {
   const filteredChildren = React.useMemo(() => {
     if (!searchQuery) return childrens;
     const query = searchQuery.toLowerCase();
-  
+
     return childrens.filter((child) => {
       if (child.sex.toLowerCase() === query) {
         return true;
       }
-  
+
       return Object.entries(child).some(([key, value]) => {
         if (value === null || value === undefined) return false;
         const stringValue = value.toString().toLowerCase();
-  
+
         if (stringValue.includes(query)) return true;
-  
+
         if (key === 'birthdate' || key === 'measurement_date') {
           const date = new Date(value);
           const monthName = date.toLocaleString('default', { month: 'long' }).toLowerCase();
           return monthName.includes(query);
         }
-  
+
         return false;
       });
     });
   }, [childrens, searchQuery]);
-  
+
   // const sortedChildren = React.useMemo(() => {
   //   if (sortConfig && sortConfig.key) {
   //     return [...filteredChildren].sort((a, b) => {
   //       const key = sortConfig.key as keyof typeof a;
   //       const aValue = a[key];
   //       const bValue = b[key];
-  
+
   //       if (aValue === undefined || bValue === undefined) {
   //         return 0;
   //       }
-  
+
   //       if (aValue !== null && bValue !== null && aValue < bValue) {
   //         return sortConfig.direction === "ascending" ? -1 : 1;
   //       }
@@ -214,13 +214,13 @@ useEffect(() => {
   //   }
   //   return filteredChildren;
   // }, [filteredChildren, sortConfig]);
-  
+
   // const paginatedChildren = React.useMemo(() => {
   //   const startIndex = (currentPage - 1) * itemsPerPage;
   //   const endIndex = startIndex + itemsPerPage;
   //   return sortedChildren.slice(startIndex, endIndex);
   // }, [sortedChildren, currentPage]);
-  
+
 
   const sortedChildren = React.useMemo(() => {
     if (sortConfig && sortConfig.key) {
@@ -318,8 +318,8 @@ useEffect(() => {
       setChildrens(filteredChildren);
     }
   };
-  
-  
+
+
 
   return (
     <div className="w-full h-full px-[1.5rem]">
