@@ -700,10 +700,10 @@ const Modal = ({
       });
 
       if (response.ok) {
-        await SweetAlert.showSuccess("Successfully saved changes");
+        await SweetAlert.showSuccess("Added User Successfully");
         onClose();
       } else {
-        SweetAlert.showError("Failed to save changes");
+        SweetAlert.showError("Failed to add user");
       }
     } catch (error) {
       console.error("Error saving changes:", error);
@@ -740,7 +740,7 @@ const Modal = ({
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center">
-      <div className="bg-white p-8 w-[50%] h-[50%] rounded-lg shadow-lg relative">
+      <div className="bg-white p-8 w-[50%] rounded-lg shadow-lg relative">
         <button
           className="absolute top-0 right-0 text-gray-600 hover:text-gray-900 text-[3rem] transition-transform transform hover:scale-110"
           onClick={onClose}
