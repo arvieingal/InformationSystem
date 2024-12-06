@@ -4,15 +4,17 @@ import { Immunization } from '@/types/Immunization';
 import SweetAlert from './SweetAlert';
 import ImmunizationModal from './ImmunizationModal';
 import { formatDate } from './formatDate';
+import api from '@/lib/axios';
 
 interface TableProps {
   immunizations: Immunization[];
   onSort: (key: keyof Immunization) => void;
   sortConfig: { key: keyof Immunization; direction: string } | null;
   onViewDetails: (immunization: Immunization) => void;
+  onArchive: () => void;
 }
 
-const ImmunizationTable: React.FC<TableProps> = ({ immunizations, onSort, sortConfig, onViewDetails }) => {
+const ImmunizationTable: React.FC<TableProps> = ({ immunizations, onSort, sortConfig, onViewDetails, onArchive }) => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedImmunization, setSelectedImmunization] = useState<Immunization | null>(null);
   const [currentPage, setCurrentPage] = useState(1);
@@ -53,6 +55,24 @@ const ImmunizationTable: React.FC<TableProps> = ({ immunizations, onSort, sortCo
     { label: 'Remarks', key: 'remarks' },
     { label: 'Health Center', key: 'health_center' },
   ];
+
+  const handleArchiveImmunization = async (immunization: Immunization) => {
+    try {
+      console.log('selected', immunization.child_immunization_id);  // Use the passed immunization directly
+
+      const response = await api.put('/api/archive-immunization-record', { child_immunization_id: immunization.child_immunization_id });
+
+      console.log('response', response);
+      if (response.status === 200) {
+        alert('Resident archived successfully!');
+      } else {
+        alert('Failed to archive resident.');
+      }
+    } catch (error) {
+      console.error('Error archiving resident:', error);
+      alert('An error occurred while archiving the resident.');
+    }
+  };
 
   return (
     <div className='w-full px-[1.5rem] h-full'>
@@ -112,7 +132,7 @@ const ImmunizationTable: React.FC<TableProps> = ({ immunizations, onSort, sortCo
                     className="w-5 h-5 mr-2 cursor-pointer"
                     onClick={(e) => {
                       e.stopPropagation();
-                      // onArchive(immunization);
+                      handleArchiveImmunization(immunization);
                     }}
                   />
                 </td>

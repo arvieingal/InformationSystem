@@ -60,6 +60,28 @@ const childImmunizationRecordController = {
       res.status(500).send("Server Error");
     }
   },
+
+  archiveRecord: async (req, res) => {
+    try {
+      const immunizationData = req.body;
+
+      const result = await ChildImmunizationRecord.archiveRecord(
+        immunizationData
+      );
+
+      if (result && result.affectedRows > 0) {
+        res.status(200).json({ message: "Child updated successfully", result });
+      } else {
+        res.status(404).json({ message: "Child not found or no changes made" });
+      }
+    } catch (error) {
+      console.error("Error in Immunization controller:", error);
+      res.status(500).json({
+        message: "Internal server error while updating Child",
+        error: error.message,
+      });
+    }
+  },
 };
 
 module.exports = childImmunizationRecordController;

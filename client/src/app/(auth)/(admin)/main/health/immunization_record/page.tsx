@@ -162,6 +162,25 @@ const ImmunizationRecord: React.FC = () => {
     }
   };
 
+  console.log('selectedImmunization', selectedImmunization)
+
+  const handleArchiveImmunization = async () => {
+    try {
+      console.log('selected', selectedImmunization?.child_immunization_id)
+
+      const response = await api.put('/api/archive-immunization-record', { child_immunization_id: selectedImmunization?.child_immunization_id });
+
+      console.log('response', response)
+      if (response.status === 200) {
+        alert('Resident archived successfully!');
+      } else {
+        alert('Failed to archive resident.');
+      }
+    } catch (error) {
+      console.error('Error archiving resident:', error);
+      alert('An error occurred while archiving the resident.');
+    }
+  };
 
   return (
     <div className='h-full' onClick={() => handleSort(null)}>
@@ -365,6 +384,7 @@ const ImmunizationRecord: React.FC = () => {
             onSort={handleSort}
             sortConfig={sortConfig as { key: keyof Immunization; direction: string } | null}
             onViewDetails={handleViewDetails}
+            onArchive={handleArchiveImmunization}
           />
         </div>
       </div>

@@ -67,6 +67,20 @@ const ChildImmunizationRecord = {
       throw error;
     }
   },
+
+  archiveRecord: async (data) => {
+    try {
+      const [rows] = await pool.execute(
+        childImmunizationQueries.archiveRecord,
+        [data.child_immunization_id]
+      );
+      console.log("Rows updated in the database:", rows);
+      return rows || [];
+    } catch (error) {
+      console.error("Error executing update query:", error);
+      throw error;
+    }
+  },
 };
 
 module.exports = ChildImmunizationRecord;
