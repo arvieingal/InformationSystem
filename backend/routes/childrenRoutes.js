@@ -14,4 +14,5 @@ router.get('/residents', childrenController.getAllResidents);
 router.get('/children/household/:resident_id', childrenController.getChildrenByHouseholdId);
 router.put('/children/:childId/archive', childrenController.archiveChildController);
 router.get('/status/purok', childrenController.getStatusByPurok);
+
 module.exports = router;

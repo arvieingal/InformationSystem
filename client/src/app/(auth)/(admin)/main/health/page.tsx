@@ -111,6 +111,15 @@ const HealthPage = () => {
     setFilteredData(filterNutritionalData());
   }, [selectedAgeCategory, nutritionalData]);
 
+
+  const [sectorData, setSectorData] = useState<number[]>([]);
+
+  useEffect(() => {
+    const sectorData = getSectorDistribution();
+    setSectorData(sectorData);
+  }, [selectedPurok, childrenData]);
+  
+
   console.log("filteredData", filteredData);
 
   const getGenderDistribution = (): { male: number; female: number } => {
@@ -121,10 +130,18 @@ const HealthPage = () => {
 
   const getSectorDistribution = (): number[] => {
     const categories = ['Severely Underweight', 'Underweight', 'Normal', 'Overweight', 'Obese'];
-    return categories.map(() =>
-      Math.round(Math.random() * filteredData.length)
-    ); // Replace with real logic.
+  
+    // Filter children based on the selected purok
+    const filteredByPurok = selectedPurok
+      ? childrenData.filter(child => child.purok === selectedPurok)
+      : childrenData; // If no purok is selected, use all data
+  
+    // Count children in each nutritional category
+    return categories.map(category =>
+      filteredByPurok.filter(child => child.nutritional_status === category).length
+    );
   };
+  
 
   const getPurokDistribution = (): number[] => {
     return purokNames.map(() =>
@@ -133,12 +150,13 @@ const HealthPage = () => {
   };
 
   const genderDistributionData = getGenderDistribution();
-  const sectorData = getSectorDistribution();
+  // const sectorData = getSectorDistribution();
   const purokData = getPurokDistribution();
 
   const handlePurokChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
     setSelectedPurok(event.target.value);
   };
+  
 
   return (
     <div className=" px-4 pb-4 overflow-hidden">

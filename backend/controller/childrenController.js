@@ -60,7 +60,6 @@ const childrenController = {
     }
   },
 
-
   getChildById: async (req, res) => {
     try {
       const child = await Children.getChildById(req.params.child_id);
