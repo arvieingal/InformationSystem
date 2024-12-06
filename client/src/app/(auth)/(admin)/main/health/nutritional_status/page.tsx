@@ -677,6 +677,8 @@ const NutritionalStatus: React.FC = () => {
         return;
       }
 
+      console.log(`Attempting to archive child with ID: ${child.child_id}`);
+
       const response = await fetch(`http://localhost:3001/api/children/${child.child_id}/archive`, {
         method: 'PUT',
         headers: {
@@ -691,14 +693,23 @@ const NutritionalStatus: React.FC = () => {
         );
         await SweetAlert.showSuccess(`Child with ID: ${child.child_id} has been archived successfully.`);
       } else {
-        console.error('Failed to archive child:', response.statusText);
-        await SweetAlert.showError('Failed to archive child.');
+        const errorText = await response.text();
+        console.error('Failed to archive child:', response.status, errorText);
+        await SweetAlert.showError(`Failed to archive child. Server responded with: ${errorText}`);
       }
     } catch (error) {
       console.error('Error archiving child:', error);
       await SweetAlert.showError('An error occurred while archiving the child.');
     }
   }
+
+  const roleMap: Record<string, string> = {
+    Admin: "admin",
+    Editor: "editor",
+    Viewer: "viewer",
+  };
+
+  const userRole = roleMap[session?.user.role || ""] || "viewer"; // Default to "viewer" if role is not found
 
   return (
     <>
@@ -712,6 +723,7 @@ const NutritionalStatus: React.FC = () => {
           onEdit={(child) => handleEditClick(child as any)}
           onRowClick={(child) => handleRowClick(child as any)}
           onArchive={(child) => handleArchiveClick(child as any)}
+          userRole={userRole as "viewer" | "admin" | "editor"}
         />
       </div>
 

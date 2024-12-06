@@ -37,6 +37,8 @@ const Children = {
     }
   },
 
+  
+
   getChildById: async (childId) => {
     const [rows] = await db.execute(
       "SELECT * FROM children WHERE child_id = ?",
@@ -57,6 +59,7 @@ const Children = {
 
   archiveChild: async (childId) => {
     try {
+      console.log(`Attempting to archive child with ID: ${childId}`);
       const [result] = await db.execute(
         "UPDATE children SET status = 'Inactive' WHERE child_id = ?",
         [childId]

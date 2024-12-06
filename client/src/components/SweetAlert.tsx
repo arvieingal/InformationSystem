@@ -9,12 +9,12 @@ const SweetAlert = {
     return MySwal.fire({
       title: "<span class='text text-[20px] flex justify-center font-bold tracking-widest'>FAILED</span>",
       html: `<span class='text-[14px] py-7 text font-regular text-center justify-center flex'>${message}</span>`,
-      confirmButtonText: "TRY AGAIN",
+      confirmButtonText: "OK",
       width: 350,
       customClass: {
         popup: "rounded-[25px] shadow-lg h-[250px]",
         title: "font-bold border-b-2 text-black-900",
-        confirmButton: "bg-[#24968B] text-white w-[120px] h-[35px] font-semibold mb-1 rounded-[7px]",
+        confirmButton: "bg-[#24968B] text-white w-[120px] h-[35px] font-semibold mb-1 rounded-[7px] outline-none",
       },
       buttonsStyling: false,
     });

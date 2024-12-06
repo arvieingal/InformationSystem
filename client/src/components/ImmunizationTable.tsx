@@ -4,6 +4,7 @@ import { Immunization } from '@/types/Immunization';
 import SweetAlert from './SweetAlert';
 import ImmunizationModal from './ImmunizationModal';
 import { formatDate } from './formatDate';
+import { useSession } from 'next-auth/react';
 
 interface TableProps {
   immunizations: Immunization[];
@@ -16,12 +17,17 @@ interface TableProps {
 }
 
 const ImmunizationTable: React.FC<TableProps> = ({ immunizations, onSort, sortConfig, onEdit, onArchive, onRowClick, onViewDetails }) => {
+  const { data: session } = useSession();
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedImmunization, setSelectedImmunization] = useState<Immunization | null>(null);
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 15;
 
   const handleEditClick = async (immunization: Immunization) => {
+    if (session?.user.role === "Viewer") {
+      SweetAlert.showError("You do not have permission to edit.");
+      return;
+    }
     const isConfirmed = await SweetAlert.showConfirm("Do you want to edit this immunization?");
     if (isConfirmed) {
       setSelectedImmunization(immunization);
@@ -32,6 +38,36 @@ const ImmunizationTable: React.FC<TableProps> = ({ immunizations, onSort, sortCo
   const handleSave = (updatedImmunization: Immunization) => {
     onEdit(updatedImmunization);
     setIsModalOpen(false);
+  };
+
+  const handleArchiveClick = async (immunization: Immunization) => {
+    if (session?.user.role !== "Admin") {
+      SweetAlert.showError("You do not have permission to archive.");
+      return;
+    }
+    
+    const isConfirmed = await SweetAlert.showConfirm("Do you want to archive this immunization?");
+    if (isConfirmed) {
+      try {
+        const response = await fetch(`http://localhost:3001/api/child-immunization-record/${immunization.child_immunization_id}`, {
+          method: 'PUT',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ status: 'inactive' }),
+        });
+
+        if (response.ok) {
+          SweetAlert.showSuccess("Immunization archived successfully.");
+          // Optionally, refresh the list of immunizations or update the state
+        } else {
+          SweetAlert.showError("Failed to archive immunization.");
+        }
+      } catch (error) {
+        console.error("Error archiving immunization:", error);
+        SweetAlert.showError("An error occurred while archiving.");
+      }
+    }
   };
 
   // Calculate the immunizations to display based on the current page
@@ -114,7 +150,7 @@ const ImmunizationTable: React.FC<TableProps> = ({ immunizations, onSort, sortCo
                     className="w-5 h-5 mr-2 cursor-pointer"
                     onClick={(e) => {
                       e.stopPropagation();
-                      onArchive(immunization);
+                      handleArchiveClick(immunization);
                     }}
                   />
                 </td>

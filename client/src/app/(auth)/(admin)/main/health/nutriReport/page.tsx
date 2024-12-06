@@ -182,8 +182,8 @@ export default function ReportForm() {
       html2canvas(page1Container, {
         scale: 3,
         useCORS: true,
-        width: page1Container.scrollWidth, // Width for the first page (adjust here for age_group_table)
-        height: page1Container.scrollHeight, // Height for the first page (adjust here for age_group_table)
+        width: page1Container.scrollWidth, 
+        height: page1Container.scrollHeight, 
       }).then((canvas1) => {
         const imgData1 = canvas1.toDataURL("image/png");
         const pdf = new jsPDF({
@@ -192,14 +192,13 @@ export default function ReportForm() {
           format: "a4",
         });
 
-        const imgWidth = 297; // PDF page width
-        const imgHeight = 210; // PDF page height
+        const imgWidth = 297; 
+        const imgHeight = 210; 
         const canvasWidth1 = canvas1.width;
         const canvasHeight1 = canvas1.height;
         const ratio1 = Math.min(imgWidth / canvasWidth1, imgHeight / canvasHeight1);
-        const finalWidth1 = canvasWidth1 * ratio1; // Adjusted width for the first page
-        const finalHeight1 = canvasHeight1 * ratio1; // Adjusted height for the first page
-
+        const finalWidth1 = canvasWidth1 * ratio1; 
+        const finalHeight1 = canvasHeight1 * ratio1; 
         pdf.addImage(imgData1, "PNG", 0, 0, finalWidth1, finalHeight1);
 
         // Render second page

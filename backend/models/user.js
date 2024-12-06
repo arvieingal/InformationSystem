@@ -79,6 +79,15 @@ const User = {
       throw error;
     }
   },
+  deleteUser: async (userId) => {
+    try {
+      const [result] = await pool.execute(userQueries.delete, [userId]);
+      return result;
+    } catch (error) {
+      console.error("Error executing deleteUser query:", error);
+      throw error;
+    }
+  },
 };
 
 module.exports = User;

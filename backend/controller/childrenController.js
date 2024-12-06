@@ -141,15 +141,19 @@ const childrenController = {
       res.status(500).json({ error: "Internal server error" });
     }
   },
-   archiveChildController: async (req, res) => {
+  archiveChildController: async (req, res) => {
     const { childId } = req.params;
   
     try {
+      console.log(`Received request to archive child with ID: ${childId}`);
       await Children.archiveChild(childId);
       res.status(200).json({ message: `Child with ID ${childId} archived successfully.` });
     } catch (error) {
-      console.error("Error in archiving child:", error);
-      res.status(500).json({ error: "An error occurred while archiving the child." });
+      console.error(`Error in archiving child with ID ${childId}:`, error);
+      res.status(500).json({
+        error: "An error occurred while archiving the child.",
+        details: error.message, // Optionally include error details for more context
+      });
     }
   },
 

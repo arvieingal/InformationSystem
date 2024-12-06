@@ -25,6 +25,7 @@ const childImmunizationRecordController = {
   updateChildImmunizationRecord: async (req, res) => {
     try {
       const { id } = req.params;
+      console.log("Received ID for update:", id);
       const updatedData = req.body;
       const result = await ChildImmunizationRecord.updateRecord(id, updatedData);
       if (result) {

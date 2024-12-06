@@ -63,6 +63,7 @@ interface TableProps {
   onEdit: (child: Child) => void;
   onArchive: (child: Child) => void;
   onRowClick: (child: Child) => void;
+  userRole: 'admin' | 'editor' | 'viewer';
 }
 
 type ChildData = {
@@ -89,7 +90,7 @@ type ChildData = {
   status: string | null;
 };
 
-const ChildTable: React.FC<TableProps> = ({ children, onSort, sortConfig, onEdit, onArchive, onRowClick }) => {
+const ChildTable: React.FC<TableProps> = ({ children, onSort, sortConfig, onEdit, onArchive, onRowClick, userRole }) => {
   const [residents, setResidents] = useState<Resident[]>([]);
   const [error, setError] = useState<string | null>(null);
   const [childrens, setChildrens] = useState<Child[]>([]);
@@ -251,61 +252,64 @@ const ChildTable: React.FC<TableProps> = ({ children, onSort, sortConfig, onEdit
     return sortedChildren.slice(startIndex, endIndex);
   }, [sortedChildren, currentPage]);
 
-  const handleArchiveClick = async (child: Child) => {
-    console.log("Archiving child:", child);
-    if (!child.child_id) {
-      console.error("Child ID is undefined");
-      return;
-    }
-
-    try {
-      const confirmArchive = await SweetAlert.showConfirm(
-        `<p>Are you sure you want to archive this child with ID: <span class="font-bold">${child.child_id}</span>?</p>`
-      );
-
-      if (confirmArchive) {
-        const response = await fetch(
-          `http://localhost:3001/api/children/${child.child_id}/archive`,
-          {
-            method: "PUT",
-            headers: {
-              "Content-Type": "application/json",
-            },
-          }
-        );
-
-        if (response.ok) {
-          console.log("Child archived successfully:", child.child_id);
-          setArchivedChildren((prevArchived) => [
-            ...prevArchived,
-            child.child_id,
-          ]);
-
-          setChildrens((prevChildren) =>
-            prevChildren.map((c) =>
-              c.child_id === child.child_id ? { ...c, status: "archived" } : c
-            )
-          );
-
-          onArchive(child);
-
-          await SweetAlert.showSuccess(
-            `<p>You successfully archived child with ID: <span class="font-bold">${child.child_id}</span>.</p>`
-          );
-        } else {
-          console.error("Failed to archive child. Response status:", response.status);
-          await SweetAlert.showError('Failed to archive child.');
-        }
-      }
-    } catch (error) {
-      console.error("Error archiving child:", error);
-      await SweetAlert.showError('An error occurred while archiving the child.');
+  const handleEditClick = (child: Child) => {
+    if (userRole === 'admin' || userRole === 'editor') {
+      onEdit(child);
     }
   };
 
+  const handleArchiveClick = async (child: Child) => {
+    if (userRole === 'admin') {
+      console.log("Archiving child:", child);
+      if (!child.child_id) {
+        console.error("Child ID is undefined");
+        return;
+      }
 
-  const handleEditClick = (child: Child) => {
-    onEdit(child);
+      try {
+        const confirmArchive = await SweetAlert.showConfirm(
+          `<p>Are you sure you want to archive this child with ID: <span class="font-bold">${child.child_id}</span>?</p>`
+        );
+
+        if (confirmArchive) {
+          const response = await fetch(
+            `http://localhost:3001/api/children/${child.child_id}/archive`,
+            {
+              method: "PUT",
+              headers: {
+                "Content-Type": "application/json",
+              },
+            }
+          );
+
+          if (response.ok) {
+            console.log("Child archived successfully:", child.child_id);
+            setArchivedChildren((prevArchived) => [
+              ...prevArchived,
+              child.child_id,
+            ]);
+
+            setChildrens((prevChildren) =>
+              prevChildren.map((c) =>
+                c.child_id === child.child_id ? { ...c, status: "archived" } : c
+              )
+            );
+
+            onArchive(child);
+
+            await SweetAlert.showSuccess(
+              `<p>You successfully archived child with ID: <span class="font-bold">${child.child_id}</span>.</p>`
+            );
+          } else {
+            console.error("Failed to archive child. Response status:", response.status);
+            await SweetAlert.showError('Failed to archive child.');
+          }
+        }
+      } catch (error) {
+        console.error("Error archiving child:", error);
+        await SweetAlert.showError('An error occurred while archiving the child.');
+      }
+    }
   };
 
   const handleFilterChange = (key: string, value: boolean | string) => {
@@ -420,9 +424,13 @@ const ChildTable: React.FC<TableProps> = ({ children, onSort, sortConfig, onEdit
                       height={100}
                       width={100}
                       className="w-5 h-5 mr-2 cursor-pointer"
-                      onClick={(e) => {
+                      onClick={async (e) => {
                         e.stopPropagation();
-                        handleEditClick(child as unknown as Child);
+                        if (userRole === 'admin' || userRole === 'editor') {
+                          handleEditClick(child as unknown as Child);
+                        } else {
+                          await SweetAlert.showError("You do not have permission to edit this child.");
+                        }
                       }}
                     />
                     <Image
@@ -431,9 +439,13 @@ const ChildTable: React.FC<TableProps> = ({ children, onSort, sortConfig, onEdit
                       height={100}
                       width={100}
                       className="w-6 h-6 cursor-pointer"
-                      onClick={(e) => {
+                      onClick={async (e) => {
                         e.stopPropagation();
-                        handleArchiveClick(child as unknown as Child);
+                        if (userRole === 'admin') {
+                          handleArchiveClick(child as unknown as Child);
+                        } else {
+                          await SweetAlert.showError("You do not have permission to archive this child.");
+                        }
                       }}
                     />
                   </td>

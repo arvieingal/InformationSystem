@@ -108,6 +108,54 @@ const userController = {
       res.status(500).json({ error: error.message });
     }
   },
+
+  deleteUser: async (req, res) => {
+    try {
+      const userId = req.params.id;
+      const result = await User.deleteUser(userId);
+      if (result.affectedRows > 0) {
+        res.status(200).json({ message: "User deleted successfully" });
+      } else {
+        res.status(404).json({ message: "User not found" });
+      }
+    } catch (error) {
+      console.error("Error in deleteUser controller:", error);
+      res.status(500).json({
+        message: "Internal server error while deleting user",
+        error: error.message,
+      });
+    }
+  },
+
+  verifyPassword: async (req, res) => {
+    try {
+      const userId = req.user ? req.user.id : null;
+
+      if (!userId) {
+        return res.status(401).json({ message: "Unauthorized: User ID not found" });
+      }
+
+      const { currentPassword } = req.body;
+      const user = await User.findUserById(userId);
+
+      if (!user) {
+        return res.status(404).json({ message: "User not found" });
+      }
+
+      const isMatch = await bcrypt.compare(currentPassword, user.password);
+      if (!isMatch) {
+        return res.status(400).json({ message: "Current password is incorrect" });
+      }
+
+      res.status(200).json({ message: "Password verified" });
+    } catch (error) {
+      console.error("Error in verifyPassword controller:", error);
+      res.status(500).json({
+        message: "Internal server error while verifying password",
+        error: error.message,
+      });
+    }
+  },
 };
 
 module.exports = userController;

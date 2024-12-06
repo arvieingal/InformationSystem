@@ -12,6 +12,7 @@ import { Immunization } from '@/types/Immunization';
 import { formatDate } from '@/components/formatDate';
 import debounce from 'lodash.debounce';
 import api from '@/lib/axios';
+import { useSession } from 'next-auth/react';
 
 const ImmunizationRecord: React.FC = () => {
   const router = useRouter();
@@ -52,6 +53,8 @@ const ImmunizationRecord: React.FC = () => {
     barangay: '',
     family_number: '',
   });
+
+  const { data: session } = useSession();
 
   const fetchImmunizations = async () => {
     try {
@@ -232,6 +235,24 @@ const ImmunizationRecord: React.FC = () => {
     });
   }, [immunizations, filterCriteria]);
 
+  const handleEdit = (immunization: Immunization) => {
+    if (session?.user.role === "Viewer") {
+      console.error("Viewers cannot edit immunization records.");
+      SweetAlert.showError("You do not have permission to edit.");
+      return;
+    }
+    // ... handle edit logic ...
+  };
+
+  const handleArchive = (immunization: Immunization) => {
+    if (session?.user.role !== "Admin") {
+      console.error("Only admins can archive immunization records.");
+      SweetAlert.showError("You do not have permission to archive.");
+      return;
+    }
+    // ... handle archive logic ...
+  };
+
   return (
     <div className='h-full' onClick={() => handleSort(null)}>
       <div className="h-[10%] pt-[1rem] px-[1.5rem]">
@@ -280,8 +301,8 @@ const ImmunizationRecord: React.FC = () => {
             immunizations={sortedImmunizations}
             onSort={handleSort}
             sortConfig={sortConfig as { key: keyof Immunization; direction: string } | null}
-            onEdit={() => {/* handle edit logic here */ }}
-            onArchive={() => {/* handle archive logic here */ }}
+            onEdit={handleEdit}
+            onArchive={handleArchive}
             onRowClick={handleRowClick}
             onViewDetails={handleViewDetails}
           />

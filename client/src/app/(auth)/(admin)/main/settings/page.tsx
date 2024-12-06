@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { FaSearch, FaUser, FaClipboardList } from "react-icons/fa";
+import { FaSearch } from "react-icons/fa";
 import Image from "next/image";
 import { formatDate } from "@/components/formatDate";
 import AdminHeader from "@/components/AdminHeader";
@@ -12,47 +12,34 @@ import { useSession } from "next-auth/react";
 const Settings: React.FC = () => {
   const { data: session } = useSession();
   const router = useRouter();
-  const [modalContent, setModalContent] = useState<string | null>(null);
+  const [modalContent, setModalContent] = useState<string>("");
   const [searchTerm, setSearchTerm] = useState<string>("");
   const [logs, setLogs] = useState<any[]>([]);
   const [users, setUsers] = useState<any[]>([]);
   const [currentPage, setCurrentPage] = useState<number>(0);
   const logsPerPage = 13;
+  const [showCurrentPassword, setShowCurrentPassword] = useState(false);
 
   const fetchLogs = async () => {
-    console.log("fetchLogs function called");
     try {
       const response = await fetch("http://localhost:3001/api/logs");
-      console.log("Response received:", response);
-
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`);
       }
-
       const data = await response.json();
-      console.log("Parsed logs:", data);
-
-      // Flatten the array if it's nested
-      const flattenedLogs = data.flat();
-      setLogs(flattenedLogs);
+      setLogs(data.flat());
     } catch (error) {
       console.error("Error fetching logs:", error);
     }
   };
-  console.log(logs, "LssOGS");
 
   const fetchUsers = async () => {
     try {
       const response = await fetch("http://localhost:3001/api/users");
-
-      // Check if the response is OK
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`);
       }
-
-      // Parse the response as JSON
       const data = await response.json();
-      console.log("Fetched users:", data); // Debugging log
       setUsers(data);
     } catch (error) {
       console.error("Error fetching users:", error);
@@ -60,20 +47,16 @@ const Settings: React.FC = () => {
   };
 
   useEffect(() => {
-    console.log('useEffect triggered');
     fetchLogs();
     fetchUsers();
   }, []);
 
   const handleCardClick = (content: string) => {
     setModalContent(content);
-    if (content === "Change Password") {
-      fetchUsers();
-    }
   };
 
   const closeModal = () => {
-    setModalContent(null);
+    setModalContent("");
   };
 
   const handleNextPage = () => {
@@ -143,7 +126,7 @@ const Settings: React.FC = () => {
                   title="Change my Password"
                   description="Change your current password to a new one."
                   imageSrc="/svg/reset-password.png"
-                  onClick={() => handleCardClick("Change Password")}
+                  onClick={() => handleCardClick("ChangeMyPassword")}
                 />
               </div>
             </div>
@@ -188,15 +171,18 @@ const Settings: React.FC = () => {
             }
           </div>
         </div>
-
-        {modalContent && (
+        {modalContent === "Update User" && (
           <Modal
-            content={modalContent}
+            content="Update User"
             onClose={closeModal}
             handleCardClick={handleCardClick}
+            setModalContent={setModalContent}
           />
         )}
-      </div >
+        {modalContent === "ChangeMyPassword" && (
+          <ChangeMyPasswordModal onClose={closeModal} />
+        )}
+      </div>
     </>
   );
 };
@@ -238,10 +224,12 @@ const Modal = ({
   content,
   onClose,
   handleCardClick,
+  setModalContent,
 }: {
   content: string;
   onClose: () => void;
   handleCardClick: (content: string) => void;
+  setModalContent: (value: string) => void;
 }) => {
   const [formData, setFormData] = useState({
     email: "",
@@ -262,6 +250,8 @@ const Modal = ({
   const [confirmNewPassword, setConfirmNewPassword] = useState("");
   const [isVerified, setIsVerified] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  const [showCurrentPassword, setShowCurrentPassword] = useState(false);
+  const [showConfirmCurrentPassword, setShowConfirmCurrentPassword] = useState(false);
 
   useEffect(() => {
     if (content === "Update User" || content === "Change Password") {
@@ -291,11 +281,11 @@ const Modal = ({
 
     try {
       const response = await fetch(
-        `http://localhost:3001/api/users/${userId}/change-password`,
+        `http://localhost:3001/api/users/change-password`,
         {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ currentPassword, newPassword }),
+          body: JSON.stringify({ userId, currentPassword, newPassword }),
         }
       );
 
@@ -385,9 +375,9 @@ const Modal = ({
           className="w-full mb-2 p-2 border rounded-md"
         >
           <option value="">Select Role</option>
-          <option value="1">Admin</option>
-          <option value="2">Editor</option>
-          <option value="3">Viewer</option>
+          <option value="Admin">Admin</option>
+          <option value="Editor">Editor</option>
+          <option value="Viewer">Viewer</option>
         </select>
         {errors.role && <p className="text-red-500">{errors.role}</p>}
       </div>
@@ -411,24 +401,15 @@ const Modal = ({
   const renderAddUserForm = () => (
     <div className="mt-4 grid grid-cols-2 gap-4 shadow-md p-4 rounded-md">
       <div>
-        <label>Username:</label>
-        <input
-          type="text"
-          name="username"
-          value={formData.username}
-          onChange={handleChange}
-          className="w-full mb-2 p-2 border rounded-md"
-        />
-      </div>
-      <div>
         <label>Email:</label>
         <input
           type="email"
           name="email"
           value={formData.email}
           onChange={handleChange}
-          className="w-full mb-2 p-2 border rounded-md"
+          className="w-full mb-2 p-2 border rounded-md outline-none"
         />
+        {errors.email && <p className="text-red-500">{errors.email}</p>}
       </div>
       <div className="relative">
         <label>Password:</label>
@@ -437,7 +418,7 @@ const Modal = ({
           name="password"
           value={formData.password}
           onChange={handleChange}
-          className="w-full mb-2 p-2 border rounded-md pr-10"
+          className="w-full mb-2 p-2 border rounded-md pr-10 outline-none"
         />
         <Image
           src={formData.showPassword ? "/svg/visible.svg" : "/svg/hidden.svg"}
@@ -453,6 +434,16 @@ const Modal = ({
           className="cursor-pointer absolute mt-2 right-2 top-1/2 transform -translate-y-1/2"
         />
       </div>
+      <div>
+        <label>Username:</label>
+        <input
+          type="text"
+          name="username"
+          value={formData.username}
+          onChange={handleChange}
+          className="w-full mb-2 p-2 border rounded-md outline-none"
+        />
+      </div>
       <div className="relative">
         <label>Confirm Password:</label>
         <input
@@ -460,7 +451,7 @@ const Modal = ({
           name="confirmPassword"
           value={formData.confirmPassword}
           onChange={handleChange}
-          className="w-full p-2 border rounded-md pr-10"
+          className="w-full p-2 border rounded-md pr-10 outline-none"
         />
         <Image
           src={showConfirmPassword ? "/svg/visible.svg" : "/svg/hidden.svg"}
@@ -477,7 +468,7 @@ const Modal = ({
           name="status"
           value={formData.status}
           onChange={handleChange}
-          className="w-full mb-2 p-2 border rounded-md"
+          className="w-full mb-2 p-2 border rounded-md outline-none"
         >
           <option value="">Select Status</option>
           <option value="active">Active</option>
@@ -491,12 +482,12 @@ const Modal = ({
           name="role"
           value={formData.role}
           onChange={handleChange}
-          className="w-full mb-2 p-2 border rounded-md"
+          className="w-full mb-2 p-2 border rounded-md outline-none"
         >
           <option value="">Select Role</option>
-          <option value="1">Admin</option>
-          <option value="2">Editor</option>
-          <option value="3">Viewer</option>
+          <option value="Admin">Admin</option>
+          <option value="Editor">Editor</option>
+          <option value="Viewer">Viewer</option>
         </select>
         {errors.role && <p className="text-red-500">{errors.role}</p>}
       </div>
@@ -517,79 +508,40 @@ const Modal = ({
     </div>
   );
 
-  const renderChangePasswordForm = (user: any) => (
+  const renderChangePasswordForm = () => (
     <div className="mt-4 flex flex-col gap-4 shadow-md p-4 rounded-md">
-      {!isVerified ? (
-        <>
-          <div className="flex flex-col gap-2 ">
-            <label>Current Password:</label>
-            <input
-              type="password"
-              value={currentPassword}
-              onChange={(e) => setCurrentPassword(e.target.value)}
-              className="w-full mb-2 p-2 border rounded-md"
-            />
-          </div>
-          <div>
-            <label>Confirm Current Password:</label>
-            <input
-              type="password"
-              value={confirmCurrentPassword}
-              onChange={(e) => setConfirmCurrentPassword(e.target.value)}
-              className="w-full mb-2 p-2 border rounded-md"
-            />
-          </div>
-          <div className="flex justify-end gap-2">
-            <button
-              onClick={onClose}
-              className="bg-gray-500 text-white px-4 py-2 rounded hover:bg-gray-600 transition"
-            >
-              Cancel
-            </button>
-            <button
-              onClick={handleVerifyPassword}
-              className="bg-[#007F73] text-white px-4 py-2 rounded hover:bg-[#005f5a] transition"
-            >
-              Verify
-            </button>
-          </div>
-        </>
-      ) : (
-        <>
-          <div>
-            <label>New Password:</label>
-            <input
-              type="password"
-              value={newPassword}
-              onChange={(e) => setNewPassword(e.target.value)}
-              className="w-full mb-2 p-2 border rounded-md"
-            />
-          </div>
-          <div>
-            <label>Confirm New Password:</label>
-            <input
-              type="password"
-              value={confirmNewPassword}
-              onChange={(e) => setConfirmNewPassword(e.target.value)}
-              className="w-full mb-2 p-2 border rounded-md"
-            />
-          </div>
-          <div className="flex justify-end gap-2">
-            <button
-              onClick={onClose}
-              className="bg-gray-500 text-white px-4 py-2 rounded hover:bg-gray-600 transition"
-            >
-              Cancel
-            </button>
-            <button
-              onClick={() => handlePasswordChangeSubmit(user.user_id)}
-              className="bg-[#007F73] text-white px-4 py-2 rounded hover:bg-[#005f5a] transition"
-            >
-              Change Password
-            </button>
-          </div>
-        </>
-      )}
+      <div>
+        <label>New Password:</label>
+        <input
+          type="password"
+          value={newPassword}
+          onChange={(e) => setNewPassword(e.target.value)}
+          className="w-full mb-2 p-2 border rounded-md"
+        />
+      </div>
+      <div>
+        <label>Confirm New Password:</label>
+        <input
+          type="password"
+          value={confirmNewPassword}
+          onChange={(e) => setConfirmNewPassword(e.target.value)}
+          className="w-full mb-2 p-2 border rounded-md"
+        />
+      </div>
+      <div className="flex justify-end gap-2">
+        <button
+          onClick={onClose}
+          className="bg-gray-500 text-white px-4 py-2 rounded hover:bg-gray-600 transition"
+        >
+          Cancel
+        </button>
+        <button
+          onClick={() => handlePasswordChangeSubmit(formData.user_id)}
+          className="bg-[#007F73] text-white px-4 py-2 rounded hover:bg-[#005f5a] transition"
+        >
+          Change Password
+        </button>
+      </div>
     </div>
   );
 
@@ -624,82 +576,123 @@ const Modal = ({
       ...prevState,
       [name]: value,
     }));
+
+    // Validate the field as the user types
+    const newErrors: { [key: string]: string } = {};
+
+    if (name === "email") {
+      if (!value) {
+        newErrors.email = "Email is required.";
+      } else if (!/\S+@\S+\.\S+/.test(value)) {
+        newErrors.email = "Email is invalid make sure to add @ and it is active.";
+      }
+    }
+
+    if (name === "username" && !value) {
+      newErrors.username = "Username is required.";
+    }
+
+    if (name === "password") {
+      if (!value) {
+        newErrors.password = "Password is required.";
+      } else if (value.length < 6) {
+        newErrors.password = "Password must be at least 6 characters.";
+      }
+    }
+
+    if (name === "confirmPassword" && value !== formData.password) {
+      newErrors.confirmPassword = "Passwords do not match.";
+    }
+
+    if (name === "status" && !value) {
+      newErrors.status = "Status is required.";
+    }
+
+    if (name === "role" && !value) {
+      newErrors.role = "Role is required.";
+    }
+
+    setErrors((prevErrors) => ({
+      ...prevErrors,
+      ...newErrors,
+    }));
   };
 
   const handleSubmit = async () => {
     const newErrors: { [key: string]: string } = {};
-    if (!formData.status) newErrors.status = "Status is required.";
-    if (!formData.role) newErrors.role = "Role is required.";
+
+    // Validate email
+    if (!formData.email) {
+      newErrors.email = "Email is required.";
+    } else if (!/\S+@\S+\.\S+/.test(formData.email)) {
+      newErrors.email = "Email is invalid.";
+    }
+
+    // Validate username
+    if (!formData.username) {
+      newErrors.username = "Username is required.";
+    }
+
+    // Validate status
+    if (!formData.status) {
+      newErrors.status = "Status is required.";
+    }
+
+    // Validate role
+    if (!formData.role) {
+      newErrors.role = "Role is required.";
+    }
+
     setErrors(newErrors);
 
     if (Object.keys(newErrors).length > 0) return;
 
-    const confirm = await SweetAlert.showConfirm("Are you sure you want to add this?");
+    const confirm = await SweetAlert.showConfirm("Are you sure you want to save changes?");
     if (!confirm) return;
 
     try {
-      const response = await fetch("http://localhost:3001/api/users", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(formData),
-      });
-
-      if (response.ok) {
-        await SweetAlert.showSuccess("Successfully added");
-        onClose();
-      } else {
-        SweetAlert.showError("Failed to add user");
-      }
-    } catch (error) {
-      console.error("Error adding user:", error);
-      SweetAlert.showError("An error occurred");
-    }
-  };
-
-  const handleUpdateClick = async (user: any) => {
-    console.log("Update user:", user);
-    setFormData(user);
-    setIsUpdateModal(true);
-
-    const confirm = await SweetAlert.showConfirm("Are you sure you want to update this?");
-    if (!confirm) return;
-
-    try {
-      const response = await fetch(`http://localhost:3001/api/users/${user.user_id}`, {
+      const response = await fetch(`http://localhost:3001/api/users/${formData.user_id}`, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(formData),
       });
 
       if (response.ok) {
-        await SweetAlert.showSuccess("Successfully updated");
+        await SweetAlert.showSuccess("Successfully saved changes");
         onClose();
       } else {
-        SweetAlert.showError("Failed to update user");
+        SweetAlert.showError("Failed to save changes");
       }
     } catch (error) {
-      console.error("Error updating user:", error);
+      console.error("Error saving changes:", error);
       SweetAlert.showError("An error occurred");
     }
   };
 
+  const handleUpdateClick = (user: any) => {
+    setFormData(user);
+    setIsUpdateModal(true);
+    setModalContent("Update User");
+  };
+
   const handleDeleteClick = async (userId: string) => {
     try {
-      const response = await fetch(
-        `http://localhost:3001/api/users/${userId}`,
-        {
-          method: "DELETE",
-        }
-      );
+      const confirm = await SweetAlert.showConfirm("Are you sure you want to delete this user?");
+      if (!confirm) return;
+
+      const response = await fetch(`http://localhost:3001/api/users/${userId}`, {
+        method: "DELETE",
+      });
 
       if (response.ok) {
-        alert("User deleted successfully");
         setUsers(users.filter((user) => user.user_id !== userId));
-        alert("Failed to delete user");
+        await SweetAlert.showSuccess("User deleted successfully");
+      } else {
+        SweetAlert.showError("Failed to delete user");
       }
     } catch (error) {
       console.error("Error deleting user:", error);
-      alert("An error occurred");
+      SweetAlert.showError("An error occurred");
     }
   };
 
@@ -718,10 +711,190 @@ const Modal = ({
         {content === "Add User"
           ? renderAddUserForm()
           : content === "Change Password"
-            ? renderChangePasswordForm(formData)
+            ? renderChangePasswordForm()
             : isUpdateModal
               ? renderUpdateForm()
               : renderUserList()}
+      </div>
+    </div>
+  );
+};
+
+// New ChangeMyPasswordModal Component
+const ChangeMyPasswordModal = ({ onClose }: { onClose: () => void }) => {
+  const [currentPassword, setCurrentPassword] = useState("");
+  const [confirmCurrentPassword, setConfirmCurrentPassword] = useState("");
+  const [isVerified, setIsVerified] = useState(false);
+  const [showCurrentPassword, setShowCurrentPassword] = useState(false);
+  const [showConfirmCurrentPassword, setShowConfirmCurrentPassword] = useState(false);
+
+  const handleVerifyCurrentPassword = async () => {
+    if (currentPassword !== confirmCurrentPassword) {
+      alert("Current passwords do not match");
+      return;
+    }
+
+    try {
+      const response = await fetch(
+        `http://localhost:3001/api/users/verify-password`, // New endpoint for verification
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ currentPassword }),
+        }
+      );
+
+      if (response.ok) {
+        setIsVerified(true);
+      } else {
+        alert("Current password is incorrect");
+      }
+    } catch (error) {
+      console.error("Error verifying password:", error);
+      alert("An error occurred");
+    }
+  };
+
+  return (
+    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center">
+      <div className="bg-white p-8 w-[50%] h-[50%] rounded-lg shadow-lg relative">
+        <button
+          className="absolute top-0 right-0 text-gray-600 hover:text-gray-900 text-[3rem] transition-transform transform hover:scale-110"
+          onClick={onClose}
+        >
+          &times;
+        </button>
+        <h2 className="text-2xl font-bold mb-4 flex items-center justify-center mt-8 text-gray-800">
+          {isVerified ? "Enter New Password" : "Verify Current Password"}
+        </h2>
+        {isVerified ? (
+          <NewPasswordModal onClose={onClose} />
+        ) : (
+          <div className="mt-4 flex flex-col gap-4 shadow-md p-4 rounded-md">
+            <div>
+              <label>Current Password:</label>
+              <div className="relative">
+                <input
+                  type={currentPassword ? "text" : "password"}
+                  value={currentPassword}
+                  onChange={(e) => setCurrentPassword(e.target.value)}
+                  className="w-full mb-2 p-2 border rounded-md pr-10"
+                />
+                <Image
+                  src={currentPassword ? "/svg/visible.svg" : "/svg/hidden.svg"}
+                  alt={currentPassword ? "Hide Password" : "Show Password"}
+                  width={20}
+                  height={20}
+                  onClick={() => setCurrentPassword(currentPassword ? "" : "")}
+                  className="cursor-pointer absolute right-2 top-1/2 transform -translate-y-1/2"
+                />
+              </div>
+            </div>
+            <div>
+              <label>Confirm Current Password:</label>
+              <div className="relative">
+                <input
+                  type={confirmCurrentPassword ? "text" : "password"}
+                  value={confirmCurrentPassword}
+                  onChange={(e) => setConfirmCurrentPassword(e.target.value)}
+                  className="w-full mb-2 p-2 border rounded-md pr-10"
+                />
+                <Image
+                  src={confirmCurrentPassword ? "/svg/visible.svg" : "/svg/hidden.svg"}
+                  alt={confirmCurrentPassword ? "Hide Password" : "Show Password"}
+                  width={20}
+                  height={20}
+                  onClick={() => setConfirmCurrentPassword(confirmCurrentPassword ? "" : "")}
+                  className="cursor-pointer absolute right-2 top-1/2 transform -translate-y-1/2"
+                />
+              </div>
+            </div>
+            <div className="flex justify-end gap-2">
+              <button
+                onClick={onClose}
+                className="bg-gray-500 text-white px-4 py-2 rounded hover:bg-gray-600 transition"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={handleVerifyCurrentPassword}
+                className="bg-[#007F73] text-white px-4 py-2 rounded hover:bg-[#005f5a] transition"
+              >
+                Verify
+              </button>
+            </div>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+};
+
+const NewPasswordModal = ({ onClose }: { onClose: () => void }) => {
+  const [newPassword, setNewPassword] = useState("");
+  const [confirmNewPassword, setConfirmNewPassword] = useState("");
+
+  const handlePasswordChangeSubmit = async () => {
+    if (newPassword !== confirmNewPassword) {
+      alert("New passwords do not match");
+      return;
+    }
+
+    try {
+      const response = await fetch(
+        `http://localhost:3001/api/users/change-my-password`,
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ newPassword }),
+        }
+      );
+
+      if (response.ok) {
+        alert("Password changed successfully");
+        onClose();
+      } else {
+        alert("Failed to change password");
+      }
+    } catch (error) {
+      console.error("Error changing password:", error);
+      alert("An error occurred");
+    }
+  };
+
+  return (
+    <div className="mt-4 flex flex-col gap-4 shadow-md p-4 rounded-md">
+      <div>
+        <label>New Password:</label>
+        <input
+          type="password"
+          value={newPassword}
+          onChange={(e) => setNewPassword(e.target.value)}
+          className="w-full mb-2 p-2 border rounded-md"
+        />
+      </div>
+      <div>
+        <label>Confirm New Password:</label>
+        <input
+          type="password"
+          value={confirmNewPassword}
+          onChange={(e) => setConfirmNewPassword(e.target.value)}
+          className="w-full mb-2 p-2 border rounded-md"
+        />
+      </div>
+      <div className="flex justify-end gap-2">
+        <button
+          onClick={onClose}
+          className="bg-gray-500 text-white px-4 py-2 rounded hover:bg-gray-600 transition"
+        >
+          Cancel
+        </button>
+        <button
+          onClick={handlePasswordChangeSubmit}
+          className="bg-[#007F73] text-white px-4 py-2 rounded hover:bg-[#005f5a] transition"
+        >
+          Submit
+        </button>
       </div>
     </div>
   );
