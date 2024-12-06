@@ -17,7 +17,9 @@ const Settings: React.FC = () => {
   const [logs, setLogs] = useState<any[]>([]);
   const [users, setUsers] = useState<any[]>([]);
   const [currentPage, setCurrentPage] = useState<number>(0);
-  const logsPerPage = 13;
+  const logsPerPage = 13  ;
+  const usersPerPage = 10;
+  const [userPage, setUserPage] = useState<number>(0);
   const [showCurrentPassword, setShowCurrentPassword] = useState(false);
 
   const fetchLogs = async () => {
@@ -182,6 +184,14 @@ const Settings: React.FC = () => {
         {modalContent === "ChangeMyPassword" && (
           <ChangeMyPasswordModal onClose={closeModal} />
         )}
+        {modalContent === "Add User" && (
+          <Modal
+            content="Add User"
+            onClose={closeModal}
+            handleCardClick={handleCardClick}
+            setModalContent={setModalContent}
+          />
+        )}
       </div>
     </>
   );
@@ -252,6 +262,8 @@ const Modal = ({
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [showCurrentPassword, setShowCurrentPassword] = useState(false);
   const [showConfirmCurrentPassword, setShowConfirmCurrentPassword] = useState(false);
+  const usersPerPage = 10;
+  const [userPage, setUserPage] = useState<number>(0);
 
   useEffect(() => {
     if (content === "Update User" || content === "Change Password") {
@@ -301,32 +313,62 @@ const Modal = ({
     }
   };
 
+  const handleNextUserPage = () => {
+    if ((userPage + 1) * usersPerPage < users.length) {
+      setUserPage(userPage + 1);
+    }
+  };
+
+  const handlePreviousUserPage = () => {
+    if (userPage > 0) {
+      setUserPage(userPage - 1);
+    }
+  };
+
   const renderUserList = () => (
     <div>
-      {users.map((user) => (
-        <div
-          key={user.user_id}
-          className="flex justify-between items-center mb-2 shadow-md p-2 rounded-md"
-        >
-          <span>
-            {user.username} ({user.email})
-          </span>
-          <div className="flex gap-2">
-            <button
-              onClick={() => handleUpdateClick(user)}
-              className="bg-[#007F73] text-white px-2 py-1 rounded hover:bg-[#005f5a] transition"
-            >     
-              Update
-            </button>
-            <button
-              onClick={() => handleDeleteClick(user.user_id)}
-              className="bg-red-500 text-white px-2 py-1 rounded hover:bg-red-600 transition"
-            >
-              Delete
-            </button>
+      {users
+        .slice(userPage * 5, (userPage + 1) * 5)
+        .map((user) => (
+          <div
+            key={user.user_id}
+            className="flex justify-between items-center mb-2 shadow-md p-2 rounded-md"
+          >
+            <span>
+              {user.username} ({user.email})
+            </span>
+            <div className="flex gap-2">
+              <button
+                onClick={() => handleUpdateClick(user)}
+                className="bg-[#007F73] text-white px-2 py-1 rounded hover:bg-[#005f5a] transition"
+              >
+                Update
+              </button>
+              <button
+                onClick={() => handleDeleteClick(user.user_id)}
+                className="bg-red-500 text-white px-2 py-1 rounded hover:bg-red-600 transition"
+              >
+                Delete
+              </button>
+            </div>
           </div>
-        </div>
-      ))}
+        ))}
+      <div className="flex justify-center gap-4 mt-4">
+        <button
+          onClick={handlePreviousUserPage}
+          disabled={userPage === 0}
+          className="bg-[#007F73] text-white px-4 py-2 rounded hover:bg-[#005f5a] transition disabled:opacity-50"
+        >
+          Previous
+        </button>
+        <button
+          onClick={handleNextUserPage}
+          disabled={(userPage + 1) * 5 >= users.length}
+          className="bg-[#007F73] text-white px-4 py-2 rounded hover:bg-[#005f5a] transition disabled:opacity-50"
+        >
+          Next
+        </button>
+      </div>
     </div>
   );
 
@@ -647,12 +689,12 @@ const Modal = ({
 
     if (Object.keys(newErrors).length > 0) return;
 
-    const confirm = await SweetAlert.showConfirm("Are you sure you want to save changes?");
+    const confirm = await SweetAlert.showConfirm("Are you sure you want to add this user?");
     if (!confirm) return;
 
     try {
       const response = await fetch(`http://localhost:3001/api/users/${formData.user_id}`, {
-        method: "PUT",
+        method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(formData),
       });
