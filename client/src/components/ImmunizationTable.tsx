@@ -9,13 +9,10 @@ interface TableProps {
   immunizations: Immunization[];
   onSort: (key: keyof Immunization) => void;
   sortConfig: { key: keyof Immunization; direction: string } | null;
-  onEdit: (immunization: Immunization) => void;
-  onArchive: (immunization: Immunization) => void;
-  onRowClick: (immunization: Immunization) => void;
   onViewDetails: (immunization: Immunization) => void;
 }
 
-const ImmunizationTable: React.FC<TableProps> = ({ immunizations, onSort, sortConfig, onEdit, onArchive, onRowClick, onViewDetails }) => {
+const ImmunizationTable: React.FC<TableProps> = ({ immunizations, onSort, sortConfig, onViewDetails }) => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedImmunization, setSelectedImmunization] = useState<Immunization | null>(null);
   const [currentPage, setCurrentPage] = useState(1);
@@ -29,12 +26,10 @@ const ImmunizationTable: React.FC<TableProps> = ({ immunizations, onSort, sortCo
     }
   };
 
-  const handleSave = (updatedImmunization: Immunization) => {
-    onEdit(updatedImmunization);
+  const handleSave = () => {
     setIsModalOpen(false);
   };
 
-  // Calculate the immunizations to display based on the current page
   const paginatedImmunizations = React.useMemo(() => {
     const startIndex = (currentPage - 1) * itemsPerPage;
     const endIndex = startIndex + itemsPerPage;
@@ -69,7 +64,10 @@ const ImmunizationTable: React.FC<TableProps> = ({ immunizations, onSort, sortCo
                 <th
                   key={key}
                   className="py-2 px-6 text-left font-semibold text-[16px] cursor-pointer"
-                  onClick={() => onSort(key as keyof Immunization)}
+                  onClick={() => {
+                    console.log(`Sorting by ${key}`);  // Debug log
+                    onSort(key as keyof Immunization);
+                  }}
                 >
                   {label}
                   {sortConfig?.key === key && (
@@ -87,8 +85,8 @@ const ImmunizationTable: React.FC<TableProps> = ({ immunizations, onSort, sortCo
               <tr key={index} className="border-b hover:bg-gray-50 cursor-pointer">
                 <td className="py-2 px-6 text-left" onClick={() => onViewDetails(immunization)}>{immunization.child_id}</td>
                 <td className="py-2 px-6 text-left" onClick={() => onViewDetails(immunization)}>{`${immunization.full_name || ''}`.trim()}</td>
-                <td className="py-2 px-6 text-left" onClick={() => onViewDetails(immunization)}>{immunization.vaccine_type}</td>
-                <td className="py-2 px-6 text-left" onClick={() => onViewDetails(immunization)}>{`${immunization.doses || ''}`.trim()}</td>
+                <td className="py-2 px-6 text-left" onClick={() => onViewDetails(immunization)}>{immunization.vaccine_type === "Others" ? immunization.other_vaccine_type : immunization.vaccine_type || ""}</td>
+                <td className="py-2 px-6 text-left" onClick={() => onViewDetails(immunization)}>{`${immunization.doses === 'Others' ? immunization.other_doses : immunization.doses || ""}`.trim()}</td>
                 <td className="py-2 px-6 text-left" onClick={() => onViewDetails(immunization)}>
                   {immunization.date_vaccinated ? formatDate(immunization.date_vaccinated.toString()).trim() : ''}
                 </td>
@@ -114,7 +112,7 @@ const ImmunizationTable: React.FC<TableProps> = ({ immunizations, onSort, sortCo
                     className="w-5 h-5 mr-2 cursor-pointer"
                     onClick={(e) => {
                       e.stopPropagation();
-                      onArchive(immunization);
+                      // onArchive(immunization);
                     }}
                   />
                 </td>

@@ -16,12 +16,15 @@ import api from '@/lib/axios';
 const ImmunizationRecord: React.FC = () => {
   const router = useRouter();
   const [immunizations, setImmunizations] = useState<Immunization[]>([]);
+  const [filteredImmunizations, setFilteredImmunizations] = useState<Immunization[]>([]);
   const [sortConfig, setSortConfig] = useState<{
     key: keyof Immunization;
     direction: "ascending" | "descending";
   } | null>(null);
   const [currentPage, setCurrentPage] = useState<number>(1);
   const [isFilterDropdownOpen, setIsFilterDropdownOpen] = useState<boolean>(false);
+  const [isVaccineTypeHovered, setIsVaccineTypeHovered] = useState(false);
+  const [isDosesHovered, setIsDosesHovered] = useState(false);
   const [isAddModalOpen, setIsAddModalOpen] = useState<boolean>(false);
   const [selectedImmunization, setSelectedImmunization] = useState<Immunization | null>(null);
   const [isViewModalOpen, setIsViewModalOpen] = useState<boolean>(false);
@@ -29,29 +32,6 @@ const ImmunizationRecord: React.FC = () => {
   const [filterCriteria, setFilterCriteria] = useState<string | null>(null);
 
   const addModalRef = useRef<HTMLDivElement>(null);
-
-  const [formData, setFormData] = useState({
-    given_name: '',
-    family_name: '',
-    middle_name: '',
-    extension: '',
-    birthdate: '',
-    birthplace: '',
-    address: '',
-    vaccine_type: '',
-    doses: '',
-    other_doses: '',
-    date_vaccinated: '',
-    remarks: '',
-    mother_name: '',
-    father_name: '',
-    heightAtBirth: '',
-    weightAtBirth: '',
-    sex: '',
-    health_center: '',
-    barangay: '',
-    family_number: '',
-  });
 
   const fetchImmunizations = async () => {
     try {
@@ -66,8 +46,6 @@ const ImmunizationRecord: React.FC = () => {
   useEffect(() => {
     fetchImmunizations();
   }, []);
-
-  console.log(immunizations, 'tada tada')
 
   const handleClickOutsideAddModal = (event: MouseEvent) => {
     if (addModalRef.current && !addModalRef.current.contains(event.target as Node)) {
@@ -99,26 +77,33 @@ const ImmunizationRecord: React.FC = () => {
     }
   };
 
-  const sortedImmunizations = useMemo(() => {
-    if (!sortConfig || !sortConfig.key) return immunizations;
+  const filteredAndSortedImmunizations = useMemo(() => {
+    const immunizationsToUse = filteredImmunizations.length > 0 ? filteredImmunizations : immunizations;
 
-    return [...immunizations].sort((a, b) => {
-      const key = sortConfig.key; // Ensure the key is non-null here
+    if (immunizationsToUse.length === 0) return [];
+
+    const safeSortConfig = sortConfig || { key: 'child_id', direction: 'ascending' };
+
+    // New sorting logic
+    if (!safeSortConfig.key) return immunizationsToUse; // Safeguard in case key is undefined
+    return [...immunizationsToUse].sort((a, b) => {
+      const key = safeSortConfig.key; // Ensure the key is non-null here
+      if (a[key] === null || b[key] === null) return 0; // Handle null values
       if (a[key] < b[key]) {
-        return sortConfig.direction === "ascending" ? -1 : 1;
+        return safeSortConfig.direction === "ascending" ? -1 : 1;
       }
       if (a[key] > b[key]) {
-        return sortConfig.direction === "ascending" ? 1 : -1;
+        return safeSortConfig.direction === "ascending" ? 1 : -1;
       }
       return 0;
     });
-  }, [immunizations, sortConfig]);
+  }, [immunizations, filteredImmunizations, sortConfig]);
 
-  const paginatedImmunizations = React.useMemo(() => {
-    const startIndex = (currentPage - 1) * itemsPerPage;
-    const endIndex = startIndex + itemsPerPage;
-    return sortedImmunizations.slice(startIndex, endIndex);
-  }, [sortedImmunizations, currentPage]);
+  // const paginatedImmunizations = React.useMemo(() => {
+  //   const startIndex = (currentPage - 1) * itemsPerPage;
+  //   const endIndex = startIndex + itemsPerPage;
+  //   return sortedImmunizations.slice(startIndex, endIndex);
+  // }, [sortedImmunizations, currentPage]);
 
   const handleSearch = React.useCallback(
     debounce((query: string) => {
@@ -146,91 +131,37 @@ const ImmunizationRecord: React.FC = () => {
         );
       });
       setImmunizations(filteredImmunizations);
-    }, 300), // Adjust the debounce delay as needed
+    }, 300),
     [immunizations]
   );
-
-  const handlePageChange = (page: number) => {
-    setCurrentPage(page);
-  };
-
-  const handleAddModalOpen = (immunization: Immunization) => {
-    setSelectedImmunization(immunization);
-    setIsAddModalOpen(true);
-  };
-
-  const handleRowClick = (immunization: Immunization) => {
-    setSelectedImmunization(immunization);
-    setIsAddModalOpen(true);
-  };
-
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const { name, value } = e.target;
-    setFormData({ ...formData, [name]: value });
-  };
-
-  const handleSubmit = async () => {
-    try {
-      const response = await fetch('http://localhost:3001/api/childImmunizationRecords', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(formData),
-      });
-
-      if (response.ok) {
-        console.log('Data successfully added to the database');
-        setIsAddModalOpen(false);
-      } else {
-        console.error('Failed to add data to the database');
-      }
-    } catch (error) {
-      console.error('Error adding data to the database:', error);
-    }
-  };
 
   const handleViewDetails = (immunization: Immunization) => {
     setSelectedImmunization(immunization);
     setIsViewModalOpen(true);
   };
 
-  const handleFilterClick = (criteria: string) => {
+  const handleFilterClick = async (criteria: string, value?: string) => {
     setFilterCriteria(criteria);
+
+    try {
+      const params: { [key: string]: string } = {};
+      if (criteria === "boyData") params.sex = "Male";
+      if (criteria === "girlData") params.sex = "Female";
+      if (criteria === "archivedData") params.status = "Inactive";
+      if (criteria === "vaccineType" && value) params.vaccine_type = value;
+      if (criteria === "doses" && value) params.doses = value;
+
+      // Fetch filtered data from the API
+      console.log("Query Params:", params);
+      const response = await api.get("/api/filter-child-immunization-record", { params });
+
+      // Update the state with filtered data
+      setFilteredImmunizations(response.data);
+    } catch (error) {
+      console.error("Error fetching filtered data:", error);
+    }
   };
 
-  // Define desiredVaccineTypes, desiredDoses, and desiredMonths at the top of the component
-  const desiredVaccineTypes = ['Polio', 'DPT', 'Measles']; // Replace with actual vaccine types
-  const desiredDoses = ['1', '2', '3']; // Replace with actual dose numbers
-  const desiredMonths = [0, 1, 2]; // Replace with actual months
-
-  const filteredImmunizations = React.useMemo(() => {
-    if (!filterCriteria) return immunizations;
-
-    return immunizations.filter((immunization) => {
-      switch (filterCriteria) {
-        case 'vaccineType':
-          return desiredVaccineTypes.includes(immunization.vaccine_type || '');
-        case 'doseNumber':
-          return immunization.doses != null && desiredDoses.includes(immunization.doses.toString() || '');
-        case 'scheduledDate':
-          const dateValue = immunization.date_vaccinated;
-          if (typeof dateValue !== 'string' && typeof dateValue !== 'number') {
-            return false;
-          }
-          const vaccinatedDate = new Date(dateValue);
-          if (isNaN(vaccinatedDate.getTime())) {
-            return false; // Handle invalid date
-          }
-          const vaccinatedMonth = vaccinatedDate.getMonth();
-          return desiredMonths.includes(vaccinatedMonth);
-        case 'healthCenter':
-          return immunization.health_center === 'Barangay Luz';
-        default:
-          return true;
-      }
-    });
-  }, [immunizations, filterCriteria]);
 
   return (
     <div className='h-full' onClick={() => handleSort(null)}>
@@ -240,8 +171,6 @@ const ImmunizationRecord: React.FC = () => {
             <input
               type="text"
               placeholder="Search .............."
-              // value={searchQuery}
-              // onChange={(e) => setSearchQuery(e.target.value)}
               className="border border-gray-300 rounded-md p-2 w-full outline-none"
             />
           </div>
@@ -265,10 +194,165 @@ const ImmunizationRecord: React.FC = () => {
         {isFilterDropdownOpen && (
           <div className="absolute right-[2rem] mt-[1%] bg-white border border-gray-300 rounded-md shadow-lg z-10">
             <ul className="py-1">
-              <li className="px-4 py-2 hover:bg-gray-100 cursor-pointer" onClick={() => handleFilterClick('vaccineType')}>Filter by Vaccine Type</li>
-              <li className="px-4 py-2 hover:bg-gray-100 cursor-pointer" onClick={() => handleFilterClick('doseNumber')}>Filter by Dose Number</li>
-              <li className="px-4 py-2 hover:bg-gray-100 cursor-pointer" onClick={() => handleFilterClick('scheduledDate')}>Filter by Scheduled Date</li>
-              <li className="px-4 py-2 hover:bg-gray-100 cursor-pointer" onClick={() => handleFilterClick('healthCenter')}>Filter by Health Center</li>
+              <li
+                className="px-4 py-2 hover:bg-gray-100 cursor-pointer"
+                onClick={() => handleFilterClick("boyData")}
+              >
+                Filter by Boy
+              </li>
+              <li
+                className="px-4 py-2 hover:bg-gray-100 cursor-pointer"
+                onClick={() => handleFilterClick("girlData")}
+              >
+                Filter by Girl
+              </li>
+              <li
+                className="px-4 py-2 hover:bg-gray-100 cursor-pointer"
+                onClick={() => handleFilterClick("archivedData")}
+              >
+                Filter by Archived
+              </li>
+              <li
+                className="px-4 py-2 hover:bg-gray-100 cursor-pointer relative"
+                onMouseEnter={() => setIsDosesHovered(true)}
+                onMouseLeave={() => setIsDosesHovered(false)}
+              >
+                Filter by Doses
+                {isDosesHovered && (
+                  <div className="absolute right-full top-0 mt-1 bg-white border border-gray-300 rounded-md shadow-lg w-64 z-20">
+                    <ul className="py-1">
+                      <li
+                        className="px-4 py-2 hover:bg-gray-100 cursor-pointer"
+                        onClick={() => handleFilterClick("doses", "First dose")}
+                      >
+                        First dose
+                      </li>
+                      <li
+                        className="px-4 py-2 hover:bg-gray-100 cursor-pointer"
+                        onClick={() => handleFilterClick("doses", "Second dose")}
+                      >
+                        Second dose
+                      </li>
+                      <li
+                        className="px-4 py-2 hover:bg-gray-100 cursor-pointer"
+                        onClick={() => handleFilterClick("doses", "Third dose")}
+                      >
+                        Third dose
+                      </li>
+                      <li
+                        className="px-4 py-2 hover:bg-gray-100 cursor-pointer"
+                        onClick={() => handleFilterClick("doses", "Fourth dose")}
+                      >
+                        Fourth dose
+                      </li>
+                      <li
+                        className="px-4 py-2 hover:bg-gray-100 cursor-pointer"
+                        onClick={() => handleFilterClick("doses", "Fifth dose")}
+                      >
+                        Fifth dose
+                      </li>
+                      <li
+                        className="px-4 py-2 hover:bg-gray-100 cursor-pointer"
+                        onClick={() => handleFilterClick("doses", "Others")}
+                      >
+                        Others
+                      </li>
+                    </ul>
+                  </div>
+                )}
+              </li>
+              <li
+                className="px-4 py-2 hover:bg-gray-100 cursor-pointer relative"
+                onMouseEnter={() => setIsVaccineTypeHovered(true)}
+                onMouseLeave={() => setIsVaccineTypeHovered(false)}
+              >
+                Filter by Vaccine Type
+                {isVaccineTypeHovered && (
+                  <div className="absolute right-full top-0 mt-1 bg-white border border-gray-300 rounded-md shadow-lg w-64 z-20">
+                    <ul className="py-1">
+                      <li
+                        className="px-4 py-2 hover:bg-gray-100 cursor-pointer"
+                        onClick={() => handleFilterClick("vaccineType", "BCG Vaccine")}
+                      >
+                        BCG Vaccine
+                      </li>
+                      <li
+                        className="px-4 py-2 hover:bg-gray-100 cursor-pointer"
+                        onClick={() =>
+                          handleFilterClick("vaccineType", "Hepatitis B Vaccine")
+                        }
+                      >
+                        Hepatitis B Vaccine
+                      </li>
+                      <li
+                        className="px-4 py-2 hover:bg-gray-100 cursor-pointer"
+                        onClick={() =>
+                          handleFilterClick(
+                            "vaccineType",
+                            "Pentavalent Vaccine (DPT-Hep B-HIB)"
+                          )
+                        }
+                      >
+                        Pentavalent Vaccine (DPT-Hep B-HIB)
+                      </li>
+                      <li
+                        className="px-4 py-2 hover:bg-gray-100 cursor-pointer"
+                        onClick={() =>
+                          handleFilterClick("vaccineType", "Inactivated Polio Vaccine (IPV)")
+                        }
+                      >
+                        Inactivated Polio Vaccine (IPV)
+                      </li>
+                      <li
+                        className="px-4 py-2 hover:bg-gray-100 cursor-pointer"
+                        onClick={() =>
+                          handleFilterClick(
+                            "vaccineType",
+                            "Pneumococcal Conjugate Vaccine (PCV)"
+                          )
+                        }
+                      >
+                        Pneumococcal Conjugate Vaccine (PCV)
+                      </li>
+                      <li
+                        className="px-4 py-2 hover:bg-gray-100 cursor-pointer"
+                        onClick={() =>
+                          handleFilterClick(
+                            "vaccineType",
+                            "Measles, Mumps, Rubella Vaccine (MMR)"
+                          )
+                        }
+                      >
+                        Measles, Mumps, Rubella Vaccine (MMR)
+                      </li>
+                      <li
+                        className="px-4 py-2 hover:bg-gray-100 cursor-pointer"
+                        onClick={() => handleFilterClick("vaccineType", "Vitamin A")}
+                      >
+                        Vitamin A
+                      </li>
+                      <li
+                        className="px-4 py-2 hover:bg-gray-100 cursor-pointer"
+                        onClick={() => handleFilterClick("vaccineType", "Deworming")}
+                      >
+                        Deworming
+                      </li>
+                      <li
+                        className="px-4 py-2 hover:bg-gray-100 cursor-pointer"
+                        onClick={() => handleFilterClick("vaccineType", "Dental Check-up")}
+                      >
+                        Dental Check-up
+                      </li>
+                      <li
+                        className="px-4 py-2 hover:bg-gray-100 cursor-pointer"
+                        onClick={() => handleFilterClick("vaccineType", "Others")}
+                      >
+                        Others
+                      </li>
+                    </ul>
+                  </div>
+                )}
+              </li>
             </ul>
           </div>
         )}
@@ -277,214 +361,13 @@ const ImmunizationRecord: React.FC = () => {
       <div className="w-full h-[90%]">
         <div className='h-[90%]' onClick={(e) => e.stopPropagation()}>
           <ImmunizationTable
-            immunizations={sortedImmunizations}
+            immunizations={filteredAndSortedImmunizations}
             onSort={handleSort}
             sortConfig={sortConfig as { key: keyof Immunization; direction: string } | null}
-            onEdit={() => {/* handle edit logic here */ }}
-            onArchive={() => {/* handle archive logic here */ }}
-            onRowClick={handleRowClick}
             onViewDetails={handleViewDetails}
           />
         </div>
       </div>
-
-
-      {isAddModalOpen && selectedImmunization && (
-        <PersonModal onClose={() => setIsAddModalOpen(false)}>
-          <div ref={addModalRef} className="relative p-4">
-            <button
-              className="absolute top-[-3rem] right-[-2rem] text-gray-500 hover:text-gray-700 p-4 text-[3rem]"
-              onClick={() => setIsAddModalOpen(false)}
-            >
-              &times;
-            </button>
-            <h2 className="text-lg font-semibold">Add Immunization Record</h2>
-            <div className="grid grid-cols-4 gap-[20px] w-full mt-4">
-              <div className="w-full">
-                <p>First Name of the Child:</p>
-                <div className="border border-gray-300 rounded-md p-1">
-                  <input
-                    className="w-full outline-none"
-                    type="text"
-                    name="given_name"
-                    value={formData.given_name}
-                    onChange={handleInputChange}
-                  />
-                </div>
-              </div>
-              <div className="w-full">
-                <p>Last Name of the Child:</p>
-                <div className="border border-gray-300 rounded-md p-1">
-                  <input
-                    className="w-full outline-none"
-                    type="text"
-                    name="family_name"
-                    value={formData.family_name}
-                    onChange={handleInputChange}
-                  />
-                </div>
-              </div>
-              <div className="w-full">
-                <p>Middle Name:</p>
-                <div className="border border-gray-300 rounded-md p-1">
-                  <input
-                    className="w-full outline-none"
-                    type="text"
-                    name="middle_name"
-                    value={formData.middle_name}
-                    onChange={handleInputChange}
-                  />
-                </div>
-              </div>
-              <div className="w-full">
-                <p>Suffix:</p>
-                <div className="border border-gray-300 rounded-md p-1">
-                  <input
-                    className="w-full outline-none"
-                    type="text"
-                    name="extension"
-                    value={formData.extension}
-                    onChange={handleInputChange}
-                  />
-                </div>
-              </div>
-              <div className="w-full">
-                <p>Date of Birth:</p>
-                <div className="border border-gray-300 rounded-md p-1">
-                  <input
-                    className="w-full outline-none"
-                    type="text"
-                    name="birthdate"
-                    value={formatDate(formData.birthdate)}
-                    onChange={handleInputChange}
-                  />
-                </div>
-              </div>
-              <div className="w-full">
-                <p>Place of Birth:</p>
-                <div className="border border-gray-300 rounded-md p-1">
-                  <input
-                    className="w-full outline-none"
-                    type="text"
-                    name="birthplace"
-                    value={formData.birthplace}
-                    onChange={handleInputChange}
-                  />
-                </div>
-              </div>
-              <div className="w-full">
-                <p>Address:</p>
-                <div className="border border-gray-300 rounded-md p-1">
-                  <input
-                    className="w-full outline-none"
-                    type="text"
-                    name="address"
-                    value={formData.address}
-                    onChange={handleInputChange}
-                  />
-                </div>
-              </div>
-              <div className="w-full">
-                <p>Mother's Name:</p>
-                <div className="border border-gray-300 rounded-md p-1">
-                  <input
-                    className="w-full outline-none"
-                    type="text"
-                    name="mother_name"
-                    value={formData.mother_name}
-                    onChange={handleInputChange}
-                  />
-                </div>
-              </div>
-              <div className="w-full">
-                <p>Father's Name:</p>
-                <div className="border border-gray-300 rounded-md p-1">
-                  <input
-                    className="w-full outline-none"
-                    type="text"
-                    name="father_name"
-                    value={formData.father_name}
-                    onChange={handleInputChange}
-                  />
-                </div>
-              </div>
-              <div className="w-full">
-                <p>Birth Height (cm):</p>
-                <div className="border border-gray-300 rounded-md p-1">
-                  <input
-                    className="w-full outline-none"
-                    type="text"
-                    name="heightAtBirth"
-                    value={formData.heightAtBirth}
-                    onChange={handleInputChange}
-                  />
-                </div>
-              </div>
-              <div className="w-full">
-                <p>Birth Weight (kg):</p>
-                <div className="border border-gray-300 rounded-md p-1">
-                  <input
-                    className="w-full outline-none"
-                    type="text"
-                    name="weightAtBirth"
-                    value={formData.weightAtBirth}
-                    onChange={handleInputChange}
-                  />
-                </div>
-              </div>
-              <div className="w-full">
-                <p>Sex:</p>
-                <div className="border border-gray-300 rounded-md p-1">
-                  <input
-                    className="w-full outline-none"
-                    type="text"
-                    name="sex"
-                    value={formData.sex}
-                    onChange={handleInputChange}
-                  />
-                </div>
-              </div>
-              <div className="w-full">
-                <p>Health Center:</p>
-                <div className="border border-gray-300 rounded-md p-1">
-                  <input
-                    className="w-full outline-none"
-                    type="text"
-                    name="health_center"
-                    value={formData.health_center}
-                    onChange={handleInputChange}
-                  />
-                </div>
-              </div>
-              <div className="w-full">
-                <p>Barangay:</p>
-                <div className="border border-gray-300 rounded-md p-1">
-                  <input
-                    className="w-full outline-none"
-                    type="text"
-                    name="barangay"
-                    value={formData.barangay}
-                    onChange={handleInputChange}
-                  />
-                </div>
-              </div>
-              <div className="w-full">
-                <p>Family Number:</p>
-                <div className="border border-gray-300 rounded-md p-1">
-                  <input
-                    className="w-full outline-none"
-                    type="text"
-                    name="family_number"
-                    value={formData.family_number}
-                    onChange={handleInputChange}
-                  />
-                </div>
-              </div>
-              <button onClick={handleSubmit}>Submit</button>
-            </div>
-          </div>
-        </PersonModal>
-      )}
 
       {isViewModalOpen && selectedImmunization && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
@@ -503,8 +386,6 @@ const ImmunizationRecord: React.FC = () => {
                 <span className="block text-gray-800">{selectedImmunization.full_name || ''}</span>
                 <p className="font-semibold text-gray-600 mt-4">Date of Birth:</p>
                 <span className="block text-gray-800">{formatDate(selectedImmunization.birthdate) || ''}</span>
-                <p className="font-semibold text-gray-600 mt-4">Place of Birth:</p>
-                <span className="block text-gray-800">{selectedImmunization.birthplace || ''}</span>
                 <p className="font-semibold text-gray-600 mt-4">Address:</p>
                 <span className="block text-gray-800">{selectedImmunization.address || ''}</span>
               </div>
@@ -523,8 +404,6 @@ const ImmunizationRecord: React.FC = () => {
                 <span className="block text-gray-800">{selectedImmunization.sex || ''}</span>
                 <p className="font-semibold text-gray-600 mt-4">Health Center:</p>
                 <span className="block text-gray-800">{selectedImmunization.health_center || ''}</span>
-                <p className="font-semibold text-gray-600 mt-4">Barangay:</p>
-                <span className="block text-gray-800">{selectedImmunization.barangay || ''}</span>
                 <p className="font-semibold text-gray-600 mt-4">Family Number:</p>
                 <span className="block text-gray-800">{selectedImmunization.household_number || ''}</span>
               </div>

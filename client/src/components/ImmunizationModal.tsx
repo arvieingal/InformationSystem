@@ -17,17 +17,19 @@ const ImmunizationModal: React.FC<ModalProps> = ({
 }) => {
   const [editedImmunization, setEditedImmunization] =
     React.useState(immunization);
-  const [isOtherSelected, setIsOtherSelected] = React.useState(false);
   const [errors, setErrors] = React.useState<{ [key: string]: string }>({});
 
   const handleChange = (key: keyof Immunization, value: any) => {
     setEditedImmunization((prev) => ({ ...prev, [key]: value }));
-    setErrors((prev) => ({ ...prev, [key]: '' })); // Clear error on change
+    setErrors((prev) => ({ ...prev, [key]: '' }));
   };
 
-  const handleVaccineChange = (value: string) => {
-    setIsOtherSelected(value === "others");
+  const handleVaccineTypeChange = (value: string) => {
     handleChange("vaccine_type", value);
+  };
+
+  const handleDoseChange = (value: string) => {
+    handleChange("doses", value);
   };
 
   const validateFields = () => {
@@ -158,7 +160,13 @@ const ImmunizationModal: React.FC<ModalProps> = ({
               <label>Vaccine:</label>
               <select
                 value={editedImmunization.vaccine_type || ""}
-                onChange={(e) => handleVaccineChange(e.target.value)}
+                onChange={(e) => {
+                  const value = e.target.value;
+                  handleVaccineTypeChange(value);
+                  if (value === "Others") {
+                    handleChange("other_vaccine_type", "");
+                  }
+                }}
                 className="border border-gray-300 rounded-md p-1 w-full"
               >
                 <option value="">Select Vaccine</option>
@@ -171,24 +179,31 @@ const ImmunizationModal: React.FC<ModalProps> = ({
                 <option value="Vitamin A">Vitamin A</option>
                 <option value="Deworming">Deworming</option>
                 <option value="Dental Check-up">Dental Check-up</option>
-                <option value="others">Others</option>
+                <option value="Others">Others</option>
               </select>
-              {isOtherSelected && (
+              {editedImmunization.vaccine_type === "Others" && (
                 <input
                   type="text"
                   placeholder="Enter custom vaccine"
-                  value={editedImmunization.vaccine_type || ""}
-                  onChange={(e) => handleChange("vaccine_type", e.target.value)}
+                  value={editedImmunization.other_vaccine_type || ""}
+                  onChange={(e) => handleChange("other_vaccine_type", e.target.value)}
                   className="border border-gray-300 rounded-md p-1 w-full mt-2"
                 />
               )}
               {errors.vaccine_type && <span className="text-red-500">{errors.vaccine_type}</span>}
             </div>
+
             <div>
               <label>Dose:</label>
               <select
-                value={String(editedImmunization.doses) || ""}
-                onChange={(e) => handleChange("doses", e.target.value)}
+                value={editedImmunization.doses || ""}
+                onChange={(e) => {
+                  const value = e.target.value;
+                  handleDoseChange(value);
+                  if (value === "Others") {
+                    handleChange("other_doses", "");
+                  }
+                }}
                 className="border border-gray-300 rounded-md p-1 w-full"
               >
                 <option value="">Select Dose</option>
@@ -197,13 +212,22 @@ const ImmunizationModal: React.FC<ModalProps> = ({
                     {String(editedImmunization.doses)}
                   </option>
                 )}
-                <option value="1">1</option>
-                <option value="2">2</option>
-                <option value="3">3</option>
-                <option value="4">4</option>
-                <option value="5">5</option>
-                <option value="others">Others</option>
+                <option value="First dose">First dose</option>
+                <option value="Second dose">Second dose</option>
+                <option value="Third dose">Third dose</option>
+                <option value="Fourth dose">Fourth dose</option>
+                <option value="Fifth dose">Fifth dose</option>
+                <option value="Others">Others</option>
               </select>
+              {editedImmunization.doses === "Others" && (
+                <input
+                  type="text"
+                  placeholder="Enter custom dose"
+                  value={editedImmunization.other_doses || ""}
+                  onChange={(e) => handleChange("other_doses", e.target.value)}
+                  className="border border-gray-300 rounded-md p-1 w-full mt-2"
+                />
+              )}
               {errors.doses && <span className="text-red-500">{errors.doses}</span>}
             </div>
             <div>
