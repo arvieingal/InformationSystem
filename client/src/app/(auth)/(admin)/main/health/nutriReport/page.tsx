@@ -88,6 +88,8 @@ export default function ReportForm() {
       const tempContainer = document.createElement('div');
       tempContainer.style.position = 'absolute';
       tempContainer.style.left = '-9999px';
+      tempContainer.style.width = '100%'; // Ensure full width
+
       tempContainer.appendChild(clonedNode);
       document.body.appendChild(tempContainer);
 
@@ -108,7 +110,7 @@ export default function ReportForm() {
         }
       }
 
-      const footerSection = document.querySelector('.grid.grid-cols-1.sm\\:grid-cols-2.lg\\:grid-cols-3.gap-20.mt-6.px-\\[8rem\\]');
+      const footerSection = document.querySelector('.grid.grid-cols-1.sm\\:grid-cols-2.lg\\:grid-cols-3.gap-20.mt-20.px-\\[8rem\\]');
       if (footerSection) {
         const clonedFooter = footerSection.cloneNode(true) as HTMLElement;
         tempContainer.appendChild(clonedFooter);
@@ -117,8 +119,8 @@ export default function ReportForm() {
       html2canvas(tempContainer, {
         scale: 3,
         useCORS: true,
-        width: tempContainer.scrollWidth,
-        height: tempContainer.scrollHeight,
+        width: tempContainer.scrollWidth, // Adjusted width for the section to be exported
+        height: tempContainer.scrollHeight + 100, // Adjusted height for the section to be exported
       }).then((canvas) => {
         const imgData = canvas.toDataURL("image/png");
         const pdf = new jsPDF({
@@ -127,15 +129,15 @@ export default function ReportForm() {
           format: "a4",
         });
 
-        const imgWidth = 297;
-        const imgHeight = 210;
+        const imgWidth = 297; // PDF page width
+        const imgHeight = 210; // PDF page height
 
         const canvasWidth = canvas.width;
         const canvasHeight = canvas.height;
         const ratio = Math.min(imgWidth / canvasWidth, imgHeight / canvasHeight);
 
-        const finalWidth = canvasWidth * ratio;
-        const finalHeight = canvasHeight * ratio;
+        const finalWidth = canvasWidth * ratio; // Adjusted width for the image
+        const finalHeight = canvasHeight * ratio; // Adjusted height for the image
 
         pdf.addImage(imgData, "PNG", 0, 0, finalWidth, finalHeight);
         pdf.save(fileName);
@@ -158,29 +160,21 @@ export default function ReportForm() {
       tempContainer.style.left = '-9999px';
       tempContainer.appendChild(clonedReportForm);
       document.body.appendChild(tempContainer);
-
-      // Hide export buttons
       const exportButtons = clonedReportForm.querySelectorAll('.export-button');
       exportButtons.forEach(button => (button as HTMLElement).style.display = 'none');
-
-      // Separate content for two pages
       const headerSection = clonedReportForm.querySelector('.text-center.mb-4');
       const generalInfo = clonedReportForm.querySelector('.grid-cols-1.sm\\:grid-cols-2.md\\:grid-cols-3.lg\\:grid-cols-4');
       const ageGroupTable = clonedReportForm.querySelector('#age-group-table');
       const purokStatusTable = clonedReportForm.querySelector('#purok-status-table');
-      const footerSection = clonedReportForm.querySelector('.grid.grid-cols-1.sm\\:grid-cols-2.lg\\:grid-cols-3.gap-20.mt-6.px-\\[8rem\\]');
-
+      const footerSection = clonedReportForm.querySelector('.grid.grid-cols-1.sm\\:grid-cols-2.lg\\:grid-cols-3.gap-20.mt-20.px-\\[8rem\\]');
       const page1Container = document.createElement('div');
       const page2Container = document.createElement('div');
-
       if (headerSection) page1Container.appendChild(headerSection.cloneNode(true));
       if (generalInfo) page1Container.appendChild(generalInfo.cloneNode(true));
       if (ageGroupTable) page1Container.appendChild(ageGroupTable.cloneNode(true));
-
       if (purokStatusTable) page2Container.appendChild(purokStatusTable.cloneNode(true));
       if (footerSection) page2Container.appendChild(footerSection.cloneNode(true));
 
-      // Append containers to tempContainer for rendering
       tempContainer.appendChild(page1Container);
       tempContainer.appendChild(page2Container);
 
@@ -188,8 +182,8 @@ export default function ReportForm() {
       html2canvas(page1Container, {
         scale: 3,
         useCORS: true,
-        width: page1Container.scrollWidth,
-        height: page1Container.scrollHeight,
+        width: page1Container.scrollWidth, // Width for the first page (adjust here for age_group_table)
+        height: page1Container.scrollHeight, // Height for the first page (adjust here for age_group_table)
       }).then((canvas1) => {
         const imgData1 = canvas1.toDataURL("image/png");
         const pdf = new jsPDF({
@@ -198,13 +192,13 @@ export default function ReportForm() {
           format: "a4",
         });
 
-        const imgWidth = 297;
-        const imgHeight = 210;
+        const imgWidth = 297; // PDF page width
+        const imgHeight = 210; // PDF page height
         const canvasWidth1 = canvas1.width;
         const canvasHeight1 = canvas1.height;
         const ratio1 = Math.min(imgWidth / canvasWidth1, imgHeight / canvasHeight1);
-        const finalWidth1 = canvasWidth1 * ratio1;
-        const finalHeight1 = canvasHeight1 * ratio1;
+        const finalWidth1 = canvasWidth1 * ratio1; // Adjusted width for the first page
+        const finalHeight1 = canvasHeight1 * ratio1; // Adjusted height for the first page
 
         pdf.addImage(imgData1, "PNG", 0, 0, finalWidth1, finalHeight1);
 
@@ -212,8 +206,8 @@ export default function ReportForm() {
         html2canvas(page2Container, {
           scale: 3,
           useCORS: true,
-          width: page2Container.scrollWidth,
-          height: page2Container.scrollHeight,
+          width: page2Container.scrollWidth, // Increased width for the second page
+          height: page2Container.scrollHeight, // Height for the second page (adjust here for purok_status_table)
         }).then((canvas2) => {
           const imgData2 = canvas2.toDataURL("image/png");
           const canvasWidth2 = canvas2.width;
@@ -325,7 +319,7 @@ export default function ReportForm() {
           </div>
         </div>
         {/* Age Group Table */}
-        <div id="age-group-table" className="overflow-x-auto mt-8 px-[8rem]">
+        <div id="age-group-table" className="overflow-x-auto mt-[4rem] px-[8rem]">
           <table className="min-w-full border border-gray-300 text-center text-base">
             <thead>
               <tr className="bg-gray-200">
@@ -407,7 +401,7 @@ export default function ReportForm() {
           {error ? (
             <p className="text-red-500">{error}</p>
           ) : (
-            <table className="min-w-full border border-gray-300 text-center text-base">
+            <table className="min-w-full border border-gray-300 text-center text-base mx-auto">
               <thead>
                 <tr className="bg-gray-200">
                   <th className="border border-gray-300 p-2">Brgy. Luz Sitio</th>
@@ -438,7 +432,7 @@ export default function ReportForm() {
           Use WEIGHT - for - LENGTH or WEIGHT - for - HEIGHT to correctly determine Overweight and Obesity.
         </p>
         {/* Footer */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-20 mt-6 px-[8rem]">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-20 mt-20 px-[8rem]">
           <div className="flex flex-col">
             <label>Prepared By:</label>
             <input type="text" className="border-b border-[#cccccc] bg-transparent outline-none p-[1rem] w-full" />
