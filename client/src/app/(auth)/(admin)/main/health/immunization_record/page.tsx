@@ -22,41 +22,15 @@ const ImmunizationRecord: React.FC = () => {
     key: keyof Immunization;
     direction: "ascending" | "descending";
   } | null>(null);
-  const [currentPage, setCurrentPage] = useState<number>(1);
   const [isFilterDropdownOpen, setIsFilterDropdownOpen] = useState<boolean>(false);
   const [isVaccineTypeHovered, setIsVaccineTypeHovered] = useState(false);
   const [isDosesHovered, setIsDosesHovered] = useState(false);
   const [isAddModalOpen, setIsAddModalOpen] = useState<boolean>(false);
   const [selectedImmunization, setSelectedImmunization] = useState<Immunization | null>(null);
   const [isViewModalOpen, setIsViewModalOpen] = useState<boolean>(false);
-  const itemsPerPage = 15;
   const [filterCriteria, setFilterCriteria] = useState<string | null>(null);
 
   const addModalRef = useRef<HTMLDivElement>(null);
-
-  const [formData, setFormData] = useState({
-    given_name: '',
-    family_name: '',
-    middle_name: '',
-    extension: '',
-    birthdate: '',
-    birthplace: '',
-    address: '',
-    vaccine_type: '',
-    other_vaccine_type: '',
-    doses: '',
-    other_doses: '',
-    date_vaccinated: '',
-    remarks: '',
-    mother_name: '',
-    father_name: '',
-    heightAtBirth: '',
-    weightAtBirth: '',
-    sex: '',
-    health_center: '',
-    barangay: '',
-    family_number: '',
-  });
 
   const { data: session } = useSession();
 
@@ -94,7 +68,7 @@ const ImmunizationRecord: React.FC = () => {
 
   const handleSort = (key: keyof Immunization | null = null) => {
     if (!key) {
-      setSortConfig(null); // Reset sorting
+      setSortConfig(null);
     } else {
       let direction: "ascending" | "descending" = "ascending";
       if (sortConfig?.key === key && sortConfig.direction === "ascending") {
@@ -109,13 +83,12 @@ const ImmunizationRecord: React.FC = () => {
 
     if (immunizationsToUse.length === 0) return [];
 
-    const safeSortConfig = sortConfig || { key: 'child_id', direction: 'ascending' };
+    const safeSortConfig = sortConfig || { key: 'child_immunization_id', direction: 'ascending' };
 
-    // New sorting logic
-    if (!safeSortConfig.key) return immunizationsToUse; // Safeguard in case key is undefined
+    if (!safeSortConfig.key) return immunizationsToUse;
     return [...immunizationsToUse].sort((a, b) => {
-      const key = safeSortConfig.key; // Ensure the key is non-null here
-      if (a[key] === null || b[key] === null) return 0; // Handle null values
+      const key = safeSortConfig.key;
+      if (a[key] === null || b[key] === null) return 0;
       if (a[key] < b[key]) {
         return safeSortConfig.direction === "ascending" ? -1 : 1;
       }
@@ -126,17 +99,10 @@ const ImmunizationRecord: React.FC = () => {
     });
   }, [immunizations, filteredImmunizations, sortConfig]);
 
-  // const paginatedImmunizations = React.useMemo(() => {
-  //   const startIndex = (currentPage - 1) * itemsPerPage;
-  //   const endIndex = startIndex + itemsPerPage;
-  //   return sortedImmunizations.slice(startIndex, endIndex);
-  // }, [sortedImmunizations, currentPage]);
-
   const handleSearch = React.useCallback(
     debounce((query: string) => {
       if (query.trim() === '') {
-        // If the search query is empty, reset to the original immunizations
-        fetchImmunizations(); // Assuming fetchImmunizations is accessible here
+        fetchImmunizations();
         return;
       }
 
@@ -178,69 +144,20 @@ const ImmunizationRecord: React.FC = () => {
       if (criteria === "vaccineType" && value) params.vaccine_type = value;
       if (criteria === "doses" && value) params.doses = value;
 
-      // Fetch filtered data from the API
       console.log("Query Params:", params);
-      const response = await api.get("/api/filter-child-immunization-record", { params });
+      const response = await api.get("/api/filter-child-immunization-record", {
+        params,
+      });
 
-      // Update the state with filtered data
-      setFilteredImmunizations(response.data);
-    } catch (error) {
-      console.error("Error fetching filtered data:", error);
-    }
-  };
-
-  console.log('selectedImmunization', selectedImmunization)
-
-  const handleArchiveImmunization = async () => {
-    try {
-      console.log('selected', selectedImmunization?.child_immunization_id);
-
-      const response = await api.put('/api/archive-immunization-record', { child_immunization_id: selectedImmunization?.child_immunization_id });
-
-      console.log('response', response);
-      if (response.status === 200) {
-        alert('Resident archived successfully!');
-        // Update the immunizations list to reflect the change
-        setImmunizations((prevImmunizations) =>
-          prevImmunizations.filter((immunization) =>
-            immunization.child_immunization_id !== selectedImmunization?.child_immunization_id
-          )
-        );
-        setFilteredImmunizations((prevFilteredImmunizations) =>
-          prevFilteredImmunizations.filter((immunization) =>
-            immunization.child_immunization_id !== selectedImmunization?.child_immunization_id
-          )
-        );
+      if (response.data.length === 0) {
+        setFilteredImmunizations([]);
       } else {
-        alert('Failed to archive resident.');
+        setFilteredImmunizations(response.data);
       }
     } catch (error) {
-      console.error('Error archiving resident:', error);
-      alert('An error occurred while archiving the resident.');
+      console.error("Error fetching filtered data:", error);
+      setFilteredImmunizations([]);
     }
-  };
-
-  const handleEdit = (immunization: Immunization) => {
-    if (session?.user.role === "Viewer") {
-      console.error("Viewers cannot edit immunization records.");
-      SweetAlert.showError("You do not have permission to edit.");
-      return;
-    }
-    // ... handle edit logic ...
-  };
-
-  const handleArchive = (immunization: Immunization) => {
-    if (session?.user.role !== "Admin") {
-      console.error("Only admins can archive immunization records.");
-      SweetAlert.showError("You do not have permission to archive.");
-      return;
-    }
-    // ... handle archive logic ...
-  };
-
-  const handleRowClick = (immunization: Immunization) => {
-    // Implement the logic you want to execute when a row is clicked
-    console.log('Row clicked:', immunization);
   };
 
   return (
@@ -444,12 +361,8 @@ const ImmunizationRecord: React.FC = () => {
             immunizations={filteredAndSortedImmunizations}
             onSort={handleSort}
             sortConfig={sortConfig as { key: keyof Immunization; direction: string } | null}
-            onArchive={handleArchiveImmunization}
             onViewDetails={handleViewDetails}
-            onEdit={handleEdit}
-            onRowClick={handleRowClick}
           />
-
         </div>
       </div>
 
