@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useMemo } from 'react';
 import { useRouter } from 'next/navigation';
 import Image from 'next/image';
 import ImmunizationTable from '@/components/ImmunizationTable';
@@ -16,7 +16,10 @@ import api from '@/lib/axios';
 const ImmunizationRecord: React.FC = () => {
   const router = useRouter();
   const [immunizations, setImmunizations] = useState<Immunization[]>([]);
-  const [sortConfig, setSortConfig] = useState<{ key: keyof Immunization; direction: string } | null>(null);
+  const [sortConfig, setSortConfig] = useState<{
+    key: keyof Immunization;
+    direction: "ascending" | "descending";
+  } | null>(null);
   const [currentPage, setCurrentPage] = useState<number>(1);
   const [isFilterDropdownOpen, setIsFilterDropdownOpen] = useState<boolean>(false);
   const [isAddModalOpen, setIsAddModalOpen] = useState<boolean>(false);
@@ -37,7 +40,7 @@ const ImmunizationRecord: React.FC = () => {
     address: '',
     vaccine_type: '',
     doses: '',
-    other_doses:'',
+    other_doses: '',
     date_vaccinated: '',
     remarks: '',
     mother_name: '',
@@ -84,35 +87,31 @@ const ImmunizationRecord: React.FC = () => {
     };
   }, [isAddModalOpen]);
 
-  function handleSort(key: keyof Immunization) {
-    let direction = 'ascending';
-    if (sortConfig && sortConfig.key === key && sortConfig.direction === 'ascending') {
-      direction = 'descending';
+  const handleSort = (key: keyof Immunization | null = null) => {
+    if (!key) {
+      setSortConfig(null); // Reset sorting
+    } else {
+      let direction: "ascending" | "descending" = "ascending";
+      if (sortConfig?.key === key && sortConfig.direction === "ascending") {
+        direction = "descending";
+      }
+      setSortConfig({ key, direction });
     }
-    setSortConfig({ key, direction });
-  }
+  };
 
-  const sortedImmunizations = React.useMemo(() => {
-    if (sortConfig && sortConfig.key) {
-      return [...immunizations].sort((a, b) => {
-        const key = sortConfig.key;
-        const aValue = a[key];
-        const bValue = b[key];
+  const sortedImmunizations = useMemo(() => {
+    if (!sortConfig || !sortConfig.key) return immunizations;
 
-        if (aValue === undefined || bValue === undefined) {
-          return 0; // Handle undefined values by treating them as equal
-        }
-
-        if (aValue < bValue) {
-          return sortConfig.direction === 'ascending' ? -1 : 1;
-        }
-        if (aValue > bValue) {
-          return sortConfig.direction === 'ascending' ? 1 : -1;
-        }
-        return 0;
-      });
-    }
-    return immunizations;
+    return [...immunizations].sort((a, b) => {
+      const key = sortConfig.key; // Ensure the key is non-null here
+      if (a[key] < b[key]) {
+        return sortConfig.direction === "ascending" ? -1 : 1;
+      }
+      if (a[key] > b[key]) {
+        return sortConfig.direction === "ascending" ? 1 : -1;
+      }
+      return 0;
+    });
   }, [immunizations, sortConfig]);
 
   const paginatedImmunizations = React.useMemo(() => {
@@ -234,11 +233,17 @@ const ImmunizationRecord: React.FC = () => {
   }, [immunizations, filterCriteria]);
 
   return (
-    <div className='h-full'>
-      <div className="h-[10%] pt-[1rem] pr-[3rem]">
+    <div className='h-full' onClick={() => handleSort(null)}>
+      <div className="h-[10%] pt-[1rem] px-[1.5rem]">
         <div className='w-full flex flex-row items-center justify-between gap-4'>
-          <div className="w-full pl-2">
-            <SearchBar onSearch={handleSearch} />
+          <div className="w-full">
+            <input
+              type="text"
+              placeholder="Search .............."
+              // value={searchQuery}
+              // onChange={(e) => setSearchQuery(e.target.value)}
+              className="border border-gray-300 rounded-md p-2 w-full outline-none"
+            />
           </div>
           <button className="flex items-center space-x-2 text-blue-500 hover:underline">
             <Image
@@ -270,10 +275,10 @@ const ImmunizationRecord: React.FC = () => {
       </div>
 
       <div className="w-full h-[90%]">
-        <div className='h-[90%]'>
+        <div className='h-[90%]' onClick={(e) => e.stopPropagation()}>
           <ImmunizationTable
-            immunizations={filteredImmunizations as Immunization[]}
-            onSort={handleSort as (key: keyof Immunization) => void}
+            immunizations={sortedImmunizations}
+            onSort={handleSort}
             sortConfig={sortConfig as { key: keyof Immunization; direction: string } | null}
             onEdit={() => {/* handle edit logic here */ }}
             onArchive={() => {/* handle archive logic here */ }}

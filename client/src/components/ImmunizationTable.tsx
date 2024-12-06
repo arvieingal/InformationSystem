@@ -49,19 +49,29 @@ const ImmunizationTable: React.FC<TableProps> = ({ immunizations, onSort, sortCo
 
   const totalPages = Math.ceil(immunizations.length / itemsPerPage);
 
+  const headers = [
+    { label: 'ID', key: 'child_id' },
+    { label: 'Name', key: 'full_name' },
+    { label: 'Vaccine', key: 'vaccine_type' },
+    { label: 'Dose', key: 'doses' },
+    { label: 'Date of Vaccination', key: 'date_vaccinated' },
+    { label: 'Remarks', key: 'remarks' },
+    { label: 'Health Center', key: 'health_center' },
+  ];
+
   return (
     <div className='w-full px-[1.5rem] h-full'>
       <div className='bg-white h-full rounded-[5px] overflow-y-auto'>
         <table className="w-full border-collapse text-[14px]">
           <thead className='text-center'>
             <tr className='sticky top-0 bg-white shadow-gray-300 shadow-sm'>
-              {['id', 'name', 'vaccine', 'dose', 'date of vaccination', 'remarks', 'health center',].map((key) => (
+              {headers.map(({ label, key }) => (
                 <th
                   key={key}
-                  className="py-2 px-6 text-left font-semibold text-[16px]"
+                  className="py-2 px-6 text-left font-semibold text-[16px] cursor-pointer"
                   onClick={() => onSort(key as keyof Immunization)}
                 >
-                  {key.charAt(0).toUpperCase() + key.slice(1).replace(/([A-Z])/g, ' $1')}
+                  {label}
                   {sortConfig?.key === key && (
                     <span>
                       {sortConfig.direction === 'ascending' ? ' ▲' : ' ▼'}

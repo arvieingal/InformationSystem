@@ -23,7 +23,7 @@ const ImmuniReport: React.FC = () => {
     };
     fetchData();
   }, []);
-  
+
   const exportToPDF = () => {
     const input = document.getElementById("immuni-report");
     if (input) {
@@ -154,7 +154,7 @@ const ImmuniReport: React.FC = () => {
         </div>
       </div>
     </div>
-    <div className='flex justify-center items-center '>
+      <div className='flex justify-center items-center '>
         <button onClick={exportToPDF} className='bg-blue-500 text-white p-2 rounded-md'>EXPORT</button>
       </div>
     </>
@@ -163,5 +163,5 @@ const ImmuniReport: React.FC = () => {
 
 export default ImmuniReport;
 function fetchImmunizationData() {
-    throw new Error('Function not implemented.');
+  throw new Error('Function not implemented.');
 }
