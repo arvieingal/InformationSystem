@@ -35,6 +35,7 @@ const HealthPage = () => {
   const [nutritionalData, setNutritionalData] = useState<Child[]>([]);
   const [filteredData, setFilteredData] = useState<Child[]>([]);
   const [purokNames, setPurokNames] = useState<string[]>([]); // To store unique Purok names
+  const [selectedPurok, setSelectedPurok] = useState<string>(''); // State for selected purok
 
   useEffect(() => {
     // Fetch children data: age, sex, nutritional status, and purok
@@ -110,6 +111,8 @@ const HealthPage = () => {
     setFilteredData(filterNutritionalData());
   }, [selectedAgeCategory, nutritionalData]);
 
+  console.log("filteredData", filteredData);
+
   const getGenderDistribution = (): { male: number; female: number } => {
     const male = filteredData.filter(child => child.sex === 'Male').length;
     const female = filteredData.filter(child => child.sex === 'Female').length;
@@ -133,10 +136,27 @@ const HealthPage = () => {
   const sectorData = getSectorDistribution();
   const purokData = getPurokDistribution();
 
+  const handlePurokChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
+    setSelectedPurok(event.target.value);
+  };
+
   return (
     <div className=" px-4 pb-4 overflow-hidden">
       <div className="h-[50%] grid grid-cols-1 md:grid-cols-3 gap-4 pt-4">
         <div className="w-full bg-white p-4 shadow-lg rounded-lg overflow-hidden">
+        <h2 className="text-center font-bold mb-4 text-gray-900 text-lg">Select Purok</h2>
+        <select
+          className="w-full p-2 border border-gray-300 rounded-md mb-4"
+          value={selectedPurok}
+          onChange={handlePurokChange}
+        >
+          <option value="">All Puroks</option>
+          {purokNames.map((purok) => (
+            <option key={purok} value={purok}>
+              {purok}
+            </option>
+          ))}
+        </select>
           <h2 className="text-center font-bold mb-4 text-gray-900 text-lg">AGE CATEGORY BY MONTH</h2>
           {['0-6 Months', '7-12 Months', '12-24 Months', '24-32 Months', '32-48 Months', '48-60 Months', '60-72 Months'].map((age) => (
             <div
@@ -174,7 +194,7 @@ const HealthPage = () => {
         </div>
 
         <div className="justify-center items-center w-full bg-white shadow rounded-lg pb-10 pt-4 h-[25rem]">
-          <p className="text-center text-xl font-semibold text-gray-900">Proportion of Nutritional Status Categories</p>
+          <p className="text-center text-xl font-semibold text-gray-900">Proportion of Nutritional Status Categories by Purok</p>
           <div className='w-full flex justify-center items-center h-[85%]'>
             <Doughnut
               data={{
