@@ -1,14 +1,22 @@
-import React from "react";
+import React, { useState } from "react";
 import Image from "next/image";
 
 interface Props {
   onSearch: (searchTerm: string) => void;
   setAddResidentModal: () => void;
+  filterDropdown: (filter: string) => void;
   isResident?: boolean;
 }
 
-const ProfilingSearchBar = ({ onSearch, setAddResidentModal, isResident = false }: Props) => {
+const ProfilingSearchBar = ({
+  onSearch,
+  setAddResidentModal,
+  isResident = false,
+  filterDropdown,
+}: Props) => {
   const [searchTerm, setSearchTerm] = React.useState("");
+  const [filterVisible, setFilterVisible] = useState(false);
+  const [selectedFilter, setSelectedFilter] = useState<string | null>(null);
 
   const handleSearch = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value;
@@ -16,7 +24,14 @@ const ProfilingSearchBar = ({ onSearch, setAddResidentModal, isResident = false 
     onSearch(value);
   };
 
-  const residentName = isResident ? "Household" : "Renter"
+  const handleFilterSelect = (filter: string) => {
+    setSelectedFilter(filter);
+    setFilterVisible(false);
+    filterDropdown(filter);
+    console.log("Selected filter:", filter);
+  };
+
+  const residentName = isResident ? "Household" : "Renter";
 
   return (
     <div className="h-[11%] px-16">
@@ -37,7 +52,10 @@ const ProfilingSearchBar = ({ onSearch, setAddResidentModal, isResident = false 
             className="w-full h-full text-[14px] px-4"
           />
         </div>
-        <div className="flex bg-white h-full justify-between items-center w-[12%] border-[1px] px-4 cursor-pointer">
+        <button
+          className="flex bg-white h-full justify-between items-center w-[12%] border-[1px] px-4 cursor-pointer"
+          onClick={() => setFilterVisible(!filterVisible)}
+        >
           <Image
             src={"/svg/filter-outline.svg"}
             alt="Filter"
@@ -53,10 +71,35 @@ const ProfilingSearchBar = ({ onSearch, setAddResidentModal, isResident = false 
             width={100}
             className="h-3 w-3"
           />
-        </div>
-        <button className="flex bg-white h-full items-center justify-center w-[4%] rounded-r-[5px]" onClick={() => setAddResidentModal()}>
+        </button>
+        {filterVisible && (
+          <div className="absolute bg-white border rounded shadow-lg">
+            <div
+              onClick={() => handleFilterSelect("Gender")}
+              className="hover:bg-[#007F73] hover:text-white cursor-pointer"
+            >
+              Filter by Gender
+            </div>
+            <div
+              onClick={() => handleFilterSelect("Option 2")}
+              className="hover:bg-[#007F73] hover:text-white cursor-pointer"
+            >
+              Option 2
+            </div>
+            <div
+              onClick={() => handleFilterSelect("Option 3")}
+              className="hover:bg-[#007F73] hover:text-white cursor-pointer"
+            >
+              Option 3
+            </div>
+          </div>
+        )}
+        <button
+          className="flex bg-white h-full items-center justify-center w-[4%] rounded-r-[5px]"
+          onClick={() => setAddResidentModal()}
+        >
           <Image
-            src={'/svg/add-household.svg'}
+            src={"/svg/add-household.svg"}
             alt="Burger"
             height={100}
             width={100}

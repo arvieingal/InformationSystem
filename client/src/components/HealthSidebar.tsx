@@ -40,13 +40,15 @@ const HealthSidebar = () => {
   return (
     <div className="flex flex-col py-[2rem] h-full">
       <div className="w-full flex items-center justify-center">
-        <Image
-          src="/svg/logo.svg"
-          width={100}
-          height={100}
-          alt="Logo"
-          className="w-[80px] h-[80px]"
-        />
+        <button className="cursor-pointer" onClick={() => router.push('/main')}>
+          <Image
+            src="/svg/logo.svg"
+            width={100}
+            height={100}
+            alt="Logo"
+            className="w-[80px] h-[80px]"
+          />
+        </button>
       </div>
       <div className="flex flex-col w-full h-full">
         <div className="flex flex-col gap-[30px] items-center justify-center h-full">
