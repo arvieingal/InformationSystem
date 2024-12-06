@@ -21,12 +21,12 @@ const childImmunizationRecordController = {
     }
   },
 
-  
   updateChildImmunizationRecord: async (req, res) => {
     try {
       const { id } = req.params;
-      console.log("Received ID for update:", id);
       const updatedData = req.body;
+      console.log("Received ID for update:", id);
+      console.log("Update data:", updatedData);
       const result = await ChildImmunizationRecord.updateRecord(id, updatedData);
       if (result) {
         res.status(200).json({ message: "Record updated successfully" });
@@ -36,6 +36,26 @@ const childImmunizationRecordController = {
     } catch (error) {
       console.error("Error updating record:", error);
       res.status(500).json({ message: "Internal server error", error: error.message });
+    }
+  },
+
+  filterChildImmunizationRecord: async (req, res) => {
+    try {
+      const { sex, status, vaccine_type, doses, other_vaccine_type } = req.query;
+      console.log("Received Query:", { sex, status, vaccine_type, doses, other_vaccine_type });
+
+      const results = await ChildImmunizationRecord.filterImmunizationRecords({
+        sex,
+        status,
+        vaccine_type,
+        doses,
+        other_vaccine_type,
+      });
+
+      res.status(200).json(results);
+    } catch (error) {
+      console.error("Error fetching immunization records:", error);
+      res.status(500).send("Server Error");
     }
   },
 };

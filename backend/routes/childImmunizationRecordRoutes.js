@@ -9,5 +9,10 @@ router.put(
   "/child-immunization-record/:id",
   childImmunizationRecordController.updateChildImmunizationRecord
 );
+router.get(
+  "/filter-child-immunization-record",
+  childImmunizationRecordController.filterChildImmunizationRecord
+);
+
 
 module.exports = router;
