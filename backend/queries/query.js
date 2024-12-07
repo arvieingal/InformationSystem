@@ -25,6 +25,9 @@ const residentQueries = {
     status
   ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
 `,
+
+
+
   updateHouseholdMember: `UPDATE resident
 SET
   household_number = ?,
@@ -56,6 +59,8 @@ SET
   updated_at = CURRENT_TIMESTAMP
 WHERE resident_id = ?;
 `,
+
+
   archiveHouseholdMember:
     "UPDATE resident SET status = 'Inactive' WHERE resident_id = ?",
   insertHouseholdHead: `INSERT INTO resident (
@@ -65,6 +70,8 @@ WHERE resident_id = ?;
     status
   ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
 `,
+
+
   findHouseholdHead: `SELECT 
         household_number,
         family_name,
@@ -93,8 +100,9 @@ const renterQueries = {
     birthdate, months_year_of_stay, work, sitio_purok, status
   ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
 `,
+
   updateRenter: `UPDATE renter
-SET
+ SET
   rent_number = ?,
   family_name = ?,
   given_name = ?,

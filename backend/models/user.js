@@ -13,6 +13,19 @@ const User = {
       throw error;
     }
   },
+
+  findUserById: async function(userId) {
+    try {
+      console.log("Executing query with userId:", userId);
+      const [rows] = await pool.execute(userQueries.findById, [userId]);
+      console.log("Query result:", rows);
+      return rows[0] || null;
+    } catch (error) {
+      console.error("Error finding user by ID:", error);
+      throw error;
+    }
+  },
+
   createUser: async (userData) => {
     try {
       const [result] = await pool.execute(userQueries.insert, [
@@ -28,6 +41,8 @@ const User = {
       throw error;
     }
   },
+
+
   updateUser: async (userId, userData) => {
     try {
       const [result] = await pool.execute(userQueries.update, [

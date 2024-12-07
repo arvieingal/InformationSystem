@@ -12,13 +12,12 @@ const Log = {
     await pool.query(query, [username, action, timestamp]);
   },
 
-  getAll: async () => {
-    const query = "SELECT * FROM logs";
+  getAll: async (userId) => {
+    const query = "SELECT * FROM logs WHERE user_id = ?";
     console.log("Executing query:", query);
-    const result = await pool.query(query);
-    console.log("Result:", result);
-    console.log("Database logs:", result.rows);
-    return result;
+    const [rows] = await pool.query(query, [userId]); // Destructure to get only rows
+    console.log("Database logs:", rows);
+    return rows; // Return only the rows
   },
 };
 

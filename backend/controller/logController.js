@@ -21,7 +21,8 @@ const logUserAction = async (req, res) => {
 const getLogs = async (req, res) => {
     console.log('getLogs function called');
     try {
-        const logs = await Log.getAll();
+        const userId = req.params.userId;
+        const logs = await Log.getAll(userId);
         console.log('Fetched logs:', logs);
         res.json(logs);
     } catch (error) {

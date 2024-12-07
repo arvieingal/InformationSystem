@@ -1,4 +1,4 @@
-const Log = require('../models/Log'); // Assuming you have a Log model
+const Log = require('../models/log'); // Assuming you have a Log model
 
 const loggingMiddleware = async (req, res, next) => {
   try {

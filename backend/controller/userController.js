@@ -42,6 +42,9 @@ const userController = {
       });
     }
   },
+
+
+  
   changePassword: async (req, res) => {
     try {
       const { userId, currentPassword, newPassword } = req.body;
@@ -130,13 +133,11 @@ const userController = {
   verifyPassword: async (req, res) => {
     try {
       const userId = req.user ? req.user.id : null;
-
-      if (!userId) {
-        return res.status(401).json({ message: "Unauthorized: User ID not found" });
-      }
+      console.log("User ID:", userId);
 
       const { currentPassword } = req.body;
       const user = await User.findUserById(userId);
+      console.log("User found:", user);
 
       if (!user) {
         return res.status(404).json({ message: "User not found" });

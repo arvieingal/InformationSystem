@@ -9,7 +9,9 @@ const Login = () => {
   const router = useRouter();
 
   const [username, setusername] = useState<string>("");
-  const [password, setPassword] = useState<string>("");
+  const [password, setPassword] = useState<string>(() => {
+    return localStorage.getItem("rememberedPassword") || "";
+  });
   const [isEmailModalOpen, setIsEmailModalOpen] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [submitted, setSubmitted] = useState<boolean>(false);
@@ -24,6 +26,10 @@ const Login = () => {
     password: boolean;
   }>({ username: false, password: false });
 
+  useEffect(() => {
+    setIsCheckboxChecked(!!localStorage.getItem("rememberedPassword"));
+  }, []);
+
   const handleEmailLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     setSubmitted(true);
@@ -33,7 +39,6 @@ const Login = () => {
       setError("Please fill out all fields.");
       return;
     }
-
     try {
       const result = await signIn("credentials", {
         username,
@@ -52,6 +57,8 @@ const Login = () => {
     }
   };
 
+  
+
   const handleForgotPasswordClick = () => {
     setIsEmailModalOpen(true);
   };
@@ -69,6 +76,17 @@ const Login = () => {
 
     if (fieldType === "username") {
       setError(null);
+    }
+  };
+
+  const handleCheckboxChange = (checked: boolean) => {
+    setIsCheckboxChecked(checked);
+    if (checked) {
+      // Save password to local storage
+      localStorage.setItem("rememberedPassword", password);
+    } else {
+      // Remove password from local storage
+      localStorage.removeItem("rememberedPassword");
     }
   };
 
@@ -161,12 +179,12 @@ const Login = () => {
                 <div className="flex items-center">
                   <input
                     type="checkbox"
-                    className="text-[#4285F4] rounded "
+                    className="text-[#4285F4] rounded"
                     checked={isCheckboxChecked}
-                    onChange={(e) => setIsCheckboxChecked(e.target.checked)}
+                    onChange={(e) => handleCheckboxChange(e.target.checked)}
                   />
                   <label className="ml-2 2xl:text-[14px] text-[12px]">
-                    Remember your password?
+                    Remember my password
                   </label>
                 </div>
                 <div

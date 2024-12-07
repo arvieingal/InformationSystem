@@ -24,16 +24,18 @@ const Settings: React.FC = () => {
 
   const fetchLogs = async () => {
     try {
-      const response = await fetch("http://localhost:3001/api/logs");
+      const response = await fetch(`http://localhost:3001/api/logs/${session?.user.user_id}`);
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`);
       }
       const data = await response.json();
-      setLogs(data.flat());
+      console.log("Fetched logs:", data);
+      setLogs(data);
     } catch (error) {
       console.error("Error fetching logs:", error);
     }
   };
+  console.log(logs, 'DATA LOGS')
 
   const fetchUsers = async () => {
     try {
@@ -73,10 +75,10 @@ const Settings: React.FC = () => {
     }
   };
 
-  const filteredLogs = logs.filter(log =>
+  const filteredLogs = logs?.filter(log =>
     log.username?.toLowerCase().includes(searchTerm.toLowerCase()) ||
     log.action?.toLowerCase().includes(searchTerm.toLowerCase())
-  );
+  ) || [];
 
   return (
     <>
@@ -262,6 +264,7 @@ const Modal = ({
   const [showConfirmCurrentPassword, setShowConfirmCurrentPassword] = useState(false);
   const usersPerPage = 5;
   const [userPage, setUserPage] = useState<number>(0);
+  const { data: session } = useSession(); // Access session data
 
   useEffect(() => {
     if (content === "Update User" || content === "Change Password") {
@@ -275,51 +278,88 @@ const Modal = ({
     }
   }, [content]);
 
-  const handleVerifyPassword = () => {
-    if (currentPassword === confirmCurrentPassword) {
-      setIsVerified(true);
-    } else {
+  const handleVerifyPassword = async () => {
+    if (currentPassword !== confirmCurrentPassword) {
       alert("Current passwords do not match");
-    }
-  };
-
-  const handlePasswordChangeSubmit = async (userId: string) => {
-    if (newPassword !== confirmNewPassword) {
-      alert("New passwords do not match");
       return;
     }
 
     try {
+      if (!session) {
+        alert("User is not authenticated. Please log in.");
+        return;
+      }
+
       const response = await fetch(
-        `http://localhost:3001/api/users/change-password`,
+        `http://localhost:3001/api/users/verify-password`,
         {
           method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ userId, currentPassword, newPassword }),
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${session.accessToken}`, // Use session token
+          },
+          body: JSON.stringify({ currentPassword }),
         }
       );
 
       if (response.ok) {
-        alert("Password changed successfully");
-        onClose();
+        alert("Password verified!");
       } else {
-        alert("Failed to change password");
+        const error = await response.json();
+        alert(error.message || "Current password is incorrect");
       }
     } catch (error) {
-      console.error("Error changing password:", error);
+      console.error("Error verifying password:", error);
+      alert("An error occurred");
+    }
+  };
+
+  const handlePasswordChangeSubmit = async (userId: string) => {
+    if (currentPassword !== confirmCurrentPassword) {
+      alert("Current passwords do not match");
+      return;
+    }
+  
+    try {
+      const token = localStorage.getItem("token"); // Retrieve token from localStorage
+      if (!token) {
+        alert("User is not authenticated. Please log in.");
+        return;
+      }
+  
+      const response = await fetch(
+        `http://localhost:3001/api/users/verify-password`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`, // Include the token
+          },
+          body: JSON.stringify({ currentPassword }),
+        }
+      );
+  
+      if (response.ok) {
+        alert("Password verified!");
+      } else {
+        const error = await response.json();
+        alert(error.message || "Current password is incorrect");
+      }
+    } catch (error) {
+      console.error("Error verifying password:", error);
       alert("An error occurred");
     }
   };
 
   const handleNextUserPage = () => {
     if ((userPage + 1) * usersPerPage < users.length) {
-      setUserPage((prevPage) => prevPage + 1);
+      setUserPage(userPage + 1);
     }
   };
 
   const handlePreviousUserPage = () => {
     if (userPage > 0) {
-      setUserPage((prevPage) => prevPage - 1);
+      setUserPage(userPage - 1);
     }
   };
 
@@ -777,6 +817,7 @@ const ChangeMyPasswordModal = ({ onClose }: { onClose: () => void }) => {
   const [isVerified, setIsVerified] = useState(false);
   const [showCurrentPassword, setShowCurrentPassword] = useState(false);
   const [showConfirmCurrentPassword, setShowConfirmCurrentPassword] = useState(false);
+  const { data: session } = useSession(); // Access session data
 
   const handleVerifyCurrentPassword = async () => {
     if (currentPassword !== confirmCurrentPassword) {
@@ -785,11 +826,19 @@ const ChangeMyPasswordModal = ({ onClose }: { onClose: () => void }) => {
     }
 
     try {
+      if (!session) {
+        alert("User is not authenticated. Please log in.");
+        return;
+      }
+
       const response = await fetch(
-        `http://localhost:3001/api/users/verify-password`, // New endpoint for verification
+        `http://localhost:3001/api/users/verify-password`,
         {
           method: "POST",
-          headers: { "Content-Type": "application/json" },
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${session.accessToken}`, // Use session token
+          },
           body: JSON.stringify({ currentPassword }),
         }
       );
@@ -797,13 +846,15 @@ const ChangeMyPasswordModal = ({ onClose }: { onClose: () => void }) => {
       if (response.ok) {
         setIsVerified(true);
       } else {
-        alert("Current password is incorrect");
+        const errorData = await response.json();
+        alert(errorData.message || "Current password is incorrect");
       }
     } catch (error) {
       console.error("Error verifying password:", error);
-      alert("An error occurred");
+      alert("An error occurred while verifying the password");
     }
   };
+  
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center">
