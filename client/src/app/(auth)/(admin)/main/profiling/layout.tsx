@@ -1,5 +1,6 @@
 import AdminSidebar from "@/components/AdminSidebar";
 import AdminHeader from "@/components/AdminHeader";
+import { SessionProvider } from "next-auth/react";
 import { useEffect, useState } from "react";
 import { useSession } from "next-auth/react";
 
@@ -10,6 +11,7 @@ export default function ProfilingLayout({
 }>) {
 
   return (
+    
     <html lang="en">
       <body>
         <div className="w-screen flex h-screen">

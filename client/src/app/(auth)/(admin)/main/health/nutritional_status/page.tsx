@@ -731,7 +731,7 @@ const NutritionalStatus: React.FC = () => {
         <Modal onClose={() => setIsModalOpen(false)}>
           <div className="relative border border-black w-full">
             <button
-              className="absolute top-[-3rem] right-[-2rem] text-gray-500 hover:text-gray-700 p-4 text-[3rem]"
+              className="absolute top-[-3.2rem] right-[-2rem] text-gray-500 hover:text-gray-700 p-4 text-[3rem]"
               onClick={() => setIsModalOpen(false)}
             >
               &times;

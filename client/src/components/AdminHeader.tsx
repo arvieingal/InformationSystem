@@ -13,17 +13,28 @@ const AdminHeader = () => {
   const { data: session, status } = useSession({
     required: true,
     onUnauthenticated() {
-      router.push('/');
+      router.push("/");
     },
   });
+
+  const [showPasswordModal, setShowPasswordModal] = useState(false);
+
+  const isAdmin = session?.user?.role?.toLowerCase() === "admin";
 
   const toggleDropdown = () => {
     setShowDropdown(!showDropdown);
   };
 
+  const togglePasswordModal = () => {
+    setShowPasswordModal(!showPasswordModal);
+  };
+
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
-      if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
+      if (
+        dropdownRef.current &&
+        !dropdownRef.current.contains(event.target as Node)
+      ) {
         setShowDropdown(false);
       }
     };
@@ -40,11 +51,19 @@ const AdminHeader = () => {
   }, [showDropdown]);
 
   const handleSignOut = async () => {
-    const confirmed = await SweetAlert.showConfirm("Are you sure you want to sign out?");
+    const confirmed = await SweetAlert.showConfirm(
+      "Are you sure you want to sign out?"
+    );
     if (confirmed) {
       await signOut();
       router.push("/");
     }
+  };
+
+  const handleChangePassword = (event: React.FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    // Add logic to handle password change
+    console.log("Password change submitted");
   };
 
   return (
@@ -55,7 +74,7 @@ const AdminHeader = () => {
             Our Community
           </p>
         </div>
-       
+
         <div className="relative" ref={dropdownRef}>
           <button
             className="text-[12px] md:text-[16px] cursor-pointer flex items-center justify-center py-1 px-3 rounded-md bg-[#007F73] text-white hover:bg-[#005f5a] transition duration-300"
@@ -75,16 +94,23 @@ const AdminHeader = () => {
               <p className="font-semibold text-center">
                 Hi, {session?.user?.username}!
               </p>
-              <p className="text-sm text-center">
-                {session?.user?.email}
-              </p>
+              <p className="text-sm text-center">{session?.user?.email}</p>
               <div className="flex flex-col gap-2 mt-4 text-white text-[9px]">
-                <button
-                  className="bg-[#007F73] px-4 py-2 rounded-xl hover:bg-[#005f5a] transition duration-300 text-[12px]"
-                  onClick={() => router.push('/main/settings')}
-                >
-                  Manage Account
-                </button>
+                {isAdmin ? (
+                  <button
+                    className="bg-[#007F73] px-4 py-2 rounded-xl hover:bg-[#005f5a] transition duration-300 text-[12px]"
+                    onClick={() => router.push("/main/settings")}
+                  >
+                    Manage Account
+                  </button>
+                ) : (
+                  <button
+                    className="bg-[#007F73] px-4 py-2 rounded-xl hover:bg-[#005f5a] transition duration-300 text-[12px]"
+                    onClick={togglePasswordModal}
+                  >
+                    Change Password
+                  </button>
+                )}
                 <button
                   className="bg-[#007F73] px-4 py-2 rounded-xl flex items-center justify-center text-[12px] hover:bg-[#005f5a] transition duration-300"
                   onClick={handleSignOut}
@@ -103,6 +129,77 @@ const AdminHeader = () => {
           )}
         </div>
       </div>
+
+      {showPasswordModal && (
+        <div className="modal fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
+          <div className="modal-content relative bg-white p-8 rounded-lg shadow-lg w-3/4 max-w-lg">
+            <span
+              className="close absolute -top-7 -right-3 cursor-pointer text-gray-700 text-[3rem]"
+              onClick={togglePasswordModal}
+            >
+              &times;
+            </span>
+            <div className="flex justify-between items-center mb-4">
+              <h2 className="text-xl font-semibold">Change Password</h2>
+            </div>
+            <form onSubmit={handleChangePassword}>
+              <div className="mb-4">
+                <label
+                  htmlFor="currentPassword"
+                  className="block text-sm font-medium text-gray-700"
+                >
+                  Current Password
+                </label>
+                <input
+                  type="password"
+                  id="currentPassword"
+                  name="currentPassword"
+                  className="mt-1 block w-full  p-[10px] border border-gray-300 rounded-md shadow-sm focus:ring-green-500 outline-none focus:border-green-500 sm:text-sm"
+                  required
+                />
+              </div>
+              <div className="mb-4">
+                <label
+                  htmlFor="newPassword"
+                  className="block text-sm font-medium text-gray-700"
+                >
+                  New Password
+                </label>
+                <input
+                  type="password"
+                  id="newPassword"
+                  name="newPassword"
+                  className="mt-1 block w-full border p-[10px] border-gray-300 rounded-md shadow-sm focus:ring-green-500 focus:border-green-500 sm:text-sm outline-none"
+                  required
+                />
+              </div>
+              <div className="mb-4">
+                <label
+                  htmlFor="confirmPassword"
+                  className="block text-sm font-medium text-gray-700"
+                >
+                  Confirm New Password
+                </label>
+                <input
+                  type="password"
+                  id="confirmPassword"
+                  name="confirmPassword"
+                  className="mt-1 block w-full border  p-[10px] border-gray-300 rounded-md shadow-sm focus:ring-green-500 focus:border-green-500 sm:text-sm outline-none"
+                  required
+                />
+              </div>
+              <div className="flex justify-center">
+                <button
+                  type="submit"
+                  className="bg-[#007F73] text-white px-4 py-2 rounded-xl hover:bg-[#005f5a] transition duration-300"
+                >
+                  Change Password
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

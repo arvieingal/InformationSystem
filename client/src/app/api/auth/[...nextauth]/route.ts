@@ -32,7 +32,6 @@ export const authOptions = {
           );
 
           console.log("find user", user);
-
           if (user) {
             return user;
           } else {
@@ -50,6 +49,7 @@ export const authOptions = {
     async jwt({ token, user }: { token: any, user: any }) {
       if (user) {
         token.username = user.username;
+        token.user_id = user.user_id;
         token.role = user.role;
         token.name = user.name;
         token.email = user.email;
@@ -64,6 +64,7 @@ export const authOptions = {
         session.user.name = token.name;
         session.user.email = token.email;
         session.user.image = token.image;
+        session.user.user_id = token.user_id;
       }
       return session;
     },

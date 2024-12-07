@@ -24,16 +24,18 @@ const Settings: React.FC = () => {
 
   const fetchLogs = async () => {
     try {
-      const response = await fetch("http://localhost:3001/api/logs");
+      const response = await fetch(`http://localhost:3001/api/logs/${session?.user.user_id}`);
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`);
       }
       const data = await response.json();
-      setLogs(data.flat());
+      console.log("Fetched logs:", data);
+      setLogs(data);
     } catch (error) {
       console.error("Error fetching logs:", error);
     }
   };
+  console.log(logs, 'DATA LOGS')
 
   const fetchUsers = async () => {
     try {
@@ -73,10 +75,10 @@ const Settings: React.FC = () => {
     }
   };
 
-  const filteredLogs = logs.filter(log =>
+  const filteredLogs = logs?.filter(log =>
     log.username?.toLowerCase().includes(searchTerm.toLowerCase()) ||
     log.action?.toLowerCase().includes(searchTerm.toLowerCase())
-  );
+  ) || [];
 
   return (
     <>
@@ -92,23 +94,25 @@ const Settings: React.FC = () => {
             >
               Back
             </button>
-            <div className="flex items-center bg-white p-2 rounded-md shadow-md w-[70rem] h-[3rem] ">
-              <FaSearch className="mr-2 text-gray-600" />
-              <input
-                type="text"
-                placeholder="Search..........................."
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                className="p-2 border-none outline-none w-full "
-              />
-            </div>
+            {session?.user.role === "Admin" && (
+              <div className="flex items-center bg-white p-2 rounded-md shadow-md w-[70rem] h-[3rem] ">
+                <FaSearch className="mr-2 text-gray-600" />
+                <input
+                  type="text"
+                  placeholder="Search..........................."
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                  className="p-2 border-none outline-none w-full "
+                />
+              </div>
+            )}
           </div>
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 w-full max-w-7xl">
             {/* User Management Section */}
             <div className="col-span-1 lg:col-span-1">
               <h2 className="text-2xl font-bold mb-4 text-gray-700">User Management</h2>
               <div className="space-y-4">
-                {session?.user.role === "Admin" &&
+                {session?.user.role === "Admin" && (
                   <>
                     <Card
                       title="Add User"
@@ -123,7 +127,7 @@ const Settings: React.FC = () => {
                       onClick={() => handleCardClick("Update User")}
                     />
                   </>
-                }
+                )}
                 <Card
                   title="Change my Password"
                   description="Change your current password to a new one."
@@ -133,7 +137,7 @@ const Settings: React.FC = () => {
               </div>
             </div>
             {/* Log Management Section */}
-            {session?.user.role === "Admin" &&
+            {session?.user.role === "Admin" && (
               <div className="col-span-1 lg:col-span-2">
                 <h2 className="text-2xl font-bold mb-4 text-gray-700">Log Management</h2>
                 <div className="bg-white p-6 rounded-lg shadow-lg">
@@ -170,7 +174,7 @@ const Settings: React.FC = () => {
                   )}
                 </div>
               </div>
-            }
+            )}
           </div>
         </div>
         {modalContent === "Update User" && (
@@ -262,6 +266,7 @@ const Modal = ({
   const [showConfirmCurrentPassword, setShowConfirmCurrentPassword] = useState(false);
   const usersPerPage = 5;
   const [userPage, setUserPage] = useState<number>(0);
+  const { data: session } = useSession(); // Access session data
 
   useEffect(() => {
     if (content === "Update User" || content === "Change Password") {
@@ -275,51 +280,88 @@ const Modal = ({
     }
   }, [content]);
 
-  const handleVerifyPassword = () => {
-    if (currentPassword === confirmCurrentPassword) {
-      setIsVerified(true);
-    } else {
+  const handleVerifyPassword = async () => {
+    if (currentPassword !== confirmCurrentPassword) {
       alert("Current passwords do not match");
-    }
-  };
-
-  const handlePasswordChangeSubmit = async (userId: string) => {
-    if (newPassword !== confirmNewPassword) {
-      alert("New passwords do not match");
       return;
     }
 
     try {
+      if (!session) {
+        alert("User is not authenticated. Please log in.");
+        return;
+      }
+
       const response = await fetch(
-        `http://localhost:3001/api/users/change-password`,
+        `http://localhost:3001/api/users/verify-password`,
         {
           method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ userId, currentPassword, newPassword }),
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${session.accessToken}`, // Use session token
+          },
+          body: JSON.stringify({ currentPassword }),
         }
       );
 
       if (response.ok) {
-        alert("Password changed successfully");
-        onClose();
+        alert("Password verified!");
       } else {
-        alert("Failed to change password");
+        const error = await response.json();
+        alert(error.message || "Current password is incorrect");
       }
     } catch (error) {
-      console.error("Error changing password:", error);
+      console.error("Error verifying password:", error);
+      alert("An error occurred");
+    }
+  };
+
+  const handlePasswordChangeSubmit = async (userId: string) => {
+    if (currentPassword !== confirmCurrentPassword) {
+      alert("Current passwords do not match");
+      return;
+    }
+  
+    try {
+      const token = localStorage.getItem("token"); // Retrieve token from localStorage
+      if (!token) {
+        alert("User is not authenticated. Please log in.");
+        return;
+      }
+  
+      const response = await fetch(
+        `http://localhost:3001/api/users/verify-password`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`, // Include the token
+          },
+          body: JSON.stringify({ currentPassword }),
+        }
+      );
+  
+      if (response.ok) {
+        alert("Password verified!");
+      } else {
+        const error = await response.json();
+        alert(error.message || "Current password is incorrect");
+      }
+    } catch (error) {
+      console.error("Error verifying password:", error);
       alert("An error occurred");
     }
   };
 
   const handleNextUserPage = () => {
     if ((userPage + 1) * usersPerPage < users.length) {
-      setUserPage((prevPage) => prevPage + 1);
+      setUserPage(userPage + 1);
     }
   };
 
   const handlePreviousUserPage = () => {
     if (userPage > 0) {
-      setUserPage((prevPage) => prevPage - 1);
+      setUserPage(userPage - 1);
     }
   };
 
@@ -471,7 +513,7 @@ const Modal = ({
               showPassword: !prevState.showPassword,
             }))
           }
-          className="cursor-pointer absolute mt-2 right-2 top-1/2 transform -translate-y-1/2"
+          className="cursor-pointer absolute  right-2 top-1/2 transform -translate-y-1/2"
         />
       </div>
       <div>
@@ -624,7 +666,7 @@ const Modal = ({
       if (!value) {
         newErrors.email = "Email is required.";
       } else if (!/\S+@\S+\.\S+/.test(value)) {
-        newErrors.email = "Email is invalid make sure to add @ and it is active.";
+        newErrors.email = "It must be a valid email .";
       }
     }
 
@@ -750,7 +792,7 @@ const Modal = ({
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center">
       <div className="bg-white p-8 w-[50%] rounded-lg shadow-lg relative">
         <button
-          className="absolute top-0 right-0 text-gray-600 hover:text-gray-900 text-[3rem] transition-transform transform hover:scale-110"
+          className="absolute top-[-2rem] right-[-12px] text-gray-600 hover:text-gray-900 text-[3rem] transition-transform transform hover:scale-110"
           onClick={onClose}
         >
           &times;
@@ -777,6 +819,7 @@ const ChangeMyPasswordModal = ({ onClose }: { onClose: () => void }) => {
   const [isVerified, setIsVerified] = useState(false);
   const [showCurrentPassword, setShowCurrentPassword] = useState(false);
   const [showConfirmCurrentPassword, setShowConfirmCurrentPassword] = useState(false);
+  const { data: session } = useSession(); // Access session data
 
   const handleVerifyCurrentPassword = async () => {
     if (currentPassword !== confirmCurrentPassword) {
@@ -785,11 +828,19 @@ const ChangeMyPasswordModal = ({ onClose }: { onClose: () => void }) => {
     }
 
     try {
+      if (!session) {
+        alert("User is not authenticated. Please log in.");
+        return;
+      }
+
       const response = await fetch(
-        `http://localhost:3001/api/users/verify-password`, // New endpoint for verification
+        `http://localhost:3001/api/users/verify-password`,
         {
           method: "POST",
-          headers: { "Content-Type": "application/json" },
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${session.accessToken}`, // Use session token
+          },
           body: JSON.stringify({ currentPassword }),
         }
       );
@@ -797,13 +848,15 @@ const ChangeMyPasswordModal = ({ onClose }: { onClose: () => void }) => {
       if (response.ok) {
         setIsVerified(true);
       } else {
-        alert("Current password is incorrect");
+        const errorData = await response.json();
+        alert(errorData.message || "Current password is incorrect");
       }
     } catch (error) {
       console.error("Error verifying password:", error);
-      alert("An error occurred");
+      alert("An error occurred while verifying the password");
     }
   };
+  
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center">
