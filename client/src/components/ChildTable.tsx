@@ -444,7 +444,7 @@ const ChildTable: React.FC<TableProps> = ({ children, onSort, sortConfig, onEdit
                         if (userRole === 'admin') {
                           handleArchiveClick(child as unknown as Child);
                         } else {
-                          await SweetAlert.showError("You do not have permission to archive this child.");
+                          await SweetAlert.showError("You do not have permission to archive.");
                         }
                       }}
                     />

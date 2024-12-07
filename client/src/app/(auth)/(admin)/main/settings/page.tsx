@@ -260,7 +260,7 @@ const Modal = ({
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [showCurrentPassword, setShowCurrentPassword] = useState(false);
   const [showConfirmCurrentPassword, setShowConfirmCurrentPassword] = useState(false);
-  const usersPerPage = 10;
+  const usersPerPage = 5;
   const [userPage, setUserPage] = useState<number>(0);
 
   useEffect(() => {
@@ -268,7 +268,7 @@ const Modal = ({
       fetch("http://localhost:3001/api/users")
         .then((response) => response.json())
         .then((data) => {
-          console.log("Fetched users:", data); // Debugging log
+          console.log("Fetched users:", data); 
           setUsers(data);
         })
         .catch((error) => console.error("Error fetching users:", error));
@@ -313,20 +313,20 @@ const Modal = ({
 
   const handleNextUserPage = () => {
     if ((userPage + 1) * usersPerPage < users.length) {
-      setUserPage(userPage + 1);
+      setUserPage((prevPage) => prevPage + 1);
     }
   };
 
   const handlePreviousUserPage = () => {
     if (userPage > 0) {
-      setUserPage(userPage - 1);
+      setUserPage((prevPage) => prevPage - 1);
     }
   };
 
   const renderUserList = () => (
     <div>
       {users
-        .slice(userPage * 5, (userPage + 1) * 5)
+        .slice(userPage * usersPerPage, (userPage + 1) * usersPerPage)
         .map((user) => (
           <div
             key={user.user_id}
@@ -361,7 +361,7 @@ const Modal = ({
         </button>
         <button
           onClick={handleNextUserPage}
-          disabled={(userPage + 1) * 5 >= users.length}
+          disabled={(userPage + 1) * usersPerPage >= users.length}
           className="bg-[#007F73] text-white px-4 py-2 rounded hover:bg-[#005f5a] transition disabled:opacity-50"
         >
           Next
@@ -748,7 +748,7 @@ const Modal = ({
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center">
-      <div className="bg-white p-8 w-[50%] h-[50%] rounded-lg shadow-lg relative">
+      <div className="bg-white p-8 w-[50%] rounded-lg shadow-lg relative">
         <button
           className="absolute top-0 right-0 text-gray-600 hover:text-gray-900 text-[3rem] transition-transform transform hover:scale-110"
           onClick={onClose}

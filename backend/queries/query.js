@@ -245,8 +245,8 @@ const childImmunizationQueries = {
     "INSERT INTO child_immunization_record (name, age, address) VALUES (?, ?, ?)",
   update:
     "UPDATE child_immunization_record SET name = ?, age = ?, address = ? WHERE child_id = ?",
-  delete:
-    "UPDATE child_immunization_record SET status = 'Inactive' WHERE child_id = ?",
+  archiveRecord:
+    "UPDATE child_immunization_record SET status = 'Inactive' WHERE child_immunization_id = ?",
 };
 
 const nutritionalStatusHistoryQueries = {

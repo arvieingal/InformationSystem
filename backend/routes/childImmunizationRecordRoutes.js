@@ -13,6 +13,10 @@ router.get(
   "/filter-child-immunization-record",
   childImmunizationRecordController.filterChildImmunizationRecord
 );
+router.put(
+  "/archive-immunization-record",
+  childImmunizationRecordController.archiveRecord
+);
 
 
 module.exports = router;
