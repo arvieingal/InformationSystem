@@ -63,7 +63,7 @@ const ImmunizationModal: React.FC<ModalProps> = ({
         console.log('Record updated successfully:', result);
         onSave(editedImmunization);
         await SweetAlert.showSuccess('Record updated successfully!');
-        
+
         if (result.isArchived) {
           window.location.reload();
         }
@@ -122,7 +122,7 @@ const ImmunizationModal: React.FC<ModalProps> = ({
               <label>Date of Birth:</label>
               <input
                 type="date"
-                value={formatDate(editedImmunization.birthdate).toString()}
+                value={editedImmunization.birthdate}
                 onChange={(e) => handleChange("birthdate", e.target.value)}
                 className="border border-gray-300 rounded-md p-1 w-full outline-none"
                 readOnly
@@ -160,7 +160,7 @@ const ImmunizationModal: React.FC<ModalProps> = ({
               />
             </div>
             <div>
-              <label>Vaccine:</label>
+              <label>Vaccine:<span className="text-red-500">*</span></label>
               <select
                 value={editedImmunization.vaccine_type || ""}
                 onChange={(e) => {
@@ -197,7 +197,7 @@ const ImmunizationModal: React.FC<ModalProps> = ({
             </div>
 
             <div>
-              <label>Dose:</label>
+              <label>Dose:<span className="text-red-500">*</span></label>
               <select
                 value={editedImmunization.doses || ""}
                 onChange={(e) => {
@@ -234,7 +234,7 @@ const ImmunizationModal: React.FC<ModalProps> = ({
               {errors.doses && <span className="text-red-500">{errors.doses}</span>}
             </div>
             <div>
-              <label>Date of Vaccination:</label>
+              <label>Date of Vaccination:<span className="text-red-500">*</span></label>
               <input
                 type="date"
                 value={`${editedImmunization.date_vaccinated || ""}`.trim()}
@@ -255,7 +255,7 @@ const ImmunizationModal: React.FC<ModalProps> = ({
               />
             </div>
             <div>
-              <label>Health Center:</label>
+              <label>Health Center:<span className="text-red-500">*</span></label>
               <input
                 type="text"
                 value={`${editedImmunization.health_center || ""}`.trim()}

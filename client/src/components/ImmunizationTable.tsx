@@ -126,7 +126,7 @@ const ImmunizationTable: React.FC<TableProps> = ({
             </tr>
           </thead>
           <tbody className="text-center">
-            {paginatedImmunizations.length === 0 ? (
+            {immunizations.length === 0 ? (
               <tr>
                 <td colSpan={8} className="py-4 text-gray-500">
                   No data available
@@ -172,8 +172,8 @@ const ImmunizationTable: React.FC<TableProps> = ({
                   >
                     {immunization.date_vaccinated
                       ? formatDate(
-                          immunization.date_vaccinated.toString()
-                        ).trim()
+                        immunization.date_vaccinated.toString()
+                      ).trim()
                       : ""}
                   </td>
                   <td
