@@ -196,8 +196,6 @@ const Settings: React.FC = () => {
     </>
   );
 };
-
-// Reusable Card Component
 const Card = ({
   title,
   description,
@@ -262,7 +260,7 @@ const Modal = ({
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [showCurrentPassword, setShowCurrentPassword] = useState(false);
   const [showConfirmCurrentPassword, setShowConfirmCurrentPassword] = useState(false);
-  const usersPerPage = 10;
+  const usersPerPage = 5;
   const [userPage, setUserPage] = useState<number>(0);
 
   useEffect(() => {
@@ -270,7 +268,7 @@ const Modal = ({
       fetch("http://localhost:3001/api/users")
         .then((response) => response.json())
         .then((data) => {
-          console.log("Fetched users:", data); // Debugging log
+          console.log("Fetched users:", data); 
           setUsers(data);
         })
         .catch((error) => console.error("Error fetching users:", error));
@@ -315,20 +313,20 @@ const Modal = ({
 
   const handleNextUserPage = () => {
     if ((userPage + 1) * usersPerPage < users.length) {
-      setUserPage(userPage + 1);
+      setUserPage((prevPage) => prevPage + 1);
     }
   };
 
   const handlePreviousUserPage = () => {
     if (userPage > 0) {
-      setUserPage(userPage - 1);
+      setUserPage((prevPage) => prevPage - 1);
     }
   };
 
   const renderUserList = () => (
     <div>
       {users
-        .slice(userPage * 5, (userPage + 1) * 5)
+        .slice(userPage * usersPerPage, (userPage + 1) * usersPerPage)
         .map((user) => (
           <div
             key={user.user_id}
@@ -363,7 +361,7 @@ const Modal = ({
         </button>
         <button
           onClick={handleNextUserPage}
-          disabled={(userPage + 1) * 5 >= users.length}
+          disabled={(userPage + 1) * usersPerPage >= users.length}
           className="bg-[#007F73] text-white px-4 py-2 rounded hover:bg-[#005f5a] transition disabled:opacity-50"
         >
           Next
@@ -689,21 +687,31 @@ const Modal = ({
 
     if (Object.keys(newErrors).length > 0) return;
 
-    const confirm = await SweetAlert.showConfirm("Are you sure you want to add this user?");
+    const confirmMessage = isUpdateModal
+      ? "Are you sure you want to update this user?"
+      : "Are you sure you want to add this user?";
+    const confirm = await SweetAlert.showConfirm(confirmMessage);
     if (!confirm) return;
 
     try {
-      const response = await fetch(`http://localhost:3001/api/users/${formData.user_id}`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(formData),
-      });
+      const response = await fetch(
+        `http://localhost:3001/api/users/${isUpdateModal ? formData.user_id : ""}`,
+        {
+          method: isUpdateModal ? "PUT" : "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(formData),
+        }
+      );
 
       if (response.ok) {
-        await SweetAlert.showSuccess("Added User Successfully");
+        await SweetAlert.showSuccess(
+          isUpdateModal ? "User updated successfully" : "User added successfully"
+        );
         onClose();
       } else {
-        SweetAlert.showError("Failed to add user");
+        SweetAlert.showError(
+          isUpdateModal ? "Failed to update user" : "Failed to add user"
+        );
       }
     } catch (error) {
       console.error("Error saving changes:", error);
@@ -820,7 +828,7 @@ const ChangeMyPasswordModal = ({ onClose }: { onClose: () => void }) => {
                   type={currentPassword ? "text" : "password"}
                   value={currentPassword}
                   onChange={(e) => setCurrentPassword(e.target.value)}
-                  className="w-full mb-2 p-2 border rounded-md pr-10"
+                  className="w-full mb-2 p-2 border rounded-md pr-10 outline-none"
                 />
                 <Image
                   src={currentPassword ? "/svg/visible.svg" : "/svg/hidden.svg"}
@@ -839,7 +847,7 @@ const ChangeMyPasswordModal = ({ onClose }: { onClose: () => void }) => {
                   type={confirmCurrentPassword ? "text" : "password"}
                   value={confirmCurrentPassword}
                   onChange={(e) => setConfirmCurrentPassword(e.target.value)}
-                  className="w-full mb-2 p-2 border rounded-md pr-10"
+                  className="w-full mb-2 p-2 border rounded-md pr-10 outline-none"
                 />
                 <Image
                   src={confirmCurrentPassword ? "/svg/visible.svg" : "/svg/hidden.svg"}
