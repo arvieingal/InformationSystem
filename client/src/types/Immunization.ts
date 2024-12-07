@@ -21,6 +21,7 @@ export interface Immunization {
   | "BCG Vaccine"
   | "Hepatitis B Vaccine"
   | "Pentavalent Vaccine (DPT-Hep B-HIB)"
+  | "Oral Polio Vaccine (OPV)"
   | "Inactivated Polio Vaccine (IPV)"
   | "Pneumococcal Conjugate Vaccine (PCV)"
   | "Measles, Mumps, Rubella Vaccine (MMR)"

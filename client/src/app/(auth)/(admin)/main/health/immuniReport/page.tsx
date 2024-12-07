@@ -10,18 +10,21 @@ interface Immunization {
 }
 
 const ImmuniReport: React.FC = () => {
-  const [immunizations, setImmunizations] = useState<Immunization[]>([]);
+  const [vaccinatedCounts, setVaccinatedCounts] = useState<any[]>([]);
 
+  // Fetch the vaccinated count data
   useEffect(() => {
-    const fetchData = async () => {
+    const fetchVaccinatedCount = async () => {
       try {
-        const data = await fetchImmunizationData();
-        setImmunizations(data as unknown as Immunization[]);
+        const response = await fetch("http://localhost:3001/api/vaccinated-count");
+        const data = await response.json();
+        setVaccinatedCounts(data);
       } catch (error) {
-        console.error('Error fetching immunization data:', error);
+        console.error("Error fetching vaccinated count:", error);
       }
     };
-    fetchData();
+
+    fetchVaccinatedCount();
   }, []);
 
   const exportToPDF = () => {
@@ -63,6 +66,20 @@ const ImmuniReport: React.FC = () => {
     }
   };
 
+  const vaccineTypes = [
+    "BCG Vaccine",
+    "Hepatitis B Vaccine",
+    "Pentavalent Vaccine (DPT-Hep B-HIB)",
+    "Oral Polio Vaccine (OPV)",
+    "Inactivated Polio Vaccine (IPV)",
+    "Pneumococcal Conjugate Vaccine (PCV)",
+    "Measles, Mumps, Rubella Vaccine (MMR)",
+    "Vitamin A",
+    "Deworming",
+    "Dental Check-up",
+    "Others"
+  ];
+
   return (
     <><div id="immuni-report" className="p-4 bg-gray-50 min-h-screen flex flex-col items-center">
       {/* Header Section */}
@@ -100,7 +117,7 @@ const ImmuniReport: React.FC = () => {
         <table className="min-w-full border-2 border-black bg-white">
           <thead>
             <tr>
-              <th className="py-2 px-4 border border-black text-medium ">Vaccine</th>
+              <th className="py-2 px-4 border border-black text-medium">Vaccine</th>
               <th className="py-2 px-4 border border-black text-medium">Dose</th>
               <th className="py-2 px-4 border border-black text-medium">Number of Vaccinated</th>
               <th className="py-2 px-4 border border-black text-medium">Date Given (mm/dd/yy)</th>
@@ -109,28 +126,32 @@ const ImmuniReport: React.FC = () => {
             </tr>
           </thead>
           <tbody>
-            {[
-              "BCG Vaccine",
-              "Hepatitis B Vaccine",
-              "Pentavalent Vaccine (DPT-Hep B-HIB)",
-              "Oral Polio Vaccine (OPV)",
-              "Inactivated Polio Vaccine (IPV)",
-              "Pneumococcal Conjugate Vaccine (PCV)",
-              "Measles, Mumps, Rubella Vaccine (MMR)",
-              "Vitamin A",
-              "Deworming",
-              "Dental Check-up",
-              "Others"
-            ].map((vaccine, index) => (
-              <tr key={index}>
-                <td className="py-2 px-4 border border-black ">{vaccine}</td>
-                <td className="py-2 px-4 border border-black"><input type="text" className="w-full  border-black bg-transparent outline-none" /></td>
-                <td className="py-2 px-4 border border-black"><input type="text" className="w-full  border-black bg-transparent outline-none" /></td>
-                <td className="py-2 px-4 border border-black"><input type="text" className="w-full  border-black bg-transparent outline-none" /></td>
-                <td className="py-2 px-4 border border-black"><input type="text" className="w-full  border-black bg-transparent outline-none" /></td>
-                <td className="py-2 px-4 border border-black"><input type="text" className="w-full  border-black bg-transparent outline-none" /></td>
-              </tr>
-            ))}
+            {vaccineTypes.map((vaccine, index) => {
+              // Find the matching vaccine count from the fetched data
+              const vaccineData = vaccinatedCounts.find(
+                (item) => item.vaccine_type === vaccine
+              );
+              const vaccinatedCount = vaccineData ? vaccineData.number_of_vaccinated : 0;
+
+              return (
+                <tr key={index}>
+                  <td className="py-2 px-4 border border-black">{vaccine}</td>
+                  <td className="py-2 px-4 border border-black">
+                    <input type="text" className="w-full border-black bg-transparent outline-none" />
+                  </td>
+                  <td className="py-2 px-4 border border-black">{vaccinatedCount}</td>
+                  <td className="py-2 px-4 border border-black">
+                    <input type="text" className="w-full border-black bg-transparent outline-none" />
+                  </td>
+                  <td className="py-2 px-4 border border-black">
+                    <input type="text" className="w-full border-black bg-transparent outline-none" />
+                  </td>
+                  <td className="py-2 px-4 border border-black">
+                    <input type="text" className="w-full border-black bg-transparent outline-none" />
+                  </td>
+                </tr>
+              );
+            })}
           </tbody>
         </table>
       </div>

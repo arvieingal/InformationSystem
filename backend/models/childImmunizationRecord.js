@@ -83,6 +83,19 @@ const ChildImmunizationRecord = {
       throw error;
     }
   },
+
+  getAllVaccinated: async () => {
+    try {
+      const [rows] = await pool.execute(
+        childImmunizationQueries.vaccinatedCount
+      );
+      console.log("Rows retrieved from database:", rows);
+      return rows || [];
+    } catch (error) {
+      console.error("Error executing query:", error);
+      throw error;
+    }
+  },
 };
 
 module.exports = ChildImmunizationRecord;

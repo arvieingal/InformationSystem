@@ -5,6 +5,10 @@ router.get(
   "/child-immunization-record",
   childImmunizationRecordController.getAllChildImmunizationRecord
 );
+router.get(
+  "/vaccinated-count",
+  childImmunizationRecordController.fetchAllVaccinated
+);
 router.put(
   "/child-immunization-record/:id",
   childImmunizationRecordController.updateChildImmunizationRecord
@@ -17,6 +21,5 @@ router.put(
   "/archive-immunization-record",
   childImmunizationRecordController.archiveRecord
 );
-
 
 module.exports = router;

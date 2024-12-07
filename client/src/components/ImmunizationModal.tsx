@@ -184,6 +184,7 @@ const ImmunizationModal: React.FC<ModalProps> = ({
                 <option value="BCG Vaccine">BCG Vaccine</option>
                 <option value="Hepatitis B Vaccine">Hepatitis B Vaccine</option>
                 <option value="Pentavalent Vaccine (DPT-Hep B-HIB)">Pentavalent Vaccine (DPT-Hep B-HIB)</option>
+                <option value="Oral Polio Vaccine (OPV)">Oral Polio Vaccine (OPV)</option>
                 <option value="Inactivated Polio Vaccine (IPV)">Inactivated Polio Vaccine (IPV)</option>
                 <option value="Pneumococcal Conjugate Vaccine (PCV)">Pneumococcal Conjugate Vaccine (PCV)</option>
                 <option value="Measles, Mumps, Rubella Vaccine (MMR)">Measles, Mumps, Rubella Vaccine (MMR)</option>

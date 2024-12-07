@@ -26,8 +26,6 @@ const residentQueries = {
   ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
 `,
 
-
-
   updateHouseholdMember: `UPDATE resident
 SET
   household_number = ?,
@@ -60,7 +58,6 @@ SET
 WHERE resident_id = ?;
 `,
 
-
   archiveHouseholdMember:
     "UPDATE resident SET status = 'Inactive' WHERE resident_id = ?",
   insertHouseholdHead: `INSERT INTO resident (
@@ -70,7 +67,6 @@ WHERE resident_id = ?;
     status
   ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
 `,
-
 
   findHouseholdHead: `SELECT 
         household_number,
@@ -255,6 +251,34 @@ const childImmunizationQueries = {
     "UPDATE child_immunization_record SET name = ?, age = ?, address = ? WHERE child_id = ?",
   archiveRecord:
     "UPDATE child_immunization_record SET status = 'Inactive' WHERE child_immunization_id = ?",
+  vaccinatedCount: `SELECT vt.vaccine_type, COALESCE(COUNT(cir.child_immunization_id), 0) AS number_of_vaccinated
+FROM (
+  SELECT 'BCG Vaccine' AS vaccine_type
+  UNION ALL
+  SELECT 'Hepatitis B Vaccine'
+  UNION ALL
+  SELECT 'Pentavalent Vaccine (DPT-Hep B-HIB)'
+  UNION ALL
+  SELECT 'Oral Polio Vaccine (OPV)'
+  UNION ALL
+  SELECT 'Inactivated Polio Vaccine (IPV)'
+  UNION ALL
+  SELECT 'Pneumococcal Conjugate Vaccine (PCV)'
+  UNION ALL
+  SELECT 'Measles, Mumps, Rubella Vaccine (MMR)'
+  UNION ALL
+  SELECT 'Vitamin A'
+  UNION ALL
+  SELECT 'Deworming'
+  UNION ALL
+  SELECT 'Dental Check-up'
+  UNION ALL
+  SELECT 'Others'
+) vt
+LEFT JOIN child_immunization_record cir
+  ON cir.vaccine_type = vt.vaccine_type
+GROUP BY vt.vaccine_type;
+`,
 };
 
 const nutritionalStatusHistoryQueries = {
