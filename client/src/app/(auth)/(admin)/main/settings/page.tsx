@@ -513,7 +513,7 @@ const Modal = ({
               showPassword: !prevState.showPassword,
             }))
           }
-          className="cursor-pointer absolute mt-2 right-2 top-1/2 transform -translate-y-1/2"
+          className="cursor-pointer absolute  right-2 top-1/2 transform -translate-y-1/2"
         />
       </div>
       <div>
@@ -666,7 +666,7 @@ const Modal = ({
       if (!value) {
         newErrors.email = "Email is required.";
       } else if (!/\S+@\S+\.\S+/.test(value)) {
-        newErrors.email = "Email is invalid make sure to add @ and it is active.";
+        newErrors.email = "It must be a valid email .";
       }
     }
 
@@ -792,7 +792,7 @@ const Modal = ({
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center">
       <div className="bg-white p-8 w-[50%] rounded-lg shadow-lg relative">
         <button
-          className="absolute top-0 right-0 text-gray-600 hover:text-gray-900 text-[3rem] transition-transform transform hover:scale-110"
+          className="absolute top-[-2rem] right-[-12px] text-gray-600 hover:text-gray-900 text-[3rem] transition-transform transform hover:scale-110"
           onClick={onClose}
         >
           &times;
