@@ -94,23 +94,25 @@ const Settings: React.FC = () => {
             >
               Back
             </button>
-            <div className="flex items-center bg-white p-2 rounded-md shadow-md w-[70rem] h-[3rem] ">
-              <FaSearch className="mr-2 text-gray-600" />
-              <input
-                type="text"
-                placeholder="Search..........................."
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                className="p-2 border-none outline-none w-full "
-              />
-            </div>
+            {session?.user.role === "Admin" && (
+              <div className="flex items-center bg-white p-2 rounded-md shadow-md w-[70rem] h-[3rem] ">
+                <FaSearch className="mr-2 text-gray-600" />
+                <input
+                  type="text"
+                  placeholder="Search..........................."
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                  className="p-2 border-none outline-none w-full "
+                />
+              </div>
+            )}
           </div>
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 w-full max-w-7xl">
             {/* User Management Section */}
             <div className="col-span-1 lg:col-span-1">
               <h2 className="text-2xl font-bold mb-4 text-gray-700">User Management</h2>
               <div className="space-y-4">
-                {session?.user.role === "Admin" &&
+                {session?.user.role === "Admin" && (
                   <>
                     <Card
                       title="Add User"
@@ -125,7 +127,7 @@ const Settings: React.FC = () => {
                       onClick={() => handleCardClick("Update User")}
                     />
                   </>
-                }
+                )}
                 <Card
                   title="Change my Password"
                   description="Change your current password to a new one."
@@ -135,7 +137,7 @@ const Settings: React.FC = () => {
               </div>
             </div>
             {/* Log Management Section */}
-            {session?.user.role === "Admin" &&
+            {session?.user.role === "Admin" && (
               <div className="col-span-1 lg:col-span-2">
                 <h2 className="text-2xl font-bold mb-4 text-gray-700">Log Management</h2>
                 <div className="bg-white p-6 rounded-lg shadow-lg">
@@ -172,7 +174,7 @@ const Settings: React.FC = () => {
                   )}
                 </div>
               </div>
-            }
+            )}
           </div>
         </div>
         {modalContent === "Update User" && (
