@@ -34,10 +34,18 @@ const ImmunizationModal: React.FC<ModalProps> = ({
 
   const validateFields = () => {
     const newErrors: { [key: string]: string } = {};
+
     if (!editedImmunization.vaccine_type) newErrors.vaccine_type = "Vaccine type is required.";
     if (!editedImmunization.doses) newErrors.doses = "Dose is required.";
+    if (editedImmunization.doses === "Others" && !editedImmunization.other_doses) {
+      newErrors.doses = "Please specify the dose.";
+    }
+    if (editedImmunization.vaccine_type === "Others" && !editedImmunization.other_vaccine_type) {
+      newErrors.vaccine_type = "Please specify the vaccine type.";
+    }
     if (!editedImmunization.date_vaccinated) newErrors.date_vaccinated = "Date of vaccination is required.";
     if (!editedImmunization.health_center) newErrors.health_center = "Health center is required.";
+
     return newErrors;
   };
 

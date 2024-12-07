@@ -1,7 +1,7 @@
 'use client'
 import React, { useEffect, useState } from 'react'
 import Image from 'next/image';
-import Pagination from './Pagination';
+import Pagination from './Pagination'; // Assume this is a separate component
 import api from '@/lib/axios';
 import { formatDate } from './formatDate';
 import SearchBar from './SearchBar';
@@ -9,103 +9,125 @@ import { useRouter } from 'next/navigation';
 
 type ImmunizationRecordHistory = {
     immu_history_id: number;
-    child_id: number; 
+    child_immunization_id: number;
     full_name: string;
-    birthdate: string; 
-    age: number | null; 
+    birthdate: string;
+    age: number | null;
     sex: "Male" | "Female";
     vaccine_type: string | null;
-    doses: string | null; 
+    other_vaccine_type: string | null;
+    doses: string | null;
     other_doses: string | null;
-    date_vaccinated: string | null; 
+    date_vaccinated: string | null;
     remarks: string | null;
-    health_center: string | null; 
-    status: "Active" | "Inactive"; 
-    created_at: string; 
-    updated_at: string; 
-}
-
-interface TableProps {
-    children: ImmunizationRecordHistory[];
-    onSort: (key: keyof ImmunizationRecordHistory) => void;
-    sortConfig: { key: keyof ImmunizationRecordHistory; direction: string } | null;
-    onEdit: (child: ImmunizationRecordHistory) => void;
-    onArchive: (child: ImmunizationRecordHistory) => void;
-    onRowClick: (child: ImmunizationRecordHistory) => void;
+    health_center: string | null;
+    status: "Active" | "Inactive";
+    created_at: string;
+    updated_at: string;
 }
 
 export default function ImmunizationRecordHistory() {
     const router = useRouter()
 
-    const [childrenHistory, setChildrenHistory] = useState<ImmunizationRecordHistory[]>([])
+    const [childrenHistory, setChildrenHistory] = useState<ImmunizationRecordHistory[]>([]);
+    const [filteredChildren, setFilteredChildren] = useState<ImmunizationRecordHistory[]>([]);
+    const [searchTerm, setSearchTerm] = useState('');
+    const [sortConfig, setSortConfig] = useState<{ key: keyof ImmunizationRecordHistory; direction: string } | null>(null);
+    const [currentPage, setCurrentPage] = useState(1);
+    const [itemsPerPage] = useState(10);
 
     useEffect(() => {
         const fetchImmunizationRecordHistory = async () => {
             try {
                 const response = await api.get('/api/immunization-record-history');
                 setChildrenHistory(response.data);
+                setFilteredChildren(response.data);
             } catch (error) {
-                console.error("Error fetching households:", error);
+                console.error("Error fetching immunization records:", error);
             }
         };
 
         fetchImmunizationRecordHistory();
     }, []);
 
-    const handleSearch = () => { }
+    const handleSearch = (term: string) => {
+        setSearchTerm(term);
+        const filtered = childrenHistory.filter(child =>
+            child.full_name.toLowerCase().includes(term.toLowerCase()) ||
+            child.vaccine_type?.toLowerCase().includes(term.toLowerCase())
+        );
+        setFilteredChildren(filtered);
+    };
 
-    // const filteredChildren = React.useMemo(() => {
-    //     if (!searchQuery) return childrens;
-    //     const query = searchQuery.toLowerCase();
+    const handleSort = (key: keyof ImmunizationRecordHistory) => {
+        let direction: string = 'ascending';
+        if (sortConfig?.key === key && sortConfig.direction === 'ascending') {
+            direction = 'descending';
+        }
 
-    //     return childrens.filter((child) => {
-    //         if (child.sex.toLowerCase() === query) {
-    //             return true;
-    //         }
+        const sortedChildren = [...filteredChildren].sort((a, b) => {
+            const aValue = a[key] ?? '';
+            const bValue = b[key] ?? '';
 
-    //         return Object.entries(child).some(([key, value]) => {
-    //             if (value === null || value === undefined) return false;
-    //             const stringValue = value.toString().toLowerCase();
+            if (key === 'full_name' && typeof aValue === 'string' && typeof bValue === 'string') {
+                const lowerA = aValue.toLowerCase();
+                const lowerB = bValue.toLowerCase();
+                if (lowerA < lowerB) return direction === 'ascending' ? -1 : 1;
+                if (lowerA > lowerB) return direction === 'ascending' ? 1 : -1;
+                return 0;
+            }
 
-    //             if (stringValue.includes(query)) return true;
+            if (typeof aValue === 'string' && typeof bValue === 'string') {
+                const lowerA = aValue.toLowerCase();
+                const lowerB = bValue.toLowerCase();
+                if (lowerA < lowerB) return direction === 'ascending' ? -1 : 1;
+                if (lowerA > lowerB) return direction === 'ascending' ? 1 : -1;
+                return 0;
+            }
 
-    //             if (key === 'birthdate' || key === 'measurement_date') {
-    //                 const date = new Date(value);
-    //                 const monthName = date.toLocaleString('default', { month: 'long' }).toLowerCase();
-    //                 return monthName.includes(query);
-    //             }
+            if (key === 'date_vaccinated') {
+                const dateA = aValue ? new Date(aValue) : new Date(0);
+                const dateB = bValue ? new Date(bValue) : new Date(0);
+                return direction === 'ascending' ? dateA.getTime() - dateB.getTime() : dateB.getTime() - dateA.getTime();
+            }
 
-    //             return false;
-    //         });
-    //     });
-    // }, [childrens, searchQuery]);
+            if (aValue < bValue) return direction === 'ascending' ? -1 : 1;
+            if (aValue > bValue) return direction === 'ascending' ? 1 : -1;
+            return 0;
+        });
+
+        setFilteredChildren(sortedChildren);
+        setSortConfig({ key, direction });
+    };
+
+    const indexOfLastItem = currentPage * itemsPerPage;
+    const indexOfFirstItem = indexOfLastItem - itemsPerPage;
+    const currentItems = filteredChildren.slice(indexOfFirstItem, indexOfLastItem);
+
+    const totalPages = Math.ceil(filteredChildren.length / itemsPerPage);
+
+    const handlePageChange = (pageNumber: number) => {
+        setCurrentPage(pageNumber);
+    };
 
     const HEADER = [
-         'Child Name', 'Birthdate', 'Age', 'Sex', 'Vaccine Type', 'Doses', 'Other Doses', 'Date Vaccinated', 'Remarks', 'Health Center'
-    ]
+        { label: 'Child Name', key: 'full_name' },
+        { label: 'Birthdate', key: 'birthdate' },
+        { label: 'Age', key: 'age' },
+        { label: 'Sex', key: 'sex' },
+        { label: 'Vaccine Type', key: 'vaccine_type' },
+        { label: 'Doses', key: 'doses' },
+        { label: 'Date Vaccinated', key: 'date_vaccinated' },
+        { label: 'Remarks', key: 'remarks' },
+        { label: 'Health Center', key: 'health_center' },
+    ];
 
     return (
         <>
-            <div className="h-[10%]">
-                <div className='w-full flex flex-row items-center justify-center'>
+            <div className="h-[10%] flex flex-row items-center justify-center">
+                <div className='w-full'>
                     <div className="w-full">
                         <SearchBar onSearch={handleSearch} />
-                    </div>
-                    <div className="flex items-center space-x-4 ml-4 ">
-                        <Image
-                            src="/svg/filter.svg"
-                            alt="Nutritional Status"
-                            width={30}
-                            height={50}
-                            // onClick={() => setIsFilterDropdownOpen(!isFilterDropdownOpen)}
-                            className="cursor-pointer"
-                        />
-                        <button
-                            className="flex items-center space-x-2 text-blue-500 hover:underline"
-                            onClick={() => router.push("/main/health/nutriReport")}
-                        >
-                          
-                        </button>
                     </div>
                 </div>
             </div>
@@ -113,37 +135,54 @@ export default function ImmunizationRecordHistory() {
                 <div className='bg-white h-[90%] rounded-[5px] overflow-y-auto'>
                     <table className="w-full border-collapse text-[14px] ">
                         <thead className='text-center'>
-                            <tr className='sticky top-0 bg-white shadow-gray-300 shadow-sm'>
+                            <tr className='sticky top-0 bg-white shadow-gray-300 shadow-sm cursor-pointer'>
                                 {HEADER.map((item, index) => (
-                                    <th key={index} className="py-1 font-semibold px-3 whitespace-pre-wrap text-center">{item}</th>
+                                    <th
+                                        key={index}
+                                        className="py-4 px-6 text-left font-semibold text-[16px] cursor-pointer"
+                                        onClick={() => handleSort(item.key as keyof ImmunizationRecordHistory)}
+                                    >
+                                        {item.label}
+                                        {sortConfig?.key === item.key && (
+                                            <span>
+                                                {sortConfig.direction === 'ascending' ? ' ▲' : ' ▼'}
+                                            </span>
+                                        )}
+                                    </th>
                                 ))}
                             </tr>
                         </thead>
                         <tbody className="text-center">
-                            {childrenHistory.map((child) => (
-                                <tr key={child.child_id} className="border-b hover:bg-gray-50 cursor-pointer">
-                                    <td className="py-2 px-6 text-left hidden">{child.immu_history_id}</td>
-                                    <td className="py-2 px-6 text-left">{child.full_name}</td>
-                                    <td className="py-2 px-6 text-left">{formatDate(child.birthdate)}</td>
-                                    <td className="py-2 px-6 text-left">{child.age}</td>
-                                    <td className="py-2 px-6 text-left">{child.sex}</td>
-                                    <td className="py-2 px-6 text-left">{child.vaccine_type}</td>
-                                    <td className="py-2 px-6 text-left">{child.doses}</td>
-                                    <td className="py-2 px-6 text-left">{child.other_doses}</td>
-                                    <td className="py-2 px-6 text-left">{formatDate(child.date_vaccinated)}</td>
-                                    <td className="py-2 px-6 text-left">{child.remarks}</td>
-                                    <td className="py-2 px-6 text-left">{child.health_center}</td>
+                            {currentItems.length === 0 ? (
+                                <tr>
+                                    <td colSpan={HEADER.length} className="py-4 px-6 text-center text-gray-500">
+                                        No data available
+                                    </td>
                                 </tr>
-                            ))}
+                            ) : (
+                                currentItems.map((child) => (
+                                    <tr key={child.immu_history_id} className="border-b hover:bg-gray-50 cursor-pointer">
+                                        <td className="py-2 px-6 text-left">{child.full_name}</td>
+                                        <td className="py-2 px-6 text-left">{formatDate(child.birthdate)}</td>
+                                        <td className="py-2 px-6 text-left">{child.age}</td>
+                                        <td className="py-2 px-6 text-left">{child.sex}</td>
+                                        <td className="py-2 px-6 text-left">{child.vaccine_type === 'Others' ? child.other_vaccine_type : child.vaccine_type || ""}</td>
+                                        <td className="py-2 px-6 text-left">{child.doses === 'Others' ? child.other_doses : child.doses || ""}</td>
+                                        <td className="py-2 px-6 text-left">{formatDate(child.date_vaccinated)}</td>
+                                        <td className="py-2 px-6 text-left">{child.remarks}</td>
+                                        <td className="py-2 px-6 text-left">{child.health_center}</td>
+                                    </tr>
+                                ))
+                            )}
                         </tbody>
                     </table>
                 </div>
                 <div className='h-[10%]'>
-                    {/* <Pagination
-                    currentPage={currentPage}
-                    totalPages={Math.ceil(filteredChildren.length / itemsPerPage)}
-                    onPageChange={handlePageChange}
-                /> */}
+                    <Pagination
+                        currentPage={currentPage}
+                        totalPages={totalPages}
+                        onPageChange={handlePageChange}
+                    />
                 </div>
             </div>
         </>

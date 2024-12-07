@@ -12,11 +12,11 @@ const SearchBar: React.FC<SearchBarProps> = ({ onSearch }) => {
   };
 
   return (
-    <div className='w-full'>
+    <div className='w-full flex items-center justify-center'>
       <input
         type="text"
         placeholder="Search ......."
-        className="w-[98%] border border-[#CCCCCC] rounded-md focus:outline-none py-[8px] px-4"
+        className="w-full border border-[#CCCCCC] rounded-md focus:outline-none py-[8px] px-4"
         onChange={handleInputChange}
       />
     </div>

@@ -22,7 +22,6 @@ const categorizeChildren = (children) => {
 };
 
 const childrenController = {
-
   // Get all children that are not inactive
   getAllChildren: async (req, res) => {
     try {
@@ -40,7 +39,6 @@ const childrenController = {
       });
     }
   },
-
 
   // Get all children that are inactive
   getAllChildrenInactive: async (req, res) => {
@@ -91,16 +89,19 @@ const childrenController = {
     console.log("Request body:", req.body);
     console.log("Child ID:", req.params.child_id);
 
+    // Validate child_id
+    if (!req.params.child_id || isNaN(req.params.child_id)) {
+      return res.status(400).json({ error: "Invalid child ID." });
+    }
+
     try {
       const updatedChild = await Children.updateChild(
         req.params.child_id,
         req.body
       );
 
-      // Extract the `updated_by` field from the request
       const username = req.body.updated_by || "Unknown User";
 
-      // Log the action
       await Log.create(
         username,
         `User ${username} updated child_no ${req.params.child_id}`,
@@ -116,7 +117,6 @@ const childrenController = {
     }
   },
 
-  
   getAllResidents: async (req, res) => {
     // Implementation
   },
@@ -143,11 +143,13 @@ const childrenController = {
   },
   archiveChildController: async (req, res) => {
     const { childId } = req.params;
-  
+
     try {
       console.log(`Received request to archive child with ID: ${childId}`);
       await Children.archiveChild(childId);
-      res.status(200).json({ message: `Child with ID ${childId} archived successfully.` });
+      res
+        .status(200)
+        .json({ message: `Child with ID ${childId} archived successfully.` });
     } catch (error) {
       console.error(`Error in archiving child with ID ${childId}:`, error);
       res.status(500).json({
@@ -170,7 +172,6 @@ const childrenController = {
       res.status(500).json({ error: "Internal server error" });
     }
   },
-  
 };
 
 module.exports = childrenController;

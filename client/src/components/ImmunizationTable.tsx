@@ -105,7 +105,7 @@ const ImmunizationTable: React.FC<TableProps> = ({
       <div className="bg-white h-full rounded-[5px] overflow-y-auto">
         <table className="w-full border-collapse text-[14px]">
           <thead className="text-center">
-            <tr className="sticky top-0 bg-white shadow-gray-300 shadow-sm">
+            <tr className="sticky top-0 bg-white shadow-gray-300 shadow-sm cursor-pointer">
               {headers.map(({ label, key }) => (
                 <th
                   key={key}
