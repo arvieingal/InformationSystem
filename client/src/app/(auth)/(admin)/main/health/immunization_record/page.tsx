@@ -18,6 +18,7 @@ const ImmunizationRecord: React.FC = () => {
   const router = useRouter();
   const [immunizations, setImmunizations] = useState<Immunization[]>([]);
   const [filteredImmunizations, setFilteredImmunizations] = useState<Immunization[]>([]);
+  console.log('filteredImmunizations', filteredImmunizations)
   const [sortConfig, setSortConfig] = useState<{
     key: keyof Immunization;
     direction: "ascending" | "descending";
@@ -28,7 +29,8 @@ const ImmunizationRecord: React.FC = () => {
   const [isAddModalOpen, setIsAddModalOpen] = useState<boolean>(false);
   const [selectedImmunization, setSelectedImmunization] = useState<Immunization | null>(null);
   const [isViewModalOpen, setIsViewModalOpen] = useState<boolean>(false);
-  const [filterCriteria, setFilterCriteria] = useState<string | null>(null);
+
+  const [searchQuery, setSearchQuery] = useState("");
 
   const addModalRef = useRef<HTMLDivElement>(null);
 
@@ -79,54 +81,46 @@ const ImmunizationRecord: React.FC = () => {
   };
 
   const filteredAndSortedImmunizations = useMemo(() => {
-    const immunizationsToUse = filteredImmunizations.length > 0 ? filteredImmunizations : immunizations;
+
+    const immunizationsToUse = filteredImmunizations.length > 0 || searchQuery !== ""
+      ? filteredImmunizations
+      : immunizations;
 
     if (immunizationsToUse.length === 0) return [];
 
-    const safeSortConfig = sortConfig || { key: 'child_immunization_id', direction: 'ascending' };
+    const safeSortConfig = sortConfig || { key: "child_immunization_id", direction: "ascending" };
 
     if (!safeSortConfig.key) return immunizationsToUse;
+
     return [...immunizationsToUse].sort((a, b) => {
       const key = safeSortConfig.key;
       if (a[key] === null || b[key] === null) return 0;
-      if (a[key] < b[key]) {
-        return safeSortConfig.direction === "ascending" ? -1 : 1;
-      }
-      if (a[key] > b[key]) {
-        return safeSortConfig.direction === "ascending" ? 1 : -1;
-      }
+      if (a[key] < b[key]) return safeSortConfig.direction === "ascending" ? -1 : 1;
+      if (a[key] > b[key]) return safeSortConfig.direction === "ascending" ? 1 : -1;
       return 0;
     });
-  }, [immunizations, filteredImmunizations, sortConfig]);
+  }, [immunizations, filteredImmunizations, sortConfig, searchQuery]);
 
-  const handleSearch = React.useCallback(
-    debounce((query: string) => {
-      if (query.trim() === '') {
-        fetchImmunizations();
-        return;
-      }
+  const debouncedHandleSearch = debounce((searchQuery: string) => {
+    const filtered = immunizations.filter((immunization) =>
+      Object.values(immunization)
+        .join(" ")
+        .toLowerCase()
+        .includes(searchQuery.toLowerCase())
+    );
+    setFilteredImmunizations(filtered);
+  }, 300);
 
-      const lowerCaseQuery = query.toLowerCase();
-      const filteredImmunizations = immunizations.filter((immunization) => {
-        const fullName = immunization.full_name ? immunization.full_name.toLowerCase() : '';
-        const vaccineType = immunization.vaccine_type ? immunization.vaccine_type.toLowerCase() : '';
-        const healthCenter = immunization.health_center ? immunization.health_center.toLowerCase() : '';
-        const remarks = immunization.remarks ? immunization.remarks.toLowerCase() : '';
-        const dateVaccinated = immunization.date_vaccinated ? formatDate(immunization.date_vaccinated.toString()).toLowerCase() : '';
+  const handleSearch = (searchQuery: string) => {
+    setSearchQuery(searchQuery);
+    debouncedHandleSearch(searchQuery);
+  };
 
-        return (
-          fullName.includes(lowerCaseQuery) ||
-          vaccineType.includes(lowerCaseQuery) ||
-          (immunization.doses ? immunization.doses.toString().includes(lowerCaseQuery) : false) ||
-          dateVaccinated.includes(lowerCaseQuery) ||
-          healthCenter.includes(lowerCaseQuery) ||
-          remarks.includes(lowerCaseQuery)
-        );
-      });
-      setImmunizations(filteredImmunizations);
-    }, 300),
-    [immunizations]
-  );
+  useEffect(() => {
+    return () => {
+      debouncedHandleSearch.cancel();
+    };
+  }, []);
 
   const handleViewDetails = (immunization: Immunization) => {
     setSelectedImmunization(immunization);
@@ -134,8 +128,6 @@ const ImmunizationRecord: React.FC = () => {
   };
 
   const handleFilterClick = async (criteria: string, value?: string) => {
-    setFilterCriteria(criteria);
-
     try {
       const params: { [key: string]: string } = {};
       if (criteria === "boyData") params.sex = "Male";
@@ -144,10 +136,11 @@ const ImmunizationRecord: React.FC = () => {
       if (criteria === "vaccineType" && value) params.vaccine_type = value;
       if (criteria === "doses" && value) params.doses = value;
 
-      console.log("Query Params:", params);
       const response = await api.get("/api/filter-child-immunization-record", {
         params,
       });
+
+      console.log('length', response.data.length)
 
       if (response.data.length === 0) {
         setFilteredImmunizations([]);
@@ -160,6 +153,9 @@ const ImmunizationRecord: React.FC = () => {
     }
   };
 
+  console.log("Filtered:", filteredAndSortedImmunizations); // Should be []
+  // console.log("Passed to Table:", filteredAndSortedImmunizations.length > 0 ? filteredAndSortedImmunizations : []); // Should be []  
+
   return (
     <div className='h-full' onClick={() => handleSort(null)}>
       <div className="h-[10%] pt-[1rem] px-[1.5rem]">
@@ -168,6 +164,7 @@ const ImmunizationRecord: React.FC = () => {
             <input
               type="text"
               placeholder="Search .............."
+              onChange={(e) => handleSearch(e.target.value)}
               className="border border-gray-300 rounded-md p-2 w-full outline-none"
             />
           </div>

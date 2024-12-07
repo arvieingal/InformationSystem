@@ -60,6 +60,8 @@ const ChildImmunizationRecord = {
         queryParams.push(params.doses);
       }
 
+      console.log("Executing Query:", query, "With Params:", queryParams);
+
       const [results] = await pool.execute(query, queryParams);
       return results;
     } catch (error) {
