@@ -500,7 +500,13 @@ const NutritionalStatus: React.FC = () => {
     }
   }, [isEditModalOpen, selectedChild.child_id]);
 
-  async function handleUpdateChild(p0: any) {
+  async function handleUpdateChild() {
+    // Validation check: Ensure that measurement_date is filled
+    if (!selectedChild.measurement_date) {
+      setError("Measurement Date is required.");
+      return; // Prevent proceeding if date is not set
+    }
+
     console.log("Update button clicked!");
 
     const confirmUpdate = await SweetAlert.showConfirm(
@@ -841,18 +847,19 @@ const NutritionalStatus: React.FC = () => {
                             ? parseDate(selectedChild.measurement_date)
                             : null
                         }
-                        onChange={(date: Date | null) =>
+                        onChange={(date: Date | null) => {
                           setSelectedChild({
                             ...selectedChild,
                             measurement_date: date
                               ? date.toISOString().split("T")[0]
                               : "",
-                          })
-                        }
+                          });
+                          setError(null); // Clear error when date is selected
+                        }}
                         dateFormat="MMMM d, yyyy"
                         className="border-b border-black w-[12rem] h-[2rem] p-1 text-center"
                       />
-                      <FaCalendarAlt className="ml-2 text-black" />
+                      {error && <span className="text-red-500">Measurement Date is required.</span>}
                     </div>
                   </div>
                   <div className="w-full flex flex-row gap-[1rem]">
@@ -1077,17 +1084,19 @@ const NutritionalStatus: React.FC = () => {
                           ? parseDate(selectedChild.measurement_date)
                           : null
                       }
-                      onChange={(date: Date | null) =>
+                      onChange={(date: Date | null) => {
                         setSelectedChild({
                           ...selectedChild,
                           measurement_date: date
                             ? date.toISOString().split("T")[0]
                             : "",
-                        })
-                      }
+                        });
+                        setError(null); // Clear error when date is selected
+                      }}
                       dateFormat="MMMM d, yyyy"
                       className="border-b border-black w-[12rem] h-[2rem] p-1 text-center"
                     />
+                    {error && <span className="text-red-500">Measurement Date is required.</span>}
                   </div>
                 </div>
               </div>

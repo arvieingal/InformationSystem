@@ -34,7 +34,7 @@ export default function ImmunizationRecordHistory() {
     const [searchTerm, setSearchTerm] = useState('');
     const [sortConfig, setSortConfig] = useState<{ key: keyof ImmunizationRecordHistory; direction: string } | null>(null);
     const [currentPage, setCurrentPage] = useState(1);
-    const [itemsPerPage] = useState(10);
+    const [itemsPerPage] = useState(15);
 
     useEffect(() => {
         const fetchImmunizationRecordHistory = async () => {
@@ -135,7 +135,7 @@ export default function ImmunizationRecordHistory() {
                 <div className='bg-white h-[90%] rounded-[5px] overflow-y-auto'>
                     <table className="w-full border-collapse text-[14px] ">
                         <thead className='text-center'>
-                            <tr className='sticky top-0 bg-white shadow-gray-300 shadow-sm cursor-pointer'>
+                            <tr className='sticky top-0 bg-white shadow-gray-300 shadow-sm'>
                                 {HEADER.map((item, index) => (
                                     <th
                                         key={index}
