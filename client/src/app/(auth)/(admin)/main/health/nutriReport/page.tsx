@@ -119,8 +119,8 @@ export default function ReportForm() {
       html2canvas(tempContainer, {
         scale: 3,
         useCORS: true,
-        width: tempContainer.scrollWidth, // Adjusted width for the section to be exported
-        height: tempContainer.scrollHeight + 100, // Adjusted height for the section to be exported
+        width: tempContainer.scrollWidth,
+        height: tempContainer.scrollHeight + 100,
       }).then((canvas) => {
         const imgData = canvas.toDataURL("image/png");
         const pdf = new jsPDF({
@@ -129,17 +129,20 @@ export default function ReportForm() {
           format: "a4",
         });
 
-        const imgWidth = 297; // PDF page width
-        const imgHeight = 210; // PDF page height
+        const imgWidth = 297;
+        const imgHeight = 210;
 
         const canvasWidth = canvas.width;
         const canvasHeight = canvas.height;
         const ratio = Math.min(imgWidth / canvasWidth, imgHeight / canvasHeight);
 
-        const finalWidth = canvasWidth * ratio; // Adjusted width for the image
-        const finalHeight = canvasHeight * ratio; // Adjusted height for the image
+        const finalWidth = canvasWidth * ratio;
+        const finalHeight = canvasHeight * ratio;
 
-        pdf.addImage(imgData, "PNG", 0, 0, finalWidth, finalHeight);
+        const xOffset = (imgWidth - finalWidth) / 2; // Center horizontally
+        const yOffset = (imgHeight - finalHeight) / 2; // Center vertically
+
+        pdf.addImage(imgData, "PNG", xOffset, yOffset, finalWidth, finalHeight);
         pdf.save(fileName);
 
         document.body.removeChild(tempContainer);
@@ -182,8 +185,8 @@ export default function ReportForm() {
       html2canvas(page1Container, {
         scale: 3,
         useCORS: true,
-        width: page1Container.scrollWidth, 
-        height: page1Container.scrollHeight, 
+        width: page1Container.scrollWidth,
+        height: page1Container.scrollHeight,
       }).then((canvas1) => {
         const imgData1 = canvas1.toDataURL("image/png");
         const pdf = new jsPDF({
@@ -192,8 +195,8 @@ export default function ReportForm() {
           format: "a4",
         });
 
-        const imgWidth = 297; 
-        const imgHeight = 210; 
+        const imgWidth = 297;
+        const imgHeight = 210;
         const canvasWidth1 = canvas1.width;
         const canvasHeight1 = canvas1.height;
         const ratio1 = Math.min(imgWidth / canvasWidth1, imgHeight / canvasHeight1);
@@ -205,8 +208,8 @@ export default function ReportForm() {
         html2canvas(page2Container, {
           scale: 3,
           useCORS: true,
-          width: page2Container.scrollWidth, // Increased width for the second page
-          height: page2Container.scrollHeight, // Height for the second page (adjust here for purok_status_table)
+          width: page2Container.scrollWidth,
+          height: page2Container.scrollHeight,
         }).then((canvas2) => {
           const imgData2 = canvas2.toDataURL("image/png");
           const canvasWidth2 = canvas2.width;
