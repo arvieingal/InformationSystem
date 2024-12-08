@@ -1,5 +1,5 @@
 "use client";
-import React, { useState, useEffect, useRef, } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
 import Modal from "@/components/PersonModal";
@@ -79,32 +79,6 @@ interface ChildFormData {
   status: string;
 }
 
-
-const calculateNutritionalStatus = (
-  age: number,
-  weight: number,
-  height: number
-): string => {
-  if (height < 20 || weight <= 0) {
-    return "Error: Invalid height or weight. Please verify.";
-  }
-
-  const heightInMeters = height / 100; // Convert height from cm to meters
-  const bmi = weight / (heightInMeters * heightInMeters); // BMI calculation
-
-  if (bmi < 16) {
-    return "Severely Underweight";
-  } else if (bmi < 18.5) {
-    return "Underweight";
-  } else if (bmi <= 24.9) {
-    return "Normal";
-  } else if (bmi <= 29.9) {
-    return "Overweight";
-  } else {
-    return "Obese";
-  }
-};
-
 const NutritionalStatus: React.FC = () => {
   const router = useRouter();
   const { data: session } = useSession();
@@ -164,23 +138,22 @@ const NutritionalStatus: React.FC = () => {
 
   const [residents, setResidents] = useState<Child | null>(null);
 
-
-  const calculateNutritionalStatus = (
-    age: number,
-    weight: number,
-    height: number
+  const calculateChildNutritionalStatus = (
+    age: number, // age of the child (0-6)
+    weight: number, // weight in kilograms
+    height: number // height in centimeters
   ): string => {
-    if (!weight || !height) return "N/A";
+    if (!weight || !height || age < 0 || age > 6) return "Invalid Data";
 
     const heightInMeters = height / 100; // Convert cm to meters
     const bmi = weight / (heightInMeters * heightInMeters);
 
-    // Determine nutritional status based on BMI thresholds
-    if (bmi < 16) return "Severely Underweight";
-    if (bmi >= 16 && bmi < 18.5) return "Underweight";
-    if (bmi >= 18.5 && bmi <= 24.9) return "Normal";
-    if (bmi >= 25 && bmi <= 29.9) return "Overweight";
-    return "Obese";
+    // Example of classifying based on BMI-for-age percentiles (you need to implement this logic or use a library)
+    if (bmi < 14.9) return "Severely Underweight"; // Below the 5th percentile
+    if (bmi >= 14.9 && bmi < 17) return "Underweight"; // Between 5th and 85th percentile
+    if (bmi >= 17 && bmi < 18.5) return "Normal"; // Between 5th and 85th percentile
+    if (bmi >= 18.5 && bmi < 19.5) return "Overweight"; // Between 85th and 95th percentile
+    return "Obese"; // Above the 95th percentile
   };
 
   const handleFilterChange = (key: string, value: string | boolean) => {
@@ -197,7 +170,10 @@ const NutritionalStatus: React.FC = () => {
           const birthMonth = new Date(child.birthdate).getMonth() + 1;
           return birthMonth === parseInt(value.toString());
         case "nutritionalStatus":
-          return child.nutritional_status.toLowerCase() === value.toString().toLowerCase();
+          return (
+            child.nutritional_status.toLowerCase() ===
+            value.toString().toLowerCase()
+          );
         case "archived":
           return child.status.toLowerCase() === (value ? "archive" : "active");
         default:
@@ -261,13 +237,6 @@ const NutritionalStatus: React.FC = () => {
     }
   };
 
-
-  // useEffect(() => {
-
-  //   fetchChildById(selectedChild.child_id);
-
-  // })
-
   const handleDateChange = (date: Date | null) => {
     setSelectedChild({
       ...selectedChild,
@@ -314,14 +283,17 @@ const NutritionalStatus: React.FC = () => {
       return;
     }
 
-    const username = session.user?.username || session.user?.email || "Unknown User";
+    const username =
+      session.user?.username || session.user?.email || "Unknown User";
 
     const confirmEdit = await SweetAlert.showConfirm(
       `<p> Are you sure you want to edit this child with ID: <span class="font-bold">${child.child_id}</span>?</p>`
     );
 
     if (confirmEdit) {
-      console.log(`Editing child with ID: ${child.child_id} by user: ${username}`);
+      console.log(
+        `Editing child with ID: ${child.child_id} by user: ${username}`
+      );
 
       setSelectedChild({
         resident_id: child.resident_id,
@@ -471,18 +443,14 @@ const NutritionalStatus: React.FC = () => {
       selectedChild.weight_kg &&
       selectedChild.height_cm
     ) {
-      const status = calculateNutritionalStatus(
+      const status = calculateChildNutritionalStatus(
         parseInt(selectedChild.age.toString()),
         parseFloat(selectedChild.weight_kg.toString()),
         parseInt(selectedChild.height_cm.toString())
       );
       setSelectedChild((prev) => ({ ...prev, nutritionalStatus: status }));
     }
-  }, [
-    selectedChild.age,
-    selectedChild.weight_kg,
-    selectedChild.height_cm,
-  ]);
+  }, [selectedChild.age, selectedChild.weight_kg, selectedChild.height_cm]);
 
   const parseDate = (dateString: string) => {
     if (!dateString) return null;
@@ -552,7 +520,7 @@ const NutritionalStatus: React.FC = () => {
         updated_by: session?.user.username || "Unknown User", // Add username here
       };
 
-      console.log('username', session?.user.username)
+      console.log("username", session?.user.username);
 
       const response = await fetch(
         `http://localhost:3001/api/children/${selectedChild.child_id}`,
@@ -596,10 +564,11 @@ const NutritionalStatus: React.FC = () => {
         });
 
         setIsEditModalOpen(false);
-        await SweetAlert.showSuccess(`<p>Child with ID: <span class="font-bold">${selectedChild.child_id}</span> has been updated successfully.</p>`).then(() => {
+        await SweetAlert.showSuccess(
+          `<p>Child with ID: <span class="font-bold">${selectedChild.child_id}</span> has been updated successfully.</p>`
+        ).then(() => {
           window.location.reload();
         });
-
       } else {
         console.error(`Failed to update child. Status: ${response.status}`);
         await SweetAlert.showError(
@@ -625,8 +594,12 @@ const NutritionalStatus: React.FC = () => {
     }));
 
     if (field === "weight_kg" || field === "height_cm") {
-      const weight = parseFloat(field === "weight_kg" ? value : selectedChild.weight_kg || "0");
-      const height = parseFloat(field === "height_cm" ? value : selectedChild.height_cm || "0");
+      const weight = parseFloat(
+        field === "weight_kg" ? value : selectedChild.weight_kg || "0"
+      );
+      const height = parseFloat(
+        field === "height_cm" ? value : selectedChild.height_cm || "0"
+      );
       const age = parseFloat(selectedChild.age || "0");
 
       if (isNaN(weight) || isNaN(height) || isNaN(age)) {
@@ -641,7 +614,7 @@ const NutritionalStatus: React.FC = () => {
 
       setError(null); // Clear previous errors
 
-      const status = calculateNutritionalStatus(age, weight, height);
+      const status = calculateChildNutritionalStatus(age, weight, height);
       setSelectedChild((prev) => ({
         ...prev,
         nutritional_status: status,
@@ -651,7 +624,6 @@ const NutritionalStatus: React.FC = () => {
       }));
     }
   };
-
 
   function calculateWeightForAge(age: number, weight: number): string {
     // Implement the logic to calculate the weight-for-age Z-score or other metric
@@ -681,27 +653,36 @@ const NutritionalStatus: React.FC = () => {
 
       console.log(`Attempting to archive child with ID: ${child.child_id}`);
 
-      const response = await fetch(`http://localhost:3001/api/children/${child.child_id}/archive`, {
-        method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-      });
+      const response = await fetch(
+        `http://localhost:3001/api/children/${child.child_id}/archive`,
+        {
+          method: "PUT",
+          headers: {
+            "Content-Type": "application/json",
+          },
+        }
+      );
 
       if (response.ok) {
         console.log(`Child with ID ${child.child_id} archived successfully.`);
         setChildren((prevChildren) =>
           prevChildren.filter((c) => c.child_id !== child.child_id)
         );
-        await SweetAlert.showSuccess(`Child with ID: ${child.child_id} has been archived successfully.`);
+        await SweetAlert.showSuccess(
+          `Child with ID: ${child.child_id} has been archived successfully.`
+        );
       } else {
         const errorText = await response.text();
-        console.error('Failed to archive child:', response.status, errorText);
-        await SweetAlert.showError(`Failed to archive child. Server responded with: ${errorText}`);
+        console.error("Failed to archive child:", response.status, errorText);
+        await SweetAlert.showError(
+          `Failed to archive child. Server responded with: ${errorText}`
+        );
       }
     } catch (error) {
-      console.error('Error archiving child:', error);
-      await SweetAlert.showError('An error occurred while archiving the child.');
+      console.error("Error archiving child:", error);
+      await SweetAlert.showError(
+        "An error occurred while archiving the child."
+      );
     }
   }
 
@@ -855,7 +836,11 @@ const NutritionalStatus: React.FC = () => {
                         dateFormat="MMMM d, yyyy"
                         className="border-b border-black w-[12rem] h-[2rem] p-1 text-center"
                       />
-                      {error && <span className="text-red-500">Measurement Date is required.</span>}
+                      {error && (
+                        <span className="text-red-500">
+                          Measurement Date is required.
+                        </span>
+                      )}
                     </div>
                   </div>
                   <div className="w-full flex flex-row gap-[1rem]">
@@ -1092,7 +1077,11 @@ const NutritionalStatus: React.FC = () => {
                       dateFormat="MMMM d, yyyy"
                       className="border-b border-black w-[12rem] h-[2rem] p-1 text-center"
                     />
-                    {error && <span className="text-red-500">Measurement Date is required.</span>}
+                    {error && (
+                      <span className="text-red-500">
+                        Measurement Date is required.
+                      </span>
+                    )}
                   </div>
                 </div>
               </div>
@@ -1148,7 +1137,9 @@ const NutritionalStatus: React.FC = () => {
                         }
                       >
                         <option value="">Select Nutritional Status</option>
-                        <option value="Severly Underweight">Severly Underweight</option>
+                        <option value="Severly Underweight">
+                          Severly Underweight
+                        </option>
                         <option value="Normal">Normal</option>
                         <option value="Underweight">Underweight</option>
                         <option value="Overweight">Overweight</option>
