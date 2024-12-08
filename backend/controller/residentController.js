@@ -177,6 +177,24 @@ const residentController = {
       });
     }
   },
+
+  filterResidentsRecord: async (req, res) => {
+    try {
+      const { gender, status, is_business_owner } = req.query;
+      console.log("Received Query:", { gender, status, is_business_owner });
+
+      const results = await Resident.filterResidents({
+        gender,
+        status,
+        is_business_owner,
+      });
+
+      res.status(200).json(results);
+    } catch (error) {
+      console.error("Error fetching resident records:", error);
+      res.status(500).send("Server Error");
+    }
+  },
 };
 
 module.exports = residentController;

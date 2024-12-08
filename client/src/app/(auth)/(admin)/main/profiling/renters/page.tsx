@@ -10,6 +10,7 @@ import { useRouter } from "next/navigation";
 import { Renter, RentOwner } from "@/types/profilingTypes";
 import { SubmitHandler, useForm } from "react-hook-form";
 import { useSession } from "next-auth/react";
+import debounce from "lodash.debounce";
 
 const Renters = () => {
   const router = useRouter();
@@ -20,8 +21,16 @@ const Renters = () => {
     formState: { errors },
   } = useForm<Renter>();
 
+  const [loading, setLoading] = useState(true);
+  const [isSearching, setIsSearching] = useState(false);
+
   const [rentOwner, setRentOwner] = useState<RentOwner[]>([]);
+  const [originalRenters, setOriginalRenters] = React.useState<Renter[]>([]);
   const [renters, setRenters] = useState<Renter[]>([]);
+  const [sortConfig, setSortConfig] = useState<{
+    key: keyof Renter;
+    direction: "ascending" | "descending";
+  } | null>(null);
 
   const [selectedRenter, setSelectedRenter] = useState<Renter | null>(null);
 
@@ -46,7 +55,7 @@ const Renters = () => {
   });
 
   useEffect(() => {
-    const fetchRenters = async () => {
+    const fetchRenterOwner = async () => {
       try {
         const response = await api.get("/api/rent-owner");
         setRentOwner(response.data);
@@ -54,20 +63,25 @@ const Renters = () => {
         console.error("Error fetching renters:", error);
       }
     };
-    fetchRenters();
+    fetchRenterOwner();
   }, []);
 
   useEffect(() => {
-    const fetchHouseholds = async () => {
+    const fetchRenters = async () => {
       try {
+        setLoading(true);
         const response = await api.get("/api/renter");
+        console.log("Fetched renters:", response.data);
+        setOriginalRenters(response.data);
         setRenters(response.data);
       } catch (error) {
-        console.error("Error fetching households:", error);
+        console.error("Error fetching renters:", error);
+      } finally {
+        setLoading(false);
       }
     };
 
-    fetchHouseholds();
+    fetchRenters();
   }, []);
 
   const handleChange = (
@@ -182,126 +196,238 @@ const Renters = () => {
     }
   };
 
-  const HEADER = [
-    "ID",
-    "RENTER NAME",
-    "RENT OWNER",
-    "CIVIL STATUS",
-    "SEX",
-    "BIRTHDATE",
-    "MONTHS/YEARS OF\nSTAY",
-    "WORK",
+  const HEADERS = [
+    { label: "ID", key: "renter_id" },
+    { label: "RENTER NAME", key: "given_name" },
+    { label: "RENT OWNER", key: "rent_number" },
+    { label: "CIVIL STATUS", key: "civil_status" },
+    { label: "SEX", key: "gender" },
+    { label: "BIRTHDATE", key: "birthdate" },
+    { label: "YEARS OF STAY", key: "months_year_of_stay" },
+    { label: "WORK", key: "work" },
   ];
 
-  const onSearch = () => {};
+  const handleSearch = debounce(async (searchTerm: string) => {
+    if (!searchTerm.trim()) {
+      setIsSearching(false);
+      setRenters(originalRenters);
+      return;
+    }
+
+    try {
+      setIsSearching(true);
+      setLoading(true);
+
+      const response = await api.get(
+        `/api/renter/search?term=${searchTerm.trim()}`
+      );
+
+      console.log("Search Results:", response.data);
+
+      if (response.data.length === 0) {
+        setRenters([]);
+      } else {
+        setRenters(response.data);
+      }
+    } catch (error) {
+      console.error("Error searching renter:", error);
+      setRenters([]);
+    } finally {
+      setLoading(false);
+    }
+  }, 300);
+
+  const handleFilterClick = async (criteria: string, value?: string) => {
+    try {
+      setLoading(true);
+      const params: { [key: string]: string } = {};
+      if (criteria === "maleData") params.gender = "Male";
+      if (criteria === "femaleData") params.gender = "Female";
+      if (criteria === "archivedData") params.status = "Inactive";
+      if (criteria === "isBusinessOwner" && value)
+        params.is_business_owner = value;
+
+      setRenters([]);
+
+      const response = await api.get("/api/filter-renter", {
+        params,
+      });
+
+      console.log("Filtered Data Length:", response.data.length);
+
+      if (response.data.length === 0) {
+        setRenters(originalRenters);
+      } else {
+        setRenters(response.data);
+      }
+
+      setIsSearching(true);
+    } catch (error) {
+      console.error("Error fetching filtered data:", error);
+      setRenters([]);
+      setIsSearching(true);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleSort = (key: keyof Renter | null = null) => {
+    if (!key) {
+      setSortConfig(null);
+    } else {
+      let direction: "ascending" | "descending" = "ascending";
+      if (sortConfig?.key === key && sortConfig.direction === "ascending") {
+        direction = "descending";
+      }
+      setSortConfig({ key, direction });
+    }
+  };
+
+  const sortedRenters = React.useMemo(() => {
+    if (!sortConfig) return renters;
+
+    const sortedData = [...renters];
+    sortedData.sort((a, b) => {
+      const aValue = a[sortConfig?.key as keyof Renter] || "";
+      const bValue = b[sortConfig?.key as keyof Renter] || "";
+
+      if (aValue < bValue)
+        return sortConfig?.direction === "ascending" ? -1 : 1;
+      if (aValue > bValue)
+        return sortConfig?.direction === "ascending" ? 1 : -1;
+      return 0;
+    });
+
+    return sortedData;
+  }, [renters, sortConfig]);
+
+  const resetData = () => {
+    console.log(renters);
+    setIsSearching(false);
+  };
 
   return (
-    <div className="h-full w-full">
+    <div className="h-full w-full" onClick={() => handleSort(null)}>
       <CardGrid cards={dashboardCards} />
-      <ProfilingSearchBar onSearch={onSearch} />
+      <ProfilingSearchBar
+        onSearch={handleSearch}
+        setAddResidentModal={() => setAddRenterModal(true)}
+        handleFilterClick={handleFilterClick}
+        resetData={resetData}
+      />
 
-      <button
-        className="bg-white absolute bottom-2 right-0 rounded-[5px] px-4 py-2"
-        onClick={() => setAddRenterModal(true)}
-      >
-        <div className="flex justify-center items-center font-semibold">
-          <Image
-            src={"/svg/add-household.svg"}
-            alt="add-household"
-            width={100}
-            height={100}
-            className="w-5 h-5 mr-3"
-          />
-          Add
-        </div>
-      </button>
-
-      <div className="h-[66%] px-32 pb-2">
+      <div className="h-[69%] px-16 pb-2" onClick={(e) => e.stopPropagation()}>
         <div className="bg-white h-full rounded-[10px] overflow-y-auto">
           <table className="w-full border-collapse text-[14px]">
             <thead>
               <tr className="sticky top-0 bg-white shadow-gray-300 shadow-sm">
-                {HEADER.map((item, index) => (
+                {HEADERS.map(({ label, key }) => (
                   <th
-                    key={index}
-                    className="py-1 font-semibold px-3 whitespace-pre-wrap text-center"
+                    key={key}
+                    className="py-4 px-5 text-left font-semibold text-[16px] cursor-pointer"
+                    onClick={() => handleSort(key as keyof Renter)}
                   >
-                    {item}
+                    {label}
+                    {sortConfig?.key === key && (
+                      <span>
+                        {sortConfig.direction === "ascending" ? " ▲" : " ▼"}
+                      </span>
+                    )}
                   </th>
                 ))}
-                <th className="py-1 font-semibold px-3"></th>
+                <th className="py-1 font-semibold px-5"></th>
               </tr>
             </thead>
-            <tbody>
-              {renters.map((renter) => {
-                const owner = rentOwner.find(
-                  (ro) => ro.rent_number === renter.rent_number
-                );
-                return (
-                  <tr
-                    key={renter.renter_id}
-                    className="border-b hover:bg-gray-50"
-                    onClick={() => onRenterClick(renter)}
-                  >
-                    <td className="py-2 px-3 text-center">
-                      {renter.renter_id}
-                    </td>
-                    <td className="py-2 px-3 text-center">
-                      {renter.given_name} {renter.middle_name}{" "}
-                      {renter.family_name} {renter.extension}
-                    </td>
-                    <td className="py-2 px-3 text-center">
-                      {owner ? owner.rent_owner : ""}
-                    </td>
-                    <td className="py-2 px-3 text-center">
-                      {renter.civil_status}
-                    </td>
-                    <td className="py-2 px-3 text-center">{renter.gender}</td>
-                    <td className="py-2 px-3 text-center">
-                      {renter.birthdate}
-                    </td>
-                    <td className="py-2 px-3 text-center">
-                      {renter.months_year_of_stay}
-                    </td>
-                    <td className="py-2 px-3 text-center">{renter.work}</td>
-                    <td className="text-center py-2 flex items-center">
-                      {session?.user.role === "Admin" && (
-                        <>
-                          <button
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              onEditRenter(renter);
-                            }}
-                          >
-                            <Image
-                              src={"/svg/edit_pencil.svg"}
-                              alt="Edit"
-                              height={100}
-                              width={100}
-                              className="w-5 h-5 mr-2 cursor-pointer"
-                            />
-                          </button>
-                          <button
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              handleArchiveResident();
-                            }}
-                          >
-                            <Image
-                              src="/svg/archive.svg"
-                              alt="Archive"
-                              height={100}
-                              width={100}
-                              className="w-6 h-6 cursor-pointer"
-                            />
-                          </button>
-                        </>
-                      )}
+            {loading ? (
+              <tbody>
+                <tr>
+                  <td colSpan={HEADERS.length}>
+                    <div className="flex justify-center items-center w-full h-full pt-16">
+                      <div className="w-16 h-16 border-8 border-dashed rounded-full animate-spin border-[#B1E5BA]"></div>
+                    </div>
+                  </td>
+                </tr>
+              </tbody>
+            ) : (
+              <tbody>
+                {sortedRenters.length > 0 ? (
+                  sortedRenters.map((renter) => {
+                    const owner = rentOwner.find(
+                      (ro) => ro.rent_number === renter.rent_number
+                    );
+                    return (
+                      <tr
+                        key={renter.renter_id}
+                        className="border-b hover:bg-gray-50"
+                        onClick={() => onRenterClick(renter)}
+                      >
+                        <td className="py-2 px-5 text-left">
+                          {renter.renter_id}
+                        </td>
+                        <td className="py-2 px-5 text-left">
+                          {renter.given_name} {renter.middle_name}{" "}
+                          {renter.family_name} {renter.extension}
+                        </td>
+                        <td className="py-2 px-5 text-left">
+                          {owner ? owner.rent_owner : ""}
+                        </td>
+                        <td className="py-2 px-5 text-left">
+                          {renter.civil_status}
+                        </td>
+                        <td className="py-2 px-5 text-left">{renter.gender}</td>
+                        <td className="py-2 px-5 text-left">
+                          {renter.birthdate}
+                        </td>
+                        <td className="py-2 px-5 text-left">
+                          {renter.months_year_of_stay}
+                        </td>
+                        <td className="py-2 px-5 text-left">{renter.work}</td>
+                        <td className="text-center py-2 flex items-center">
+                          {session?.user.role === "Admin" && (
+                            <>
+                              <button
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  onEditRenter(renter);
+                                }}
+                              >
+                                <Image
+                                  src={"/svg/edit_pencil.svg"}
+                                  alt="Edit"
+                                  height={100}
+                                  width={100}
+                                  className="w-5 h-5 mr-2 cursor-pointer"
+                                />
+                              </button>
+                              <button
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  handleArchiveResident();
+                                }}
+                              >
+                                <Image
+                                  src="/svg/archive.svg"
+                                  alt="Archive"
+                                  height={100}
+                                  width={100}
+                                  className="w-6 h-6 cursor-pointer"
+                                />
+                              </button>
+                            </>
+                          )}
+                        </td>
+                      </tr>
+                    );
+                  })
+                ) : (
+                  <tr>
+                    <td colSpan={8} className="py-2 px-5 text-center">
+                      No renters found.
                     </td>
                   </tr>
-                );
-              })}
-            </tbody>
+                )}
+              </tbody>
+            )}
           </table>
         </div>
       </div>

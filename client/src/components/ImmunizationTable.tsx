@@ -105,11 +105,11 @@ const ImmunizationTable: React.FC<TableProps> = ({
       <div className="bg-white h-full rounded-[5px] overflow-y-auto">
         <table className="w-full border-collapse text-[14px]">
           <thead className="text-center">
-            <tr className="sticky top-0 bg-white shadow-gray-300 shadow-sm cursor-pointer">
+            <tr className="sticky top-0 bg-white shadow-gray-300 shadow-sm">
               {headers.map(({ label, key }) => (
                 <th
                   key={key}
-                  className="py-2 px-6 text-left font-semibold text-[16px] cursor-pointer"
+                  className="py-4 px-6 text-left font-semibold text-[16px] cursor-pointer"
                   onClick={() => onSort(key as keyof Immunization)}
                 >
                   {label}

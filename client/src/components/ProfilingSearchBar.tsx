@@ -4,19 +4,41 @@ import Image from "next/image";
 interface Props {
   onSearch: (searchTerm: string) => void;
   setAddResidentModal: () => void;
-  filterDropdown: (filter: string) => void;
   isResident?: boolean;
+  handleFilterClick: (criteria: string, value?: string) => void;
+  resetData: () => void;
 }
 
 const ProfilingSearchBar = ({
   onSearch,
   setAddResidentModal,
   isResident = false,
-  filterDropdown,
+  handleFilterClick,
+  resetData,
 }: Props) => {
   const [searchTerm, setSearchTerm] = React.useState("");
   const [filterVisible, setFilterVisible] = useState(false);
-  const [selectedFilter, setSelectedFilter] = useState<string | null>(null);
+  const [isBusinessOwnerHover, setIsBusinessOwnerHover] = useState(false);
+
+  const filterRef = React.useRef<HTMLDivElement | null>(null);
+
+  React.useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (
+        filterRef.current &&
+        !filterRef.current.contains(event.target as Node)
+      ) {
+        setFilterVisible(false);
+        resetData();
+      }
+    };
+
+    document.addEventListener("mousedown", handleClickOutside);
+
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, []);
 
   const handleSearch = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value;
@@ -24,18 +46,15 @@ const ProfilingSearchBar = ({
     onSearch(value);
   };
 
-  const handleFilterSelect = (filter: string) => {
-    setSelectedFilter(filter);
-    setFilterVisible(false);
-    filterDropdown(filter);
-    console.log("Selected filter:", filter);
-  };
-
   const residentName = isResident ? "Household" : "Renter";
+
+  const handleFilterToggle = () => {
+    setFilterVisible((prev) => !prev);
+  };
 
   return (
     <div className="h-[11%] px-16">
-      <div className="w-full flex h-[50%]">
+      <div className="w-full flex h-[50%] relative">
         <div className="flex bg-white h-full items-center w-[84%] rounded-l-[5px]">
           <Image
             src={"/svg/guidance_search.svg"}
@@ -54,7 +73,7 @@ const ProfilingSearchBar = ({
         </div>
         <button
           className="flex bg-white h-full justify-between items-center w-[12%] border-[1px] px-4 cursor-pointer"
-          onClick={() => setFilterVisible(!filterVisible)}
+          onClick={handleFilterToggle}
         >
           <Image
             src={"/svg/filter-outline.svg"}
@@ -64,34 +83,64 @@ const ProfilingSearchBar = ({
             className="h-4 w-4"
           />
           <p className="text-[14px]">Filter</p>
-          <Image
-            src={"/svg/right_arrow.svg"}
-            alt="Filter"
-            height={100}
-            width={100}
-            className="h-3 w-3"
-          />
+          {filterVisible ? <span>▼</span> : <span>►</span>}
         </button>
         {filterVisible && (
-          <div className="absolute bg-white border rounded shadow-lg">
-            <div
-              onClick={() => handleFilterSelect("Gender")}
-              className="hover:bg-[#007F73] hover:text-white cursor-pointer"
-            >
-              Filter by Gender
-            </div>
-            <div
-              onClick={() => handleFilterSelect("Option 2")}
-              className="hover:bg-[#007F73] hover:text-white cursor-pointer"
-            >
-              Option 2
-            </div>
-            <div
-              onClick={() => handleFilterSelect("Option 3")}
-              className="hover:bg-[#007F73] hover:text-white cursor-pointer"
-            >
-              Option 3
-            </div>
+          <div
+            className="absolute right-[2rem] top-11 bg-white border border-gray-300 rounded-md shadow-lg z-20"
+            ref={filterRef}
+          >
+            <ul className="py-1">
+              <li
+                className="px-4 py-2 hover:bg-gray-100 cursor-pointer"
+                onClick={() => handleFilterClick("maleData")}
+              >
+                Filter by Boy
+              </li>
+              <li
+                className="px-4 py-2 hover:bg-gray-100 cursor-pointer"
+                onClick={() => handleFilterClick("femaleData")}
+              >
+                Filter by Girl
+              </li>
+              <li
+                className="px-4 py-2 hover:bg-gray-100 cursor-pointer"
+                onClick={() => handleFilterClick("archivedData")}
+              >
+                Filter by Archived
+              </li>
+              {isResident && (
+                <li
+                  className="px-4 py-2 hover:bg-gray-100 cursor-pointer relative"
+                  onMouseEnter={() => setIsBusinessOwnerHover(true)}
+                  onMouseLeave={() => setIsBusinessOwnerHover(false)}
+                >
+                  Filter by Business Owner
+                  {isBusinessOwnerHover && (
+                    <div className="absolute right-full top-0 mt-1 bg-white border border-gray-300 rounded-md shadow-lg w-64 z-20">
+                      <ul className="py-1">
+                        <li
+                          className="px-4 py-2 hover:bg-gray-100 cursor-pointer"
+                          onClick={() =>
+                            handleFilterClick("isBusinessOwner", "Yes")
+                          }
+                        >
+                          Yes
+                        </li>
+                        <li
+                          className="px-4 py-2 hover:bg-gray-100 cursor-pointer"
+                          onClick={() =>
+                            handleFilterClick("isBusinessOwner", "No")
+                          }
+                        >
+                          No
+                        </li>
+                      </ul>
+                    </div>
+                  )}
+                </li>
+              )}
+            </ul>
           </div>
         )}
         <button
@@ -109,8 +158,8 @@ const ProfilingSearchBar = ({
       </div>
       <div className="h-[50%] text-[12px] flex items-center">
         <p className="text-[#799DAD]">
-          Displaying <span className="font-semibold">1 - 8</span> of{" "}
-          <span className="font-semibold">15000</span> in total
+          {/* Displaying <span className="font-semibold">1 - 8</span> of{" "}
+          <span className="font-semibold">15000</span> in total */}
         </p>
       </div>
     </div>

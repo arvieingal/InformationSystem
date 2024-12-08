@@ -1,5 +1,5 @@
 "use client";
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useMemo } from "react";
 import CardGrid from "@/components/CardGrid";
 import { dashboardCards } from "@/constants/cardData";
 import ProfilingSearchBar from "@/components/ProfilingSearchBar";
@@ -61,6 +61,11 @@ const Households = () => {
   });
 
   const [filteredData, setFilteredData] = useState<Resident[]>([]);
+  const [sortConfig, setSortConfig] = useState<{
+    key: keyof Resident;
+    direction: "ascending" | "descending";
+  } | null>(null);
+  const [isDropdownOpen, setIsDropdownOpen] = useState(false);
 
   useEffect(() => {
     setFilteredData(isSearching ? households : householdHeads);
@@ -124,7 +129,7 @@ const Households = () => {
 
   const handleSearch = debounce(async (searchTerm: string) => {
     if (!searchTerm.trim()) {
-      setHouseholds([]);
+      setHouseholds(householdHeads); // Reset if search term is empty
       setIsSearching(false);
       return;
     }
@@ -136,17 +141,16 @@ const Households = () => {
       const response = await api.get(
         `/api/resident/search?term=${searchTerm.trim()}`
       );
-
       console.log("Search Results:", response.data);
 
       if (response.data.length === 0) {
         setHouseholds([]);
       } else {
-        setHouseholds(response.data);
+        setHouseholds(response.data); // Update households with search results
       }
     } catch (error) {
       console.error("Error searching residents:", error);
-      setHouseholds([]);
+      setHouseholds([]); // Clear state on error
     } finally {
       setLoading(false);
     }
@@ -173,58 +177,116 @@ const Households = () => {
     fetchHouseholds();
   }, []);
 
-  const handleFilterDropdown = (filter: string) => {
-    console.log("Filter selected in parent:", filter);
-    let filteredHouseholds: Resident[] = [];
+  const handleFilterClick = async (criteria: string, value?: string) => {
+    try {
+      setLoading(true);
+      const params: { [key: string]: string } = {};
+      if (criteria === "maleData") params.gender = "Male";
+      if (criteria === "femaleData") params.gender = "Female";
+      if (criteria === "archivedData") params.status = "Inactive";
+      if (criteria === "isBusinessOwner" && value)
+        params.is_business_owner = value;
 
-    if (filter === "Male") {
-      filteredHouseholds = households.filter(
-        (household) => household.gender === "Male"
-      );
-    } else if (filter === "Female") {
-      filteredHouseholds = households.filter(
-        (household) => household.gender === "Female"
-      );
-    } else {
-      filteredHouseholds = households;
+      setHouseholds([]); // Clear previous data to avoid appending
+
+      const response = await api.get("/api/filter-resident", { params });
+      console.log("Filtered Data Length:", response.data.length);
+
+      // If no filtered data, reset households to empty
+      if (response.data.length === 0) {
+        setHouseholds([]);
+      } else {
+        setHouseholds(response.data); // Update households state
+      }
+
+      setIsSearching(true); // Enable searching mode
+    } catch (error) {
+      console.error("Error fetching filtered data:", error);
+      setHouseholds([]); // Clear state on error
+      setIsSearching(true);
+    } finally {
+      setLoading(false);
     }
-
-    console.log("Filtered Households:", filteredHouseholds);
-    setHouseholds(filteredHouseholds);
   };
 
-  const HEADER = [
-    "Household Number",
-    isSearching ? "Household" : "Household Head",
-    "Purok",
-    "BUSINESS OWNER",
+  const handleSort = (key: keyof Resident | null = null) => {
+    if (!key) {
+      setSortConfig(null);
+    } else {
+      let direction: "ascending" | "descending" = "ascending";
+      if (sortConfig?.key === key && sortConfig.direction === "ascending") {
+        direction = "descending";
+      }
+      setSortConfig({ key, direction });
+    }
+  };
+
+  const HEADERS = [
+    { label: "Household Number", key: "household_number" },
+    {
+      label: isSearching ? "Household" : "Household Head",
+      key: "given_name",
+    },
+    { label: "Purok", key: "sitio_purok" },
+    { label: "BUSINESS OWNER", key: "is_business_owner" },
   ];
 
   const displayData = isSearching ? households : householdHeads;
 
-  console.log("Displaying Data in Table:", displayData);
+  const sortedData = useMemo(() => {
+    let dataToSort = displayData;
+
+    if (!sortConfig) return dataToSort;
+
+    return [...dataToSort].sort((a, b) => {
+      const { key, direction } = sortConfig;
+
+      if (typeof a[key] === "string") {
+        const comparison = a[key].localeCompare(b[key] as string);
+        return direction === "ascending" ? comparison : -comparison;
+      }
+      if (typeof a[key] === "number" && typeof b[key] === "number") {
+        return direction === "ascending"
+          ? Number(a[key]) - Number(b[key])
+          : Number(b[key]) - Number(a[key]);
+      }
+      return 0;
+    });
+  }, [displayData, sortConfig]);
+
+  const resetData = () => {
+    setHouseholds(householdHeads);
+    setIsSearching(false);
+  };
 
   return (
-    <div className="h-full w-full">
+    <div className="h-full w-full" onClick={() => handleSort(null)}>
       <CardGrid cards={dashboardCards} />
       <ProfilingSearchBar
         onSearch={handleSearch}
         setAddResidentModal={() => setAddResidentModal(true)}
         isResident={true}
-        filterDropdown={handleFilterDropdown}
+        handleFilterClick={handleFilterClick}
+        resetData={resetData}
       />
 
-      <div className="h-[69%] px-32 pb-2">
+      <div className="h-[69%] px-32 pb-2" onClick={(e) => e.stopPropagation()}>
         <div className="bg-white h-full rounded-[10px] overflow-y-auto">
           <table className="w-full border-collapse text-[14px]">
-            <thead>
-              <tr className="sticky top-0 bg-white shadow-gray-300 shadow-sm z-10">
-                {HEADER.map((item, index) => (
+            <thead className="text-center">
+              <tr className="sticky top-0 bg-white shadow-gray-300 shadow-sm  z-10">
+                {HEADERS.map(({ label, key }) => (
                   <th
-                    key={index}
-                    className="text-left py-5 font-semibold px-20"
+                    key={key}
+                    className="py-4 px-20 text-left font-semibold text-[16px] cursor-pointer"
+                    onClick={() => handleSort(key as keyof Resident)}
                   >
-                    {item}
+                    {label}
+                    {sortConfig?.key === key && (
+                      <span>
+                        {sortConfig.direction === "ascending" ? " ▲" : " ▼"}
+                      </span>
+                    )}
                   </th>
                 ))}
               </tr>
@@ -232,16 +294,16 @@ const Households = () => {
             {loading ? (
               <tbody>
                 <tr>
-                  <td colSpan={HEADER.length}>
-                    <div className="absolute inset-0 flex justify-center items-center min-h-[400px]">
+                  <td colSpan={HEADERS.length}>
+                    <div className="flex justify-center items-center w-full h-full pt-16">
                       <div className="w-16 h-16 border-8 border-dashed rounded-full animate-spin border-[#B1E5BA]"></div>
                     </div>
                   </td>
                 </tr>
               </tbody>
-            ) : displayData.length > 0 ? (
+            ) : sortedData.length > 0 ? (
               <tbody>
-                {displayData.map((item) => (
+                {sortedData.map((item) => (
                   <tr
                     key={item.household_number}
                     className="border-b hover:bg-gray-50 cursor-pointer"
@@ -273,7 +335,7 @@ const Households = () => {
               <tbody>
                 <tr>
                   <td
-                    colSpan={HEADER.length}
+                    colSpan={HEADERS.length}
                     className="py-10 text-center text-gray-500"
                   >
                     {isSearching

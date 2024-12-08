@@ -90,6 +90,8 @@ WHERE resident_id = ?;
 //renter queries
 const renterQueries = {
   findAllRenter: "SELECT * FROM renter WHERE status = 'Active'",
+  searchRenter:
+    "SELECT * FROM renter WHERE family_name LIKE ? OR given_name LIKE ? OR extension LIKE ?",
   findById: "SELECT * FROM renter WHERE renter_id = ?",
   insertRenter: `INSERT INTO renter (
     rent_number, family_name, given_name, middle_name, extension, civil_status, gender,

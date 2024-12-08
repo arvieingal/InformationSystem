@@ -167,6 +167,34 @@ const Resident = {
       throw error;
     }
   },
+
+  filterResidents: async (params) => {
+    try {
+      let query = "SELECT * FROM resident WHERE 1=1";
+      const queryParams = [];
+
+      if (params.gender) {
+        query += " AND gender = ?";
+        queryParams.push(params.gender);
+      }
+      if (params.status) {
+        query += " AND status = ?";
+        queryParams.push(params.status);
+      }
+      if (params.is_business_owner) {
+        query += " AND is_business_owner = ?";
+        queryParams.push(params.is_business_owner);
+      }
+
+      console.log("Executing Query:", query, "With Params:", queryParams);
+
+      const [results] = await pool.execute(query, queryParams);
+      return results;
+    } catch (error) {
+      console.error("Error executing sorting query:", error);
+      throw error;
+    }
+  },
 };
 
 module.exports = Resident;

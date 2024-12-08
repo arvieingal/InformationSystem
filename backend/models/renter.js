@@ -74,6 +74,45 @@ const Renter = {
       throw error;
     }
   },
+
+  searchRenters: async (term) => {
+    try {
+      const [rows] = await pool.execute(renterQueries.searchRenter, [
+        `%${term}%`,
+        `%${term}%`,
+        `%${term}%`,
+      ]);
+      console.log("Rows retrieved from database:", rows);
+      return rows || [];
+    } catch (error) {
+      console.error("Error executing query:", error);
+      throw error;
+    }
+  },
+
+  filterRenters: async (params) => {
+    try {
+      let query = "SELECT * FROM renter WHERE 1=1";
+      const queryParams = [];
+
+      if (params.gender) {
+        query += " AND gender = ?";
+        queryParams.push(params.gender);
+      }
+      if (params.status) {
+        query += " AND status = ?";
+        queryParams.push(params.status);
+      }
+
+      console.log("Executing Query:", query, "With Params:", queryParams);
+
+      const [results] = await pool.execute(query, queryParams);
+      return results;
+    } catch (error) {
+      console.error("Error executing sorting query:", error);
+      throw error;
+    }
+  },
 };
 
 module.exports = Renter;

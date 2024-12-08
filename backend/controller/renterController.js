@@ -22,7 +22,7 @@ const rentOwnerController = {
     try {
       const renterData = req.body;
 
-      console.log(renterData)
+      console.log(renterData);
 
       const result = await Renter.insertRenter(renterData);
 
@@ -85,6 +85,46 @@ const rentOwnerController = {
         message: "Internal server error while updating Renter",
         error: error.message,
       });
+    }
+  },
+
+  searchRenters: async (req, res) => {
+    const { term } = req.query; // Get the search term from query parameters
+
+    if (!term) {
+      return res.status(400).json({ message: "Search term is required." });
+    }
+
+    try {
+      const renter = await Renter.searchRenters(term); // Pass term to searchRenter method
+      if (renter.length > 0) {
+        res.status(200).json(renter);
+      } else {
+        res.status(404).json({ message: "No renter found in the database" });
+      }
+    } catch (error) {
+      console.error("Error in renter controller:", error);
+      res.status(500).json({
+        message: "Internal server error while retrieving renter",
+        error: error.message,
+      });
+    }
+  },
+
+  filterRentersRecord: async (req, res) => {
+    try {
+      const { gender, status } = req.query;
+      console.log("Received Query:", { gender, status });
+
+      const results = await Renter.filterRenters({
+        gender,
+        status,
+      });
+
+      res.status(200).json(results);
+    } catch (error) {
+      console.error("Error fetching renter records:", error);
+      res.status(500).send("Server Error");
     }
   },
 };
