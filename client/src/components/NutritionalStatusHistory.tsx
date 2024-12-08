@@ -111,7 +111,6 @@ export default function NutritionalStatusRecord() {
         { label: 'Weight diff', key: 'weight_diff' },
         { label: 'Measurement Date', key: 'measurement_date' },
         { label: 'Nutritional Status', key: 'nutritional_status' },
-        { label: 'Status', key: 'status' },
     ];
 
     return (
@@ -158,7 +157,6 @@ export default function NutritionalStatusRecord() {
                                         <td className="py-2 px-6 text-left">{item.weight_diff}</td>
                                         <td className="py-2 px-6 text-left">{formatDate(item.measurement_date)}</td>
                                         <td className="py-2 px-6 text-left">{item.nutritional_status}</td>
-                                        <td className="py-2 px-6 text-left">{item.status}</td>
                                     </tr>
                                 ))
                             )}

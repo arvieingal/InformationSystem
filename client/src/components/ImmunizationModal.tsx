@@ -21,7 +21,7 @@ const ImmunizationModal: React.FC<ModalProps> = ({
 
   const handleChange = (key: keyof Immunization, value: any) => {
     setEditedImmunization((prev) => ({ ...prev, [key]: value }));
-    setErrors((prev) => ({ ...prev, [key]: '' }));
+    setErrors((prev) => ({ ...prev, [key]: "" }));
   };
 
   const handleVaccineTypeChange = (value: string) => {
@@ -35,16 +35,25 @@ const ImmunizationModal: React.FC<ModalProps> = ({
   const validateFields = () => {
     const newErrors: { [key: string]: string } = {};
 
-    if (!editedImmunization.vaccine_type) newErrors.vaccine_type = "Vaccine type is required.";
+    if (!editedImmunization.vaccine_type)
+      newErrors.vaccine_type = "Vaccine type is required.";
     if (!editedImmunization.doses) newErrors.doses = "Dose is required.";
-    if (editedImmunization.doses === "Others" && !editedImmunization.other_doses) {
+    if (
+      editedImmunization.doses === "Others" &&
+      !editedImmunization.other_doses
+    ) {
       newErrors.doses = "Please specify the dose.";
     }
-    if (editedImmunization.vaccine_type === "Others" && !editedImmunization.other_vaccine_type) {
+    if (
+      editedImmunization.vaccine_type === "Others" &&
+      !editedImmunization.other_vaccine_type
+    ) {
       newErrors.vaccine_type = "Please specify the vaccine type.";
     }
-    if (!editedImmunization.date_vaccinated) newErrors.date_vaccinated = "Date of vaccination is required.";
-    if (!editedImmunization.health_center) newErrors.health_center = "Health center is required.";
+    if (!editedImmunization.date_vaccinated)
+      newErrors.date_vaccinated = "Date of vaccination is required.";
+    if (!editedImmunization.health_center)
+      newErrors.health_center = "Health center is required.";
 
     return newErrors;
   };
@@ -58,30 +67,35 @@ const ImmunizationModal: React.FC<ModalProps> = ({
     }
 
     try {
-      const response = await fetch(`http://localhost:3001/api/child-immunization-record/${editedImmunization.child_immunization_id}`, {
-        method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(editedImmunization),
-      });
+      const response = await fetch(
+        `http://localhost:3001/api/child-immunization-record/${editedImmunization.child_immunization_id}`,
+        {
+          method: "PUT",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(editedImmunization),
+        }
+      );
 
       if (response.ok) {
         const result = await response.json();
-        console.log('Record updated successfully:', result);
+        console.log("Record updated successfully:", result);
         onSave(editedImmunization);
-        await SweetAlert.showSuccess('Record updated successfully!');
+        await SweetAlert.showSuccess("Record updated successfully!");
 
         if (result.isArchived) {
           window.location.reload();
         }
       } else {
-        console.error('Failed to update record:', response.statusText);
-        await SweetAlert.showError('Failed to update record.');
+        console.error("Failed to update record:", response.statusText);
+        await SweetAlert.showError("Failed to update record.");
       }
     } catch (error) {
-      console.error('Error updating record:', error);
-      await SweetAlert.showError('An error occurred while updating the record.');
+      console.error("Error updating record:", error);
+      await SweetAlert.showError(
+        "An error occurred while updating the record."
+      );
     }
   };
 
@@ -114,7 +128,9 @@ const ImmunizationModal: React.FC<ModalProps> = ({
                 className="border border-gray-300 rounded-md p-1 w-full outline-none"
                 readOnly
               />
-              {errors.full_name && <span className="text-red-500">{errors.full_name}</span>}
+              {errors.full_name && (
+                <span className="text-red-500">{errors.full_name}</span>
+              )}
             </div>
             <div>
               <label>Sex:</label>
@@ -155,7 +171,6 @@ const ImmunizationModal: React.FC<ModalProps> = ({
                 className="border border-gray-300 rounded-md p-1 w-full outline-none"
                 readOnly
               />
-
             </div>
             <div>
               <label>Address:</label>
@@ -168,7 +183,9 @@ const ImmunizationModal: React.FC<ModalProps> = ({
               />
             </div>
             <div>
-              <label>Vaccine:<span className="text-red-500">*</span></label>
+              <label>
+                Vaccine:<span className="text-red-500">*</span>
+              </label>
               <select
                 value={editedImmunization.vaccine_type || ""}
                 onChange={(e) => {
@@ -183,11 +200,21 @@ const ImmunizationModal: React.FC<ModalProps> = ({
                 <option value="">Select Vaccine</option>
                 <option value="BCG Vaccine">BCG Vaccine</option>
                 <option value="Hepatitis B Vaccine">Hepatitis B Vaccine</option>
-                <option value="Pentavalent Vaccine (DPT-Hep B-HIB)">Pentavalent Vaccine (DPT-Hep B-HIB)</option>
-                <option value="Oral Polio Vaccine (OPV)">Oral Polio Vaccine (OPV)</option>
-                <option value="Inactivated Polio Vaccine (IPV)">Inactivated Polio Vaccine (IPV)</option>
-                <option value="Pneumococcal Conjugate Vaccine (PCV)">Pneumococcal Conjugate Vaccine (PCV)</option>
-                <option value="Measles, Mumps, Rubella Vaccine (MMR)">Measles, Mumps, Rubella Vaccine (MMR)</option>
+                <option value="Pentavalent Vaccine (DPT-Hep B-HIB)">
+                  Pentavalent Vaccine (DPT-Hep B-HIB)
+                </option>
+                <option value="Oral Polio Vaccine (OPV)">
+                  Oral Polio Vaccine (OPV)
+                </option>
+                <option value="Inactivated Polio Vaccine (IPV)">
+                  Inactivated Polio Vaccine (IPV)
+                </option>
+                <option value="Pneumococcal Conjugate Vaccine (PCV)">
+                  Pneumococcal Conjugate Vaccine (PCV)
+                </option>
+                <option value="Measles, Mumps, Rubella Vaccine (MMR)">
+                  Measles, Mumps, Rubella Vaccine (MMR)
+                </option>
                 <option value="Vitamin A">Vitamin A</option>
                 <option value="Deworming">Deworming</option>
                 <option value="Dental Check-up">Dental Check-up</option>
@@ -198,15 +225,21 @@ const ImmunizationModal: React.FC<ModalProps> = ({
                   type="text"
                   placeholder="Enter custom vaccine"
                   value={editedImmunization.other_vaccine_type || ""}
-                  onChange={(e) => handleChange("other_vaccine_type", e.target.value)}
+                  onChange={(e) =>
+                    handleChange("other_vaccine_type", e.target.value)
+                  }
                   className="border border-gray-300 rounded-md p-1 w-full mt-2"
                 />
               )}
-              {errors.vaccine_type && <span className="text-red-500">{errors.vaccine_type}</span>}
+              {errors.vaccine_type && (
+                <span className="text-red-500">{errors.vaccine_type}</span>
+              )}
             </div>
 
             <div>
-              <label>Dose:<span className="text-red-500">*</span></label>
+              <label>
+                Dose:<span className="text-red-500">*</span>
+              </label>
               <select
                 value={editedImmunization.doses || ""}
                 onChange={(e) => {
@@ -219,11 +252,19 @@ const ImmunizationModal: React.FC<ModalProps> = ({
                 className="border border-gray-300 rounded-md p-1 w-full"
               >
                 <option value="">Select Dose</option>
-                {editedImmunization.doses && (
-                  <option value={String(editedImmunization.doses)}>
-                    {String(editedImmunization.doses)}
-                  </option>
-                )}
+                {editedImmunization.doses &&
+                  ![
+                    "First dose",
+                    "Second dose",
+                    "Third dose",
+                    "Fourth dose",
+                    "Fifth dose",
+                    "Others",
+                  ].includes(editedImmunization.doses) && (
+                    <option value={String(editedImmunization.doses)}>
+                      {String(editedImmunization.doses)}
+                    </option>
+                  )}
                 <option value="First dose">First dose</option>
                 <option value="Second dose">Second dose</option>
                 <option value="Third dose">Third dose</option>
@@ -240,10 +281,14 @@ const ImmunizationModal: React.FC<ModalProps> = ({
                   className="border border-gray-300 rounded-md p-1 w-full mt-2"
                 />
               )}
-              {errors.doses && <span className="text-red-500">{errors.doses}</span>}
+              {errors.doses && (
+                <span className="text-red-500">{errors.doses}</span>
+              )}
             </div>
             <div>
-              <label>Date of Vaccination:<span className="text-red-500">*</span></label>
+              <label>
+                Date of Vaccination:<span className="text-red-500">*</span>
+              </label>
               <input
                 type="date"
                 value={`${editedImmunization.date_vaccinated || ""}`.trim()}
@@ -252,7 +297,9 @@ const ImmunizationModal: React.FC<ModalProps> = ({
                 }
                 className="border border-gray-300 rounded-md p-1 w-full"
               />
-              {errors.date_vaccinated && <span className="text-red-500">{errors.date_vaccinated}</span>}
+              {errors.date_vaccinated && (
+                <span className="text-red-500">{errors.date_vaccinated}</span>
+              )}
             </div>
             <div>
               <label>Remarks:</label>
@@ -264,14 +311,18 @@ const ImmunizationModal: React.FC<ModalProps> = ({
               />
             </div>
             <div>
-              <label>Health Center:<span className="text-red-500">*</span></label>
+              <label>
+                Health Center:<span className="text-red-500">*</span>
+              </label>
               <input
                 type="text"
                 value={`${editedImmunization.health_center || ""}`.trim()}
                 onChange={(e) => handleChange("health_center", e.target.value)}
                 className="border border-gray-300 rounded-md p-1 w-full"
               />
-              {errors.health_center && <span className="text-red-500">{errors.health_center}</span>}
+              {errors.health_center && (
+                <span className="text-red-500">{errors.health_center}</span>
+              )}
             </div>
           </div>
           <div className="flex justify-between">

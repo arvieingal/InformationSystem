@@ -818,13 +818,15 @@ const NutritionalStatus: React.FC = () => {
                     </div>
                     <div className="flex flex-row gap-[10px]">
                       <p>Measurement Date:</p>
-                      <DatePicker
-                        selected={
+                      <input
+                        type="date"
+                        value={
                           selectedChild.measurement_date
-                            ? parseDate(selectedChild.measurement_date)
-                            : null
+                            ? selectedChild.measurement_date
+                            : ""
                         }
-                        onChange={(date: Date | null) => {
+                        onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
+                          const date = e.target.value ? new Date(e.target.value) : null;
                           setSelectedChild({
                             ...selectedChild,
                             measurement_date: date
@@ -833,14 +835,8 @@ const NutritionalStatus: React.FC = () => {
                           });
                           setError(null); // Clear error when date is selected
                         }}
-                        dateFormat="MMMM d, yyyy"
-                        className="border-b border-black w-[12rem] h-[2rem] p-1 text-center"
+                        className={`border-b w-[12rem] h-[2rem] p-1 text-center ${error ? 'border-red-500 border' : 'border-black'}`}
                       />
-                      {error && (
-                        <span className="text-red-500">
-                          Measurement Date is required.
-                        </span>
-                      )}
                     </div>
                   </div>
                   <div className="w-full flex flex-row gap-[1rem]">
@@ -1059,13 +1055,15 @@ const NutritionalStatus: React.FC = () => {
                   </div>
                   <div className="flex flex-row gap-[10px]">
                     <p>Measurement Date:</p>
-                    <DatePicker
-                      selected={
+                    <input
+                      type="date"
+                      value={
                         selectedChild.measurement_date
-                          ? parseDate(selectedChild.measurement_date)
-                          : null
+                          ? selectedChild.measurement_date
+                          : ""
                       }
-                      onChange={(date: Date | null) => {
+                      onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
+                        const date = e.target.value ? new Date(e.target.value) : null;
                         setSelectedChild({
                           ...selectedChild,
                           measurement_date: date
@@ -1074,14 +1072,8 @@ const NutritionalStatus: React.FC = () => {
                         });
                         setError(null); // Clear error when date is selected
                       }}
-                      dateFormat="MMMM d, yyyy"
-                      className="border-b border-black w-[12rem] h-[2rem] p-1 text-center"
+                      className={`border-b w-[12rem] h-[2rem] p-1 text-center ${error ? 'border-red-500 border' : 'border-black'}`}
                     />
-                    {error && (
-                      <span className="text-red-500">
-                        Measurement Date is required.
-                      </span>
-                    )}
                   </div>
                 </div>
               </div>
