@@ -183,8 +183,6 @@ const NutritionalStatus: React.FC = () => {
     return "Obese";
   };
 
-
-
   const handleFilterChange = (key: string, value: string | boolean) => {
     setFilterCriteria((prev) => ({ ...prev, [key]: value }));
 
@@ -252,8 +250,6 @@ const NutritionalStatus: React.FC = () => {
 
   console.log(residents, "Resident Data");
 
-
-
   const fetchChildById = async (id: number) => {
     try {
       const response = await fetch(`http://localhost:3001/api/children/${id}`);
@@ -318,7 +314,7 @@ const NutritionalStatus: React.FC = () => {
       return;
     }
 
-    const username = session.user?.name || session.user?.email || "Unknown User";
+    const username = session.user?.username || session.user?.email || "Unknown User";
 
     const confirmEdit = await SweetAlert.showConfirm(
       `<p> Are you sure you want to edit this child with ID: <span class="font-bold">${child.child_id}</span>?</p>`
