@@ -15,6 +15,7 @@ import api from '@/lib/axios';
 import { useSession } from 'next-auth/react';
 
 const ImmunizationRecord: React.FC = () => {
+  const [loading, setLoading] = useState(true)
   const router = useRouter();
   const [immunizations, setImmunizations] = useState<Immunization[]>([]);
   const [filteredImmunizations, setFilteredImmunizations] = useState<Immunization[]>([]);
@@ -38,11 +39,14 @@ const ImmunizationRecord: React.FC = () => {
 
   const fetchImmunizations = async () => {
     try {
+      setLoading(true)
       const response = await api.get('/api/child-immunization-record');
       const data = response.data;
       setImmunizations(data);
     } catch (error) {
       console.error("Error fetching immunization data:", error);
+    } finally {
+      setLoading(false)
     }
   };
 
@@ -359,6 +363,7 @@ const ImmunizationRecord: React.FC = () => {
             onSort={handleSort}
             sortConfig={sortConfig as { key: keyof Immunization; direction: string } | null}
             onViewDetails={handleViewDetails}
+            loading={loading}
           />
         </div>
       </div>

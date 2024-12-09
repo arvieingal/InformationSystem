@@ -30,6 +30,7 @@ type NutritionalStatusHistory = {
 };
 
 export default function NutritionalStatusRecord() {
+  const [loading, setLoading] = useState(true)
   const router = useRouter();
   const [nutriHistory, setNutriHistory] = useState<NutritionalStatusHistory[]>(
     []
@@ -48,11 +49,14 @@ export default function NutritionalStatusRecord() {
   useEffect(() => {
     const fetchNutritionalStatusHistory = async () => {
       try {
+        setLoading(true)
         const response = await api.get("/api/nutritional-status-history");
         setNutriHistory(response.data);
         setFilteredHistory(response.data);
       } catch (error) {
         console.error("Error fetching nutritional records:", error);
+      } finally {
+        setLoading(false)
       }
     };
 
@@ -100,8 +104,8 @@ export default function NutritionalStatusRecord() {
           ? 1
           : -1
         : aValue < bValue
-        ? 1
-        : -1;
+          ? 1
+          : -1;
     });
 
     setFilteredHistory(sortedHistory);
@@ -159,42 +163,54 @@ export default function NutritionalStatusRecord() {
                 ))}
               </tr>
             </thead>
-            <tbody className="text-center">
-              {currentItems.length === 0 ? (
+            {loading ? (
+              <tbody>
                 <tr>
-                  <td
-                    colSpan={HEADER.length}
-                    className="py-4 px-6 text-center text-gray-500"
-                  >
-                    No data available
+                  <td colSpan={HEADER.length}>
+                    <div className="flex justify-center items-center w-full h-full pt-16">
+                      <div className="w-16 h-16 border-8 border-dashed rounded-full animate-spin border-[#B1E5BA]"></div>
+                    </div>
                   </td>
                 </tr>
-              ) : (
-                currentItems.map((item) => (
-                  <tr
-                    key={item.nutri_history_id}
-                    className="border-b hover:bg-gray-50 cursor-pointer"
-                  >
-                    <td className="py-2 px-6 text-left">{item.full_name}</td>
-                    <td className="py-2 px-6 text-left">
-                      {formatDate(item.birthdate)}
-                    </td>
-                    <td className="py-2 px-6 text-left">{item.age}</td>
-                    <td className="py-2 px-6 text-left">{item.sex}</td>
-                    <td className="py-2 px-6 text-left">{item.height_cm}</td>
-                    <td className="py-2 px-6 text-left">{item.height_diff}</td>
-                    <td className="py-2 px-6 text-left">{item.weight_kg}</td>
-                    <td className="py-2 px-6 text-left">{item.weight_diff}</td>
-                    <td className="py-2 px-6 text-left">
-                      {formatDate(item.measurement_date)}
-                    </td>
-                    <td className="py-2 px-6 text-left">
-                      {item.nutritional_status}
+              </tbody>
+            ) : (
+              <tbody className="text-center">
+                {currentItems.length === 0 ? (
+                  <tr>
+                    <td
+                      colSpan={HEADER.length}
+                      className="py-4 px-6 text-center text-gray-500"
+                    >
+                      No data available
                     </td>
                   </tr>
-                ))
-              )}
-            </tbody>
+                ) : (
+                  currentItems.map((item) => (
+                    <tr
+                      key={item.nutri_history_id}
+                      className="border-b hover:bg-gray-50 cursor-pointer"
+                    >
+                      <td className="py-2 px-6 text-left">{item.full_name}</td>
+                      <td className="py-2 px-6 text-left">
+                        {formatDate(item.birthdate)}
+                      </td>
+                      <td className="py-2 px-6 text-left">{item.age}</td>
+                      <td className="py-2 px-6 text-left">{item.sex}</td>
+                      <td className="py-2 px-6 text-left">{item.height_cm}</td>
+                      <td className="py-2 px-6 text-left">{item.height_diff}</td>
+                      <td className="py-2 px-6 text-left">{item.weight_kg}</td>
+                      <td className="py-2 px-6 text-left">{item.weight_diff}</td>
+                      <td className="py-2 px-6 text-left">
+                        {formatDate(item.measurement_date)}
+                      </td>
+                      <td className="py-2 px-6 text-left">
+                        {item.nutritional_status}
+                      </td>
+                    </tr>
+                  ))
+                )}
+              </tbody>
+            )}
           </table>
         </div>
         <div className="h-[10%]">

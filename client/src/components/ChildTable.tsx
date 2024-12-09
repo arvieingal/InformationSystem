@@ -91,6 +91,7 @@ type ChildData = {
 };
 
 const ChildTable: React.FC<TableProps> = ({ children, onSort, sortConfig, onEdit, onArchive, onRowClick, userRole }) => {
+  const [loading, setLoading] = useState(true);
   const [residents, setResidents] = useState<Resident[]>([]);
   const [error, setError] = useState<string | null>(null);
   const [childrens, setChildrens] = useState<Child[]>([]);
@@ -133,6 +134,7 @@ const ChildTable: React.FC<TableProps> = ({ children, onSort, sortConfig, onEdit
   useEffect(() => {
     const fetchChildrenData = async () => {
       try {
+        setLoading(true)
         const response = filterCriteria.archived
           ? await api.get("/api/children/inactive")
           : await api.get("/api/children");
@@ -140,6 +142,8 @@ const ChildTable: React.FC<TableProps> = ({ children, onSort, sortConfig, onEdit
       } catch (error) {
         console.error("Error fetching children:", error);
         setError("Failed to fetch children data.");
+      } finally {
+        setLoading(false)
       }
     };
 
@@ -389,9 +393,9 @@ const ChildTable: React.FC<TableProps> = ({ children, onSort, sortConfig, onEdit
           </ul>
         </div>
       )}
-      <div className='h-[90%]'>
-        <div className='bg-white h-[90%] rounded-[5px] overflow-y-auto mt-[1rem]'>
-          <table className="w-full border-collapse text-[14px] ">
+      <div className='h-[90%] pt-[1rem]'>
+        <div className='bg-white h-[90%] rounded-[5px] overflow-y-auto'>
+          <table className="w-full border-collapse text-[14px]">
             <thead className='text-center'>
               <tr className='sticky top-0 bg-white shadow-gray-300 shadow-sm'>
                 {['id', 'name', 'age', 'sex', 'birthdate', 'weightKg', 'heightCm', 'nutritionalStatus', 'measurement date'].map((key) => (
@@ -411,53 +415,65 @@ const ChildTable: React.FC<TableProps> = ({ children, onSort, sortConfig, onEdit
                 <th className="py-4 pr-6 text-left font-semibold text-[16px]">Option</th>
               </tr>
             </thead>
-            <tbody className="text-center">
-              {paginatedChildren.map((child) => (
-                <tr key={child.child_id} className="border-b hover:bg-gray-50 cursor-pointer" onClick={() => onRowClick(child as unknown as Child)}>
-                  <td className="py-2 px-6 text-left">{child.child_id}</td>
-                  <td className="py-2 px-6 text-left">{child.full_name}</td>
-                  <td className="py-2 px-6 text-left">{child.age}</td>
-                  <td className="py-2 px-6 text-left">{child.sex}</td>
-                  <td className="py-2 px-6 text-left">{formatDate(child.birthdate)}</td>
-                  <td className="py-2 px-6 text-left">{child.weight_kg}</td>
-                  <td className="py-2 px-6 text-left">{child.height_cm}</td>
-                  <td className="py-2 px-6 text-left">{child.nutritional_status}</td>
-                  <td className="py-2 px-6 text-left">{formatDate(child.measurement_date)}</td>
-                  <td className="py-2 pr-6 text-left flex items-center">
-                    <Image
-                      src="/svg/edit.svg"
-                      alt="Edit"
-                      height={100}
-                      width={100}
-                      className="w-5 h-5 mr-2 cursor-pointer"
-                      onClick={async (e) => {
-                        e.stopPropagation();
-                        if (userRole === 'admin' || userRole === 'editor') {
-                          handleEditClick(child as unknown as Child);
-                        } else {
-                          await SweetAlert.showError("You do not have permission to edit this child.");
-                        }
-                      }}
-                    />
-                    <Image
-                      src="/svg/archive.svg"
-                      alt="Archive"
-                      height={100}
-                      width={100}
-                      className="w-6 h-6 cursor-pointer"
-                      onClick={async (e) => {
-                        e.stopPropagation();
-                        if (userRole === 'admin') {
-                          handleArchiveClick(child as unknown as Child);
-                        } else {
-                          await SweetAlert.showError("You do not have permission to archive.");
-                        }
-                      }}
-                    />
+            {loading ? (
+              <tbody>
+                <tr>
+                  <td colSpan={10}>
+                    <div className="flex justify-center items-center w-full h-full pt-16">
+                      <div className="w-16 h-16 border-8 border-dashed rounded-full animate-spin border-[#B1E5BA]"></div>
+                    </div>
                   </td>
                 </tr>
-              ))}
-            </tbody>
+              </tbody>
+            ) : (
+              <tbody className="text-center">
+                {paginatedChildren.map((child) => (
+                  <tr key={child.child_id} className="border-b hover:bg-gray-50 cursor-pointer" onClick={() => onRowClick(child as unknown as Child)}>
+                    <td className="py-2 px-6 text-left">{child.child_id}</td>
+                    <td className="py-2 px-6 text-left">{child.full_name}</td>
+                    <td className="py-2 px-6 text-left">{child.age}</td>
+                    <td className="py-2 px-6 text-left">{child.sex}</td>
+                    <td className="py-2 px-6 text-left">{formatDate(child.birthdate)}</td>
+                    <td className="py-2 px-6 text-left">{child.weight_kg}</td>
+                    <td className="py-2 px-6 text-left">{child.height_cm}</td>
+                    <td className="py-2 px-6 text-left">{child.nutritional_status}</td>
+                    <td className="py-2 px-6 text-left">{formatDate(child.measurement_date)}</td>
+                    <td className="py-2 pr-6 text-left flex items-center">
+                      <Image
+                        src="/svg/edit.svg"
+                        alt="Edit"
+                        height={100}
+                        width={100}
+                        className="w-5 h-5 mr-2 cursor-pointer"
+                        onClick={async (e) => {
+                          e.stopPropagation();
+                          if (userRole === 'admin' || userRole === 'editor') {
+                            handleEditClick(child as unknown as Child);
+                          } else {
+                            await SweetAlert.showError("You do not have permission to edit this child.");
+                          }
+                        }}
+                      />
+                      <Image
+                        src="/svg/archive.svg"
+                        alt="Archive"
+                        height={100}
+                        width={100}
+                        className="w-6 h-6 cursor-pointer"
+                        onClick={async (e) => {
+                          e.stopPropagation();
+                          if (userRole === 'admin') {
+                            handleArchiveClick(child as unknown as Child);
+                          } else {
+                            await SweetAlert.showError("You do not have permission to archive.");
+                          }
+                        }}
+                      />
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            )}
           </table>
         </div>
         <div className='h-[10%]'>

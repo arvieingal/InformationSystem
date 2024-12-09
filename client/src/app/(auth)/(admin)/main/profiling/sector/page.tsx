@@ -42,8 +42,6 @@ const Sector = () => {
   const [totalPopulation, setTotalPopulation] = useState<number | null>(null);
   const [loading, setLoading] = useState(false);
 
-  console.log("totalPopulation", totalPopulation);
-
   useEffect(() => {
     const fetchPurokData = async () => {
       try {
@@ -67,8 +65,6 @@ const Sector = () => {
   const handleRowClick = async (purok: PurokData) => {
     setSelectedPurokId(purok.purok_id);
     setLoading(true);
-
-    console.log("Clicked purok:", purok);
 
     try {
       const response = await api.get(

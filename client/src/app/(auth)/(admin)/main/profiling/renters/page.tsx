@@ -73,7 +73,6 @@ const Renters = () => {
       try {
         setLoading(true);
         const response = await api.get("/api/renter");
-        console.log("Fetched renters:", response.data);
         setOriginalRenters(response.data);
         setRenters(response.data);
       } catch (error) {
@@ -143,10 +142,6 @@ const Renters = () => {
         );
         if (!owner) {
           console.error(`No owner found for rent number: ${rentNumber}`);
-        } else {
-          console.log(
-            `Owner found: ${owner.rent_owner}, Sitio: ${owner.sitio_purok}`
-          );
         }
 
         const formData: Renter = editRenterModal
@@ -163,8 +158,6 @@ const Renters = () => {
             status: "Active",
           };
 
-        console.log("Submitting Form Data:", formData);
-
         const endpoint = selectedRenter?.renter_id
           ? "/api/update-renter"
           : "/api/insert-renter";
@@ -173,7 +166,6 @@ const Renters = () => {
 
         const response = await api[method](endpoint, formData);
 
-        console.log("Submission success:", response.data);
         await SweetAlert.showSuccess(
           addRenterModal ? 'Renter Added Successfully' : 'Renter Edited Successfully'
         ).then(() => {
@@ -234,8 +226,6 @@ const Renters = () => {
         `/api/renter/search?term=${searchTerm.trim()}`
       );
 
-      console.log("Search Results:", response.data);
-
       if (response.data.length === 0) {
         setRenters([]);
       } else {
@@ -264,8 +254,6 @@ const Renters = () => {
       const response = await api.get("/api/filter-renter", {
         params,
       });
-
-      console.log("Filtered Data Length:", response.data.length);
 
       if (response.data.length === 0) {
         setRenters(originalRenters);

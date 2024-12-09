@@ -205,27 +205,6 @@ const NutritionalStatus: React.FC = () => {
     };
   }, [isAddModalOpen]);
 
-  useEffect(() => {
-    const fetchResidents = async () => {
-      try {
-        const response = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/residents`);
-        if (response.ok) {
-          const data: Child[] = await response.json();
-          setOriginalChildren(data);
-          setChildren(data);
-        } else {
-          throw new Error("Failed to fetch residents data.");
-        }
-      } catch (error: any) {
-        setError(error.message);
-      }
-    };
-
-    fetchResidents();
-  }, []);
-
-  console.log(residents, "Resident Data");
-
   const fetchChildById = async (id: number) => {
     try {
       const response = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/children/${id}`);
@@ -291,10 +270,6 @@ const NutritionalStatus: React.FC = () => {
     );
 
     if (confirmEdit) {
-      console.log(
-        `Editing child with ID: ${child.child_id} by user: ${username}`
-      );
-
       setSelectedChild({
         resident_id: child.resident_id,
         full_name: child.full_name || "",
@@ -471,19 +446,13 @@ const NutritionalStatus: React.FC = () => {
       return; // Prevent proceeding if date is not set
     }
 
-    console.log("Update button clicked!");
-
     const confirmUpdate = await SweetAlert.showConfirm(
       `<p>Are you sure you want to update the child with ID: <span class="font-bold">${selectedChild.child_id}</span>?</p>`
     );
 
     if (!confirmUpdate) {
-      console.log("Update canceled by user");
       return;
     }
-
-    console.log("Selected Child ID:", selectedChild.child_id);
-    console.log("Selected Child Data:", selectedChild);
 
     // Validation check: Ensure that all required fields are filled before sending
     const weight_kg = parseFloat(selectedChild.weight_kg);
@@ -504,9 +473,6 @@ const NutritionalStatus: React.FC = () => {
     }
 
     try {
-      console.log("Sending data to backend:", selectedChild);
-
-      // Prepare data for the request and ensure undefined values are converted to null
       const requestData = {
         height_at_birth: selectedChild.height_at_birth ?? null,
         weight_at_birth: selectedChild.weight_at_birth ?? null,
@@ -517,10 +483,8 @@ const NutritionalStatus: React.FC = () => {
         weight_height_Z: selectedChild.weight_height_Z ?? null,
         nutritional_status: selectedChild.nutritional_status ?? null,
         measurement_date: selectedChild.measurement_date ?? null,
-        updated_by: session?.user.username || "Unknown User", // Add username here
+        updated_by: session?.user.username || "Unknown User",
       };
-
-      console.log("username", session?.user.username);
 
       const response = await fetch(
         `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/children/${selectedChild.child_id}`,
@@ -533,13 +497,10 @@ const NutritionalStatus: React.FC = () => {
         }
       );
 
-      console.log("Response status:", response.status);
-
       let responseData = {};
       if (response.status !== 204) {
         try {
           responseData = await response.json();
-          console.log("Backend response data:", responseData);
         } catch (error) {
           console.warn("Failed to parse response as JSON", error);
         }
@@ -549,7 +510,6 @@ const NutritionalStatus: React.FC = () => {
         let updatedChild;
         try {
           updatedChild = responseData;
-          console.log("Updated child data from server:", updatedChild);
         } catch (error) {
           console.warn("Response is not JSON or is empty. Using local data.");
           updatedChild = selectedChild;
@@ -647,11 +607,8 @@ const NutritionalStatus: React.FC = () => {
       );
 
       if (!confirmArchive) {
-        console.log("Archiving canceled by user");
         return;
       }
-
-      console.log(`Attempting to archive child with ID: ${child.child_id}`);
 
       const response = await fetch(
         `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/children/${child.child_id}/archive`,
@@ -664,7 +621,6 @@ const NutritionalStatus: React.FC = () => {
       );
 
       if (response.ok) {
-        console.log(`Child with ID ${child.child_id} archived successfully.`);
         setChildren((prevChildren) =>
           prevChildren.filter((c) => c.child_id !== child.child_id)
         );

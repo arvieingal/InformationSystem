@@ -224,8 +224,6 @@ const HouseholdMembers = ({ params }: { params: { household_number: string } }) 
                         is_registered_voter: data.is_registered_voter || "No",
                     };
 
-                console.log("Submitting Form Data:", formData);
-
                 const endpoint = selectedResident?.resident_id
                     ? '/api/update-household-member'
                     : '/api/insert-household-member';
@@ -234,7 +232,6 @@ const HouseholdMembers = ({ params }: { params: { household_number: string } }) 
 
                 const response = await api[method](endpoint, formData);
 
-                console.log("Submission success:", response.data);
                 await SweetAlert.showSuccess(
                     addResidentModal ? 'Household Member Added Successfully' : 'Household Member Edited Successfully'
                 ).then(() => {
@@ -250,7 +247,6 @@ const HouseholdMembers = ({ params }: { params: { household_number: string } }) 
     };
 
     const handleArchiveResident = async (household: Resident) => {
-        console.log(household?.resident_id)
         try {
             const response = await api.put('/api/archive-household-member', { resident_id: household?.resident_id });
 

@@ -33,13 +33,11 @@ const Settings: React.FC = () => {
         throw new Error(`HTTP error! status: ${response.status}`);
       }
       const data = await response.json();
-      console.log("Fetched logs:", data);
       setLogs(data);
     } catch (error) {
       console.error("Error fetching logs:", error);
     }
   };
-  console.log(logs, "DATA LOGS");
 
   const fetchUsers = async () => {
     try {
@@ -302,7 +300,6 @@ const Modal = ({
       fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/users`)
         .then((response) => response.json())
         .then((data) => {
-          console.log("Fetched users:", data);
           setUsers(data);
         })
         .catch((error) => console.error("Error fetching users:", error));
@@ -486,7 +483,7 @@ const Modal = ({
           className="w-full mb-2 p-2 border rounded-md"
         >
           <option value="">Select Role</option>
-          <option value="Admin">Admin</option>
+          {/* <option value="Admin">Admin</option> */}
           <option value="Editor">Editor</option>
           <option value="Viewer">Viewer</option>
         </select>
@@ -768,8 +765,7 @@ const Modal = ({
 
     try {
       const response = await fetch(
-        `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/users/${
-          isUpdateModal ? formData.user_id : ""
+        `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/users/${isUpdateModal ? formData.user_id : ""
         }`,
         {
           method: isUpdateModal ? "PUT" : "POST",
@@ -843,10 +839,10 @@ const Modal = ({
         {content === "Add User"
           ? renderAddUserForm()
           : content === "Change Password"
-          ? renderChangePasswordForm()
-          : isUpdateModal
-          ? renderUpdateForm()
-          : renderUserList()}
+            ? renderChangePasswordForm()
+            : isUpdateModal
+              ? renderUpdateForm()
+              : renderUserList()}
       </div>
     </div>
   );

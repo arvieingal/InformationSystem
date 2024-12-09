@@ -12,6 +12,7 @@ interface TableProps {
   onSort: (key: keyof Immunization) => void;
   sortConfig: { key: keyof Immunization; direction: string } | null;
   onViewDetails: (immunization: Immunization) => void;
+  loading: boolean;
 }
 
 const ImmunizationTable: React.FC<TableProps> = ({
@@ -19,6 +20,7 @@ const ImmunizationTable: React.FC<TableProps> = ({
   onSort,
   sortConfig,
   onViewDetails,
+  loading,
 }) => {
   const { data: session } = useSession();
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -125,97 +127,109 @@ const ImmunizationTable: React.FC<TableProps> = ({
               </th>
             </tr>
           </thead>
-          <tbody className="text-center">
-            {immunizations.length === 0 ? (
+          {loading ? (
+            <tbody>
               <tr>
-                <td colSpan={8} className="py-4 text-gray-500">
-                  No data available
+                <td colSpan={headers.length}>
+                  <div className="flex justify-center items-center w-full h-full pt-16">
+                    <div className="w-16 h-16 border-8 border-dashed rounded-full animate-spin border-[#B1E5BA]"></div>
+                  </div>
                 </td>
               </tr>
-            ) : (
-              paginatedImmunizations.map((immunization, index) => (
-                <tr
-                  key={index}
-                  className="border-b hover:bg-gray-50 cursor-pointer"
-                >
-                  <td
-                    className="py-2 px-6 text-left"
-                    onClick={() => onViewDetails(immunization)}
-                  >
-                    {immunization.child_immunization_id}
-                  </td>
-                  <td
-                    className="py-2 px-6 text-left"
-                    onClick={() => onViewDetails(immunization)}
-                  >
-                    {`${immunization.full_name || ""}`.trim()}
-                  </td>
-                  <td
-                    className="py-2 px-6 text-left"
-                    onClick={() => onViewDetails(immunization)}
-                  >
-                    {immunization.vaccine_type === "Others"
-                      ? immunization.other_vaccine_type
-                      : immunization.vaccine_type || ""}
-                  </td>
-                  <td
-                    className="py-2 px-6 text-left"
-                    onClick={() => onViewDetails(immunization)}
-                  >
-                    {immunization.doses === "Others"
-                      ? immunization.other_doses
-                      : immunization.doses || ""}
-                  </td>
-                  <td
-                    className="py-2 px-6 text-left"
-                    onClick={() => onViewDetails(immunization)}
-                  >
-                    {immunization.date_vaccinated
-                      ? formatDate(
-                        immunization.date_vaccinated.toString()
-                      ).trim()
-                      : ""}
-                  </td>
-                  <td
-                    className="py-2 px-6 text-left"
-                    onClick={() => onViewDetails(immunization)}
-                  >
-                    {immunization.remarks}
-                  </td>
-                  <td
-                    className="py-2 px-6 text-left"
-                    onClick={() => onViewDetails(immunization)}
-                  >
-                    {immunization.health_center}
-                  </td>
-                  <td className="py-2 pr-6 text-left flex items-center">
-                    <Image
-                      src="/svg/edit.svg"
-                      alt="Edit"
-                      height={100}
-                      width={100}
-                      className="w-5 h-5 mr-2 cursor-pointer"
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        handleEditClick(immunization);
-                      }}
-                    />
-                    <Image
-                      src="/svg/archive.svg"
-                      alt="Archive"
-                      height={100}
-                      width={100}
-                      className="w-5 h-5 mr-2 cursor-pointer"
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        handleArchiveImmunization(immunization);
-                      }}
-                    />
+            </tbody>
+          ) : (
+            <tbody className="text-center">
+              {immunizations.length === 0 ? (
+                <tr>
+                  <td colSpan={8} className="py-4 text-gray-500">
+                    No data available
                   </td>
                 </tr>
-              ))
-            )}
-          </tbody>
+              ) : (
+                paginatedImmunizations.map((immunization, index) => (
+                  <tr
+                    key={index}
+                    className="border-b hover:bg-gray-50 cursor-pointer"
+                  >
+                    <td
+                      className="py-2 px-6 text-left"
+                      onClick={() => onViewDetails(immunization)}
+                    >
+                      {immunization.child_immunization_id}
+                    </td>
+                    <td
+                      className="py-2 px-6 text-left"
+                      onClick={() => onViewDetails(immunization)}
+                    >
+                      {`${immunization.full_name || ""}`.trim()}
+                    </td>
+                    <td
+                      className="py-2 px-6 text-left"
+                      onClick={() => onViewDetails(immunization)}
+                    >
+                      {immunization.vaccine_type === "Others"
+                        ? immunization.other_vaccine_type
+                        : immunization.vaccine_type || ""}
+                    </td>
+                    <td
+                      className="py-2 px-6 text-left"
+                      onClick={() => onViewDetails(immunization)}
+                    >
+                      {immunization.doses === "Others"
+                        ? immunization.other_doses
+                        : immunization.doses || ""}
+                    </td>
+                    <td
+                      className="py-2 px-6 text-left"
+                      onClick={() => onViewDetails(immunization)}
+                    >
+                      {immunization.date_vaccinated
+                        ? formatDate(
+                          immunization.date_vaccinated.toString()
+                        ).trim()
+                        : ""}
+                    </td>
+                    <td
+                      className="py-2 px-6 text-left"
+                      onClick={() => onViewDetails(immunization)}
+                    >
+                      {immunization.remarks}
+                    </td>
+                    <td
+                      className="py-2 px-6 text-left"
+                      onClick={() => onViewDetails(immunization)}
+                    >
+                      {immunization.health_center}
+                    </td>
+                    <td className="py-2 pr-6 text-left flex items-center">
+                      <Image
+                        src="/svg/edit.svg"
+                        alt="Edit"
+                        height={100}
+                        width={100}
+                        className="w-5 h-5 mr-2 cursor-pointer"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleEditClick(immunization);
+                        }}
+                      />
+                      <Image
+                        src="/svg/archive.svg"
+                        alt="Archive"
+                        height={100}
+                        width={100}
+                        className="w-5 h-5 mr-2 cursor-pointer"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleArchiveImmunization(immunization);
+                        }}
+                      />
+                    </td>
+                  </tr>
+                ))
+              )}
+            </tbody>
+          )}
         </table>
       </div>
       <div className="flex justify-center mt-4">

@@ -72,14 +72,11 @@ const Households = () => {
     setFilteredData(isSearching ? households : householdHeads);
   }, [households, householdHeads, isSearching]);
 
-  console.log(householdHeads);
-
   useEffect(() => {
     const fetchHouseholds = async () => {
       try {
         setLoading(true);
         const response = await api.get("/api/household-head");
-        console.log("Fetched Households:", response.data);
         setHouseholdHeads(response.data);
       } catch (error) {
         console.error("Error fetching households:", error);
@@ -120,11 +117,8 @@ const Households = () => {
           is_household_head: "Yes",
         };
 
-        console.log("Submitting Form Data:", formData);
-
         const response = await api.post("/api/insert-household-head", formData);
 
-        console.log("Submission success:", response.data);
         await SweetAlert.showSuccess(
           'Household Head added Successfully'
         ).then(() => {
@@ -151,7 +145,6 @@ const Households = () => {
       const response = await api.get(
         `/api/resident/search?term=${searchTerm.trim()}`
       );
-      console.log("Search Results:", response.data);
 
       if (response.data.length === 0) {
         setHouseholds([]);
@@ -200,7 +193,6 @@ const Households = () => {
       setHouseholds([]); // Clear previous data to avoid appending
 
       const response = await api.get("/api/filter-resident", { params });
-      console.log("Filtered Data Length:", response.data.length);
 
       // If no filtered data, reset households to empty
       if (response.data.length === 0) {

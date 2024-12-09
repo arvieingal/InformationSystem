@@ -95,13 +95,13 @@ const ProfilingSearchBar = ({
                 className="px-4 py-2 hover:bg-gray-100 cursor-pointer"
                 onClick={() => handleFilterClick("maleData")}
               >
-                Filter by Boy
+                Filter by Male
               </li>
               <li
                 className="px-4 py-2 hover:bg-gray-100 cursor-pointer"
                 onClick={() => handleFilterClick("femaleData")}
               >
-                Filter by Girl
+                Filter by Female
               </li>
               <li
                 className="px-4 py-2 hover:bg-gray-100 cursor-pointer"

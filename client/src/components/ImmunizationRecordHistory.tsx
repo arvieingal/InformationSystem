@@ -27,6 +27,7 @@ type ImmunizationRecordHistory = {
 }
 
 export default function ImmunizationRecordHistory() {
+    const [loading, setLoading] = useState(true)
     const router = useRouter()
 
     const [childrenHistory, setChildrenHistory] = useState<ImmunizationRecordHistory[]>([]);
@@ -39,11 +40,14 @@ export default function ImmunizationRecordHistory() {
     useEffect(() => {
         const fetchImmunizationRecordHistory = async () => {
             try {
+                setLoading(true)
                 const response = await api.get('/api/immunization-record-history');
                 setChildrenHistory(response.data);
                 setFilteredChildren(response.data);
             } catch (error) {
                 console.error("Error fetching immunization records:", error);
+            } finally {
+                setLoading(false)
             }
         };
 
@@ -152,29 +156,41 @@ export default function ImmunizationRecordHistory() {
                                 ))}
                             </tr>
                         </thead>
-                        <tbody className="text-center">
-                            {currentItems.length === 0 ? (
+                        {loading ? (
+                            <tbody>
                                 <tr>
-                                    <td colSpan={HEADER.length} className="py-4 px-6 text-center text-gray-500">
-                                        No data available
+                                    <td colSpan={HEADER.length}>
+                                        <div className="flex justify-center items-center w-full h-full pt-16">
+                                            <div className="w-16 h-16 border-8 border-dashed rounded-full animate-spin border-[#B1E5BA]"></div>
+                                        </div>
                                     </td>
                                 </tr>
-                            ) : (
-                                currentItems.map((child) => (
-                                    <tr key={child.immu_history_id} className="border-b hover:bg-gray-50 cursor-pointer">
-                                        <td className="py-2 px-6 text-left">{child.full_name}</td>
-                                        <td className="py-2 px-6 text-left">{formatDate(child.birthdate)}</td>
-                                        <td className="py-2 px-6 text-left">{child.age}</td>
-                                        <td className="py-2 px-6 text-left">{child.sex}</td>
-                                        <td className="py-2 px-6 text-left">{child.vaccine_type === 'Others' ? child.other_vaccine_type : child.vaccine_type || ""}</td>
-                                        <td className="py-2 px-6 text-left">{child.doses === 'Others' ? child.other_doses : child.doses || ""}</td>
-                                        <td className="py-2 px-6 text-left">{formatDate(child.date_vaccinated)}</td>
-                                        <td className="py-2 px-6 text-left">{child.remarks}</td>
-                                        <td className="py-2 px-6 text-left">{child.health_center}</td>
+                            </tbody>
+                        ) : (
+                            <tbody className="text-center">
+                                {currentItems.length === 0 ? (
+                                    <tr>
+                                        <td colSpan={HEADER.length} className="py-4 px-6 text-center text-gray-500">
+                                            No data available
+                                        </td>
                                     </tr>
-                                ))
-                            )}
-                        </tbody>
+                                ) : (
+                                    currentItems.map((child) => (
+                                        <tr key={child.immu_history_id} className="border-b hover:bg-gray-50 cursor-pointer">
+                                            <td className="py-2 px-6 text-left">{child.full_name}</td>
+                                            <td className="py-2 px-6 text-left">{formatDate(child.birthdate)}</td>
+                                            <td className="py-2 px-6 text-left">{child.age}</td>
+                                            <td className="py-2 px-6 text-left">{child.sex}</td>
+                                            <td className="py-2 px-6 text-left">{child.vaccine_type === 'Others' ? child.other_vaccine_type : child.vaccine_type || ""}</td>
+                                            <td className="py-2 px-6 text-left">{child.doses === 'Others' ? child.other_doses : child.doses || ""}</td>
+                                            <td className="py-2 px-6 text-left">{formatDate(child.date_vaccinated)}</td>
+                                            <td className="py-2 px-6 text-left">{child.remarks}</td>
+                                            <td className="py-2 px-6 text-left">{child.health_center}</td>
+                                        </tr>
+                                    ))
+                                )}
+                            </tbody>
+                        )}
                     </table>
                 </div>
                 <div className='h-[10%]'>

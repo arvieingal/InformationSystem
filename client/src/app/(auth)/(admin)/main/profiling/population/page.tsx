@@ -295,9 +295,6 @@ export default function page() {
         borderColor: "#ffffff",
         borderWidth: 1,
       },
-      datalabels: {
-        display: false, // Disable labels inside the bars
-      },
       legend: {
         display: false,
       },
@@ -308,13 +305,6 @@ export default function page() {
     responsive: true,
     cutout: "50%",
     plugins: {
-      datalabels: {
-        color: '',
-        font: {
-          weight: 'bold',
-          size: 12,
-        },
-      },
       legend: {
         display: false,
       },
