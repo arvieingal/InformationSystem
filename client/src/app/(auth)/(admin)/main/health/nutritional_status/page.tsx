@@ -108,7 +108,6 @@ const NutritionalStatus: React.FC = () => {
   });
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
-  const [isFilterDropdownOpen, setIsFilterDropdownOpen] = useState(false);
   const [originalChildren, setOriginalChildren] = useState<Child[]>([]);
 
   const modalRef = useRef<HTMLDivElement>(null);
