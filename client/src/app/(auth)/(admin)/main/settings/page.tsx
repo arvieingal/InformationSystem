@@ -8,6 +8,7 @@ import { formatDate } from "@/components/formatDate";
 import AdminHeader from "@/components/AdminHeader";
 import SweetAlert from "@/components/SweetAlert";
 import { useSession } from "next-auth/react";
+import OtpModal from "@/components/OtpModal";
 
 const Settings: React.FC = () => {
   const { data: session } = useSession();
@@ -17,14 +18,17 @@ const Settings: React.FC = () => {
   const [logs, setLogs] = useState<any[]>([]);
   const [users, setUsers] = useState<any[]>([]);
   const [currentPage, setCurrentPage] = useState<number>(0);
-  const logsPerPage = 13  ;
+  const logsPerPage = 13;
   const usersPerPage = 10;
   const [userPage, setUserPage] = useState<number>(0);
   const [showCurrentPassword, setShowCurrentPassword] = useState(false);
+  const [isEmailModalOpen, setIsEmailModalOpen] = useState(false);
 
   const fetchLogs = async () => {
     try {
-      const response = await fetch(`http://localhost:3001/api/logs/${session?.user.user_id}`);
+      const response = await fetch(
+        `http://localhost:3001/api/logs/${session?.user.user_id}`
+      );
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`);
       }
@@ -35,7 +39,7 @@ const Settings: React.FC = () => {
       console.error("Error fetching logs:", error);
     }
   };
-  console.log(logs, 'DATA LOGS')
+  console.log(logs, "DATA LOGS");
 
   const fetchUsers = async () => {
     try {
@@ -75,13 +79,24 @@ const Settings: React.FC = () => {
     }
   };
 
-  const filteredLogs = logs?.filter(log =>
-    log.username?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    log.action?.toLowerCase().includes(searchTerm.toLowerCase())
-  ) || [];
+  const filteredLogs =
+    logs?.filter(
+      (log) =>
+        log.username?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        log.action?.toLowerCase().includes(searchTerm.toLowerCase())
+    ) || [];
+
+  const handleForgotPasswordClick = () => {
+    setIsEmailModalOpen(true);
+  };
 
   return (
     <>
+      <OtpModal
+        isEmailModalOpen={isEmailModalOpen}
+        setIsEmailModalOpen={setIsEmailModalOpen}
+        isChangePassword={true}
+      />
       <div className="w-full h-screen bg-gray-100">
         <div className="w-full h-[10vh]">
           <AdminHeader />
@@ -110,7 +125,9 @@ const Settings: React.FC = () => {
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 w-full max-w-7xl">
             {/* User Management Section */}
             <div className="col-span-1 lg:col-span-1">
-              <h2 className="text-2xl font-bold mb-4 text-gray-700">User Management</h2>
+              <h2 className="text-2xl font-bold mb-4 text-gray-700">
+                User Management
+              </h2>
               <div className="space-y-4">
                 {session?.user.role === "Admin" && (
                   <>
@@ -132,23 +149,31 @@ const Settings: React.FC = () => {
                   title="Change my Password"
                   description="Change your current password to a new one."
                   imageSrc="/svg/reset-password.png"
-                  onClick={() => handleCardClick("ChangeMyPassword")}
+                  // onClick={() => handleCardClick("ChangeMyPassword")}
+                  onClick={handleForgotPasswordClick}
                 />
               </div>
             </div>
             {/* Log Management Section */}
             {session?.user.role === "Admin" && (
               <div className="col-span-1 lg:col-span-2">
-                <h2 className="text-2xl font-bold mb-4 text-gray-700">Log Management</h2>
+                <h2 className="text-2xl font-bold mb-4 text-gray-700">
+                  Log Management
+                </h2>
                 <div className="bg-white p-6 rounded-lg shadow-lg">
                   {filteredLogs.length > 0 ? (
                     <>
                       <div className="grid grid-cols-2 gap-4 mb-4">
                         {filteredLogs
-                          .slice(currentPage * logsPerPage, (currentPage + 1) * logsPerPage)
+                          .slice(
+                            currentPage * logsPerPage,
+                            (currentPage + 1) * logsPerPage
+                          )
                           .map((log) => (
                             <div key={log.id} className="mb-2">
-                              {`${log.username} - ${log.action} - ${formatDate(log.timestamp)}`}
+                              {`${log.username} - ${log.action} - ${formatDate(
+                                log.timestamp
+                              )}`}
                             </div>
                           ))}
                       </div>
@@ -162,7 +187,10 @@ const Settings: React.FC = () => {
                         </button>
                         <button
                           onClick={handleNextPage}
-                          disabled={(currentPage + 1) * logsPerPage >= filteredLogs.length}
+                          disabled={
+                            (currentPage + 1) * logsPerPage >=
+                            filteredLogs.length
+                          }
                           className="bg-[#007F73] text-white px-4 py-2 rounded hover:bg-[#005f5a] transition w-[6rem] disabled:opacity-50"
                         >
                           Next
@@ -263,7 +291,8 @@ const Modal = ({
   const [isVerified, setIsVerified] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [showCurrentPassword, setShowCurrentPassword] = useState(false);
-  const [showConfirmCurrentPassword, setShowConfirmCurrentPassword] = useState(false);
+  const [showConfirmCurrentPassword, setShowConfirmCurrentPassword] =
+    useState(false);
   const usersPerPage = 5;
   const [userPage, setUserPage] = useState<number>(0);
   const { data: session } = useSession(); // Access session data
@@ -273,7 +302,7 @@ const Modal = ({
       fetch("http://localhost:3001/api/users")
         .then((response) => response.json())
         .then((data) => {
-          console.log("Fetched users:", data); 
+          console.log("Fetched users:", data);
           setUsers(data);
         })
         .catch((error) => console.error("Error fetching users:", error));
@@ -321,14 +350,14 @@ const Modal = ({
       alert("Current passwords do not match");
       return;
     }
-  
+
     try {
       const token = localStorage.getItem("token"); // Retrieve token from localStorage
       if (!token) {
         alert("User is not authenticated. Please log in.");
         return;
       }
-  
+
       const response = await fetch(
         `http://localhost:3001/api/users/verify-password`,
         {
@@ -340,7 +369,7 @@ const Modal = ({
           body: JSON.stringify({ currentPassword }),
         }
       );
-  
+
       if (response.ok) {
         alert("Password verified!");
       } else {
@@ -642,7 +671,7 @@ const Modal = ({
               onClick={() => setFormData(user)}
               className="bg-[#007F73] text-white px-2 py-1 rounded hover:bg-[#005f5a] transition"
             >
-              Change Password   
+              Change Password
             </button>
           </div>
         ))
@@ -652,7 +681,9 @@ const Modal = ({
     </div>
   );
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
+  const handleChange = (
+    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
+  ) => {
     const { name, value } = e.target;
     setFormData((prevState) => ({
       ...prevState,
@@ -737,7 +768,9 @@ const Modal = ({
 
     try {
       const response = await fetch(
-        `http://localhost:3001/api/users/${isUpdateModal ? formData.user_id : ""}`,
+        `http://localhost:3001/api/users/${
+          isUpdateModal ? formData.user_id : ""
+        }`,
         {
           method: isUpdateModal ? "PUT" : "POST",
           headers: { "Content-Type": "application/json" },
@@ -747,7 +780,9 @@ const Modal = ({
 
       if (response.ok) {
         await SweetAlert.showSuccess(
-          isUpdateModal ? "User updated successfully" : "User added successfully"
+          isUpdateModal
+            ? "User updated successfully"
+            : "User added successfully"
         );
         onClose();
       } else {
@@ -769,12 +804,17 @@ const Modal = ({
 
   const handleDeleteClick = async (userId: string) => {
     try {
-      const confirm = await SweetAlert.showConfirm("Are you sure you want to delete this user?");
+      const confirm = await SweetAlert.showConfirm(
+        "Are you sure you want to delete this user?"
+      );
       if (!confirm) return;
 
-      const response = await fetch(`http://localhost:3001/api/users/${userId}`, {
-        method: "DELETE",
-      });
+      const response = await fetch(
+        `http://localhost:3001/api/users/${userId}`,
+        {
+          method: "DELETE",
+        }
+      );
 
       if (response.ok) {
         setUsers(users.filter((user) => user.user_id !== userId));
@@ -803,10 +843,10 @@ const Modal = ({
         {content === "Add User"
           ? renderAddUserForm()
           : content === "Change Password"
-            ? renderChangePasswordForm()
-            : isUpdateModal
-              ? renderUpdateForm()
-              : renderUserList()}
+          ? renderChangePasswordForm()
+          : isUpdateModal
+          ? renderUpdateForm()
+          : renderUserList()}
       </div>
     </div>
   );
@@ -818,7 +858,8 @@ const ChangeMyPasswordModal = ({ onClose }: { onClose: () => void }) => {
   const [confirmCurrentPassword, setConfirmCurrentPassword] = useState("");
   const [isVerified, setIsVerified] = useState(false);
   const [showCurrentPassword, setShowCurrentPassword] = useState(false);
-  const [showConfirmCurrentPassword, setShowConfirmCurrentPassword] = useState(false);
+  const [showConfirmCurrentPassword, setShowConfirmCurrentPassword] =
+    useState(false);
   const { data: session } = useSession(); // Access session data
 
   const handleVerifyCurrentPassword = async () => {
@@ -856,7 +897,6 @@ const ChangeMyPasswordModal = ({ onClose }: { onClose: () => void }) => {
       alert("An error occurred while verifying the password");
     }
   };
-  
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center">
@@ -903,11 +943,19 @@ const ChangeMyPasswordModal = ({ onClose }: { onClose: () => void }) => {
                   className="w-full mb-2 p-2 border rounded-md pr-10 outline-none"
                 />
                 <Image
-                  src={confirmCurrentPassword ? "/svg/visible.svg" : "/svg/hidden.svg"}
-                  alt={confirmCurrentPassword ? "Hide Password" : "Show Password"}
+                  src={
+                    confirmCurrentPassword
+                      ? "/svg/visible.svg"
+                      : "/svg/hidden.svg"
+                  }
+                  alt={
+                    confirmCurrentPassword ? "Hide Password" : "Show Password"
+                  }
                   width={20}
                   height={20}
-                  onClick={() => setConfirmCurrentPassword(confirmCurrentPassword ? "" : "")}
+                  onClick={() =>
+                    setConfirmCurrentPassword(confirmCurrentPassword ? "" : "")
+                  }
                   className="cursor-pointer absolute right-2 top-1/2 transform -translate-y-1/2"
                 />
               </div>
