@@ -57,8 +57,6 @@ const Login = () => {
     }
   };
 
-  
-
   const handleForgotPasswordClick = () => {
     setIsEmailModalOpen(true);
   };
@@ -129,8 +127,9 @@ const Login = () => {
               className=" w-full space-y-4 mt-[3rem]"
             >
               <div
-                className={`relative text-[#000000] h-[50px]  ${submitted && fieldError.username ? "border-red-500" : ""
-                  }`}
+                className={`relative text-[#000000] h-[50px]  ${
+                  submitted && fieldError.username ? "border-red-500" : ""
+                }`}
               >
                 <input
                   type="text"
@@ -212,8 +211,10 @@ const Login = () => {
           </div>
         </div>
       </div>
-      <OtpModal isEmailModalOpen={isEmailModalOpen}
-        setIsEmailModalOpen={setIsEmailModalOpen} />
+      <OtpModal
+        isEmailModalOpen={isEmailModalOpen}
+        setIsEmailModalOpen={setIsEmailModalOpen}
+      />
     </div>
   );
 };
