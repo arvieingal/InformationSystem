@@ -19,7 +19,6 @@ const ImmunizationRecord: React.FC = () => {
   const router = useRouter();
   const [immunizations, setImmunizations] = useState<Immunization[]>([]);
   const [filteredImmunizations, setFilteredImmunizations] = useState<Immunization[]>([]);
-  console.log('filteredImmunizations', filteredImmunizations)
   const [sortConfig, setSortConfig] = useState<{
     key: keyof Immunization;
     direction: "ascending" | "descending";
@@ -144,8 +143,6 @@ const ImmunizationRecord: React.FC = () => {
         params,
       });
 
-      console.log('length', response.data.length)
-
       if (response.data.length === 0) {
         setFilteredImmunizations([]);
       } else {
@@ -156,9 +153,6 @@ const ImmunizationRecord: React.FC = () => {
       setFilteredImmunizations([]);
     }
   };
-
-  console.log("Filtered:", filteredAndSortedImmunizations); // Should be []
-  // console.log("Passed to Table:", filteredAndSortedImmunizations.length > 0 ? filteredAndSortedImmunizations : []); // Should be []  
 
   return (
     <div className='h-full' onClick={() => handleSort(null)}>
