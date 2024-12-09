@@ -70,13 +70,13 @@ const Purok = () => {
                     <td className="py-3 text-center">
                       {purokZone.sitio_purok}
                     </td>
-                    <td className="py-3 text-center text-[#06C46C]">
+                    <td className="py-3 text-center text-black">
                       {purokZone.total_count}
                     </td>
-                    <td className="py-3 text-center text-[#F4BF42]">
+                    <td className="py-3 text-center text-black">
                       {purokZone.resident}
                     </td>
-                    <td className="py-3 text-center text-[#F4BF42]">
+                    <td className="py-3 text-center text-black">
                       {purokZone.renter}
                     </td>
                   </tr>

@@ -51,6 +51,13 @@ const Sector = () => {
       try {
         const response = await api.get("/api/purok");
         setPurokData(response.data);
+
+        // Set a default selected purok if needed
+        if (response.data.length > 0) {
+          const defaultPurok = response.data[0];
+          setSelectedPurokId(defaultPurok.purok_id);
+          await handleRowClick(defaultPurok);
+        }
       } catch (error) {
         console.error("Error fetching purok data:", error);
       }
