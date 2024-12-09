@@ -103,6 +103,7 @@ const ChildTable: React.FC<TableProps> = ({ children, onSort, sortConfig, onEdit
   const [isFilterDropdownOpen, setIsFilterDropdownOpen] = useState<boolean>(false);
   const [filterCriteria, setFilterCriteria] = useState<{ archived: boolean }>({ archived: false });
   const router = useRouter();
+  const [isLoading, setIsLoading] = useState<boolean>(false);
 
   // Fetch active children
   const fetchChildren = async () => {
@@ -272,6 +273,8 @@ const ChildTable: React.FC<TableProps> = ({ children, onSort, sortConfig, onEdit
         );
 
         if (confirmArchive) {
+          setIsLoading(true); // Start loading
+
           const response = await fetch(
             `http://localhost:3001/api/children/${child.child_id}/archive`,
             {
@@ -281,6 +284,8 @@ const ChildTable: React.FC<TableProps> = ({ children, onSort, sortConfig, onEdit
               },
             }
           );
+
+          setIsLoading(false); // Stop loading
 
           if (response.ok) {
             console.log("Child archived successfully:", child.child_id);
@@ -306,6 +311,7 @@ const ChildTable: React.FC<TableProps> = ({ children, onSort, sortConfig, onEdit
           }
         }
       } catch (error) {
+        setIsLoading(false); // Ensure loading stops on error
         console.error("Error archiving child:", error);
         await SweetAlert.showError('An error occurred while archiving the child.');
       }
@@ -462,6 +468,11 @@ const ChildTable: React.FC<TableProps> = ({ children, onSort, sortConfig, onEdit
           />
         </div>
       </div>
+      {isLoading && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center">
+          <div className="loading-spinner">Loading...</div>
+        </div>
+      )}
     </div>
   );
 };

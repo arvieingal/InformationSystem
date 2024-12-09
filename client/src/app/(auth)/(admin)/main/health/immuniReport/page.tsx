@@ -139,7 +139,7 @@ const ImmuniReport: React.FC = () => {
                   <td className="py-2 px-4 border border-black">
                     <input type="text" className="w-full border-black bg-transparent outline-none" />
                   </td>
-                  <td className="py-2 px-4 border border-black">{vaccinatedCount}</td>
+                  <td className="py-2 px-4 border border-black text-center">{vaccinatedCount}</td>
                   <td className="py-2 px-4 border border-black">
                     <input type="text" className="w-full border-black bg-transparent outline-none" />
                   </td>
