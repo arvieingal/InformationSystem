@@ -11,7 +11,7 @@ const pool = mysql.createPool({
   queueLimit: 0,
   decimalNumbers: true,
   dateStrings: true,
-  port: process.env.DB_PORT
+  port: process.env.PORT,
 });
 
 module.exports = pool;
