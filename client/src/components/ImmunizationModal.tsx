@@ -68,7 +68,7 @@ const ImmunizationModal: React.FC<ModalProps> = ({
 
     try {
       const response = await fetch(
-        `http://localhost:3001/api/child-immunization-record/${editedImmunization.child_immunization_id}`,
+        `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/child-immunization-record/${editedImmunization.child_immunization_id}`,
         {
           method: "PUT",
           headers: {

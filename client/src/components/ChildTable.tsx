@@ -276,7 +276,7 @@ const ChildTable: React.FC<TableProps> = ({ children, onSort, sortConfig, onEdit
           setIsLoading(true); // Start loading
 
           const response = await fetch(
-            `http://localhost:3001/api/children/${child.child_id}/archive`,
+            `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/children/${child.child_id}/archive`,
             {
               method: "PUT",
               headers: {
