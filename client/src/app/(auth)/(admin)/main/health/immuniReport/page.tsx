@@ -15,7 +15,7 @@ const ImmuniReport: React.FC = () => {
   useEffect(() => {
     const fetchVaccinatedCount = async () => {
       try {
-        const response = await fetch("http://localhost:3001/api/vaccinated-count");
+        const response = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/vaccinated-count`);
         const data = await response.json();
         setVaccinatedCounts(data);
         

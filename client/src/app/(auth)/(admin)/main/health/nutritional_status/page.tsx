@@ -208,7 +208,7 @@ const NutritionalStatus: React.FC = () => {
   useEffect(() => {
     const fetchResidents = async () => {
       try {
-        const response = await fetch("http://localhost:3001/api/residents");
+        const response = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/residents`);
         if (response.ok) {
           const data: Child[] = await response.json();
           setOriginalChildren(data);
@@ -228,7 +228,7 @@ const NutritionalStatus: React.FC = () => {
 
   const fetchChildById = async (id: number) => {
     try {
-      const response = await fetch(`http://localhost:3001/api/children/${id}`);
+      const response = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/children/${id}`);
       const data: Child = await response.json();
 
       setSelectedChild(data as any);
@@ -417,7 +417,7 @@ const NutritionalStatus: React.FC = () => {
 
   const handleAddChild = async () => {
     try {
-      const response = await fetch("http://localhost:3001/api/add/children", {
+      const response = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/add/children`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -523,7 +523,7 @@ const NutritionalStatus: React.FC = () => {
       console.log("username", session?.user.username);
 
       const response = await fetch(
-        `http://localhost:3001/api/children/${selectedChild.child_id}`,
+        `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/children/${selectedChild.child_id}`,
         {
           method: "PUT",
           headers: {
@@ -654,7 +654,7 @@ const NutritionalStatus: React.FC = () => {
       console.log(`Attempting to archive child with ID: ${child.child_id}`);
 
       const response = await fetch(
-        `http://localhost:3001/api/children/${child.child_id}/archive`,
+        `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/children/${child.child_id}/archive`,
         {
           method: "PUT",
           headers: {
