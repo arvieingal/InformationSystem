@@ -25,7 +25,7 @@ export default function ReportForm() {
   useEffect(() => {
     const fetchCategorizedData = async () => {
       try {
-        const response = await fetch("http://localhost:3001/api/children/count/categorized");
+        const response = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/children/count/categorized`);
         if (!response.ok) {
           throw new Error(`HTTP error! status: ${response.status}`);
         }
@@ -42,7 +42,7 @@ export default function ReportForm() {
 
     const fetchPurokStatusData = async () => {
       try {
-        const response = await fetch("http://localhost:3001/api/status/purok");
+        const response = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/status/purok`);
         if (!response.ok) {
           throw new Error(`HTTP error! status: ${response.status}`);
         }

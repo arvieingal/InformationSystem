@@ -27,7 +27,7 @@ const Settings: React.FC = () => {
   const fetchLogs = async () => {
     try {
       const response = await fetch(
-        `http://localhost:3001/api/logs/${session?.user.user_id}`
+        `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/logs/${session?.user.user_id}`
       );
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`);
@@ -43,7 +43,7 @@ const Settings: React.FC = () => {
 
   const fetchUsers = async () => {
     try {
-      const response = await fetch("http://localhost:3001/api/users");
+      const response = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/users`);
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`);
       }
@@ -299,7 +299,7 @@ const Modal = ({
 
   useEffect(() => {
     if (content === "Update User" || content === "Change Password") {
-      fetch("http://localhost:3001/api/users")
+      fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/users`)
         .then((response) => response.json())
         .then((data) => {
           console.log("Fetched users:", data);
@@ -322,7 +322,7 @@ const Modal = ({
       }
 
       const response = await fetch(
-        `http://localhost:3001/api/users/verify-password`,
+        `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/users/verify-password`,
         {
           method: "POST",
           headers: {
@@ -359,7 +359,7 @@ const Modal = ({
       }
 
       const response = await fetch(
-        `http://localhost:3001/api/users/verify-password`,
+        `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/users/verify-password`,
         {
           method: "POST",
           headers: {
@@ -768,7 +768,7 @@ const Modal = ({
 
     try {
       const response = await fetch(
-        `http://localhost:3001/api/users/${
+        `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/users/${
           isUpdateModal ? formData.user_id : ""
         }`,
         {
@@ -810,7 +810,7 @@ const Modal = ({
       if (!confirm) return;
 
       const response = await fetch(
-        `http://localhost:3001/api/users/${userId}`,
+        `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/users/${userId}`,
         {
           method: "DELETE",
         }
@@ -875,7 +875,7 @@ const ChangeMyPasswordModal = ({ onClose }: { onClose: () => void }) => {
       }
 
       const response = await fetch(
-        `http://localhost:3001/api/users/verify-password`,
+        `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/users/verify-password`,
         {
           method: "POST",
           headers: {
@@ -993,7 +993,7 @@ const NewPasswordModal = ({ onClose }: { onClose: () => void }) => {
 
     try {
       const response = await fetch(
-        `http://localhost:3001/api/users/change-my-password`,
+        `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/users/change-my-password`,
         {
           method: "POST",
           headers: { "Content-Type": "application/json" },
