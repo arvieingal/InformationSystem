@@ -5,7 +5,7 @@ import Link from "next/link";
 import { useForm } from "react-hook-form";
 import api from "@/lib/axios";
 import { useRouter } from "next/navigation";
-import { signOut } from "next-auth/react";
+import { getSession, signOut } from "next-auth/react";
 
 interface OtpModalProps {
   isEmailModalOpen: boolean;
@@ -79,7 +79,37 @@ export default function OtpModal({
     }
 
     try {
-      // First, check if email exists in users
+      // Check if this is a Change Password operation
+      if (isChangePassword) {
+        const session = await getSession(); // Assuming you're using next-auth or similar
+        if (!session || session.user.email !== data.email) {
+          setMessage("The entered email does not match your current email.");
+          setLoading(false);
+          return;
+        }
+        // Proceed to OTP logic for logged-in users
+        const response = await api.post("/api/send-otp", {
+          email: data.email,
+        });
+
+        const result = response.data;
+        console.log("API Response:", result);
+
+        if (result.success) {
+          setMessage("OTP sent successfully");
+          setIsOtpModalOpen(true);
+          setIsEmailModalOpen(false);
+        } else {
+          setMessage(
+            `Failed to send OTP: ${result.message || "Unknown error"}`
+          );
+          console.error("OTP sending failed:", result);
+        }
+        setLoading(false);
+        return;
+      }
+
+      // Forgot Password logic
       const emailResponse = await api.get(
         `/api/users/check-email/${data.email}`
       );
@@ -366,7 +396,7 @@ export default function OtpModal({
                     height={20}
                     alt="Back Icon"
                   />
-                  <Link href="/">
+                  <Link href={isChangePassword ? "http://localhost:3000/main/settings" : "/"}>
                     <p
                       className="ml-2 text-[#777777] cursor-pointer"
                       onClick={() => setIsOtpModalOpen(false)}
@@ -424,7 +454,7 @@ export default function OtpModal({
                     height={20}
                     alt="Back Icon"
                   />
-                  <Link href="/">
+                  <Link href={isChangePassword ? "http://localhost:3000/main/settings" : "/"}>
                     <p
                       className="ml-2 text-[#777777] cursor-pointer"
                       onClick={() => setIsPasswordResetModalOpen(false)}
