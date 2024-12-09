@@ -93,7 +93,6 @@ export default function OtpModal({
         });
 
         const result = response.data;
-        console.log("API Response:", result);
 
         if (result.success) {
           setMessage("OTP sent successfully");
@@ -114,7 +113,6 @@ export default function OtpModal({
         `/api/users/check-email/${data.email}`
       );
       const checkEmailResponse = emailResponse.data;
-      console.log(checkEmailResponse);
 
       if (!checkEmailResponse.exists) {
         setMessage(
@@ -130,7 +128,6 @@ export default function OtpModal({
       });
 
       const result = response.data;
-      console.log("API Response:", result);
 
       if (result.success) {
         setMessage("OTP sent successfully");
@@ -153,7 +150,6 @@ export default function OtpModal({
     setCanResend(false);
     setResendTimer(30);
 
-    // Start the timer again
     const timer = setInterval(() => {
       setResendTimer((prev) => {
         if (prev <= 1) {
@@ -221,8 +217,6 @@ export default function OtpModal({
         otp: otpValue,
         email: getValues("email"), // Include email from the form
       });
-
-      console.log(response.data);
 
       if (response.data.success) {
         setMessage("OTP verified successfully");

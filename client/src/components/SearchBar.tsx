@@ -7,7 +7,6 @@ interface SearchBarProps {
 const SearchBar: React.FC<SearchBarProps> = ({ onSearch }) => {
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const query = e.target.value;
-    console.log("SearchBar input:", query);
     onSearch(query);
   };
 

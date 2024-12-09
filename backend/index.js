@@ -18,17 +18,17 @@ const PORT = process.env.PORT || 3001;
 
 app.use(express.json());
 app.use(cors());
-app.use("/api", logRoutes);
-app.use("/api", otpRoutes);
-app.use("/api", userRoutes);
-app.use("/api", childrenRoutes);
-app.use("/api", childImmunizationRecordRoutes);
-app.use("/api", residentRoutes);
-app.use("/api", rentOwnerRoutes);
-app.use("/api", renterRoutes);
-app.use("/api", chartRoutes);
-app.use("/api", purokRoutes);
-app.use("/api", historyRoutes);
+app.use("api", logRoutes);
+app.use("api", otpRoutes);
+app.use("api", userRoutes);
+app.use("api", childrenRoutes);
+app.use("api", childImmunizationRecordRoutes);
+app.use("api", residentRoutes);
+app.use("api", rentOwnerRoutes);
+app.use("api", renterRoutes);
+app.use("api", chartRoutes);
+app.use("api", purokRoutes);
+app.use("api", historyRoutes);
 
 const initApp = async () => {
   console.log("Testing the database connection...");

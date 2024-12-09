@@ -58,11 +58,9 @@ const ImmunizationTable: React.FC<TableProps> = ({
     );
     if (isConfirmed) {
       try {
-        console.log("selected", immunization.child_immunization_id); // Use the passed immunization directly
         const response = await api.put("/api/archive-immunization-record", {
           child_immunization_id: immunization.child_immunization_id,
         });
-        console.log("response", response);
         if (response.status === 200) {
           SweetAlert.showSuccess("Immunization archived successfully.");
         } else {

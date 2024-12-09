@@ -80,7 +80,6 @@ const ImmunizationModal: React.FC<ModalProps> = ({
 
       if (response.ok) {
         const result = await response.json();
-        console.log("Record updated successfully:", result);
         onSave(editedImmunization);
         await SweetAlert.showSuccess("Record updated successfully!").then(() =>
           window.location.reload()
