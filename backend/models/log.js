@@ -1,15 +1,21 @@
 const pool = require("../config/db");
+const { format } = require("date-fns");
 
 const Log = {
-  create: async (username, action, timestamp) => {
-    const query =
-      "INSERT INTO logs (username, action, timestamp) VALUES (?, ?, ?)";
-    console.log("Executing query:", query, "with values:", [
-      username,
-      action,
-      timestamp,
-    ]);
-    await pool.query(query, [username, action, timestamp]);
+  create: async (username, action, timestamp, userId) => {
+    const formattedTimestamp = format(
+      new Date(timestamp),
+      "yyyy-MM-dd HH:mm:ss"
+    );
+    try {
+      await pool.execute(
+        "INSERT INTO logs (username, action, timestamp, user_id) VALUES (?, ?, ?, ?)",
+        [username, action, formattedTimestamp, userId]
+      );
+    } catch (err) {
+      console.error("Error creating log entry:", err);
+      throw err;
+    }
   },
 
   getAll: async (userId) => {

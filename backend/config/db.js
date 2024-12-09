@@ -12,6 +12,7 @@ const pool = mysql.createPool({
   decimalNumbers: true,
   dateStrings: true,
   port: process.env.DB_PORT,
+  charset: "utf8mb4_general_ci",
 });
 
 module.exports = pool;

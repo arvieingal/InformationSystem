@@ -206,7 +206,9 @@ const NutritionalStatus: React.FC = () => {
 
   const fetchChildById = async (id: number) => {
     try {
-      const response = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/children/${id}`);
+      const response = await fetch(
+        `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/children/${id}`
+      );
       const data: Child = await response.json();
 
       setSelectedChild(data as any);
@@ -391,13 +393,16 @@ const NutritionalStatus: React.FC = () => {
 
   const handleAddChild = async () => {
     try {
-      const response = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/add/children`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(selectedChild),
-      });
+      const response = await fetch(
+        `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/add/children`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(selectedChild),
+        }
+      );
 
       if (response.ok) {
         const newChild = await response.json();
@@ -483,6 +488,7 @@ const NutritionalStatus: React.FC = () => {
         nutritional_status: selectedChild.nutritional_status ?? null,
         measurement_date: selectedChild.measurement_date ?? null,
         updated_by: session?.user.username || "Unknown User",
+        user_id: session?.user.user_id,
       };
 
       const response = await fetch(
@@ -781,7 +787,9 @@ const NutritionalStatus: React.FC = () => {
                             : ""
                         }
                         onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
-                          const date = e.target.value ? new Date(e.target.value) : null;
+                          const date = e.target.value
+                            ? new Date(e.target.value)
+                            : null;
                           setSelectedChild({
                             ...selectedChild,
                             measurement_date: date
@@ -790,7 +798,9 @@ const NutritionalStatus: React.FC = () => {
                           });
                           setError(null); // Clear error when date is selected
                         }}
-                        className={`border-b w-[12rem] h-[2rem] p-1 text-center ${error ? 'border-red-500 border' : 'border-black'}`}
+                        className={`border-b w-[12rem] h-[2rem] p-1 text-center ${
+                          error ? "border-red-500 border" : "border-black"
+                        }`}
                       />
                     </div>
                   </div>
@@ -1018,7 +1028,9 @@ const NutritionalStatus: React.FC = () => {
                           : ""
                       }
                       onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
-                        const date = e.target.value ? new Date(e.target.value) : null;
+                        const date = e.target.value
+                          ? new Date(e.target.value)
+                          : null;
                         setSelectedChild({
                           ...selectedChild,
                           measurement_date: date
@@ -1027,7 +1039,9 @@ const NutritionalStatus: React.FC = () => {
                         });
                         setError(null); // Clear error when date is selected
                       }}
-                      className={`border-b w-[12rem] h-[2rem] p-1 text-center ${error ? 'border-red-500 border' : 'border-black'}`}
+                      className={`border-b w-[12rem] h-[2rem] p-1 text-center ${
+                        error ? "border-red-500 border" : "border-black"
+                      }`}
                     />
                   </div>
                 </div>

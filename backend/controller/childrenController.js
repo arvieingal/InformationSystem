@@ -85,6 +85,7 @@ const childrenController = {
         .json({ error: "An error occurred while adding the child." });
     }
   },
+
   updateChild: async (req, res) => {
     console.log("Request body:", req.body);
     console.log("Child ID:", req.params.child_id);
@@ -101,11 +102,18 @@ const childrenController = {
       );
 
       const username = req.body.updated_by || "Unknown User";
+      const userId = req.body.user_id || null; // Ensure `user_id` is passed in the request body
+
+      if (!userId) {
+        console.error("Error: Missing user_id for log entry.");
+        return res.status(400).json({ error: "Missing user_id." });
+      }
 
       await Log.create(
         username,
         `User ${username} updated child_no ${req.params.child_id}`,
-        new Date().toISOString()
+        new Date().toISOString(),
+        userId
       );
 
       res.json(updatedChild);
