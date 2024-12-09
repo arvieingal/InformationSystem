@@ -326,17 +326,17 @@ const NutritionalStatus: React.FC = () => {
     };
   }, [isModalOpen, isEditModalOpen, isAddModalOpen]);
 
-  function handleSort(key: keyof ChildTableChild) {
-    let direction = "ascending";
-    if (
-      sortConfig &&
-      sortConfig.key === key &&
-      sortConfig.direction === "ascending"
-    ) {
-      direction = "descending";
+  const handleSort = (key: keyof ChildTableChild | null = null) => {
+    if (!key) {
+      setSortConfig(null);
+    } else {
+      let direction: "ascending" | "descending" = "ascending";
+      if (sortConfig?.key === key && sortConfig.direction === "ascending") {
+        direction = "descending";
+      }
+      setSortConfig({ key, direction });
     }
-    setSortConfig({ key, direction });
-  }
+  };
 
   const sortedChildren = React.useMemo(() => {
     if (sortConfig && sortConfig.key) {
@@ -660,10 +660,11 @@ const NutritionalStatus: React.FC = () => {
   };
 
   return (
-    <>
-      <div className="flex flex-row md:flex md:flex-row justify-center gap-[3rem]"></div>
-
-      <div className="w-full mt-[1rem] ">
+    <div className="h-full" onClick={() => handleSort(null)}>
+      <div
+        className="w-full h-full"
+        onClick={(e) => e.stopPropagation()}
+      >
         <ChildTable
           children={paginatedChildren as unknown as ChildTableChild[]}
           onSort={handleSort}
@@ -675,7 +676,6 @@ const NutritionalStatus: React.FC = () => {
           resetData={resetData}
         />
       </div>
-
       {isModalOpen && selectedChild && (
         <Modal onClose={() => setIsModalOpen(false)}>
           <div className="relative border border-black w-full">
@@ -866,7 +866,6 @@ const NutritionalStatus: React.FC = () => {
           </div>
         </Modal>
       )}
-
       {isEditModalOpen && selectedChild && (
         <Modal onClose={handleEditModalClose}>
           <div ref={modalRef} className="relative text">
@@ -1171,7 +1170,7 @@ const NutritionalStatus: React.FC = () => {
         </Modal>
       )}
       {error && <div className="error-message">{error}</div>}
-    </>
+    </div>
   );
 };
 

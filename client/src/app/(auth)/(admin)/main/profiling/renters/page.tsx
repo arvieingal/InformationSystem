@@ -431,6 +431,22 @@ const Renters = () => {
                               </button>
                             </>
                           )}
+                          {session?.user.role === "Editor" && (
+                            <button
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                onEditRenter(renter);
+                              }}
+                            >
+                              <Image
+                                src={"/svg/edit_pencil.svg"}
+                                alt="Edit"
+                                height={100}
+                                width={100}
+                                className="w-5 h-5 mr-2 cursor-pointer"
+                              />
+                            </button>
+                          )}
                         </td>
                       </tr>
                     );

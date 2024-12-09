@@ -13,6 +13,7 @@ import { FaCalendarAlt } from "react-icons/fa";
 import { Child as ChildTableChild } from "@/components/ChildTable";
 import DataTable from "react-data-table-component";
 import api from "@/lib/axios";
+import { useSession } from "next-auth/react";
 
 export interface Resident {
   resident_id: number;
@@ -101,6 +102,7 @@ const ChildTable: React.FC<TableProps> = ({
   userRole,
   resetData,
 }) => {
+  const { data: session } = useSession();
   const [loading, setLoading] = useState(true);
   const [residents, setResidents] = useState<Resident[]>([]);
   const [error, setError] = useState<string | null>(null);
@@ -301,6 +303,18 @@ const ChildTable: React.FC<TableProps> = ({
     });
   };
 
+  const headers = [
+    { label: "ID", key: "child_id" },
+    { label: "Name", key: "full_name" },
+    { label: "Age", key: "age" },
+    { label: "Sex", key: "sex" },
+    { label: "Birthdate", key: "birthdate" },
+    { label: "Weight (Kg)", key: "weight_kg" },
+    { label: "Height (Cm)", key: "height_cm" },
+    { label: "Nutritional Status", key: "nutritional_status" },
+    { label: "Measurement Date", key: "measurement_date" },
+  ];
+
   return (
     <div className="w-full h-full px-[1.5rem]">
       <div className="w-full h-[10%] flex items-center justify-between  ">
@@ -362,29 +376,18 @@ const ChildTable: React.FC<TableProps> = ({
           </ul>
         </div>
       )}
-      <div className="h-[90%] pt-[1rem]">
+      <div className="h-[90%]">
         <div className="bg-white h-[90%] rounded-[5px] overflow-y-auto">
           <table className="w-full border-collapse text-[14px]">
             <thead className="text-center">
               <tr className="sticky top-0 bg-white shadow-gray-300 shadow-sm">
-                {[
-                  "id",
-                  "name",
-                  "age",
-                  "sex",
-                  "birthdate",
-                  "weightKg",
-                  "heightCm",
-                  "nutritionalStatus",
-                  "measurement date",
-                ].map((key) => (
+                {headers.map(({ label, key }) => (
                   <th
                     key={key}
-                    className="py-2 px-6 text-left font-semibold text-[16px]"
-                    onClick={() => handleSort(key as keyof Child)}
+                    className="py-4 px-6 text-left font-semibold text-[16px] cursor-pointer"
+                    onClick={() => onSort(key as keyof Child)}
                   >
-                    {key.charAt(0).toUpperCase() +
-                      key.slice(1).replace(/([A-Z])/g, " $1")}
+                    {label}
                     {sortConfig?.key === key && (
                       <span>
                         {sortConfig.direction === "ascending" ? " ▲" : " ▼"}
@@ -392,9 +395,12 @@ const ChildTable: React.FC<TableProps> = ({
                     )}
                   </th>
                 ))}
-                <th className="py-4 pr-6 text-left font-semibold text-[16px]">
-                  Option
-                </th>
+                {session?.user.role === "Admin" ||
+                  (session?.user.role === "Editor" && (
+                    <th className="py-4 pr-6 text-left font-semibold text-[16px]">
+                      Option
+                    </th>
+                  ))}
               </tr>
             </thead>
             {loading ? (
@@ -430,42 +436,65 @@ const ChildTable: React.FC<TableProps> = ({
                     <td className="py-2 px-6 text-left">
                       {formatDate(child.measurement_date)}
                     </td>
-                    <td className="py-2 pr-6 text-left flex items-center">
-                      <Image
-                        src="/svg/edit.svg"
-                        alt="Edit"
-                        height={100}
-                        width={100}
-                        className="w-5 h-5 mr-2 cursor-pointer"
-                        onClick={async (e) => {
-                          e.stopPropagation();
-                          if (userRole === "admin" || userRole === "editor") {
-                            handleEditClick(child as unknown as Child);
-                          } else {
-                            await SweetAlert.showError(
-                              "You do not have permission to edit this child."
-                            );
-                          }
-                        }}
-                      />
-                      <Image
-                        src="/svg/archive.svg"
-                        alt="Archive"
-                        height={100}
-                        width={100}
-                        className="w-6 h-6 cursor-pointer"
-                        onClick={async (e) => {
-                          e.stopPropagation();
-                          if (userRole === "admin") {
-                            handleArchiveClick(child as unknown as Child);
-                          } else {
-                            await SweetAlert.showError(
-                              "You do not have permission to archive."
-                            );
-                          }
-                        }}
-                      />
-                    </td>
+                    {session?.user.role === "Admin" && (
+                      <td className="py-2 pr-6 text-left flex items-center">
+                        <Image
+                          src="/svg/edit.svg"
+                          alt="Edit"
+                          height={100}
+                          width={100}
+                          className="w-5 h-5 mr-2 cursor-pointer"
+                          onClick={async (e) => {
+                            e.stopPropagation();
+                            if (userRole === "admin" || userRole === "editor") {
+                              handleEditClick(child as unknown as Child);
+                            } else {
+                              await SweetAlert.showError(
+                                "You do not have permission to edit this child."
+                              );
+                            }
+                          }}
+                        />
+                        <Image
+                          src="/svg/archive.svg"
+                          alt="Archive"
+                          height={100}
+                          width={100}
+                          className="w-6 h-6 cursor-pointer"
+                          onClick={async (e) => {
+                            e.stopPropagation();
+                            if (userRole === "admin") {
+                              handleArchiveClick(child as unknown as Child);
+                            } else {
+                              await SweetAlert.showError(
+                                "You do not have permission to archive."
+                              );
+                            }
+                          }}
+                        />
+                      </td>
+                    )}
+                    {session?.user.role === "Editor" && (
+                      <td className="py-2 pr-6 text-left flex items-center">
+                        <Image
+                          src="/svg/edit.svg"
+                          alt="Edit"
+                          height={100}
+                          width={100}
+                          className="w-5 h-5 mr-2 cursor-pointer"
+                          onClick={async (e) => {
+                            e.stopPropagation();
+                            if (userRole === "admin" || userRole === "editor") {
+                              handleEditClick(child as unknown as Child);
+                            } else {
+                              await SweetAlert.showError(
+                                "You do not have permission to edit this child."
+                              );
+                            }
+                          }}
+                        />
+                      </td>
+                    )}
                   </tr>
                 ))}
               </tbody>

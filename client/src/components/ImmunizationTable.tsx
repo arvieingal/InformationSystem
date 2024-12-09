@@ -124,9 +124,12 @@ const ImmunizationTable: React.FC<TableProps> = ({
                   )}
                 </th>
               ))}
-              <th className="py-4 pr-6 text-left font-semibold text-[16px]">
-                Option
-              </th>
+              {session?.user.role === "Admin" ||
+                (session?.user.role === "Editor" && (
+                  <th className="py-4 pr-6 text-left font-semibold text-[16px]">
+                    Option
+                  </th>
+                ))}
             </tr>
           </thead>
           {loading ? (
@@ -203,30 +206,47 @@ const ImmunizationTable: React.FC<TableProps> = ({
                     >
                       {immunization.health_center}
                     </td>
-                    <td className="py-2 pr-6 text-left flex items-center">
-                      <Image
-                        src="/svg/edit.svg"
-                        alt="Edit"
-                        height={100}
-                        width={100}
-                        className="w-5 h-5 mr-2 cursor-pointer"
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          handleEditClick(immunization);
-                        }}
-                      />
-                      <Image
-                        src="/svg/archive.svg"
-                        alt="Archive"
-                        height={100}
-                        width={100}
-                        className="w-5 h-5 mr-2 cursor-pointer"
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          handleArchiveImmunization(immunization);
-                        }}
-                      />
-                    </td>
+                    {session?.user.role === "Admin" && (
+                      <td className="py-2 pr-6 text-left flex items-center">
+                        <Image
+                          src="/svg/edit.svg"
+                          alt="Edit"
+                          height={100}
+                          width={100}
+                          className="w-5 h-5 mr-2 cursor-pointer"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handleEditClick(immunization);
+                          }}
+                        />
+                        <Image
+                          src="/svg/archive.svg"
+                          alt="Archive"
+                          height={100}
+                          width={100}
+                          className="w-5 h-5 mr-2 cursor-pointer"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handleArchiveImmunization(immunization);
+                          }}
+                        />
+                      </td>
+                    )}
+                    {session?.user.role === "Editor" && (
+                      <td className="py-2 pr-6 text-left flex items-center">
+                        <Image
+                          src="/svg/edit.svg"
+                          alt="Edit"
+                          height={100}
+                          width={100}
+                          className="w-5 h-5 mr-2 cursor-pointer"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handleEditClick(immunization);
+                          }}
+                        />
+                      </td>
+                    )}
                   </tr>
                 ))
               )}

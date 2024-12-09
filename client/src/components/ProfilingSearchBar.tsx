@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import Image from "next/image";
+import { useSession } from "next-auth/react";
 
 interface Props {
   onSearch: (searchTerm: string) => void;
@@ -16,6 +17,7 @@ const ProfilingSearchBar = ({
   handleFilterClick,
   resetData,
 }: Props) => {
+  const session = useSession();
   const [searchTerm, setSearchTerm] = React.useState("");
   const [filterVisible, setFilterVisible] = useState(false);
   const [isBusinessOwnerHover, setIsBusinessOwnerHover] = useState(false);
@@ -130,18 +132,19 @@ const ProfilingSearchBar = ({
             </ul>
           </div>
         )}
-        <button
-          className="flex bg-white h-full items-center justify-center w-[4%] rounded-r-[5px]"
-          onClick={() => setAddResidentModal()}
-        >
-          <Image
-            src={"/svg/add-household.svg"}
-            alt="Burger"
-            height={100}
-            width={100}
-            className="h-8 w-8 cursor-pointer"
-          />
-        </button>
+        <div className="flex bg-white h-full items-center justify-center w-[4%] rounded-r-[5px]">
+          {session.data?.user?.role === "Admin" && (
+            <button onClick={() => setAddResidentModal()}>
+              <Image
+                src={"/svg/add-household.svg"}
+                alt="Burger"
+                height={100}
+                width={100}
+                className="h-8 w-8 cursor-pointer"
+              />
+            </button>
+          )}
+        </div>
       </div>
       <div className="h-[50%] text-[12px] flex items-center">
         <p className="text-[#799DAD]">
