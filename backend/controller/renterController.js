@@ -80,7 +80,7 @@ const rentOwnerController = {
           .json({ message: "Renter not found or no changes made" });
       }
     } catch (error) {
-      console.error("Error in updateRenter controller:", error);
+      console.error("Error in archiveRenter controller:", error);
       res.status(500).json({
         message: "Internal server error while updating Renter",
         error: error.message,

@@ -11,6 +11,7 @@ import { Renter, RentOwner } from "@/types/profilingTypes";
 import { SubmitHandler, useForm } from "react-hook-form";
 import { useSession } from "next-auth/react";
 import debounce from "lodash.debounce";
+import SweetAlert from "@/components/SweetAlert";
 
 const Renters = () => {
   const router = useRouter();
@@ -130,30 +131,30 @@ const Renters = () => {
   };
 
   const onSubmit: SubmitHandler<Renter> = async (data) => {
-    try {
-      console.log("Current rent number:", renterData.rent_number);
-      console.log("Rent Owner Data:", rentOwner);
+    const confirm = await SweetAlert.showConfirm('Are you sure all the information are correct?')
 
-      const rentNumber = Number(renterData.rent_number);
+    if (confirm) {
+      try {
+        const rentNumber = Number(renterData.rent_number);
 
-      const owner = rentOwner.find(
-        (ro) => Number(ro.rent_number) === rentNumber
-      );
-      if (!owner) {
-        console.error(`No owner found for rent number: ${rentNumber}`);
-      } else {
-        console.log(
-          `Owner found: ${owner.rent_owner}, Sitio: ${owner.sitio_purok}`
+        const owner = rentOwner.find(
+          (ro) => Number(ro.rent_number) === rentNumber
         );
-      }
+        if (!owner) {
+          console.error(`No owner found for rent number: ${rentNumber}`);
+        } else {
+          console.log(
+            `Owner found: ${owner.rent_owner}, Sitio: ${owner.sitio_purok}`
+          );
+        }
 
-      const formData: Renter = editRenterModal
-        ? {
+        const formData: Renter = editRenterModal
+          ? {
             ...renterData,
             renter_id: selectedRenter?.renter_id || null,
             status: "Active",
           }
-        : {
+          : {
             ...data,
             rent_number: rentNumber,
             months_year_of_stay: Number(renterData.months_year_of_stay),
@@ -161,32 +162,42 @@ const Renters = () => {
             status: "Active",
           };
 
-      console.log("Submitting Form Data:", formData);
+        console.log("Submitting Form Data:", formData);
 
-      const endpoint = selectedRenter?.renter_id
-        ? "/api/update-renter"
-        : "/api/insert-renter";
+        const endpoint = selectedRenter?.renter_id
+          ? "/api/update-renter"
+          : "/api/insert-renter";
 
-      const method = selectedRenter?.renter_id ? "put" : "post";
+        const method = selectedRenter?.renter_id ? "put" : "post";
 
-      const response = await api[method](endpoint, formData);
+        const response = await api[method](endpoint, formData);
 
-      console.log("Submission success:", response.data);
-      setAddRenterModal(false);
-      setEditRenterModal(false);
-    } catch (error) {
-      console.error("Error submitting data:", error);
+        console.log("Submission success:", response.data);
+        await SweetAlert.showSuccess(
+          addRenterModal ? 'Renter Added Successfully' : 'Renter Edited Successfully'
+        ).then(() => {
+          window.location.reload();
+        });
+        setAddRenterModal(false);
+        setEditRenterModal(false);
+      } catch (error) {
+        console.error("Error submitting data:", error);
+      }
     }
   };
 
-  const handleArchiveResident = async () => {
+  const handleArchiveResident = async (renter: Renter) => {
     try {
       const response = await api.put("/api/archive-renter", {
-        renter_id: selectedRenter?.renter_id,
+        renter_id: renter?.renter_id,
       });
 
       if (response.status === 200) {
-        alert("Renter archived successfully!");
+        await SweetAlert.showSuccess(
+          'Renter archived successfully!'
+        ).then(() => {
+          window.location.reload();
+        });
       } else {
         alert("Failed to archive renter.");
       }
@@ -302,8 +313,7 @@ const Renters = () => {
   }, [renters, sortConfig]);
 
   const resetData = () => {
-    console.log(renters);
-    setIsSearching(false);
+    window.location.reload();
   };
 
   return (
@@ -358,7 +368,7 @@ const Renters = () => {
                     return (
                       <tr
                         key={renter.renter_id}
-                        className="border-b hover:bg-gray-50"
+                        className="border-b hover:bg-gray-50 cursor-pointer"
                         onClick={() => onRenterClick(renter)}
                       >
                         <td className="py-2 px-5 text-left">
@@ -386,11 +396,13 @@ const Renters = () => {
                           {session?.user.role === "Admin" && (
                             <>
                               <button
-                                onClick={(e) => {
+                                onClick={async (e) => {
                                   e.stopPropagation();
-                                  onEditRenter(renter);
-                                }}
-                              >
+                                  const confirm = await SweetAlert.showConfirm('Are you sure you want to edit this member?');
+                                  if (confirm) {
+                                    onEditRenter(renter);
+                                  }
+                                }}>
                                 <Image
                                   src={"/svg/edit_pencil.svg"}
                                   alt="Edit"
@@ -400,11 +412,13 @@ const Renters = () => {
                                 />
                               </button>
                               <button
-                                onClick={(e) => {
+                                onClick={async (e) => {
                                   e.stopPropagation();
-                                  handleArchiveResident();
-                                }}
-                              >
+                                  const confirm = await SweetAlert.showConfirm('Are you sure you want to archive this member?');
+                                  if (confirm) {
+                                    handleArchiveResident(renter);
+                                  }
+                                }}>
                                 <Image
                                   src="/svg/archive.svg"
                                   alt="Archive"
@@ -433,15 +447,15 @@ const Renters = () => {
       </div>
       {(addRenterModal || editRenterModal || isInfoModal) && (
         <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-60">
-          <div className="bg-white w-[80%] p-4 rounded-[10px] shadow-lg">
+          <div className="bg-white w-[60%] p-14 rounded-[10px] shadow-lg relative text-[14px]">
             <div className="flex flex-col">
-              <div className="flex justify-between">
+              <div>
                 <Image
-                  src={"/svg/people-resident.svg"}
+                  src={"/svg/add-logo.svg"}
                   alt="people"
                   width={100}
                   height={100}
-                  className="w-6 h-6"
+                  className="w-12 h-12"
                 />
                 <button
                   onClick={() => {
@@ -455,26 +469,26 @@ const Renters = () => {
                     alt="close"
                     width={100}
                     height={100}
-                    className="w-5 h-5"
+                    className="w-5 h-5 absolute right-4 top-4"
                   />
                 </button>
               </div>
-              <span>Renter Information</span>
-              <span>
+              <span className="text-[24px] font-semibold pt-3">Renter Information</span>
+              <span className="text-[#545454]">
                 {addRenterModal ? "Add" : editRenterModal ? "Update" : "View"}{" "}
-                renter's info
+                renter&apos;s info
               </span>
               {editRenterModal ||
                 (isInfoModal && (
-                  <span>Rent number: {selectedRenter?.rent_number}</span>
+                  <span className="text-[#545454]">Rent number: {selectedRenter?.rent_number}</span>
                 ))}
               {editRenterModal ||
                 (isInfoModal && (
-                  <span>Sitio: {selectedRenter?.sitio_purok}</span>
+                  <span className="text-[#545454]">Sitio: {selectedRenter?.sitio_purok}</span>
                 ))}
               {editRenterModal ||
                 (isInfoModal && (
-                  <span>
+                  <span className="text-[#545454]">
                     Rent Owner:{" "}
                     {rentOwner.find(
                       (owner) =>
@@ -483,8 +497,8 @@ const Renters = () => {
                   </span>
                 ))}
             </div>
-            <form action="" onSubmit={handleSubmit(onSubmit)}>
-              <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+            <form action="" onSubmit={handleSubmit(onSubmit)} className="pt-5 text-[14px]">
+              <div className="grid grid-cols-1 md:grid-cols-4 gap-5">
                 <div className="flex flex-col">
                   <label htmlFor="">
                     Family Name
@@ -492,7 +506,7 @@ const Renters = () => {
                   </label>
                   <input
                     type="text"
-                    className="border-[#969696] border-[1px] rounded-[5px]"
+                    className="border-[#969696] border-[1px] rounded-[5px] py-1 px-2"
                     {...register("family_name", {
                       validate: (value) =>
                         !isInfoModal && !value && !renterData.family_name
@@ -508,7 +522,7 @@ const Renters = () => {
                   <label htmlFor="">Middle Name</label>
                   <input
                     type="text"
-                    className="border-[#969696] border-[1px] rounded-[5px]"
+                    className="border-[#969696] border-[1px] rounded-[5px] py-1 px-2"
                     {...register("middle_name", { required: false })}
                     value={renterData.middle_name || ""}
                     onChange={handleChange}
@@ -522,7 +536,7 @@ const Renters = () => {
                   </label>
                   <input
                     type="text"
-                    className="border-[#969696] border-[1px] rounded-[5px]"
+                    className="border-[#969696] border-[1px] rounded-[5px] py-1 px-2"
                     {...register("given_name", {
                       validate: (value) =>
                         !value && !renterData.given_name
@@ -538,7 +552,7 @@ const Renters = () => {
                   <label htmlFor="">Suffix</label>
                   <input
                     type="text"
-                    className="border-[#969696] border-[1px] rounded-[5px]"
+                    className="border-[#969696] border-[1px] rounded-[5px] py-1 px-2"
                     {...register("extension", { required: false })}
                     value={renterData.extension || ""}
                     onChange={handleChange}
@@ -551,7 +565,7 @@ const Renters = () => {
                     {!isInfoModal && <span className="text-red-500">*</span>}
                   </label>
                   <select
-                    className="border-[#969696] border-[1px] rounded-[5px]"
+                    className="border-[#969696] border-[1px] rounded-[5px] py-1 px-2"
                     {...register("rent_number", {
                       validate: (value) =>
                         !value && !renterData.rent_number
@@ -579,7 +593,7 @@ const Renters = () => {
                     {isInfoModal ? (
                       <span>{renterData.gender || "N/A"}</span>
                     ) : (
-                      <>
+                      <div className="flex items-center">
                         <input
                           type="radio"
                           {...register("gender", {
@@ -589,12 +603,12 @@ const Renters = () => {
                                 : true,
                           })}
                           value="Female"
-                          className="border-[#969696]"
+                          className="border-[#969696] mx-3 w-4 h-4 cursor-pointer"
                           checked={renterData.gender === "Female"}
                           onChange={handleChange}
                           disabled={isInfoModal}
                         />
-                        Female
+                        <span className="mr-3">Female</span>
                         <input
                           type="radio"
                           {...register("gender", {
@@ -604,13 +618,13 @@ const Renters = () => {
                                 : true,
                           })}
                           value="Male"
-                          className="border-[#969696]"
+                          className="border-[#969696] mr-3 w-4 h-4 cursor-pointer"
                           checked={renterData.gender === "Male"}
                           onChange={handleChange}
                           disabled={isInfoModal}
                         />
-                        Male
-                      </>
+                        <span className="mr-3">Male</span>
+                      </div>
                     )}
                   </div>
                 </div>
@@ -620,7 +634,7 @@ const Renters = () => {
                     {!isInfoModal && <span className="text-red-500">*</span>}
                   </label>
                   <select
-                    className="border-[#969696] border-[1px] rounded-[5px]"
+                    className="border-[#969696] border-[1px] rounded-[5px] py-1 px-2"
                     {...register("civil_status", {
                       validate: (value) =>
                         !value && !renterData.civil_status
@@ -646,7 +660,7 @@ const Renters = () => {
                   </label>
                   <input
                     type="date"
-                    className="border-[#969696] border-[1px] rounded-[5px]"
+                    className="border-[#969696] border-[1px] rounded-[5px] py-1 px-2"
                     {...register("birthdate", {
                       validate: (value) =>
                         !value && !renterData.birthdate
@@ -665,7 +679,7 @@ const Renters = () => {
                   </label>
                   <input
                     type="text"
-                    className="border-[#969696] border-[1px] rounded-[5px]"
+                    className="border-[#969696] border-[1px] rounded-[5px] py-1 px-2"
                     {...register("months_year_of_stay", {
                       validate: (value) =>
                         !value && !renterData.months_year_of_stay
@@ -684,7 +698,7 @@ const Renters = () => {
                   </label>
                   <input
                     type="text"
-                    className="border-[#969696] border-[1px] rounded-[5px]"
+                    className="border-[#969696] border-[1px] rounded-[5px] py-1 px-2"
                     {...register("work", {
                       validate: (value) =>
                         !value && !renterData.work
@@ -701,9 +715,8 @@ const Renters = () => {
                 <div className="flex justify-center items-center font-semibold pt-16">
                   <button
                     type="submit"
-                    className={`bg-[#338A80] text-white rounded-[5px] py-1 w-[50%] ${
-                      isInfoModal ? "hidden" : ""
-                    }`}
+                    className={`bg-[#338A80] text-white rounded-[5px] py-2 w-[40%] text-[18px] ${isInfoModal ? "hidden" : ""
+                      }`}
                   >
                     {addRenterModal ? "Add" : "Update"}
                   </button>

@@ -44,6 +44,18 @@ const residentController = {
 
       console.log("household member data", householdMemberData);
 
+      // Check for duplicate household member
+      const isDuplicate = await Resident.checkDuplicateHouseholdMember(
+        householdMemberData
+      );
+
+      if (isDuplicate) {
+        return res
+          .status(400)
+          .json({ message: "Household member already exists" });
+      }
+
+      // Insert household member
       const result = await Resident.insertHouseholdMember(householdMemberData);
 
       if (result && result.affectedRows > 0) {
@@ -88,15 +100,16 @@ const residentController = {
 
   insertHouseholdHead: async (req, res) => {
     try {
-      const { household_number } = req.body;
+      const { household_number, family_name, given_name, birthdate } = req.body;
+
       console.log("Incoming data:", req.body);
 
-      // Check if the request body is valid
+      // Validate request body
       if (!req.body || Object.keys(req.body).length === 0) {
         return res.status(400).json({ message: "Request body is empty" });
       }
 
-      // Check if household_number with is_household_head = 'Yes' exists
+      // 1. Check if the household_number is already assigned to a household head
       const [existingHousehold] = await pool.query(
         "SELECT * FROM resident WHERE household_number = ? AND is_household_head = 'Yes'",
         [household_number]
@@ -108,6 +121,25 @@ const residentController = {
         return res
           .status(400)
           .json({ message: "Household number is already taken by a head" });
+      }
+
+      // 2. Check if the exact household head (same name, birthdate, household_number) already exists
+      const [duplicateHead] = await pool.query(
+        `SELECT * FROM resident 
+         WHERE household_number = ? 
+           AND family_name = ? 
+           AND given_name = ? 
+           AND birthdate = ? 
+           AND is_household_head = 'Yes'`,
+        [household_number, family_name, given_name, birthdate]
+      );
+
+      console.log("Duplicate household head check result:", duplicateHead);
+
+      if (duplicateHead.length > 0) {
+        return res
+          .status(400)
+          .json({ message: "Household head already exists" });
       }
 
       // Proceed with the insertion
@@ -147,7 +179,7 @@ const residentController = {
           .json({ message: "Household member not found or no changes made" });
       }
     } catch (error) {
-      console.error("Error in updateHouseholdMember controller:", error);
+      console.error("Error in archiveHouseholdMember controller:", error);
       res.status(500).json({
         message: "Internal server error while updating household member",
         error: error.message,

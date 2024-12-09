@@ -10,6 +10,7 @@ import Image from "next/image";
 import { SubmitHandler, useForm } from "react-hook-form";
 import { Resident } from "@/types/profilingTypes";
 import debounce from "lodash.debounce";
+import SweetAlert from "@/components/SweetAlert";
 
 const Households = () => {
   const [loading, setLoading] = useState(true);
@@ -91,39 +92,48 @@ const Households = () => {
   }, []);
 
   const onSubmit: SubmitHandler<Resident> = async (data) => {
-    try {
-      const formData: Resident = {
-        ...data,
-        other_relationship: data.other_relationship || "",
-        household_number: Number(data.household_number),
-        age: data.age || null,
-        lot_number: Number(data.lot_number),
-        block_number: Number(data.block_number),
-        sitio_purok: data.sitio_purok || "",
-        highest_educational_attainment:
-          data.highest_educational_attainment || "",
-        occupation: data.occupation || "",
-        monthly_income: data.monthly_income || null,
-        status: "Active",
-        barangay: data?.barangay || "",
-        city: data?.city || "",
-        birthplace: data.birthplace || "",
-        is_business_owner: data.is_business_owner || "No",
-        religion: data.religion || "",
-        sectoral: data.sectoral || "",
-        other_sectoral: data.other_sectoral || "",
-        is_registered_voter: data.is_registered_voter || "No",
-        is_household_head: "Yes",
-      };
+    const confirm = await SweetAlert.showConfirm('Are you sure all the information are correct?')
 
-      console.log("Submitting Form Data:", formData);
+    if (confirm) {
+      try {
+        const formData: Resident = {
+          ...data,
+          other_relationship: data.other_relationship || "",
+          household_number: Number(data.household_number),
+          age: data.age || null,
+          lot_number: Number(data.lot_number),
+          block_number: Number(data.block_number),
+          sitio_purok: data.sitio_purok || "",
+          highest_educational_attainment:
+            data.highest_educational_attainment || "",
+          occupation: data.occupation || "",
+          monthly_income: data.monthly_income || null,
+          status: "Active",
+          barangay: data?.barangay || "",
+          city: data?.city || "",
+          birthplace: data.birthplace || "",
+          is_business_owner: data.is_business_owner || "No",
+          religion: data.religion || "",
+          sectoral: data.sectoral || "",
+          other_sectoral: data.other_sectoral || "",
+          is_registered_voter: data.is_registered_voter || "No",
+          is_household_head: "Yes",
+        };
 
-      const response = await api.post("/api/insert-household-head", formData);
+        console.log("Submitting Form Data:", formData);
 
-      console.log("Submission success:", response.data);
-      setAddResidentModal(false);
-    } catch (error) {
-      console.error("Error submitting data:", error);
+        const response = await api.post("/api/insert-household-head", formData);
+
+        console.log("Submission success:", response.data);
+        await SweetAlert.showSuccess(
+          'Household Head added Successfully'
+        ).then(() => {
+          window.location.reload();
+        });
+        setAddResidentModal(false);
+      } catch (error) {
+        console.error("Error submitting data:", error);
+      }
     }
   };
 
@@ -319,11 +329,10 @@ const Households = () => {
                     <td className="py-2 text-left px-20">{item.sitio_purok}</td>
                     <td className="py-2 text-left px-20">
                       <p
-                        className={`${
-                          item.is_business_owner === "Yes"
-                            ? "bg-[#007F73] text-white"
-                            : "bg-[#A4A4A4]"
-                        } rounded-[4px] py-1 w-20 inline-block text-center`}
+                        className={`${item.is_business_owner === "Yes"
+                          ? "bg-[#007F73] text-white"
+                          : "bg-[#A4A4A4]"
+                          } rounded-[4px] py-1 w-20 inline-block text-center`}
                       >
                         {item.is_business_owner}
                       </p>
@@ -350,15 +359,15 @@ const Households = () => {
       </div>
       {addResidentModal && (
         <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-60 z-20">
-          <div className="bg-white w-[80%] p-4 rounded-[10px] shadow-lg">
+          <div className="bg-white w-[60%] p-14 rounded-[10px] shadow-lg relative">
             <div className="flex flex-col">
-              <div className="flex justify-between">
+              <div>
                 <Image
-                  src={"/svg/people-resident.svg"}
+                  src={"/svg/add-logo.svg"}
                   alt="people"
                   width={100}
                   height={100}
-                  className="w-6 h-6"
+                  className="w-12 h-12"
                 />
                 <button
                   onClick={() => {
@@ -370,21 +379,22 @@ const Households = () => {
                     alt="close"
                     width={100}
                     height={100}
-                    className="w-5 h-5"
+                    className="w-5 h-5 absolute right-4 top-4"
                   />
                 </button>
               </div>
-              <span>Add household head&apos;s info</span>
+              <span className="text-[24px] font-semibold pt-3">Create new Household Head</span>
+              <span className="text-[14px] text-[#545454]">Enter new Household&apos;s info</span>
             </div>
-            <form action="" onSubmit={handleSubmit(onSubmit)}>
-              <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+            <form action="" onSubmit={handleSubmit(onSubmit)} className="pt-5 text-[14px]">
+              <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
                 <div className="flex flex-col">
                   <label htmlFor="">
                     Family Name<span className="text-red-500">*</span>
                   </label>
                   <input
                     type="text"
-                    className="border-[#969696] border-[1px] rounded-[5px]"
+                    className="border-[#969696] border-[1px] rounded-[5px] py-1 px-2"
                     {...register("family_name", { required: true })}
                   />
                 </div>
@@ -392,7 +402,7 @@ const Households = () => {
                   <label htmlFor="">Middle Name</label>
                   <input
                     type="text"
-                    className="border-[#969696] border-[1px] rounded-[5px]"
+                    className="border-[#969696] border-[1px] rounded-[5px] py-1 px-2"
                     {...register("middle_name", { required: false })}
                   />
                 </div>
@@ -402,7 +412,7 @@ const Households = () => {
                   </label>
                   <input
                     type="text"
-                    className="border-[#969696] border-[1px] rounded-[5px]"
+                    className="border-[#969696] border-[1px] rounded-[5px] py-1 px-2"
                     {...register("given_name", { required: true })}
                   />
                 </div>
@@ -410,7 +420,7 @@ const Households = () => {
                   <label htmlFor="">Suffix</label>
                   <input
                     type="text"
-                    className="border-[#969696] border-[1px] rounded-[5px]"
+                    className="border-[#969696] border-[1px] rounded-[5px] py-1 px-2"
                     {...register("extension", { required: false })}
                   />
                 </div>
@@ -420,7 +430,7 @@ const Households = () => {
                   </label>
                   <input
                     type="text"
-                    className="border-[#969696] border-[1px] rounded-[5px]"
+                    className="border-[#969696] border-[1px] rounded-[5px] py-1 px-2"
                     {...register("household_number", {
                       required: true,
                       validate: (value) => {
@@ -446,7 +456,7 @@ const Households = () => {
                   </label>
                   <input
                     type="text"
-                    className="border-[#969696] border-[1px] rounded-[5px]"
+                    className="border-[#969696] border-[1px] rounded-[5px] py-1 px-2"
                     {...register("block_number", { required: true })}
                   />
                 </div>
@@ -456,7 +466,7 @@ const Households = () => {
                   </label>
                   <input
                     type="text"
-                    className="border-[#969696] border-[1px] rounded-[5px]"
+                    className="border-[#969696] border-[1px] rounded-[5px] py-1 px-2"
                     {...register("lot_number", { required: true })}
                   />
                 </div>
@@ -465,22 +475,22 @@ const Households = () => {
                     Gender<span className="text-red-500">*</span>
                   </label>
                   <div>
-                    <>
+                    <div className="flex items-center">
                       <input
                         type="radio"
                         {...register("gender", { required: true })}
                         value="Female"
-                        className="border-[#969696]"
+                        className="border-[#969696] mx-3 w-4 h-4 cursor-pointer"
                       />
-                      Female
+                      <span className="mr-3">Female</span>
                       <input
                         type="radio"
                         {...register("gender", { required: true })}
                         value="Male"
-                        className="border-[#969696]"
+                        className="border-[#969696] mr-3 w-4 h-4 cursor-pointer"
                       />
-                      Male
-                    </>
+                      <span className="mr-3">Male</span>
+                    </div>
                   </div>
                 </div>
                 <div className="flex flex-col">
@@ -488,7 +498,7 @@ const Households = () => {
                     Relationship<span className="text-red-500">*</span>
                   </label>
                   <select
-                    className="border-[#969696] border-[1px] rounded-[5px]"
+                    className="border-[#969696] border-[1px] rounded-[5px] py-1 px-2"
                     {...register("relationship", {
                       validate: (value) =>
                         !value && !residentData.relationship
@@ -536,7 +546,7 @@ const Households = () => {
                     </label>
                     <input
                       type="text"
-                      className="border-[#969696] border-[1px] rounded-[5px]"
+                      className="border-[#969696] border-[1px] rounded-[5px] py-1 px-2"
                       {...register("other_relationship", {
                         validate: (value) =>
                           !value && !residentData.other_relationship
@@ -559,7 +569,7 @@ const Households = () => {
                     Civil Status<span className="text-red-500">*</span>
                   </label>
                   <select
-                    className="border-[#969696] border-[1px] rounded-[5px]"
+                    className="border-[#969696] border-[1px] rounded-[5px] py-1 px-2"
                     {...register("civil_status", { required: true })}
                   >
                     <option value=""></option>
@@ -576,7 +586,7 @@ const Households = () => {
                   </label>
                   <input
                     type="date"
-                    className="border-[#969696] border-[1px] rounded-[5px]"
+                    className="border-[#969696] border-[1px] rounded-[5px] py-1 px-2"
                     {...register("birthdate", { required: true })}
                   />
                 </div>
@@ -585,7 +595,7 @@ const Households = () => {
                     Sitio<span className="text-red-500">*</span>
                   </label>
                   <select
-                    className="border-[#969696] border-[1px] rounded-[5px]"
+                    className="border-[#969696] border-[1px] rounded-[5px] py-1 px-2"
                     {...register("sitio_purok", { required: true })}
                   >
                     <option value=""></option>
@@ -612,7 +622,7 @@ const Households = () => {
                   </label>
                   <input
                     type="text"
-                    className="border-[#969696] border-[1px] rounded-[5px]"
+                    className="border-[#969696] border-[1px] rounded-[5px] py-1 px-2"
                     {...register("barangay", { required: true })}
                   />
                 </div>
@@ -622,7 +632,7 @@ const Households = () => {
                   </label>
                   <input
                     type="text"
-                    className="border-[#969696] border-[1px] rounded-[5px]"
+                    className="border-[#969696] border-[1px] rounded-[5px] py-1 px-2"
                     {...register("city", { required: true })}
                   />
                 </div>
@@ -632,7 +642,7 @@ const Households = () => {
                   </label>
                   <input
                     type="text"
-                    className="border-[#969696] border-[1px] rounded-[5px]"
+                    className="border-[#969696] border-[1px] rounded-[5px] py-1 px-2"
                     {...register("birthplace", { required: true })}
                   />
                 </div>
@@ -641,22 +651,22 @@ const Households = () => {
                     Registered Voter?<span className="text-red-500">*</span>
                   </label>
                   <div>
-                    <>
+                    <div className="flex items-center">
                       <input
                         type="radio"
                         {...register("is_registered_voter", { required: true })}
                         value="Yes"
-                        className="border-[#969696]"
+                        className="border-[#969696] mx-3 w-4 h-4 cursor-pointer"
                       />
-                      Yes
+                      <span className="mr-3">Yes</span>
                       <input
                         type="radio"
                         {...register("is_registered_voter", { required: true })}
                         value="No"
-                        className="border-[#969696]"
+                        className="border-[#969696] mx-3 w-4 h-4 cursor-pointer"
                       />
-                      No
-                    </>
+                      <span className="mr-3">No</span>
+                    </div>
                   </div>
                 </div>
                 <div className="flex flex-col">
@@ -665,14 +675,14 @@ const Households = () => {
                   </label>
                   <input
                     type="text"
-                    className="border-[#969696] border-[1px] rounded-[5px]"
+                    className="border-[#969696] border-[1px] rounded-[5px] py-1 px-2"
                     {...register("religion", { required: true })}
                   />
                 </div>
                 <div className="flex flex-col">
                   <label htmlFor="">Highest Educational Attainment</label>
                   <select
-                    className="border-[#969696] border-[1px] rounded-[5px]"
+                    className="border-[#969696] border-[1px] rounded-[5px] py-1 px-2"
                     {...register("highest_educational_attainment", {
                       required: false,
                     })}
@@ -694,7 +704,7 @@ const Households = () => {
                   <label htmlFor="">Work</label>
                   <input
                     type="text"
-                    className="border-[#969696] border-[1px] rounded-[5px]"
+                    className="border-[#969696] border-[1px] rounded-[5px] py-1 px-2"
                     {...register("occupation", { required: false })}
                   />
                 </div>
@@ -702,7 +712,7 @@ const Households = () => {
                   <label htmlFor="">Monthly Income (PHP)</label>
                   <input
                     type="number"
-                    className="border-[#969696] border-[1px] rounded-[5px]"
+                    className="border-[#969696] border-[1px] rounded-[5px] py-1 px-2"
                     {...register("monthly_income", { required: false })}
                   />
                 </div>
@@ -711,7 +721,7 @@ const Households = () => {
                     Sectoral<span className="text-red-500">*</span>
                   </label>
                   <select
-                    className="border-[#969696] border-[1px] rounded-[5px]"
+                    className="border-[#969696] border-[1px] rounded-[5px] py-1 px-2"
                     {...register("sectoral", { required: true })}
                     onChange={(e) => {
                       const value = e.target.value as
@@ -749,7 +759,7 @@ const Households = () => {
                     </label>
                     <input
                       type="text"
-                      className="border-[#969696] border-[1px] rounded-[5px]"
+                      className="border-[#969696] border-[1px] rounded-[5px] py-1 px-2"
                       {...register("other_sectoral", {
                         validate: (value) =>
                           !value && !residentData.other_sectoral
@@ -764,7 +774,7 @@ const Households = () => {
               <div className="flex justify-center items-center font-semibold pt-16">
                 <button
                   type="submit"
-                  className={`bg-[#338A80] text-white rounded-[5px] py-1 w-[50%]`}
+                  className={`bg-[#338A80] text-white rounded-[5px] py-2 w-[40%] text-[18px]`}
                 >
                   Add
                 </button>

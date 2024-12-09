@@ -17,7 +17,7 @@ import { Bar, Doughnut } from "react-chartjs-2";
 import { DoughnutLegend } from "@/components/DoughnutLegend";
 import api from "@/lib/axios";
 import { useSession } from "next-auth/react";
-import ChartDataLabels from "chartjs-plugin-datalabels";
+import { Chart } from 'chart.js/auto';
 
 ChartJS.register(
   CategoryScale,
@@ -27,7 +27,6 @@ ChartJS.register(
   Tooltip,
   Legend,
   ArcElement,
-  ChartDataLabels
 );
 
 const labels = [
@@ -49,7 +48,10 @@ export default function page() {
     labels: labels,
     datasets: [],
   });
-  const [purokPopulationData, setPurokPopulationData] = useState<{ labels: string[]; datasets: { data: number[]; backgroundColor: string[]; }[] }>({
+  const [purokPopulationData, setPurokPopulationData] = useState<{
+    labels: string[];
+    datasets: { data: number[]; backgroundColor: string[] }[];
+  }>({
     labels: [],
     datasets: [],
   });
@@ -161,46 +163,80 @@ export default function page() {
 
   useEffect(() => {
     const fetchPurokPopulationData = async () => {
-      setLoading(true)
+      setLoading(true);
       try {
         const response = await api.get("/api/purok-population");
         const data: { sitio_purok: string; total_count: number }[] = response.data;
 
-        const labels = data.map(item => item.sitio_purok);
-        const counts = data.map(item => item.total_count);
+        const labels = data.map((item) => item.sitio_purok);
+        const counts = data.map((item) => item.total_count);
+        const total = counts.reduce((acc, curr) => acc + curr, 0);
 
         setPurokPopulationData({
           labels: labels,
-          datasets: [{
-            data: counts,
-            backgroundColor: [
-              "#FF0000",
-              "#FF4500",
-              "#FFD700",
-              "#FFFF00",
-              "#ADFF2F",
-              "#7FFF00",
-              "#00FF00",
-              "#00FA9A",
-              "#00FFFF",
-              "#1E90FF",
-              "#0000FF",
-              "#8A2BE2",
-              "#FF00FF",
-              "#FF1493",
-              "#FF69B4",
-            ],
-          }],
+          datasets: [
+            {
+              data: counts,
+              backgroundColor: [
+                "#FF0000",
+                "#FF4500",
+                "#FFD700",
+                "#FFFF00",
+                "#ADFF2F",
+                "#7FFF00",
+                "#00FF00",
+                "#00FA9A",
+                "#00FFFF",
+                "#1E90FF",
+                "#0000FF",
+                "#8A2BE2",
+                "#FF00FF",
+                "#FF1493",
+                "#FF69B4",
+              ],
+            },
+          ],
         });
       } catch (error) {
         console.error("Error fetching purok population data:", error);
       } finally {
-        setLoading(false)
+        setLoading(false);
       }
     };
 
     fetchPurokPopulationData();
   }, []);
+
+  useEffect(() => {
+    const ctx = document.getElementById("purokChart") as HTMLCanvasElement;
+
+    if (ctx && purokPopulationData.labels.length > 0) {
+      new Chart(ctx, {
+        type: "pie", // or "doughnut"
+        data: purokPopulationData,
+        options: {
+          plugins: {
+            tooltip: {
+              callbacks: {
+                label: (context) => {
+                  const dataset = context.dataset;
+                  const dataIndex = context.dataIndex;
+                  const value = dataset.data[dataIndex] as number;
+                  const total = dataset.data.reduce(
+                    (acc: number, curr: number) => acc + curr,
+                    0
+                  );
+                  const percentage = ((value / total) * 100).toFixed(2);
+
+                  return `${context.label}: ${value} (${percentage}%)`;
+                },
+              },
+            },
+          },
+        },
+      });
+    }
+  }, [purokPopulationData]);
 
   const ageOptions: ChartOptions<"bar"> = {
     responsive: true,
@@ -209,7 +245,7 @@ export default function page() {
       x: {
         beginAtZero: true,
         min: 0,
-        max: 700,
+        max: 500,
         ticks: {
           stepSize: 100,
           callback: function (value: number | string) {
@@ -240,12 +276,34 @@ export default function page() {
       },
     },
     plugins: {
+      tooltip: {
+        callbacks: {
+          label: function (context) {
+            const data: number[] = context.dataset.data.filter(
+              (item): item is number => typeof item === "number"
+            );
+
+            const total = data.reduce((acc, curr) => acc + curr, 0);
+
+            const value = context.raw as number;
+
+            const percentage = ((value / total) * 100).toFixed(2);
+
+            return `${value} (${percentage}%)`;
+          },
+        },
+        backgroundColor: "rgba(0, 0, 0, 0.7)",
+        titleColor: "#ffffff",
+        bodyColor: "#ffffff",
+        borderColor: "#ffffff",
+        borderWidth: 1,
+      },
       datalabels: {
-        color: 'black',
+        color: "black",
         font: {
-          weight: 'bold',
+          weight: "bold",
           size: 12,
-        }
+        },
       },
       legend: {
         display: false,
@@ -262,10 +320,22 @@ export default function page() {
         font: {
           weight: 'bold',
           size: 12,
-        }
+        },
       },
       legend: {
         display: false,
+      },
+      tooltip: {
+        callbacks: {
+          label: (context) => {
+            const dataset = context.dataset;
+            const value = dataset.data[context.dataIndex] as number;
+            const total = dataset.data.reduce((acc, curr) => acc + (curr as number), 0);
+            const percentage = ((value / total) * 100).toFixed(2);
+
+            return `${context.label}: ${value} (${percentage}%)`;
+          },
+        },
       },
     },
   };
@@ -305,6 +375,7 @@ export default function page() {
                         <p className="text-[12px]">Male</p>
                         <p className="text-[14px] font-semibold">
                           {genderData.Male.toLocaleString()}
+                          ({((genderData.Male / (genderData.Male + genderData.Female)) * 100).toFixed(2)}%)
                         </p>
                       </div>
                     </div>
@@ -314,6 +385,7 @@ export default function page() {
                         <p className="text-[12px]">Female</p>
                         <p className="text-[14px] font-semibold">
                           {genderData.Female.toLocaleString()}
+                          ({((genderData.Female / (genderData.Female + genderData.Male)) * 100).toFixed(2)}%)
                         </p>
                       </div>
                     </div>
@@ -355,6 +427,7 @@ export default function page() {
                         <p className="text-[12px]">Registered Voters</p>
                         <p className="text-[14px] font-semibold">
                           {voterDistribution.registered.toLocaleString()}
+                          ({((voterDistribution.registered / (voterDistribution.registered + voterDistribution.nonRegistered)) * 100).toFixed(2)}%)
                         </p>
                       </div>
                     </div>
@@ -364,6 +437,7 @@ export default function page() {
                         <p className="text-[12px]">Non Voters</p>
                         <p className="text-[14px] font-semibold">
                           {voterDistribution.nonRegistered.toLocaleString()}
+                          ({((voterDistribution.nonRegistered / (voterDistribution.registered + voterDistribution.nonRegistered)) * 100).toFixed(2)}%)
                         </p>
                       </div>
                     </div>
@@ -413,7 +487,7 @@ export default function page() {
                 <p className="text-[12px]">
                   *Barangay Luz, Mabolo City*
                   <br />
-                  *Population Number displayed in a pie chart, this data relies
+                  *Population Number and Percentage displayed in a pie chart, this data relies
                   on the last updated document records.
                 </p>
               </>

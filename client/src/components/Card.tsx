@@ -41,7 +41,7 @@ const Card: React.FC<CardProps> = ({ src, alt, description, value, width, height
           )}
         </div>
         <div className='flex flex-col items-center justify-end'>
-          <p className='text-center text-[14px] text-medium'>{description}</p>
+          <p className='text-center text-[14px] text-medium pb-[9px]'>{description}</p>
           <p className='text-center text-[9px] text-[#06C46C]'>{value}</p>
         </div>
       </button>

@@ -24,6 +24,30 @@ const Resident = {
     }
   },
 
+  checkDuplicateHouseholdMember: async (data) => {
+    try {
+      const [rows] = await pool.execute(
+        `SELECT * FROM resident 
+         WHERE household_number = ? 
+           AND family_name = ? 
+           AND given_name = ? 
+           AND birthdate = ?`,
+        [
+          data.household_number,
+          data.family_name,
+          data.given_name,
+          data.birthdate,
+        ]
+      );
+
+      // If rows exist, it means a duplicate was found
+      return rows.length > 0;
+    } catch (error) {
+      console.error("Error checking for duplicate household member:", error);
+      throw error;
+    }
+  },
+
   insertHouseholdMember: async (data) => {
     try {
       const [rows] = await pool.execute(residentQueries.insertHouseholdMember, [
@@ -138,9 +162,12 @@ const Resident = {
       throw error;
     }
   },
-
   archiveHouseholdMember: async (data) => {
     try {
+      if (!data.resident_id) {
+        throw new Error("Resident ID is required");
+      }
+
       const [rows] = await pool.execute(
         residentQueries.archiveHouseholdMember,
         [data.resident_id]
