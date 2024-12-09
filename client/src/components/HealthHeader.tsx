@@ -17,7 +17,6 @@ const HealthHeader = () => {
       router.push('/');
     },
   });
-  console.log("session", session);
 
   const isAdmin = session?.user?.role === 'Admin';
 

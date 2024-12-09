@@ -265,7 +265,6 @@ const ChildTable: React.FC<TableProps> = ({ children, onSort, sortConfig, onEdit
 
   const handleArchiveClick = async (child: Child) => {
     if (userRole === 'admin') {
-      console.log("Archiving child:", child);
       if (!child.child_id) {
         console.error("Child ID is undefined");
         return;
@@ -292,7 +291,6 @@ const ChildTable: React.FC<TableProps> = ({ children, onSort, sortConfig, onEdit
           setIsLoading(false); // Stop loading
 
           if (response.ok) {
-            console.log("Child archived successfully:", child.child_id);
             setArchivedChildren((prevArchived) => [
               ...prevArchived,
               child.child_id,

@@ -25,14 +25,11 @@ export const authOptions: AuthOptions = {
           const response = await api.get('/api/users');
           const users = response.data;
 
-          console.log("users", users);
-
           const user = users.find((user: any) =>
             user.username === credentials.username &&
             user.password === credentials.password
           );
 
-          console.log("find user", user);
           if (user) {
             return user;
           } else {

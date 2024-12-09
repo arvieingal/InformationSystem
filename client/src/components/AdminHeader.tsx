@@ -62,8 +62,6 @@ const AdminHeader = () => {
 
   const handleChangePassword = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-    // Add logic to handle password change
-    console.log("Password change submitted");
   };
 
   return (
