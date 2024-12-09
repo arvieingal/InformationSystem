@@ -131,7 +131,9 @@ const Renters = () => {
   };
 
   const onSubmit: SubmitHandler<Renter> = async (data) => {
-    const confirm = await SweetAlert.showConfirm('Are you sure all the information are correct?')
+    const confirm = await SweetAlert.showConfirm(
+      "Are you sure all the information are correct?"
+    );
 
     if (confirm) {
       try {
@@ -146,17 +148,17 @@ const Renters = () => {
 
         const formData: Renter = editRenterModal
           ? {
-            ...renterData,
-            renter_id: selectedRenter?.renter_id || null,
-            status: "Active",
-          }
+              ...renterData,
+              renter_id: selectedRenter?.renter_id || null,
+              status: "Active",
+            }
           : {
-            ...data,
-            rent_number: rentNumber,
-            months_year_of_stay: Number(renterData.months_year_of_stay),
-            sitio_purok: owner?.sitio_purok || "",
-            status: "Active",
-          };
+              ...data,
+              rent_number: rentNumber,
+              months_year_of_stay: Number(renterData.months_year_of_stay),
+              sitio_purok: owner?.sitio_purok || "",
+              status: "Active",
+            };
 
         const endpoint = selectedRenter?.renter_id
           ? "/api/update-renter"
@@ -167,7 +169,9 @@ const Renters = () => {
         const response = await api[method](endpoint, formData);
 
         await SweetAlert.showSuccess(
-          addRenterModal ? 'Renter Added Successfully' : 'Renter Edited Successfully'
+          addRenterModal
+            ? "Renter Added Successfully"
+            : "Renter Edited Successfully"
         ).then(() => {
           window.location.reload();
         });
@@ -186,11 +190,11 @@ const Renters = () => {
       });
 
       if (response.status === 200) {
-        await SweetAlert.showSuccess(
-          'Renter archived successfully!'
-        ).then(() => {
-          window.location.reload();
-        });
+        await SweetAlert.showSuccess("Renter archived successfully!").then(
+          () => {
+            window.location.reload();
+          }
+        );
       } else {
         alert("Failed to archive renter.");
       }
@@ -358,7 +362,10 @@ const Renters = () => {
                       <tr
                         key={renter.renter_id}
                         className="border-b hover:bg-gray-50 cursor-pointer"
-                        onClick={() => onRenterClick(renter)}
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          onRenterClick(renter);
+                        }}
                       >
                         <td className="py-2 px-5 text-left">
                           {renter.renter_id}
@@ -387,11 +394,14 @@ const Renters = () => {
                               <button
                                 onClick={async (e) => {
                                   e.stopPropagation();
-                                  const confirm = await SweetAlert.showConfirm('Are you sure you want to edit this member?');
+                                  const confirm = await SweetAlert.showConfirm(
+                                    "Are you sure you want to edit this member?"
+                                  );
                                   if (confirm) {
                                     onEditRenter(renter);
                                   }
-                                }}>
+                                }}
+                              >
                                 <Image
                                   src={"/svg/edit_pencil.svg"}
                                   alt="Edit"
@@ -403,11 +413,14 @@ const Renters = () => {
                               <button
                                 onClick={async (e) => {
                                   e.stopPropagation();
-                                  const confirm = await SweetAlert.showConfirm('Are you sure you want to archive this member?');
+                                  const confirm = await SweetAlert.showConfirm(
+                                    "Are you sure you want to archive this member?"
+                                  );
                                   if (confirm) {
                                     handleArchiveResident(renter);
                                   }
-                                }}>
+                                }}
+                              >
                                 <Image
                                   src="/svg/archive.svg"
                                   alt="Archive"
@@ -435,7 +448,7 @@ const Renters = () => {
         </div>
       </div>
       {(addRenterModal || editRenterModal || isInfoModal) && (
-        <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-60">
+        <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-60 z-30">
           <div className="bg-white w-[60%] p-14 rounded-[10px] shadow-lg relative text-[14px]">
             <div className="flex flex-col">
               <div>
@@ -462,18 +475,24 @@ const Renters = () => {
                   />
                 </button>
               </div>
-              <span className="text-[24px] font-semibold pt-3">Renter Information</span>
+              <span className="text-[24px] font-semibold pt-3">
+                Renter Information
+              </span>
               <span className="text-[#545454]">
                 {addRenterModal ? "Add" : editRenterModal ? "Update" : "View"}{" "}
                 renter&apos;s info
               </span>
               {editRenterModal ||
                 (isInfoModal && (
-                  <span className="text-[#545454]">Rent number: {selectedRenter?.rent_number}</span>
+                  <span className="text-[#545454]">
+                    Rent number: {selectedRenter?.rent_number}
+                  </span>
                 ))}
               {editRenterModal ||
                 (isInfoModal && (
-                  <span className="text-[#545454]">Sitio: {selectedRenter?.sitio_purok}</span>
+                  <span className="text-[#545454]">
+                    Sitio: {selectedRenter?.sitio_purok}
+                  </span>
                 ))}
               {editRenterModal ||
                 (isInfoModal && (
@@ -486,7 +505,11 @@ const Renters = () => {
                   </span>
                 ))}
             </div>
-            <form action="" onSubmit={handleSubmit(onSubmit)} className="pt-5 text-[14px]">
+            <form
+              action=""
+              onSubmit={handleSubmit(onSubmit)}
+              className="pt-5 text-[14px]"
+            >
               <div className="grid grid-cols-1 md:grid-cols-4 gap-5">
                 <div className="flex flex-col">
                   <label htmlFor="">
@@ -494,7 +517,9 @@ const Renters = () => {
                     {!isInfoModal && <span className="text-red-500">*</span>}
                   </label>
                   {isInfoModal ? (
-                    <span className="font-semibold text-[18px]">{renterData.family_name || "N/A"}</span>
+                    <span className="font-semibold text-[18px]">
+                      {renterData.family_name || "N/A"}
+                    </span>
                   ) : (
                     <input
                       type="text"
@@ -514,7 +539,9 @@ const Renters = () => {
                 <div className="flex flex-col">
                   <label htmlFor="">Middle Name</label>
                   {isInfoModal ? (
-                    <span className="font-semibold text-[18px]">{renterData.middle_name || "N/A"}</span>
+                    <span className="font-semibold text-[18px]">
+                      {renterData.middle_name || "N/A"}
+                    </span>
                   ) : (
                     <input
                       type="text"
@@ -532,7 +559,9 @@ const Renters = () => {
                     {!isInfoModal && <span className="text-red-500">*</span>}
                   </label>
                   {isInfoModal ? (
-                    <span className="font-semibold text-[18px]">{renterData.given_name || "N/A"}</span>
+                    <span className="font-semibold text-[18px]">
+                      {renterData.given_name || "N/A"}
+                    </span>
                   ) : (
                     <input
                       type="text"
@@ -552,7 +581,9 @@ const Renters = () => {
                 <div className="flex flex-col">
                   <label htmlFor="">Suffix</label>
                   {isInfoModal ? (
-                    <span className="font-semibold text-[18px]">{renterData.extension || "N/A"}</span>
+                    <span className="font-semibold text-[18px]">
+                      {renterData.extension || "N/A"}
+                    </span>
                   ) : (
                     <input
                       type="text"
@@ -570,7 +601,11 @@ const Renters = () => {
                     {!isInfoModal && <span className="text-red-500">*</span>}
                   </label>
                   {isInfoModal ? (
-                    <span className="font-semibold text-[18px]">{rentOwner.find((owner) => owner.rent_number === renterData.rent_number)?.rent_owner || "N/A"}</span>
+                    <span className="font-semibold text-[18px]">
+                      {rentOwner.find(
+                        (owner) => owner.rent_number === renterData.rent_number
+                      )?.rent_owner || "N/A"}
+                    </span>
                   ) : (
                     <select
                       className="border-[#969696] border-[1px] rounded-[5px] py-1 px-2"
@@ -586,7 +621,10 @@ const Renters = () => {
                     >
                       <option value=""></option>
                       {rentOwner.map((owner) => (
-                        <option key={owner.rent_number} value={owner.rent_number}>
+                        <option
+                          key={owner.rent_number}
+                          value={owner.rent_number}
+                        >
                           {owner.rent_owner}
                         </option>
                       ))}
@@ -600,7 +638,9 @@ const Renters = () => {
                   </label>
                   <div>
                     {isInfoModal ? (
-                      <span className="font-semibold text-[18px]">{renterData.gender || "N/A"}</span>
+                      <span className="font-semibold text-[18px]">
+                        {renterData.gender || "N/A"}
+                      </span>
                     ) : (
                       <div className="flex items-center">
                         <input
@@ -643,7 +683,9 @@ const Renters = () => {
                     {!isInfoModal && <span className="text-red-500">*</span>}
                   </label>
                   {isInfoModal ? (
-                    <span className="font-semibold text-[18px]">{renterData.civil_status || "N/A"}</span>
+                    <span className="font-semibold text-[18px]">
+                      {renterData.civil_status || "N/A"}
+                    </span>
                   ) : (
                     <select
                       className="border-[#969696] border-[1px] rounded-[5px] py-1 px-2"
@@ -672,7 +714,9 @@ const Renters = () => {
                     {!isInfoModal && <span className="text-red-500">*</span>}
                   </label>
                   {isInfoModal ? (
-                    <span className="font-semibold text-[18px]">{formatDate(renterData.birthdate) || "N/A"}</span>
+                    <span className="font-semibold text-[18px]">
+                      {formatDate(renterData.birthdate) || "N/A"}
+                    </span>
                   ) : (
                     <input
                       type="date"
@@ -695,7 +739,9 @@ const Renters = () => {
                     {!isInfoModal && <span className="text-red-500">*</span>}
                   </label>
                   {isInfoModal ? (
-                    <span className="font-semibold text-[18px]">{renterData.months_year_of_stay || "N/A"}</span>
+                    <span className="font-semibold text-[18px]">
+                      {renterData.months_year_of_stay || "N/A"}
+                    </span>
                   ) : (
                     <input
                       type="text"
@@ -718,7 +764,9 @@ const Renters = () => {
                     {!isInfoModal && <span className="text-red-500">*</span>}
                   </label>
                   {isInfoModal ? (
-                    <span className="font-semibold text-[18px]">{renterData.work || "N/A"}</span>
+                    <span className="font-semibold text-[18px]">
+                      {renterData.work || "N/A"}
+                    </span>
                   ) : (
                     <input
                       type="text"
@@ -740,8 +788,9 @@ const Renters = () => {
                 <div className="flex justify-center items-center font-semibold pt-16">
                   <button
                     type="submit"
-                    className={`bg-[#338A80] text-white rounded-[5px] py-2 w-[40%] text-[18px] ${isInfoModal ? "hidden" : ""
-                      }`}
+                    className={`bg-[#338A80] text-white rounded-[5px] py-2 w-[40%] text-[18px] ${
+                      isInfoModal ? "hidden" : ""
+                    }`}
                   >
                     {addRenterModal ? "Add" : "Update"}
                   </button>

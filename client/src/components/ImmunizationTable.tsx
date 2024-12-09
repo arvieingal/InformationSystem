@@ -62,7 +62,11 @@ const ImmunizationTable: React.FC<TableProps> = ({
           child_immunization_id: immunization.child_immunization_id,
         });
         if (response.status === 200) {
-          SweetAlert.showSuccess("Immunization archived successfully.");
+          SweetAlert.showSuccess("Immunization archived successfully.").then(
+            () => {
+              window.location.reload();
+            }
+          );
         } else {
           SweetAlert.showError("Failed to archive immunization.");
         }
@@ -128,7 +132,7 @@ const ImmunizationTable: React.FC<TableProps> = ({
           {loading ? (
             <tbody>
               <tr>
-                <td colSpan={headers.length}>
+                <td colSpan={headers.length + 1}>
                   <div className="flex justify-center items-center w-full h-full pt-16">
                     <div className="w-16 h-16 border-8 border-dashed rounded-full animate-spin border-[#B1E5BA]"></div>
                   </div>
@@ -183,8 +187,8 @@ const ImmunizationTable: React.FC<TableProps> = ({
                     >
                       {immunization.date_vaccinated
                         ? formatDate(
-                          immunization.date_vaccinated.toString()
-                        ).trim()
+                            immunization.date_vaccinated.toString()
+                          ).trim()
                         : ""}
                     </td>
                     <td

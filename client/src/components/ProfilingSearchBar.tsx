@@ -22,24 +22,6 @@ const ProfilingSearchBar = ({
 
   const filterRef = React.useRef<HTMLDivElement | null>(null);
 
-  React.useEffect(() => {
-    const handleClickOutside = (event: MouseEvent) => {
-      if (
-        filterRef.current &&
-        !filterRef.current.contains(event.target as Node)
-      ) {
-        setFilterVisible(false);
-        resetData();
-      }
-    };
-
-    document.addEventListener("mousedown", handleClickOutside);
-
-    return () => {
-      document.removeEventListener("mousedown", handleClickOutside);
-    };
-  }, []);
-
   const handleSearch = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value;
     setSearchTerm(value);
@@ -49,7 +31,12 @@ const ProfilingSearchBar = ({
   const residentName = isResident ? "Household" : "Renter";
 
   const handleFilterToggle = () => {
-    setFilterVisible((prev) => !prev);
+    setFilterVisible((prev) => {
+      if (prev) {
+        resetData();
+      }
+      return !prev;
+    });
   };
 
   return (

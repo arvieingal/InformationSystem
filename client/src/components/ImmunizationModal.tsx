@@ -102,12 +102,15 @@ const ImmunizationModal: React.FC<ModalProps> = ({
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center scrollbar-hidden">
-      <div className="bg-white rounded-lg shadow-lg p-6 w-[50%] h-[60%] overflow-y-auto relative">
-        <button
-          className="absolute top-[-3rem]  right-[-1rem] text-gray-600 hover:text-gray-900 text-[4rem] p-4"
-          onClick={onClose}
-        >
-          &times;
+      <div className="bg-white rounded-lg shadow-lg p-6 w-[50%] h-[60%] relative">
+        <button className="absolute top-6 right-6" onClick={onClose}>
+          <Image
+            src="/svg/x-logo.svg"
+            alt="close"
+            width={50}
+            height={50}
+            className="w-6 h-6 font-sans text-gray-600 hover:text-gray-900"
+          />
         </button>
         <form onSubmit={handleSubmit}>
           <Image
@@ -326,17 +329,17 @@ const ImmunizationModal: React.FC<ModalProps> = ({
               )}
             </div>
           </div>
-          <div className="flex justify-between">
+          <div className="h-[10rem] items-center flex justify-between">
             <button
               type="button"
-              className="mt-4 border border-gray-900 text-gray-500 px-4 py-2 rounded-md w-[25rem]"
+              className="border border-gray-900 text-gray-500 px-4 py-2 rounded-md w-[25rem]"
               onClick={onClose}
             >
               Cancel
             </button>
             <button
               type="submit"
-              className="mt-4 bg-[#007F73] text-white px-4 py-2 rounded-md w-[30rem]"
+              className="bg-[#007F73] text-white px-4 py-2 rounded-md w-[30rem]"
             >
               Update
             </button>

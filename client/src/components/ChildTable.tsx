@@ -1,7 +1,7 @@
 "use client";
 
-import Image from 'next/image';
-import { formatDate } from './formatDate';
+import Image from "next/image";
+import { formatDate } from "./formatDate";
 import React, { useState, useEffect, ReactNode } from "react";
 import { useRouter } from "next/navigation";
 import Modal from "@/components/PersonModal";
@@ -12,7 +12,7 @@ import "react-datepicker/dist/react-datepicker.css";
 import { FaCalendarAlt } from "react-icons/fa";
 import { Child as ChildTableChild } from "@/components/ChildTable";
 import DataTable from "react-data-table-component";
-import api from '@/lib/axios';
+import api from "@/lib/axios";
 
 export interface Resident {
   resident_id: number;
@@ -63,7 +63,8 @@ interface TableProps {
   onEdit: (child: Child) => void;
   onArchive: (child: Child) => void;
   onRowClick: (child: Child) => void;
-  userRole: 'admin' | 'editor' | 'viewer';
+  userRole: "admin" | "editor" | "viewer";
+  resetData: () => void;
 }
 
 type ChildData = {
@@ -90,7 +91,16 @@ type ChildData = {
   status: string | null;
 };
 
-const ChildTable: React.FC<TableProps> = ({ children, onSort, sortConfig, onEdit, onArchive, onRowClick, userRole }) => {
+const ChildTable: React.FC<TableProps> = ({
+  children,
+  onSort,
+  sortConfig,
+  onEdit,
+  onArchive,
+  onRowClick,
+  userRole,
+  resetData,
+}) => {
   const [loading, setLoading] = useState(true);
   const [residents, setResidents] = useState<Resident[]>([]);
   const [error, setError] = useState<string | null>(null);
@@ -101,40 +111,18 @@ const ChildTable: React.FC<TableProps> = ({ children, onSort, sortConfig, onEdit
   const itemsPerPage = 15;
   const [archivedChildren, setArchivedChildren] = useState<number[]>([]);
   const [searchQuery, setSearchQuery] = useState<string>("");
-  const [isFilterDropdownOpen, setIsFilterDropdownOpen] = useState<boolean>(false);
-  const [filterCriteria, setFilterCriteria] = useState<{ archived: boolean }>({ archived: false });
+  const [isFilterDropdownOpen, setIsFilterDropdownOpen] =
+    useState<boolean>(false);
+  const [filterCriteria, setFilterCriteria] = useState<{ archived: boolean }>({
+    archived: false,
+  });
   const router = useRouter();
   const [isLoading, setIsLoading] = useState<boolean>(false);
-
-  // Fetch active children
-  const fetchChildren = async () => {
-    try {
-      const response = await api.get("/api/children");
-      setChildrens(response.data);
-    } catch (error) {
-      console.error("Error fetching children:", error);
-      setError("Failed to fetch children data.");
-    }
-  };
-
-  // Fetch archived (inactive) children
-  const fetchChildrenInactive = async () => {
-    try {
-      const response = await api.get("/api/children/inactive");
-      if (response.data) {
-        setChildrens(response.data); // This updates the state with inactive children
-      }
-    } catch (error) {
-      console.error("Error fetching inactive children:", error);
-      setError("Failed to fetch inactive children data.");
-    }
-  };
-
 
   useEffect(() => {
     const fetchChildrenData = async () => {
       try {
-        setLoading(true)
+        setLoading(true);
         const response = filterCriteria.archived
           ? await api.get("/api/children/inactive")
           : await api.get("/api/children");
@@ -143,7 +131,7 @@ const ChildTable: React.FC<TableProps> = ({ children, onSort, sortConfig, onEdit
         console.error("Error fetching children:", error);
         setError("Failed to fetch children data.");
       } finally {
-        setLoading(false)
+        setLoading(false);
       }
     };
 
@@ -157,15 +145,8 @@ const ChildTable: React.FC<TableProps> = ({ children, onSort, sortConfig, onEdit
     return () => clearInterval(intervalId);
   }, [filterCriteria.archived]);
 
-
-
   const handleSort = (key: keyof Child) => {
     onSort(key);
-  };
-
-  const handleRowClick = (child: Child) => {
-    setSelectedChild(child);
-    setIsModalOpen(true);
   };
 
   const handlePageChange = (page: number) => {
@@ -187,9 +168,11 @@ const ChildTable: React.FC<TableProps> = ({ children, onSort, sortConfig, onEdit
 
         if (stringValue.includes(query)) return true;
 
-        if (key === 'birthdate' || key === 'measurement_date') {
+        if (key === "birthdate" || key === "measurement_date") {
           const date = new Date(value);
-          const monthName = date.toLocaleString('default', { month: 'long' }).toLowerCase();
+          const monthName = date
+            .toLocaleString("default", { month: "long" })
+            .toLowerCase();
           return monthName.includes(query);
         }
 
@@ -197,36 +180,6 @@ const ChildTable: React.FC<TableProps> = ({ children, onSort, sortConfig, onEdit
       });
     });
   }, [childrens, searchQuery]);
-
-  // const sortedChildren = React.useMemo(() => {
-  //   if (sortConfig && sortConfig.key) {
-  //     return [...filteredChildren].sort((a, b) => {
-  //       const key = sortConfig.key as keyof typeof a;
-  //       const aValue = a[key];
-  //       const bValue = b[key];
-
-  //       if (aValue === undefined || bValue === undefined) {
-  //         return 0;
-  //       }
-
-  //       if (aValue !== null && bValue !== null && aValue < bValue) {
-  //         return sortConfig.direction === "ascending" ? -1 : 1;
-  //       }
-  //       if (aValue !== null && bValue !== null && aValue > bValue) {
-  //         return sortConfig.direction === "ascending" ? 1 : -1;
-  //       }
-  //       return 0;
-  //     });
-  //   }
-  //   return filteredChildren;
-  // }, [filteredChildren, sortConfig]);
-
-  // const paginatedChildren = React.useMemo(() => {
-  //   const startIndex = (currentPage - 1) * itemsPerPage;
-  //   const endIndex = startIndex + itemsPerPage;
-  //   return sortedChildren.slice(startIndex, endIndex);
-  // }, [sortedChildren, currentPage]);
-
 
   const sortedChildren = React.useMemo(() => {
     if (sortConfig && sortConfig.key) {
@@ -258,13 +211,13 @@ const ChildTable: React.FC<TableProps> = ({ children, onSort, sortConfig, onEdit
   }, [sortedChildren, currentPage]);
 
   const handleEditClick = (child: Child) => {
-    if (userRole === 'admin' || userRole === 'editor') {
+    if (userRole === "admin" || userRole === "editor") {
       onEdit(child);
     }
   };
 
   const handleArchiveClick = async (child: Child) => {
-    if (userRole === 'admin') {
+    if (userRole === "admin") {
       if (!child.child_id) {
         console.error("Child ID is undefined");
         return;
@@ -308,14 +261,19 @@ const ChildTable: React.FC<TableProps> = ({ children, onSort, sortConfig, onEdit
               `<p>You successfully archived child with ID: <span class="font-bold">${child.child_id}</span>.</p>`
             );
           } else {
-            console.error("Failed to archive child. Response status:", response.status);
-            await SweetAlert.showError('Failed to archive child.');
+            console.error(
+              "Failed to archive child. Response status:",
+              response.status
+            );
+            await SweetAlert.showError("Failed to archive child.");
           }
         }
       } catch (error) {
         setIsLoading(false); // Ensure loading stops on error
         console.error("Error archiving child:", error);
-        await SweetAlert.showError('An error occurred while archiving the child.');
+        await SweetAlert.showError(
+          "An error occurred while archiving the child."
+        );
       }
     }
   };
@@ -331,7 +289,17 @@ const ChildTable: React.FC<TableProps> = ({ children, onSort, sortConfig, onEdit
     }
   };
 
+  const [filterVisible, setFilterVisible] = useState(false);
+  const filterRef = React.useRef<HTMLDivElement | null>(null);
 
+  const handleFilterToggle = () => {
+    setFilterVisible((prev) => {
+      if (prev) {
+        resetData();
+      }
+      return !prev;
+    });
+  };
 
   return (
     <div className="w-full h-full px-[1.5rem]">
@@ -349,7 +317,7 @@ const ChildTable: React.FC<TableProps> = ({ children, onSort, sortConfig, onEdit
             alt="Nutritional Status"
             width={30}
             height={50}
-            onClick={() => setIsFilterDropdownOpen(!isFilterDropdownOpen)}
+            onClick={handleFilterToggle}
             className="cursor-pointer"
           />
           <button
@@ -365,8 +333,11 @@ const ChildTable: React.FC<TableProps> = ({ children, onSort, sortConfig, onEdit
           </button>
         </div>
       </div>
-      {isFilterDropdownOpen && (
-        <div className="absolute right-[1rem] bg-white border border-gray-300 rounded-md shadow-lg z-10">
+      {filterVisible && (
+        <div
+          className="absolute right-[1rem] bg-white border border-gray-300 rounded-md shadow-lg z-10"
+          ref={filterRef}
+        >
           <ul className="py-1">
             <li
               className="px-4 py-2 hover:bg-gray-100 cursor-pointer"
@@ -391,26 +362,39 @@ const ChildTable: React.FC<TableProps> = ({ children, onSort, sortConfig, onEdit
           </ul>
         </div>
       )}
-      <div className='h-[90%] pt-[1rem]'>
-        <div className='bg-white h-[90%] rounded-[5px] overflow-y-auto'>
+      <div className="h-[90%] pt-[1rem]">
+        <div className="bg-white h-[90%] rounded-[5px] overflow-y-auto">
           <table className="w-full border-collapse text-[14px]">
-            <thead className='text-center'>
-              <tr className='sticky top-0 bg-white shadow-gray-300 shadow-sm'>
-                {['id', 'name', 'age', 'sex', 'birthdate', 'weightKg', 'heightCm', 'nutritionalStatus', 'measurement date'].map((key) => (
+            <thead className="text-center">
+              <tr className="sticky top-0 bg-white shadow-gray-300 shadow-sm">
+                {[
+                  "id",
+                  "name",
+                  "age",
+                  "sex",
+                  "birthdate",
+                  "weightKg",
+                  "heightCm",
+                  "nutritionalStatus",
+                  "measurement date",
+                ].map((key) => (
                   <th
                     key={key}
                     className="py-2 px-6 text-left font-semibold text-[16px]"
                     onClick={() => handleSort(key as keyof Child)}
                   >
-                    {key.charAt(0).toUpperCase() + key.slice(1).replace(/([A-Z])/g, ' $1')}
+                    {key.charAt(0).toUpperCase() +
+                      key.slice(1).replace(/([A-Z])/g, " $1")}
                     {sortConfig?.key === key && (
                       <span>
-                        {sortConfig.direction === 'ascending' ? ' ▲' : ' ▼'}
+                        {sortConfig.direction === "ascending" ? " ▲" : " ▼"}
                       </span>
                     )}
                   </th>
                 ))}
-                <th className="py-4 pr-6 text-left font-semibold text-[16px]">Option</th>
+                <th className="py-4 pr-6 text-left font-semibold text-[16px]">
+                  Option
+                </th>
               </tr>
             </thead>
             {loading ? (
@@ -426,16 +410,26 @@ const ChildTable: React.FC<TableProps> = ({ children, onSort, sortConfig, onEdit
             ) : (
               <tbody className="text-center">
                 {paginatedChildren.map((child) => (
-                  <tr key={child.child_id} className="border-b hover:bg-gray-50 cursor-pointer" onClick={() => onRowClick(child as unknown as Child)}>
+                  <tr
+                    key={child.child_id}
+                    className="border-b hover:bg-gray-50 cursor-pointer"
+                    onClick={() => onRowClick(child as unknown as Child)}
+                  >
                     <td className="py-2 px-6 text-left">{child.child_id}</td>
                     <td className="py-2 px-6 text-left">{child.full_name}</td>
                     <td className="py-2 px-6 text-left">{child.age}</td>
                     <td className="py-2 px-6 text-left">{child.sex}</td>
-                    <td className="py-2 px-6 text-left">{formatDate(child.birthdate)}</td>
+                    <td className="py-2 px-6 text-left">
+                      {formatDate(child.birthdate)}
+                    </td>
                     <td className="py-2 px-6 text-left">{child.weight_kg}</td>
                     <td className="py-2 px-6 text-left">{child.height_cm}</td>
-                    <td className="py-2 px-6 text-left">{child.nutritional_status}</td>
-                    <td className="py-2 px-6 text-left">{formatDate(child.measurement_date)}</td>
+                    <td className="py-2 px-6 text-left">
+                      {child.nutritional_status}
+                    </td>
+                    <td className="py-2 px-6 text-left">
+                      {formatDate(child.measurement_date)}
+                    </td>
                     <td className="py-2 pr-6 text-left flex items-center">
                       <Image
                         src="/svg/edit.svg"
@@ -445,10 +439,12 @@ const ChildTable: React.FC<TableProps> = ({ children, onSort, sortConfig, onEdit
                         className="w-5 h-5 mr-2 cursor-pointer"
                         onClick={async (e) => {
                           e.stopPropagation();
-                          if (userRole === 'admin' || userRole === 'editor') {
+                          if (userRole === "admin" || userRole === "editor") {
                             handleEditClick(child as unknown as Child);
                           } else {
-                            await SweetAlert.showError("You do not have permission to edit this child.");
+                            await SweetAlert.showError(
+                              "You do not have permission to edit this child."
+                            );
                           }
                         }}
                       />
@@ -460,10 +456,12 @@ const ChildTable: React.FC<TableProps> = ({ children, onSort, sortConfig, onEdit
                         className="w-6 h-6 cursor-pointer"
                         onClick={async (e) => {
                           e.stopPropagation();
-                          if (userRole === 'admin') {
+                          if (userRole === "admin") {
                             handleArchiveClick(child as unknown as Child);
                           } else {
-                            await SweetAlert.showError("You do not have permission to archive.");
+                            await SweetAlert.showError(
+                              "You do not have permission to archive."
+                            );
                           }
                         }}
                       />
@@ -474,7 +472,7 @@ const ChildTable: React.FC<TableProps> = ({ children, onSort, sortConfig, onEdit
             )}
           </table>
         </div>
-        <div className='h-[10%]'>
+        <div className="h-[10%]">
           <Pagination
             currentPage={currentPage}
             totalPages={Math.ceil(filteredChildren.length / itemsPerPage)}
@@ -492,4 +490,3 @@ const ChildTable: React.FC<TableProps> = ({ children, onSort, sortConfig, onEdit
 };
 
 export default ChildTable;
-

@@ -655,6 +655,10 @@ const NutritionalStatus: React.FC = () => {
 
   const userRole = roleMap[session?.user.role || ""] || "viewer"; // Default to "viewer" if role is not found
 
+  const resetData = () => {
+    window.location.reload();
+  };
+
   return (
     <>
       <div className="flex flex-row md:flex md:flex-row justify-center gap-[3rem]"></div>
@@ -668,6 +672,7 @@ const NutritionalStatus: React.FC = () => {
           onRowClick={(child) => handleRowClick(child as any)}
           onArchive={(child) => handleArchiveClick(child as any)}
           userRole={userRole as "viewer" | "admin" | "editor"}
+          resetData={resetData}
         />
       </div>
 
@@ -751,7 +756,7 @@ const NutritionalStatus: React.FC = () => {
                   </p>
                   <div className="w-full flex flex-row gap-4 mt-1">
                     <p>Age:</p>
-                    <div className="border border-gray-300 rounded-md p-1 w-[3rem] h-[2.5rem] ">
+                    <div className="border-b border-black w-[3rem] h-[2rem] text-center p-1 ">
                       <input
                         className="w-full outline-none flex text-center justify-center"
                         type="number"
@@ -760,7 +765,7 @@ const NutritionalStatus: React.FC = () => {
                       />
                     </div>
                     <p>Weight (kg):</p>
-                    <div className="border border-gray-300 rounded-md p-1 w-[3rem] h-[2.5rem]">
+                    <div className="border-b border-black w-[3rem] h-[2rem] text-center p-1">
                       <input
                         className="w-full outline-none"
                         type="text"
@@ -769,7 +774,7 @@ const NutritionalStatus: React.FC = () => {
                       />
                     </div>
                     <p>Height (cm):</p>
-                    <div className="border border-gray-300 rounded-md p-1 w-[3rem] h-[2.5rem]">
+                    <div className="border-b border-black w-[3rem] h-[2rem] text-center p-1">
                       <input
                         className="w-full outline-none"
                         type="text"
@@ -996,7 +1001,9 @@ const NutritionalStatus: React.FC = () => {
                       readOnly
                     />
                   </div>
-                  <p>Weight (kg):</p>
+                  <p>
+                    Weight (kg):<span className="text-red-500">*</span>
+                  </p>
                   <div className="border border-gray-300 rounded-md p-1 w-[3rem] h-[2.5rem]">
                     <input
                       className="w-full outline-none"
@@ -1005,9 +1012,12 @@ const NutritionalStatus: React.FC = () => {
                       onChange={(e) =>
                         handleInputChange("weight_kg", e.target.value)
                       }
+                      required
                     />
                   </div>
-                  <p>Height (cm):</p>
+                  <p>
+                    Height (cm):<span className="text-red-500">*</span>
+                  </p>
                   <div className="border border-gray-300 rounded-md p-1 w-[3rem] h-[2.5rem]">
                     <input
                       className="w-full outline-none"
@@ -1016,10 +1026,13 @@ const NutritionalStatus: React.FC = () => {
                       onChange={(e) =>
                         handleInputChange("height_cm", e.target.value)
                       }
+                      required
                     />
                   </div>
                   <div className="flex flex-row gap-[10px]">
-                    <p>Measurement Date:</p>
+                    <p>
+                      Measurement Date:<span className="text-red-500">*</span>
+                    </p>
                     <input
                       type="date"
                       value={
@@ -1037,7 +1050,7 @@ const NutritionalStatus: React.FC = () => {
                             ? date.toISOString().split("T")[0]
                             : "",
                         });
-                        setError(null); // Clear error when date is selected
+                        setError(null);
                       }}
                       className={`border-b w-[12rem] h-[2rem] p-1 text-center ${
                         error ? "border-red-500 border" : "border-black"

@@ -1,33 +1,37 @@
-'use client'
+"use client";
 
-import React, { useState, useEffect, useRef, useMemo } from 'react';
-import { useRouter } from 'next/navigation';
-import Image from 'next/image';
-import ImmunizationTable from '@/components/ImmunizationTable';
-import Modal from '@/components/PersonModal';
-import SweetAlert from '@/components/SweetAlert';
-import SearchBar from '@/components/SearchBar';
-import PersonModal from '@/components/PersonModal';
-import { Immunization } from '@/types/Immunization';
-import { formatDate } from '@/components/formatDate';
-import debounce from 'lodash.debounce';
-import api from '@/lib/axios';
-import { useSession } from 'next-auth/react';
+import React, { useState, useEffect, useRef, useMemo } from "react";
+import { useRouter } from "next/navigation";
+import Image from "next/image";
+import ImmunizationTable from "@/components/ImmunizationTable";
+import Modal from "@/components/PersonModal";
+import SweetAlert from "@/components/SweetAlert";
+import SearchBar from "@/components/SearchBar";
+import PersonModal from "@/components/PersonModal";
+import { Immunization } from "@/types/Immunization";
+import { formatDate } from "@/components/formatDate";
+import debounce from "lodash.debounce";
+import api from "@/lib/axios";
+import { useSession } from "next-auth/react";
 
 const ImmunizationRecord: React.FC = () => {
-  const [loading, setLoading] = useState(true)
+  const [loading, setLoading] = useState(true);
   const router = useRouter();
   const [immunizations, setImmunizations] = useState<Immunization[]>([]);
-  const [filteredImmunizations, setFilteredImmunizations] = useState<Immunization[]>([]);
+  const [filteredImmunizations, setFilteredImmunizations] = useState<
+    Immunization[]
+  >([]);
   const [sortConfig, setSortConfig] = useState<{
     key: keyof Immunization;
     direction: "ascending" | "descending";
   } | null>(null);
-  const [isFilterDropdownOpen, setIsFilterDropdownOpen] = useState<boolean>(false);
+  const [isFilterDropdownOpen, setIsFilterDropdownOpen] =
+    useState<boolean>(false);
   const [isVaccineTypeHovered, setIsVaccineTypeHovered] = useState(false);
   const [isDosesHovered, setIsDosesHovered] = useState(false);
   const [isAddModalOpen, setIsAddModalOpen] = useState<boolean>(false);
-  const [selectedImmunization, setSelectedImmunization] = useState<Immunization | null>(null);
+  const [selectedImmunization, setSelectedImmunization] =
+    useState<Immunization | null>(null);
   const [isViewModalOpen, setIsViewModalOpen] = useState<boolean>(false);
 
   const [searchQuery, setSearchQuery] = useState("");
@@ -38,14 +42,14 @@ const ImmunizationRecord: React.FC = () => {
 
   const fetchImmunizations = async () => {
     try {
-      setLoading(true)
-      const response = await api.get('/api/child-immunization-record');
+      setLoading(true);
+      const response = await api.get("/api/child-immunization-record");
       const data = response.data;
       setImmunizations(data);
     } catch (error) {
       console.error("Error fetching immunization data:", error);
     } finally {
-      setLoading(false)
+      setLoading(false);
     }
   };
 
@@ -54,7 +58,10 @@ const ImmunizationRecord: React.FC = () => {
   }, []);
 
   const handleClickOutsideAddModal = (event: MouseEvent) => {
-    if (addModalRef.current && !addModalRef.current.contains(event.target as Node)) {
+    if (
+      addModalRef.current &&
+      !addModalRef.current.contains(event.target as Node)
+    ) {
       setIsAddModalOpen(false);
     }
   };
@@ -84,22 +91,27 @@ const ImmunizationRecord: React.FC = () => {
   };
 
   const filteredAndSortedImmunizations = useMemo(() => {
-
-    const immunizationsToUse = filteredImmunizations.length > 0 || searchQuery !== ""
-      ? filteredImmunizations
-      : immunizations;
+    const immunizationsToUse =
+      filteredImmunizations.length > 0 || searchQuery !== ""
+        ? filteredImmunizations
+        : immunizations;
 
     if (immunizationsToUse.length === 0) return [];
 
-    const safeSortConfig = sortConfig || { key: "child_immunization_id", direction: "ascending" };
+    const safeSortConfig = sortConfig || {
+      key: "child_immunization_id",
+      direction: "ascending",
+    };
 
     if (!safeSortConfig.key) return immunizationsToUse;
 
     return [...immunizationsToUse].sort((a, b) => {
       const key = safeSortConfig.key;
       if (a[key] === null || b[key] === null) return 0;
-      if (a[key] < b[key]) return safeSortConfig.direction === "ascending" ? -1 : 1;
-      if (a[key] > b[key]) return safeSortConfig.direction === "ascending" ? 1 : -1;
+      if (a[key] < b[key])
+        return safeSortConfig.direction === "ascending" ? -1 : 1;
+      if (a[key] > b[key])
+        return safeSortConfig.direction === "ascending" ? 1 : -1;
       return 0;
     });
   }, [immunizations, filteredImmunizations, sortConfig, searchQuery]);
@@ -154,10 +166,26 @@ const ImmunizationRecord: React.FC = () => {
     }
   };
 
+  const resetData = () => {
+    window.location.reload();
+  };
+
+  const [filterVisible, setFilterVisible] = useState(false);
+  const filterRef = React.useRef<HTMLDivElement | null>(null);
+
+  const handleFilterToggle = () => {
+    setFilterVisible((prev) => {
+      if (prev) {
+        resetData();
+      }
+      return !prev;
+    });
+  };
+
   return (
-    <div className='h-full' onClick={() => handleSort(null)}>
+    <div className="h-full" onClick={() => handleSort(null)}>
       <div className="h-[10%] pt-[1rem] px-[1.5rem]">
-        <div className='w-full flex flex-row items-center justify-between gap-4'>
+        <div className="w-full flex flex-row items-center justify-between gap-4">
           <div className="w-full">
             <input
               type="text"
@@ -172,19 +200,22 @@ const ImmunizationRecord: React.FC = () => {
               alt="Nutritional Status"
               width={30}
               height={50}
-              onClick={() => setIsFilterDropdownOpen(!isFilterDropdownOpen)}
+              onClick={handleFilterToggle}
             />
             <Image
               src="/svg/report.svg"
               alt="Nutritional Status"
               width={30}
               height={50}
-              onClick={() => router.push('/main/health/immuniReport')}
+              onClick={() => router.push("/main/health/immuniReport")}
             />
           </button>
         </div>
-        {isFilterDropdownOpen && (
-          <div className="absolute right-[2rem] mt-[1%] bg-white border border-gray-300 rounded-md shadow-lg z-10">
+        {filterVisible && (
+          <div
+            className="absolute right-[2rem] mt-[1%] bg-white border border-gray-300 rounded-md shadow-lg z-10"
+            ref={filterRef}
+          >
             <ul className="py-1">
               <li
                 className="px-4 py-2 hover:bg-gray-100 cursor-pointer"
@@ -221,7 +252,9 @@ const ImmunizationRecord: React.FC = () => {
                       </li>
                       <li
                         className="px-4 py-2 hover:bg-gray-100 cursor-pointer"
-                        onClick={() => handleFilterClick("doses", "Second dose")}
+                        onClick={() =>
+                          handleFilterClick("doses", "Second dose")
+                        }
                       >
                         Second dose
                       </li>
@@ -233,7 +266,9 @@ const ImmunizationRecord: React.FC = () => {
                       </li>
                       <li
                         className="px-4 py-2 hover:bg-gray-100 cursor-pointer"
-                        onClick={() => handleFilterClick("doses", "Fourth dose")}
+                        onClick={() =>
+                          handleFilterClick("doses", "Fourth dose")
+                        }
                       >
                         Fourth dose
                       </li>
@@ -264,14 +299,19 @@ const ImmunizationRecord: React.FC = () => {
                     <ul className="py-1">
                       <li
                         className="px-4 py-2 hover:bg-gray-100 cursor-pointer"
-                        onClick={() => handleFilterClick("vaccineType", "BCG Vaccine")}
+                        onClick={() =>
+                          handleFilterClick("vaccineType", "BCG Vaccine")
+                        }
                       >
                         BCG Vaccine
                       </li>
                       <li
                         className="px-4 py-2 hover:bg-gray-100 cursor-pointer"
                         onClick={() =>
-                          handleFilterClick("vaccineType", "Hepatitis B Vaccine")
+                          handleFilterClick(
+                            "vaccineType",
+                            "Hepatitis B Vaccine"
+                          )
                         }
                       >
                         Hepatitis B Vaccine
@@ -290,7 +330,10 @@ const ImmunizationRecord: React.FC = () => {
                       <li
                         className="px-4 py-2 hover:bg-gray-100 cursor-pointer"
                         onClick={() =>
-                          handleFilterClick("vaccineType", "Inactivated Polio Vaccine (IPV)")
+                          handleFilterClick(
+                            "vaccineType",
+                            "Inactivated Polio Vaccine (IPV)"
+                          )
                         }
                       >
                         Inactivated Polio Vaccine (IPV)
@@ -319,25 +362,33 @@ const ImmunizationRecord: React.FC = () => {
                       </li>
                       <li
                         className="px-4 py-2 hover:bg-gray-100 cursor-pointer"
-                        onClick={() => handleFilterClick("vaccineType", "Vitamin A")}
+                        onClick={() =>
+                          handleFilterClick("vaccineType", "Vitamin A")
+                        }
                       >
                         Vitamin A
                       </li>
                       <li
                         className="px-4 py-2 hover:bg-gray-100 cursor-pointer"
-                        onClick={() => handleFilterClick("vaccineType", "Deworming")}
+                        onClick={() =>
+                          handleFilterClick("vaccineType", "Deworming")
+                        }
                       >
                         Deworming
                       </li>
                       <li
                         className="px-4 py-2 hover:bg-gray-100 cursor-pointer"
-                        onClick={() => handleFilterClick("vaccineType", "Dental Check-up")}
+                        onClick={() =>
+                          handleFilterClick("vaccineType", "Dental Check-up")
+                        }
                       >
                         Dental Check-up
                       </li>
                       <li
                         className="px-4 py-2 hover:bg-gray-100 cursor-pointer"
-                        onClick={() => handleFilterClick("vaccineType", "Others")}
+                        onClick={() =>
+                          handleFilterClick("vaccineType", "Others")
+                        }
                       >
                         Others
                       </li>
@@ -351,11 +402,16 @@ const ImmunizationRecord: React.FC = () => {
       </div>
 
       <div className="w-full h-[90%]">
-        <div className='h-[90%]' onClick={(e) => e.stopPropagation()}>
+        <div className="h-[90%]" onClick={(e) => e.stopPropagation()}>
           <ImmunizationTable
             immunizations={filteredAndSortedImmunizations}
             onSort={handleSort}
-            sortConfig={sortConfig as { key: keyof Immunization; direction: string } | null}
+            sortConfig={
+              sortConfig as {
+                key: keyof Immunization;
+                direction: string;
+              } | null
+            }
             onViewDetails={handleViewDetails}
             loading={loading}
           />
@@ -372,60 +428,114 @@ const ImmunizationRecord: React.FC = () => {
             >
               &times;
             </button>
-            <h2 className="text-3xl font-bold text-center mb-6 text-gray-800">Child Immunization Record</h2>
+            <h2 className="text-3xl font-bold text-center mb-6 text-gray-800">
+              Child Immunization Record
+            </h2>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
               <div className="col-span-1">
                 <p className="font-semibold text-gray-600">Child's Name:</p>
-                <span className="block text-gray-800">{selectedImmunization.full_name || ''}</span>
-                <p className="font-semibold text-gray-600 mt-4">Date of Birth:</p>
-                <span className="block text-gray-800">{formatDate(selectedImmunization.birthdate) || ''}</span>
+                <span className="block text-gray-800">
+                  {selectedImmunization.full_name || ""}
+                </span>
+                <p className="font-semibold text-gray-600 mt-4">
+                  Date of Birth:
+                </p>
+                <span className="block text-gray-800">
+                  {formatDate(selectedImmunization.birthdate) || ""}
+                </span>
                 <p className="font-semibold text-gray-600 mt-4">Address:</p>
-                <span className="block text-gray-800">{selectedImmunization.address || ''}</span>
+                <span className="block text-gray-800">
+                  {selectedImmunization.address || ""}
+                </span>
               </div>
               <div className="col-span-1">
                 <p className="font-semibold text-gray-600">Mother's Name:</p>
-                <span className="block text-gray-800">{selectedImmunization.mother_name || ''}</span>
-                <p className="font-semibold text-gray-600 mt-4">Father's Name:</p>
-                <span className="block text-gray-800">{selectedImmunization.father_name || ''}</span>
-                <p className="font-semibold text-gray-600 mt-4">Birth Height:</p>
-                <span className="block text-gray-800">{selectedImmunization.height_at_birth || ''}</span>
-                <p className="font-semibold text-gray-600 mt-4">Birth Weight:</p>
-                <span className="block text-gray-800">{selectedImmunization.weight_at_birth || ''}</span>
+                <span className="block text-gray-800">
+                  {selectedImmunization.mother_name || ""}
+                </span>
+                <p className="font-semibold text-gray-600 mt-4">
+                  Father's Name:
+                </p>
+                <span className="block text-gray-800">
+                  {selectedImmunization.father_name || ""}
+                </span>
+                <p className="font-semibold text-gray-600 mt-4">
+                  Birth Height:
+                </p>
+                <span className="block text-gray-800">
+                  {selectedImmunization.height_at_birth || ""}
+                </span>
+                <p className="font-semibold text-gray-600 mt-4">
+                  Birth Weight:
+                </p>
+                <span className="block text-gray-800">
+                  {selectedImmunization.weight_at_birth || ""}
+                </span>
               </div>
               <div className="col-span-1">
                 <p className="font-semibold text-gray-600">Sex:</p>
-                <span className="block text-gray-800">{selectedImmunization.sex || ''}</span>
-                <p className="font-semibold text-gray-600 mt-4">Health Center:</p>
-                <span className="block text-gray-800">{selectedImmunization.health_center || ''}</span>
+                <span className="block text-gray-800">
+                  {selectedImmunization.sex || ""}
+                </span>
+                <p className="font-semibold text-gray-600 mt-4">
+                  Health Center:
+                </p>
+                <span className="block text-gray-800">
+                  {selectedImmunization.health_center || ""}
+                </span>
                 <p className="font-semibold text-gray-600 mt-4">Barangay:</p>
-                <span className="block text-gray-800">{selectedImmunization.barangay || ''}</span>
-                <p className="font-semibold text-gray-600 mt-4">Family Number:</p>
-                <span className="block text-gray-800">{selectedImmunization.household_number || ''}</span>
+                <span className="block text-gray-800">
+                  {selectedImmunization.barangay || ""}
+                </span>
+                <p className="font-semibold text-gray-600 mt-4">
+                  Family Number:
+                </p>
+                <span className="block text-gray-800">
+                  {selectedImmunization.household_number || ""}
+                </span>
               </div>
             </div>
             <table className="w-full mt-8 border border-gray-300 rounded-lg border-collapse">
               <thead>
                 <tr className="bg-gray-100">
-                  <th className="border border-gray-300 p-4 text-left">Vaccine</th>
-                  <th className="border border-gray-300 p-4 text-left">Doses</th>
-                  <th className="border border-gray-300 p-4 text-left">Vaccination Date</th>
-                  <th className="border border-gray-300 p-4 text-left">Remarks</th>
+                  <th className="border border-gray-300 p-4 text-left">
+                    Vaccine
+                  </th>
+                  <th className="border border-gray-300 p-4 text-left">
+                    Doses
+                  </th>
+                  <th className="border border-gray-300 p-4 text-left">
+                    Vaccination Date
+                  </th>
+                  <th className="border border-gray-300 p-4 text-left">
+                    Remarks
+                  </th>
                 </tr>
               </thead>
               <tbody>
                 <tr className="hover:bg-gray-50 transition-colors">
-                  <td className="border border-gray-300 p-4">{selectedImmunization.vaccine_type || ''}</td>
                   <td className="border border-gray-300 p-4">
-                    {selectedImmunization.doses ? selectedImmunization.doses.toString() : ''}
+                    {selectedImmunization.vaccine_type || ""}
                   </td>
                   <td className="border border-gray-300 p-4">
-                    {selectedImmunization.date_vaccinated ? formatDate(selectedImmunization.date_vaccinated.toString()) : ''}
+                    {selectedImmunization.doses
+                      ? selectedImmunization.doses.toString()
+                      : ""}
                   </td>
-                  <td className="border border-gray-300 p-4">{selectedImmunization.remarks || ''}</td>
+                  <td className="border border-gray-300 p-4">
+                    {selectedImmunization.date_vaccinated
+                      ? formatDate(
+                          selectedImmunization.date_vaccinated.toString()
+                        )
+                      : ""}
+                  </td>
+                  <td className="border border-gray-300 p-4">
+                    {selectedImmunization.remarks || ""}
+                  </td>
                 </tr>
               </tbody>
             </table>
-            <div className='flex justify-center mt-8'>
+            <div className="flex justify-center mt-8">
               <button
                 className="bg-[#007F73] text-white px-8 py-3 rounded-lg shadow-md hover:bg-[#005f57] transition-colors"
                 onClick={() => setIsViewModalOpen(false)}
@@ -441,4 +551,3 @@ const ImmunizationRecord: React.FC = () => {
 };
 
 export default ImmunizationRecord;
-
