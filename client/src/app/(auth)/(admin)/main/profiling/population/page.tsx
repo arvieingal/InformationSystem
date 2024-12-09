@@ -244,14 +244,12 @@ export default function page() {
     scales: {
       x: {
         beginAtZero: true,
-        min: 0,
-        max: 500,
+        min: 1,
+        max: 300,
         ticks: {
           stepSize: 10,
           callback: function (value: number | string) {
-            const maxDataValue = ageData.datasets.length > 0 ? Math.max(...ageData.datasets[0].data) + 10 : 100;
-            const scaleValues = Array.from({ length: Math.ceil(maxDataValue / 10) }, (_, i) => i * 10);
-            return scaleValues.includes(Number(value)) ? value : null;
+            return Number(value) % 10 === 0 ? value : null;
           },
           font: {
             size: 10,
@@ -285,9 +283,7 @@ export default function page() {
             );
 
             const total = data.reduce((acc, curr) => acc + curr, 0);
-
             const value = context.raw as number;
-
             const percentage = ((value / total) * 100).toFixed(2);
 
             return `${value} (${percentage}%)`;
@@ -300,11 +296,7 @@ export default function page() {
         borderWidth: 1,
       },
       datalabels: {
-        color: "black",
-        font: {
-          weight: "bold",
-          size: 12,
-        },
+        display: false, // Disable labels inside the bars
       },
       legend: {
         display: false,

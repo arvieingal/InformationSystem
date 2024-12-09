@@ -14,7 +14,6 @@ import {
   ChartOptions,
   ArcElement,
 } from "chart.js";
-import ChartDataLabels from "chartjs-plugin-datalabels";
 import api from "@/lib/axios";
 
 ChartJS.register(
@@ -25,7 +24,6 @@ ChartJS.register(
   Tooltip,
   Legend,
   ArcElement,
-  ChartDataLabels
 );
 
 type PurokData = {
@@ -172,15 +170,18 @@ const Sector = () => {
       legend: {
         display: true,
       },
-      datalabels: {
-        color: "black",
-        font: {
-          weight: "bold",
-          size: 12,
-        },
-      },
       tooltip: {
         enabled: true,
+        callbacks: {
+          label: function (context) {
+            const dataset = context.dataset;
+            const data = dataset.data as number[];
+            const value = context.raw as number;
+            const total = data.reduce((acc, val) => acc + val, 0);
+            const percentage = ((value / total) * 100).toFixed(2);
+            return `${context.label}: ${value} (${percentage}%)`;
+          },
+        },
       },
     },
     layout: {
@@ -214,11 +215,10 @@ const Sector = () => {
                   {purokData.map((purok) => (
                     <tr
                       key={purok.purok_id}
-                      className={`cursor-pointer ${
-                        selectedPurokId === purok.purok_id
-                          ? "bg-[#D1E3E0] border border-[#007F73]"
-                          : "bg-white hover:bg-[#D1E3E0] hover:border hover:border-[#007F73]"
-                      }`}
+                      className={`cursor-pointer ${selectedPurokId === purok.purok_id
+                        ? "bg-[#D1E3E0] border border-[#007F73]"
+                        : "bg-white hover:bg-[#D1E3E0] hover:border hover:border-[#007F73]"
+                        }`}
                       onClick={() => handleRowClick(purok)}
                     >
                       <td className="p-2 text-center">{purok.purok_id}</td>

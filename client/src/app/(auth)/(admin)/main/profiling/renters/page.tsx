@@ -12,6 +12,7 @@ import { SubmitHandler, useForm } from "react-hook-form";
 import { useSession } from "next-auth/react";
 import debounce from "lodash.debounce";
 import SweetAlert from "@/components/SweetAlert";
+import { formatDate } from "@/components/formatDate";
 
 const Renters = () => {
   const router = useRouter();
@@ -504,85 +505,105 @@ const Renters = () => {
                     Family Name
                     {!isInfoModal && <span className="text-red-500">*</span>}
                   </label>
-                  <input
-                    type="text"
-                    className="border-[#969696] border-[1px] rounded-[5px] py-1 px-2"
-                    {...register("family_name", {
-                      validate: (value) =>
-                        !isInfoModal && !value && !renterData.family_name
-                          ? "This field is required"
-                          : true,
-                    })}
-                    value={renterData.family_name || ""}
-                    onChange={handleChange}
-                    disabled={isInfoModal}
-                  />
+                  {isInfoModal ? (
+                    <span className="font-semibold text-[18px]">{renterData.family_name || "N/A"}</span>
+                  ) : (
+                    <input
+                      type="text"
+                      className="border-[#969696] border-[1px] rounded-[5px] py-1 px-2"
+                      {...register("family_name", {
+                        validate: (value) =>
+                          !isInfoModal && !value && !renterData.family_name
+                            ? "This field is required"
+                            : true,
+                      })}
+                      value={renterData.family_name || ""}
+                      onChange={handleChange}
+                      disabled={isInfoModal}
+                    />
+                  )}
                 </div>
                 <div className="flex flex-col">
                   <label htmlFor="">Middle Name</label>
-                  <input
-                    type="text"
-                    className="border-[#969696] border-[1px] rounded-[5px] py-1 px-2"
-                    {...register("middle_name", { required: false })}
-                    value={renterData.middle_name || ""}
-                    onChange={handleChange}
-                    disabled={isInfoModal}
-                  />
+                  {isInfoModal ? (
+                    <span className="font-semibold text-[18px]">{renterData.middle_name || "N/A"}</span>
+                  ) : (
+                    <input
+                      type="text"
+                      className="border-[#969696] border-[1px] rounded-[5px] py-1 px-2"
+                      {...register("middle_name", { required: false })}
+                      value={renterData.middle_name || ""}
+                      onChange={handleChange}
+                      disabled={isInfoModal}
+                    />
+                  )}
                 </div>
                 <div className="flex flex-col">
                   <label htmlFor="">
                     First Name
                     {!isInfoModal && <span className="text-red-500">*</span>}
                   </label>
-                  <input
-                    type="text"
-                    className="border-[#969696] border-[1px] rounded-[5px] py-1 px-2"
-                    {...register("given_name", {
-                      validate: (value) =>
-                        !value && !renterData.given_name
-                          ? "This field is required"
-                          : true, // Validate only if there's no existing data
-                    })}
-                    value={renterData.given_name || ""}
-                    onChange={handleChange}
-                    disabled={isInfoModal}
-                  />
+                  {isInfoModal ? (
+                    <span className="font-semibold text-[18px]">{renterData.given_name || "N/A"}</span>
+                  ) : (
+                    <input
+                      type="text"
+                      className="border-[#969696] border-[1px] rounded-[5px] py-1 px-2"
+                      {...register("given_name", {
+                        validate: (value) =>
+                          !value && !renterData.given_name
+                            ? "This field is required"
+                            : true, // Validate only if there's no existing data
+                      })}
+                      value={renterData.given_name || ""}
+                      onChange={handleChange}
+                      disabled={isInfoModal}
+                    />
+                  )}
                 </div>
                 <div className="flex flex-col">
                   <label htmlFor="">Suffix</label>
-                  <input
-                    type="text"
-                    className="border-[#969696] border-[1px] rounded-[5px] py-1 px-2"
-                    {...register("extension", { required: false })}
-                    value={renterData.extension || ""}
-                    onChange={handleChange}
-                    disabled={isInfoModal}
-                  />
+                  {isInfoModal ? (
+                    <span className="font-semibold text-[18px]">{renterData.extension || "N/A"}</span>
+                  ) : (
+                    <input
+                      type="text"
+                      className="border-[#969696] border-[1px] rounded-[5px] py-1 px-2"
+                      {...register("extension", { required: false })}
+                      value={renterData.extension || ""}
+                      onChange={handleChange}
+                      disabled={isInfoModal}
+                    />
+                  )}
                 </div>
                 <div className="flex flex-col">
                   <label htmlFor="">
                     Rent Owner
                     {!isInfoModal && <span className="text-red-500">*</span>}
                   </label>
-                  <select
-                    className="border-[#969696] border-[1px] rounded-[5px] py-1 px-2"
-                    {...register("rent_number", {
-                      validate: (value) =>
-                        !value && !renterData.rent_number
-                          ? "This field is required"
-                          : true, // Ensure validation only when the field is empty
-                    })}
-                    value={renterData.rent_number || ""}
-                    onChange={handleChange}
-                    disabled={isInfoModal}
-                  >
-                    <option value=""></option>
-                    {rentOwner.map((owner) => (
-                      <option key={owner.rent_number} value={owner.rent_number}>
-                        {owner.rent_owner}
-                      </option>
-                    ))}
-                  </select>
+                  {isInfoModal ? (
+                    <span className="font-semibold text-[18px]">{rentOwner.find((owner) => owner.rent_number === renterData.rent_number)?.rent_owner || "N/A"}</span>
+                  ) : (
+                    <select
+                      className="border-[#969696] border-[1px] rounded-[5px] py-1 px-2"
+                      {...register("rent_number", {
+                        validate: (value) =>
+                          !value && !renterData.rent_number
+                            ? "This field is required"
+                            : true, // Ensure validation only when the field is empty
+                      })}
+                      value={renterData.rent_number || ""}
+                      onChange={handleChange}
+                      disabled={isInfoModal}
+                    >
+                      <option value=""></option>
+                      {rentOwner.map((owner) => (
+                        <option key={owner.rent_number} value={owner.rent_number}>
+                          {owner.rent_owner}
+                        </option>
+                      ))}
+                    </select>
+                  )}
                 </div>
                 <div className="flex flex-col">
                   <label htmlFor="">
@@ -591,7 +612,7 @@ const Renters = () => {
                   </label>
                   <div>
                     {isInfoModal ? (
-                      <span>{renterData.gender || "N/A"}</span>
+                      <span className="font-semibold text-[18px]">{renterData.gender || "N/A"}</span>
                     ) : (
                       <div className="flex items-center">
                         <input
@@ -633,82 +654,98 @@ const Renters = () => {
                     Civil Status
                     {!isInfoModal && <span className="text-red-500">*</span>}
                   </label>
-                  <select
-                    className="border-[#969696] border-[1px] rounded-[5px] py-1 px-2"
-                    {...register("civil_status", {
-                      validate: (value) =>
-                        !value && !renterData.civil_status
-                          ? "This field is required"
-                          : true, // Ensure validation only when the field is empty
-                    })}
-                    value={renterData.civil_status || ""}
-                    onChange={handleChange}
-                    disabled={isInfoModal}
-                  >
-                    <option value=""></option>
-                    <option value="Married">Married</option>
-                    <option value="Separated">Separated</option>
-                    <option value="Single">Single</option>
-                    <option value="Widowed">Widowed</option>
-                    <option value="Divorced">Divorced</option>
-                  </select>
+                  {isInfoModal ? (
+                    <span className="font-semibold text-[18px]">{renterData.civil_status || "N/A"}</span>
+                  ) : (
+                    <select
+                      className="border-[#969696] border-[1px] rounded-[5px] py-1 px-2"
+                      {...register("civil_status", {
+                        validate: (value) =>
+                          !value && !renterData.civil_status
+                            ? "This field is required"
+                            : true, // Ensure validation only when the field is empty
+                      })}
+                      value={renterData.civil_status || ""}
+                      onChange={handleChange}
+                      disabled={isInfoModal}
+                    >
+                      <option value=""></option>
+                      <option value="Married">Married</option>
+                      <option value="Separated">Separated</option>
+                      <option value="Single">Single</option>
+                      <option value="Widowed">Widowed</option>
+                      <option value="Divorced">Divorced</option>
+                    </select>
+                  )}
                 </div>
                 <div className="flex flex-col">
                   <label htmlFor="">
                     Birthdate
                     {!isInfoModal && <span className="text-red-500">*</span>}
                   </label>
-                  <input
-                    type="date"
-                    className="border-[#969696] border-[1px] rounded-[5px] py-1 px-2"
-                    {...register("birthdate", {
-                      validate: (value) =>
-                        !value && !renterData.birthdate
-                          ? "This field is required"
-                          : true, // Ensure validation only when the field is empty
-                    })}
-                    value={renterData.birthdate || ""}
-                    onChange={handleChange}
-                    disabled={isInfoModal}
-                  />
+                  {isInfoModal ? (
+                    <span className="font-semibold text-[18px]">{formatDate(renterData.birthdate) || "N/A"}</span>
+                  ) : (
+                    <input
+                      type="date"
+                      className="border-[#969696] border-[1px] rounded-[5px] py-1 px-2"
+                      {...register("birthdate", {
+                        validate: (value) =>
+                          !value && !renterData.birthdate
+                            ? "This field is required"
+                            : true, // Ensure validation only when the field is empty
+                      })}
+                      value={renterData.birthdate || ""}
+                      onChange={handleChange}
+                      disabled={isInfoModal}
+                    />
+                  )}
                 </div>
                 <div className="flex flex-col">
                   <label htmlFor="">
                     Months or Years of Stay
                     {!isInfoModal && <span className="text-red-500">*</span>}
                   </label>
-                  <input
-                    type="text"
-                    className="border-[#969696] border-[1px] rounded-[5px] py-1 px-2"
-                    {...register("months_year_of_stay", {
-                      validate: (value) =>
-                        !value && !renterData.months_year_of_stay
-                          ? "This field is required"
-                          : true, // Ensure validation only when the field is empty
-                    })}
-                    value={renterData.months_year_of_stay || ""}
-                    onChange={handleChange}
-                    disabled={isInfoModal}
-                  />
+                  {isInfoModal ? (
+                    <span className="font-semibold text-[18px]">{renterData.months_year_of_stay || "N/A"}</span>
+                  ) : (
+                    <input
+                      type="text"
+                      className="border-[#969696] border-[1px] rounded-[5px] py-1 px-2"
+                      {...register("months_year_of_stay", {
+                        validate: (value) =>
+                          !value && !renterData.months_year_of_stay
+                            ? "This field is required"
+                            : true, // Ensure validation only when the field is empty
+                      })}
+                      value={renterData.months_year_of_stay || ""}
+                      onChange={handleChange}
+                      disabled={isInfoModal}
+                    />
+                  )}
                 </div>
                 <div className="flex flex-col">
                   <label htmlFor="">
                     Work
                     {!isInfoModal && <span className="text-red-500">*</span>}
                   </label>
-                  <input
-                    type="text"
-                    className="border-[#969696] border-[1px] rounded-[5px] py-1 px-2"
-                    {...register("work", {
-                      validate: (value) =>
-                        !value && !renterData.work
-                          ? "This field is required"
-                          : true, // Ensure validation only when the field is empty
-                    })}
-                    value={renterData.work || ""}
-                    onChange={handleChange}
-                    disabled={isInfoModal}
-                  />
+                  {isInfoModal ? (
+                    <span className="font-semibold text-[18px]">{renterData.work || "N/A"}</span>
+                  ) : (
+                    <input
+                      type="text"
+                      className="border-[#969696] border-[1px] rounded-[5px] py-1 px-2"
+                      {...register("work", {
+                        validate: (value) =>
+                          !value && !renterData.work
+                            ? "This field is required"
+                            : true, // Ensure validation only when the field is empty
+                      })}
+                      value={renterData.work || ""}
+                      onChange={handleChange}
+                      disabled={isInfoModal}
+                    />
+                  )}
                 </div>
               </div>
               {isInfoModal ? null : (
