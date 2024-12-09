@@ -10,7 +10,8 @@ const pool = mysql.createPool({
   connectionLimit: 10,
   queueLimit: 0,
   decimalNumbers: true,
-  dateStrings: true
+  dateStrings: true,
+  port: process.env.PORT
 });
 
 module.exports = pool;

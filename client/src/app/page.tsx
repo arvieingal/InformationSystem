@@ -9,9 +9,7 @@ const Login = () => {
   const router = useRouter();
 
   const [username, setusername] = useState<string>("");
-  const [password, setPassword] = useState<string>(() => {
-    return localStorage.getItem("rememberedPassword") || "";
-  });
+  const [password, setPassword] = useState<string>("");
   const [isEmailModalOpen, setIsEmailModalOpen] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [submitted, setSubmitted] = useState<boolean>(false);
@@ -28,6 +26,10 @@ const Login = () => {
 
   useEffect(() => {
     setIsCheckboxChecked(!!localStorage.getItem("rememberedPassword"));
+  }, []);
+
+  useEffect(() => {
+    setPassword(localStorage.getItem("rememberedPassword") || "");
   }, []);
 
   const handleEmailLogin = async (e: React.FormEvent) => {

@@ -208,12 +208,12 @@ export default function page() {
     scales: {
       x: {
         beginAtZero: true,
-        min: 0,
-        max: 700,
+        max: ageData.datasets.length > 0 ? Math.max(...ageData.datasets[0].data) + 10 : 100,
         ticks: {
-          stepSize: 100,
+          stepSize: 10,
           callback: function (value: number | string) {
-            const scaleValues = [100, 200, 300, 400, 500, 600, 700];
+            const maxDataValue = ageData.datasets.length > 0 ? Math.max(...ageData.datasets[0].data) + 10 : 100;
+            const scaleValues = Array.from({ length: Math.ceil(maxDataValue / 10) }, (_, i) => i * 10);
             return scaleValues.includes(Number(value)) ? value : null;
           },
           font: {
@@ -241,7 +241,7 @@ export default function page() {
     },
     plugins: {
       datalabels: {
-        color: 'black',
+        color: '',
         font: {
           weight: 'bold',
           size: 12,
@@ -250,6 +250,15 @@ export default function page() {
       legend: {
         display: false,
       },
+      tooltip: {
+        callbacks: {
+          label: function (context) {
+            const label = context.dataset.label || '';
+            const value = context.raw;
+            return `${label}: ${value}`;
+          }
+        }
+      }
     },
   };
 
@@ -258,7 +267,7 @@ export default function page() {
     cutout: "50%",
     plugins: {
       datalabels: {
-        color: 'black',
+        color: '',
         font: {
           weight: 'bold',
           size: 12,
@@ -267,6 +276,15 @@ export default function page() {
       legend: {
         display: false,
       },
+      tooltip: {
+        callbacks: {
+          label: function (context) {
+            const label = context.dataset.label || '';
+            const value = context.raw;
+            return `${label}: ${value}`;
+          }
+        }
+      }
     },
   };
 

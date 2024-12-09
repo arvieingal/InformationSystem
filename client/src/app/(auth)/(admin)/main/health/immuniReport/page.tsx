@@ -1,16 +1,15 @@
 'use client'
 import React, { useState, useEffect } from 'react';
-import ImmunizationTable from '@/components/ImmunizationTable';
 import { jsPDF } from "jspdf";
 import html2canvas from "html2canvas";
-interface Immunization {
-  id: string;
-  name: string;
-  date: string;
+interface VaccinatedCount {
+  number_of_vaccinated: string;
+  vaccine_type: string;
+
 }
 
 const ImmuniReport: React.FC = () => {
-  const [vaccinatedCounts, setVaccinatedCounts] = useState<any[]>([]);
+  const [vaccinatedCounts, setVaccinatedCounts] = useState<VaccinatedCount[]>([]);
 
   // Fetch the vaccinated count data
   useEffect(() => {
@@ -19,6 +18,7 @@ const ImmuniReport: React.FC = () => {
         const response = await fetch("http://localhost:3001/api/vaccinated-count");
         const data = await response.json();
         setVaccinatedCounts(data);
+        
       } catch (error) {
         console.error("Error fetching vaccinated count:", error);
       }
@@ -26,6 +26,7 @@ const ImmuniReport: React.FC = () => {
 
     fetchVaccinatedCount();
   }, []);
+
 
   const exportToPDF = () => {
     const input = document.getElementById("immuni-report");
@@ -183,6 +184,3 @@ const ImmuniReport: React.FC = () => {
 };
 
 export default ImmuniReport;
-function fetchImmunizationData() {
-  throw new Error('Function not implemented.');
-}
