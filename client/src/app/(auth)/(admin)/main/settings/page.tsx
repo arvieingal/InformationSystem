@@ -41,7 +41,9 @@ const Settings: React.FC = () => {
 
   const fetchUsers = async () => {
     try {
-      const response = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/users`);
+      const response = await fetch(
+        `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/users`
+      );
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`);
       }
@@ -539,7 +541,7 @@ const Modal = ({
               showPassword: !prevState.showPassword,
             }))
           }
-          className="cursor-pointer absolute  right-2 top-1/2 transform -translate-y-1/2"
+          className="cursor-pointer absolute  right-2 top-11 transform -translate-y-1/2"
         />
       </div>
       <div>
@@ -593,7 +595,7 @@ const Modal = ({
           className="w-full mb-2 p-2 border rounded-md outline-none"
         >
           <option value="">Select Role</option>
-          <option value="Admin">Admin</option>
+          {/* <option value="Admin">Admin</option> */}
           <option value="Editor">Editor</option>
           <option value="Viewer">Viewer</option>
         </select>
@@ -765,7 +767,8 @@ const Modal = ({
 
     try {
       const response = await fetch(
-        `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/users/${isUpdateModal ? formData.user_id : ""
+        `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/users/${
+          isUpdateModal ? formData.user_id : ""
         }`,
         {
           method: isUpdateModal ? "PUT" : "POST",
@@ -828,10 +831,10 @@ const Modal = ({
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center">
       <div className="bg-white p-8 w-[50%] rounded-lg shadow-lg relative">
         <button
-          className="absolute top-[-2rem] right-[-12px] text-gray-600 hover:text-gray-900 text-[3rem] transition-transform transform hover:scale-110"
+          className="absolute top-4 right-4 text-gray-600 hover:text-gray-900 text-[3rem] transition-transform transform hover:scale-110"
           onClick={onClose}
         >
-          &times;
+          <Image src={"/svg/x-logo.svg"} alt="close" width={20} height={20} />
         </button>
         <h2 className="text-2xl font-bold mb-4 flex items-center justify-center mt-8 text-gray-800">
           {content}
@@ -839,10 +842,10 @@ const Modal = ({
         {content === "Add User"
           ? renderAddUserForm()
           : content === "Change Password"
-            ? renderChangePasswordForm()
-            : isUpdateModal
-              ? renderUpdateForm()
-              : renderUserList()}
+          ? renderChangePasswordForm()
+          : isUpdateModal
+          ? renderUpdateForm()
+          : renderUserList()}
       </div>
     </div>
   );

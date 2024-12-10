@@ -41,7 +41,7 @@ const Purok = () => {
             <thead className="text-[#6C6C6C] text-center">
               <tr className="sticky top-0 bg-white z-10 shadow-gray-300 shadow-sm">
                 <th className="py-4 font-semibold w-1/4">Purok / Zone Name</th>
-                <th className="py-4 font-semibold w-1/4">Population</th>
+                <th className="py-4 font-semibold w-1/4">Total Population</th>
                 <th className="py-4 font-semibold w-1/4">
                   Total Household Number
                 </th>
