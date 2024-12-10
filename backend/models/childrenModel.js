@@ -12,7 +12,6 @@ const Children = {
   //   }
   // },
 
-
   getAllChildren: async () => {
     try {
       const [rows] = await db.execute(
@@ -36,8 +35,6 @@ const Children = {
       throw error;
     }
   },
-
-  
 
   getChildById: async (childId) => {
     const [rows] = await db.execute(
@@ -85,9 +82,9 @@ const Children = {
       weight_age_Z,
       weight_height_Z,
       nutritional_status,
-      measurement_date
+      measurement_date,
     } = childData;
-  
+
     try {
       await db.execute(
         "UPDATE children SET height_at_birth = ?, weight_at_birth = ?, height_cm = ?, weight_kg = ?, height_age_Z = ?, weight_age_Z = ?, weight_height_Z = ?, nutritional_status = ?, measurement_date = ? WHERE child_id = ?",
@@ -106,7 +103,7 @@ const Children = {
       );
     } catch (err) {
       console.error("Database error:", err);
-      throw err; 
+      throw err;
     }
   },
 
@@ -128,7 +125,7 @@ const Children = {
       FROM children;
     `;
     const [rows] = await db.execute(query);
-    console.log("Query results:", rows); 
+    console.log("Query results:", rows);
     return rows;
   },
 
@@ -142,12 +139,60 @@ const Children = {
       GROUP BY sitio_purok, nutritional_status;
     `;
     const [rows] = await db.execute(query);
-    console.log("Query results:", rows); 
+    console.log("Query results:", rows);
     return rows;
   },
+
+  countNutritionalByPurok: async () => {
+    try {
+      const [rows] = await db.execute(
+        `SELECT 
+    purok_table.purok_id,
+    purok_table.purok_name,
+    CASE
+        WHEN c.age BETWEEN 0 AND 0.5 THEN '0-6 Months'
+        WHEN c.age > 0.5 AND c.age <= 1 THEN '7-12 Months'
+        WHEN c.age > 1 AND c.age <= 2 THEN '12-24 Months'
+        WHEN c.age > 2 AND c.age <= 2.67 THEN '24-32 Months'
+        WHEN c.age > 2.67 AND c.age <= 4 THEN '32-48 Months'
+        WHEN c.age > 4 AND c.age <= 5 THEN '48-60 Months'
+        WHEN c.age > 5 AND c.age <= 6 THEN '60-72 Months'
+        ELSE 'Other'
+    END AS age_range,
+    COUNT(c.child_id) AS child_count
+FROM 
+    (SELECT 
+         1 AS purok_id, 'Abellana' AS purok_name
+     UNION ALL SELECT 2, 'City Central'
+     UNION ALL SELECT 3, 'Kalinao'
+     UNION ALL SELECT 4, 'Lubi'
+     UNION ALL SELECT 5, 'Mabuhay'
+     UNION ALL SELECT 6, 'Nangka'
+     UNION ALL SELECT 7, 'Regla'
+     UNION ALL SELECT 8, 'San Antonio'
+     UNION ALL SELECT 9, 'San Roque'
+     UNION ALL SELECT 10, 'San Vicente'
+     UNION ALL SELECT 11, 'Sta. Cruz'
+     UNION ALL SELECT 12, 'Sto. Nino 1'
+     UNION ALL SELECT 13, 'Sto. Nino 2'
+     UNION ALL SELECT 14, 'Sto. Nino 3'
+     UNION ALL SELECT 15, 'Zapatera') purok_table
+LEFT JOIN 
+    children c 
+    ON purok_table.purok_name = c.sitio_purok
+GROUP BY 
+    purok_table.purok_id, purok_table.purok_name, age_range
+ORDER BY 
+    purok_table.purok_id, age_range;
+`
+      );
+      return rows;
+      s;
+    } catch (error) {
+      console.error("Error fetching count of children:", error);
+      throw error;
+    }
+  },
 };
-
-
-
 
 module.exports = Children;

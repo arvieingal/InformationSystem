@@ -180,6 +180,25 @@ const childrenController = {
       res.status(500).json({ error: "Internal server error" });
     }
   },
+
+  countNutritionalByPurok: async (req, res) => {
+    try {
+      const childrenCount = await Children.countNutritionalByPurok();
+      if (childrenCount.length > 0) {
+        res.status(200).json(childrenCount);
+      } else {
+        res
+          .status(404)
+          .json({ message: "No childrenCount found in the database" });
+      }
+    } catch (error) {
+      console.error("Error in childrenCount controller:", error);
+      res.status(500).json({
+        message: "Internal server error while retrieving childrenCount",
+        error: error.message,
+      });
+    }
+  },
 };
 
 module.exports = childrenController;

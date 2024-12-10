@@ -37,6 +37,7 @@ const HealthPage = () => {
   const [filteredData, setFilteredData] = useState<Child[]>([]);
   const [purokNames, setPurokNames] = useState<string[]>([]); // To store unique Purok names
   const [selectedPurok, setSelectedPurok] = useState<string>(''); // State for selected purok
+  const [purokData, setPurokData] = useState<number[]>([]);
 
   useEffect(() => {
     // Fetch children data: age, sex, nutritional status, and purok
@@ -146,16 +147,37 @@ const HealthPage = () => {
     );
   };
 
-
-  const getPurokDistribution = (): number[] => {
-    return purokNames.map(() =>
-      Math.round(Math.random() * filteredData.length)
-    ); // Replace with real logic.
+  const getPurokDistribution = async (): Promise<number[]> => {
+    try {
+      const response = await api.get("/api/count-nutritional-by-purok", {
+        params: { age_range: selectedAgeCategory }
+      });
+      if (response.status === 200) {
+        const data = response.data;
+        return purokNames.map(purokName => {
+          const purokData = data.find((item: any) => item.purok_name === purokName && item.age_range === selectedAgeCategory);
+          return purokData ? purokData.child_count : 0;
+        });
+      } else {
+        console.error("Failed to fetch purok distribution data.");
+        return purokNames.map(() => 0);
+      }
+    } catch (error) {
+      console.error("Error fetching purok distribution data:", error);
+      return purokNames.map(() => 0);
+    }
   };
 
+  useEffect(() => {
+    const fetchPurokDistribution = async () => {
+      const distributionData = await getPurokDistribution();
+      setPurokData(distributionData);
+    };
+
+    fetchPurokDistribution();
+  }, [selectedAgeCategory, purokNames]);
+
   const genderDistributionData = getGenderDistribution();
-  // const sectorData = getSectorDistribution();
-  const purokData = getPurokDistribution();
 
   const handlePurokChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
     setSelectedPurok(event.target.value);
