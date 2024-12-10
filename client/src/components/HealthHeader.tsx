@@ -5,7 +5,6 @@ import { useRouter, usePathname } from "next/navigation";
 import SweetAlert from "./SweetAlert";
 import { signOut, useSession } from "next-auth/react";
 
-
 const HealthHeader = () => {
   const [showDropdown, setShowDropdown] = useState(false);
   const [showPasswordModal, setShowPasswordModal] = useState(false);
@@ -14,11 +13,11 @@ const HealthHeader = () => {
   const { data: session, status } = useSession({
     required: true,
     onUnauthenticated() {
-      router.push('/');
+      router.push("/");
     },
   });
 
-  const isAdmin = session?.user?.role === 'Admin';
+  const isAdmin = session?.user?.role === "Admin";
 
   const toggleDropdown = () => {
     setShowDropdown(!showDropdown);
@@ -29,7 +28,9 @@ const HealthHeader = () => {
   };
 
   const handleSignOut = async () => {
-    const confirmed = await SweetAlert.showConfirm("Are you sure you want to sign out?");
+    const confirmed = await SweetAlert.showConfirm(
+      "Are you sure you want to sign out?"
+    );
     if (confirmed) {
       await signOut();
       router.push("/");
@@ -42,6 +43,10 @@ const HealthHeader = () => {
       return "Nutritional Status";
     } else if (path.includes("immunization_record")) {
       return "Immunization Record";
+    } else if (path.includes("nutritional_status_history")) {
+      return "Nutritional Status History";
+    } else if (path.includes("immunization_record_history")) {
+      return "Immunization Record History";
     }
     return "Health Dashboard";
   };
@@ -64,7 +69,13 @@ const HealthHeader = () => {
             onClick={toggleDropdown}
           >
             <p>{session?.user?.username}</p>
-            <Image src="/svg/down-arrow.svg" width={20} height={20} alt="down-arrow" className="w-3 ml-2 text-white" />
+            <Image
+              src="/svg/down-arrow.svg"
+              width={20}
+              height={20}
+              alt="down-arrow"
+              className="w-3 ml-2 text-white"
+            />
           </button>
           {showDropdown && (
             <div className="bg-white z-50 absolute top-full mt-2 right-[-2rem] rounded-lg shadow-lg p-4 w-48">
