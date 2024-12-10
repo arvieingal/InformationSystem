@@ -338,7 +338,10 @@ const Renters = () => {
                     )}
                   </th>
                 ))}
-                <th className="py-1 font-semibold px-5"></th>
+                {(session?.user.role === "Admin" ||
+                  session?.user.role === "Editor") && (
+                  <th className="py-1 font-semibold px-5"></th>
+                )}
               </tr>
             </thead>
             {loading ? (

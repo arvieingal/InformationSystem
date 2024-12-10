@@ -133,7 +133,8 @@ const ProfilingSearchBar = ({
           </div>
         )}
         <div className="flex bg-white h-full items-center justify-center w-[4%] rounded-r-[5px]">
-          {session.data?.user?.role === "Admin" && (
+          {(session.data?.user?.role === "Admin" ||
+            session.data?.user.role === "Editor") && (
             <button onClick={() => setAddResidentModal()}>
               <Image
                 src={"/svg/add-household.svg"}
