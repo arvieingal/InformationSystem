@@ -96,7 +96,7 @@ const ProfilingSearchBar = ({
                 className="px-4 py-2 hover:bg-gray-100 cursor-pointer"
                 onClick={() => handleFilterClick("archivedData")}
               >
-                Filter by Archived
+                Show by Archived
               </li>
               {isResident && (
                 <li
