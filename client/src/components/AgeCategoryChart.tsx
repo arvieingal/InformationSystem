@@ -1,16 +1,13 @@
-// components/AgeCategoryChart.tsx
 import { Bar } from 'react-chartjs-2';
 import { Chart, CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend } from 'chart.js';
 
-// Register the necessary components
 Chart.register(CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend);
-// Define a single, unified Child type
 export interface Child {
   id: number;
   name: string;
   age: number;
-  sex?: string; // Optional property if needed
-  vaccine_type?: string; // Optional property if needed
+  sex?: string;
+  vaccine_type?: string;
 }
 
 
@@ -37,18 +34,28 @@ export default function AgeCategoryChart({ ageCategory, data = [] }: AgeCategory
     data.filter((child) => child.vaccine_type === vaccine && child.sex === "Female").length
   );
 
+  const totalData = vaccineTypes.map((vaccine, index) => boysData[index] + girlsData[index]);
+
   const chartData = {
     labels: vaccineTypes,
     datasets: [
       {
         label: "Girls",
         backgroundColor: "rgb(255, 99, 132)",
-        data: girlsData,
+        data: girlsData.map((count, index) => ({
+          x: vaccineTypes[index],
+          y: count,
+          percentage: ((count / totalData[index]) * 100).toFixed(2) + '%'
+        })),
       },
       {
         label: "Boys",
         backgroundColor: "rgb(75, 192, 192)",
-        data: boysData,
+        data: boysData.map((count, index) => ({
+          x: vaccineTypes[index],
+          y: count,
+          percentage: ((count / totalData[index]) * 100).toFixed(2) + '%'
+        })),
       },
     ],
   };
@@ -58,8 +65,18 @@ export default function AgeCategoryChart({ ageCategory, data = [] }: AgeCategory
     maintainAspectRatio: false,
     plugins: {
       legend: {
-        position: "bottom", // Explicitly set to a valid literal value
+        position: "bottom",
       },
+      tooltip: {
+        callbacks: {
+          label: function(context) {
+            const label = context.dataset.label || '';
+            const value = (context.raw as { y: number }).y;
+            const percentage = (context.raw as { percentage: string }).percentage;
+            return `${label}: ${value} (${percentage})`;
+          }
+        }
+      }
     },
   };
 
