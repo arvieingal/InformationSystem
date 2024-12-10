@@ -322,30 +322,30 @@ const HouseholdMembers = ({
             </div>
           </div>
           <div className="bg-white absolute bottom-2 right-0 rounded-[5px] px-4 py-2">
-            {session?.user.role === "Admin" ||
-              (session?.user.role === "Editor" && (
-                <button
-                  onClick={async () => {
-                    const confirm = await SweetAlert.showConfirm(
-                      "Are you sure you want to add a new member?"
-                    );
-                    if (confirm) {
-                      setAddResidentModal(true);
-                    }
-                  }}
-                >
-                  <div className="flex justify-center items-center font-semibold">
-                    <Image
-                      src={"/svg/add-household.svg"}
-                      alt="add-household"
-                      width={100}
-                      height={100}
-                      className="w-5 h-5 mr-3"
-                    />
-                    Add
-                  </div>
-                </button>
-              ))}
+            {(session?.user.role === "Admin" ||
+              session?.user.role === "Editor") && (
+              <button
+                onClick={async () => {
+                  const confirm = await SweetAlert.showConfirm(
+                    "Are you sure you want to add a new member?"
+                  );
+                  if (confirm) {
+                    setAddResidentModal(true);
+                  }
+                }}
+              >
+                <div className="flex justify-center items-center font-semibold">
+                  <Image
+                    src={"/svg/add-household.svg"}
+                    alt="add-household"
+                    width={100}
+                    height={100}
+                    className="w-5 h-5 mr-3"
+                  />
+                  Add
+                </div>
+              </button>
+            )}
           </div>
         </div>
         <div className="bg-white h-[65%] rounded-[10px] overflow-y-auto">
@@ -360,10 +360,10 @@ const HouseholdMembers = ({
                     {item}
                   </th>
                 ))}
-                {session?.user.role === "Admin" ||
-                  (session?.user.role === "Editor" && (
-                    <th className="py-1 font-semibold px-3"></th>
-                  ))}
+                {(session?.user.role === "Admin" ||
+                  session?.user.role === "Editor") && (
+                  <th className="py-1 font-semibold px-3"></th>
+                )}
               </tr>
             </thead>
             {loading ? (

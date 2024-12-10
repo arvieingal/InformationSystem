@@ -395,12 +395,12 @@ const ChildTable: React.FC<TableProps> = ({
                     )}
                   </th>
                 ))}
-                {session?.user.role === "Admin" ||
-                  (session?.user.role === "Editor" && (
-                    <th className="py-4 pr-6 text-left font-semibold text-[16px]">
-                      Option
-                    </th>
-                  ))}
+                {(session?.user.role === "Admin" ||
+                  session?.user.role === "Editor") && (
+                  <th className="py-4 pr-6 text-left font-semibold text-[16px]">
+                    Option
+                  </th>
+                )}
               </tr>
             </thead>
             {loading ? (
